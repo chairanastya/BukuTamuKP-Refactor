@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
 
-class Resepsionis extends Model
+class Resepsionis extends Model implements Authenticatable
 {
+    use AuthenticatableTrait;
+
     protected $table = 'resepsionis';
     protected $primaryKey = 'id_resepsionis';
 
@@ -19,6 +23,22 @@ class Resepsionis extends Model
     protected $hidden = [
         'password_resepsionis',
     ];
+
+    /**
+     * Get the password for the user.
+     */
+    public function getAuthPassword()
+    {
+        return $this->password_resepsionis;
+    }
+
+    /**
+     * Get the column name for the "email" (username).
+     */
+    public function getEmailForPasswordReset()
+    {
+        return $this->email_resepsionis;
+    }
 
     // Relationships
     public function karyawan()

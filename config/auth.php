@@ -40,6 +40,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'resepsionis' => [
+            'driver' => 'session',
+            'provider' => 'resepsionis',
+        ],
     ],
 
     /*
@@ -63,6 +68,11 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
+        ],
+
+        'resepsionis' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Resepsionis::class,
         ],
 
         // 'users' => [
