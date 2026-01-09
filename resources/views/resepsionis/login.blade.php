@@ -21,43 +21,45 @@
         .circle {
             position: absolute;
             border-radius: 50%;
-            opacity: 0.1;
+        }
+
+        .donut {
+            position: absolute;
+            border-radius: 50%;
+            -webkit-mask: radial-gradient(transparent 0, transparent 110px, black 110px);
+            mask: radial-gradient(transparent 0, transparent 110px, black 110px);
         }
 
         .circle-1 {
             width: 400px;
             height: 400px;
-            background: linear-gradient(135deg, #4db8ff, #6ab7b8);
+            background: linear-gradient(180deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%);
             top: -200px;
             left: -100px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
         }
 
         .circle-2 {
             width: 500px;
             height: 500px;
-            background: linear-gradient(135deg, #67b26f, #8fb569);
-            bottom: -250px;
-            right: -150px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            background: linear-gradient(180deg, rgba(247, 178, 24, 0.00) 0%, rgba(247, 178, 24, 0.70) 100%);
+            top: 10px;
+            right: 100px;
         }
 
-        .circle-3 {
+        .donut-1 {
             width: 300px;
             height: 300px;
-            border: 40px solid rgba(255, 255, 255, 0.15);
-            background: transparent;
+            background: linear-gradient(180deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%);
             top: 10%;
             left: 5%;
         }
 
-        .circle-4 {
+        .donut-2 {
             width: 250px;
             height: 250px;
-            border: 35px solid rgba(255, 255, 255, 0.15);
-            background: transparent;
-            bottom: 15%;
-            left: 15%;
+            background: linear-gradient(-45deg, rgba(255, 227, 102, 0.38) 0%, rgba(95, 129, 161, 0.38) 52.4%, rgba(71, 185, 174, 0.38) 100%);
+            bottom: 5%;
+            right: 15%;
         }
 
         /* Dots pattern */
@@ -109,8 +111,8 @@
     <div class="bg-pattern">
         <div class="circle circle-1"></div>
         <div class="circle circle-2"></div>
-        <div class="circle circle-3"></div>
-        <div class="circle circle-4"></div>
+        <div class="donut donut-1"></div>
+        <div class="donut donut-2"></div>
 
         <!-- Dots Pattern Top -->
         <div class="dots-pattern dots-pattern-top">
@@ -136,9 +138,9 @@
 
     <!-- Login Card -->
     <div class="relative flex items-center justify-center min-h-screen px-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
             <!-- Title -->
-            <h1 class="text-3xl font-bold text-center text-blue-900 mb-8">
+            <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-8">
                 Buku Tamu Digital
             </h1>
 
