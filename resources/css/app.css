@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    input:not([type="checkbox"]) {
+        outline: none !important;
+        border: 0 !important;
+        box-shadow: none !important;
+    }
+}
+
+/* Remove default input border and outline
+input {
+    border: none !important;
+    outline: none !important;
+}
+
+input:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+} */

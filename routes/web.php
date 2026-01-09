@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ResepsionisAuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,4 +18,21 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+// Routes untuk Resepsionis
+Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
+    // Login routes (no middleware, manual check in controller)
+    Route::get('/login', [ResepsionisAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [ResepsionisAuthController::class, 'login']);
+
+    // Routes untuk resepsionis yang sudah login
+    Route::middleware('auth:resepsionis')->group(function () {
+        Route::post('/logout', [ResepsionisAuthController::class, 'logout'])->name('logout');
+
+        // Dashboard resepsionis
+        Route::get('/dashboard', function () {
+            return view('resepsionis.login');
+        })->name('dashboard');
+    });
+});
+
+require __DIR__ . '/auth.php';
