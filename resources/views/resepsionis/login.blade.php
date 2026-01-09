@@ -1,15 +1,10 @@
-<!DOCTYPE html>
-<html lang="id">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Login Resepsionis - Buku Tamu Digital</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+@extends('layouts.guest')
+@section('title', 'Login Resepsionis - Buku Tamu Digital')
+@push('styles')
     <style>
         body {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #4a90a4 50%, #67b26f 75%, #8fb569 100%);
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(#0C4777 17.8%, #47B9AE 100%);
             min-height: 100vh;
             position: relative;
             overflow: hidden;
@@ -108,9 +103,8 @@
             margin: 10px;
         }
     </style>
-</head>
-
-<body>
+@endpush
+@section('content')
     <!-- Background Pattern -->
     <div class="bg-pattern">
         <div class="circle circle-1"></div>
@@ -178,7 +172,7 @@
                             <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
                         </svg>
                         <input type="email" name="email" id="email" placeholder="Email" value="{{ old('email') }}"
-                            class="flex-1 outline-none text-gray-700 placeholder-gray-400" required autofocus>
+                            class="flex-1 border-0 outline-none text-gray-700 placeholder-gray-400" required autofocus>
                     </div>
                 </div>
 
@@ -192,7 +186,7 @@
                                 clip-rule="evenodd"></path>
                         </svg>
                         <input type="password" name="password" id="password" placeholder="Password"
-                            class="flex-1 outline-none text-gray-700 placeholder-gray-400" required>
+                            class="flex-1 border-0 outline-none text-gray-700 placeholder-gray-400" required>
                     </div>
                 </div>
 
@@ -221,13 +215,12 @@
         </div>
     </div>
 
-    <!-- JavaScript for Show Password Toggle -->
-    <script>
-        document.getElementById('showPassword').addEventListener('change', function () {
-            const passwordInput = document.getElementById('password');
-            passwordInput.type = this.checked ? 'text' : 'password';
-        });
-    </script>
-</body>
-
-</html>
+    @push('scripts')
+        <script>
+            document.getElementById('showPassword').addEventListener('change', function () {
+                const passwordInput = document.getElementById('password');
+                passwordInput.type = this.checked ? 'text' : 'password';
+            });
+        </script>
+    @endpush
+@endsection
