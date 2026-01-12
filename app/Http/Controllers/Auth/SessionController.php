@@ -1,18 +1,21 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Controller;
+use App\Models\Resepsionis;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Resepsionis;
+use Illuminate\View\View;
 
-class ResepsionisAuthController extends Controller
+class SessionController extends Controller
 {
     /**
-     * Menampilkan halaman form login resepsionis
+     * Display the login view.
      */
-    public function showLoginForm(Request $request)
+    public function create(Request $request): View
     {
         // Logout dulu jika masih ada session login sebelumnya
         if (Auth::guard('resepsionis')->check()) {
@@ -25,11 +28,10 @@ class ResepsionisAuthController extends Controller
     }
 
     /**
-     * Proses login resepsionis
+     * Handle an incoming authentication request.
      */
-    public function login(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        // Validasi input email dan password
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:6',
@@ -40,43 +42,30 @@ class ResepsionisAuthController extends Controller
             'password.min' => 'Password minimal 6 karakter',
         ]);
 
-        // Cari resepsionis berdasarkan email
         $resepsionis = Resepsionis::where('email_resepsionis', $request->email)->first();
 
-        // Cek apakah email ditemukan dan password cocok
         if ($resepsionis && Hash::check($request->password, $resepsionis->password_resepsionis)) {
-            // Login menggunakan guard resepsionis
             Auth::guard('resepsionis')->login($resepsionis, $request->filled('remember'));
-
-            // Regenerate session untuk keamanan (mencegah session fixation)
             $request->session()->regenerate();
 
-            // Redirect ke dashboard dengan pesan sukses
             return redirect()->intended(route('resepsionis.dashboard'))
                 ->with('success', 'Selamat datang, ' . $resepsionis->nama_resepsionis);
         }
 
-        // Jika gagal, kembali ke halaman login dengan error
         return back()->withErrors([
             'email' => 'Email atau password salah',
         ])->onlyInput('email');
     }
 
     /**
-     * Proses logout resepsionis
+     * Destroy an authenticated session.
      */
-    public function logout(Request $request)
+    public function destroy(Request $request): RedirectResponse
     {
-        // Logout dari guard resepsionis
         Auth::guard('resepsionis')->logout();
-
-        // Invalidate session
         $request->session()->invalidate();
-
-        // Regenerate CSRF token
         $request->session()->regenerateToken();
 
-        // Redirect ke halaman login dengan pesan sukses
         return redirect()->route('resepsionis.login')
             ->with('success', 'Anda berhasil logout');
     }

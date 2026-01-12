@@ -13,7 +13,6 @@ class Tamu extends Model
         'email_tamu',
         'instansi_tamu',
         'ktp_public_id',
-        'ktp_url',
     ];
 
     // Relationships

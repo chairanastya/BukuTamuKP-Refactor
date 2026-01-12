@@ -8,6 +8,12 @@
         border: 0 !important;
         box-shadow: none !important;
     }
+
+    textarea {
+        outline: none !important;
+        border: 0 !important;
+        box-shadow: none !important;
+    }
 }
 
 /* Remove default input border and outline
