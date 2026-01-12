@@ -133,6 +133,7 @@
         .karyawan-search-container {
             flex: 1;
             position: relative;
+            height: 50px;
         }
 
         .karyawan-action-buttons {
@@ -144,21 +145,30 @@
         .karyawan-card {
             display: flex;
             align-items: center;
-            padding: 0.5rem;
+            padding: 0 0.75rem;
             background-color: white;
             border: 2px solid #084E8F;
             border-radius: 0.5rem;
             width: 100%;
+            height: 50px;
             box-sizing: border-box;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .karyawan-card:hover {
+            background-color: #f0f9ff;
+            border-color: #0C4777;
         }
 
         .karyawan-card-info {
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 10px;
+            padding: 0.25rem 0;
             gap: 0.125rem;
             min-width: 0;
+            overflow: hidden;
         }
 
         .karyawan-card-name {
@@ -166,12 +176,18 @@
             font-weight: 600;
             font-size: 0.95rem;
             line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .karyawan-card-detail {
             color: #6b7280;
             font-size: 0.8rem;
             line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* Action Buttons */
@@ -204,6 +220,20 @@
         .karyawan-minus-btn svg {
             width: 28px;
             height: 28px;
+        }
+
+        .karyawan-minus-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background-color: #f3f4f6;
+            border-color: #d1d5db;
+            color: #9ca3af;
+        }
+
+        .karyawan-minus-btn:disabled:hover {
+            background-color: #f3f4f6;
+            border-color: #d1d5db;
+            transform: none;
         }
 
         /* Upload Area Styles */
@@ -449,7 +479,7 @@
             const rowHtml = `
                 <div id="karyawan-row-${rowId}" class="karyawan-search-row">
                     <div class="karyawan-search-container" id="content-${rowId}">
-                        <div class="w-full px-2 py-2 border-2 border-[#084E8F] rounded-lg transition">
+                        <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
                             <input type="text" 
                                 id="karyawan_input_${rowId}" 
                                 placeholder="Cari nama karyawan..."
@@ -476,9 +506,19 @@
 
             container.insertAdjacentHTML('beforeend', rowHtml);
             setupRowListeners(rowId);
+            updateMinusButtonsVisibility();
         }
 
         function removeKaryawanRow(rowId) {
+            // Hitung jumlah row yang ada
+            const rows = document.querySelectorAll('[id^="karyawan-row-"]');
+            
+            // Jangan hapus jika hanya ada 1 row
+            if (rows.length <= 1) {
+                alert('Minimal harus ada satu karyawan yang dituju');
+                return;
+            }
+            
             const row = document.getElementById(`karyawan-row-${rowId}`);
             
             // Remove from selected array
@@ -487,6 +527,9 @@
 
             // Remove DOM element
             if (row) row.remove();
+            
+            // Update tombol minus visibility
+            updateMinusButtonsVisibility();
         }
 
         function setupRowListeners(rowId) {
@@ -576,11 +619,14 @@
         function renderKaryawanCard(rowId, nama, jabatan, departemen) {
             const content = document.getElementById(`content-${rowId}`);
             content.innerHTML = `
-                <div class="karyawan-card w-full">
+                <div class="karyawan-card w-full" onclick="resetKaryawanRow(${rowId})" title="Klik untuk mengganti karyawan">
                     <div class="karyawan-card-info">
                         <div class="karyawan-card-name">${escapeHtml(nama)}</div>
                         <div class="karyawan-card-detail">${escapeHtml(jabatan)} - ${escapeHtml(departemen)}</div>
                     </div>
+                    <svg fill="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px; color: #6b7280;">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    </svg>
                 </div>
             `;
         }
@@ -588,6 +634,45 @@
         function updateHiddenInput() {
             const ids = selectedKaryawan.map(k => k.id_karyawan);
             document.getElementById('karyawan_ids').value = JSON.stringify(ids);
+        }
+
+        function resetKaryawanRow(rowId) {
+            // Remove from selected array
+            selectedKaryawan = selectedKaryawan.filter(k => k.rowId !== rowId);
+            updateHiddenInput();
+
+            // Reset content to input search
+            const content = document.getElementById(`content-${rowId}`);
+            content.innerHTML = `
+                <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
+                    <input type="text" 
+                        id="karyawan_input_${rowId}" 
+                        placeholder="Cari nama karyawan..."
+                        class="w-full karyawan-search-input"
+                        autocomplete="off"
+                        data-row-id="${rowId}">
+                </div>
+                <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>
+            `;
+
+            // Re-setup listeners for the new input
+            setupRowListeners(rowId);
+        }
+
+        function updateMinusButtonsVisibility() {
+            const rows = document.querySelectorAll('[id^="karyawan-row-"]');
+            const minusButtons = document.querySelectorAll('.karyawan-minus-btn');
+            
+            // Jika hanya ada 1 row, disable tombol minus
+            if (rows.length === 1) {
+                minusButtons.forEach(btn => {
+                    btn.disabled = true;
+                });
+            } else {
+                minusButtons.forEach(btn => {
+                    btn.disabled = false;
+                });
+            }
         }
 
         // Webcam Functions
