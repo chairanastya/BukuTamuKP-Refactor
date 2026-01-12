@@ -1,5 +1,5 @@
 @extends('layouts.guest')
-@section('title', 'Forgot Password - Buku Tamu Digital')
+@section('title', 'Lupa Password - Resepsionis')
 @push('styles')
     <style>
         body {
@@ -131,14 +131,15 @@
 
     <div class="relative flex items-center justify-center min-h-screen px-4">
         <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
-            <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-4">
-                Forgot Password
+            <!-- Title -->
+            <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-2">
+                Lupa Password
             </h1>
-
-            <p class="text-sm text-gray-600 text-center mb-8">
-                Enter your email address and we'll send you a password reset link.
+            <p class="text-center text-gray-600 mb-8 text-sm">
+                Masukkan email Anda dan kami akan mengirimkan link reset password
             </p>
 
+            <!-- Error Messages -->
             @if ($errors->any())
                 <div class="mb-4 bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg">
                     <ul class="list-disc list-inside text-sm">
@@ -149,15 +150,18 @@
                 </div>
             @endif
 
+            <!-- Success Message -->
             @if (session('status'))
                 <div class="mb-4 bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded-lg">
                     <p class="text-sm">{{ session('status') }}</p>
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('password.email') }}">
+            <!-- Forgot Password Form -->
+            <form method="POST" action="{{ route('resepsionis.password.email') }}">
                 @csrf
 
+                <!-- Email Input -->
                 <div class="mb-6">
                     <div
                         class="flex items-center border-2 border-blue-300 rounded-lg px-4 py-3 focus-within:border-blue-600 transition">
@@ -165,19 +169,28 @@
                             <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
                             <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
                         </svg>
-                        <input type="email" name="email" id="email" placeholder="Email" value="{{ old('email') }}"
+                        <input type="email" name="email" id="email" placeholder="Email Resepsionis"
+                            value="{{ old('email') }}"
                             class="flex-1 border-0 outline-none text-gray-700 placeholder-gray-400" required autofocus>
                     </div>
                 </div>
 
+                <!-- Submit Button -->
                 <button type="submit"
                     class="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
-                    Send Reset Link
+                    Kirim Link Reset Password
                 </button>
 
+                <!-- Back to Login Link -->
                 <div class="mt-6 text-center">
-                    <a href="{{ route('login') }}" class="text-sm text-gray-500 hover:text-gray-700 hover:underline">
-                        Back to Login
+                    <a href="{{ route('resepsionis.login') }}"
+                        class="text-sm text-gray-600 hover:text-blue-700 hover:underline inline-flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        Kembali ke Login
                     </a>
                 </div>
             </form>

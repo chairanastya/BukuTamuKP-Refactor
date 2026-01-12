@@ -28,7 +28,7 @@ class NewPasswordController extends Controller
      */
     public function create(Request $request, string $token): View
     {
-        return view('resepsionis.reset-password', [
+        return view('auth.reset-password', [
             'token' => $token,
             'email' => $request->email
         ]);
