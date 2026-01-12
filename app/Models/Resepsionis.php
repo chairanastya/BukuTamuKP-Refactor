@@ -24,17 +24,11 @@ class Resepsionis extends Model implements Authenticatable
         'password_resepsionis',
     ];
 
-    /**
-     * Get the password for the user.
-     */
     public function getAuthPassword()
     {
         return $this->password_resepsionis;
     }
 
-    /**
-     * Get the column name for the "email" (username).
-     */
     public function getEmailForPasswordReset()
     {
         return $this->email_resepsionis;
