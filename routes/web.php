@@ -24,6 +24,12 @@ Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
     Route::get('/login', [ResepsionisAuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [ResepsionisAuthController::class, 'login']);
 
+    // Forgot Password Routes
+    Route::get('/forgot-password', [ResepsionisAuthController::class, 'showForgotPasswordForm'])->name('password.request');
+    Route::post('/forgot-password', [ResepsionisAuthController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('/reset-password/{token}', [ResepsionisAuthController::class, 'showResetPasswordForm'])->name('password.reset');
+    Route::post('/reset-password', [ResepsionisAuthController::class, 'resetPassword'])->name('password.update');
+
     // Routes untuk resepsionis yang sudah login
     Route::middleware('auth:resepsionis')->group(function () {
         Route::post('/logout', [ResepsionisAuthController::class, 'logout'])->name('logout');

@@ -16,19 +16,43 @@ class ResepsionisSeeder extends Seeder
     public function run(): void
     {
         // Buat karyawan untuk resepsionis
-        $karyawan = Karyawan::create([
-            'nama_karyawan' => 'Ani Suryani',
-            'email_karyawan' => 'ani.suryani@company.com',
-            'departemen' => 'General Affairs',
-            'jabatan' => 'Resepsionis',
-        ]);
+        $karyawan = Karyawan::firstOrCreate(
+            ['email_karyawan' => 'ani.suryani@company.com'],
+            [
+                'nama_karyawan' => 'Ani Suryani',
+                'departemen' => 'General Affairs',
+                'jabatan' => 'Resepsionis',
+            ]
+        );
 
         // Buat resepsionis berdasarkan karyawan tersebut
-        Resepsionis::create([
-            'id_karyawan' => $karyawan->id_karyawan,
-            'nama_resepsionis' => $karyawan->nama_karyawan,
-            'email_resepsionis' => $karyawan->email_karyawan,
-            'password_resepsionis' => Hash::make('password123'),
-        ]);
+        Resepsionis::firstOrCreate(
+            ['email_resepsionis' => $karyawan->email_karyawan],
+            [
+                'id_karyawan' => $karyawan->id_karyawan,
+                'nama_resepsionis' => $karyawan->nama_karyawan,
+                'password_resepsionis' => Hash::make('password123'),
+            ]
+        );
+
+        // Buat karyawan untuk resepsionis kedua
+        $karyawan2 = Karyawan::firstOrCreate(
+            ['email_karyawan' => 'dontaskbskr@gmail.com'],
+            [
+                'nama_karyawan' => 'Budi Santoso',
+                'departemen' => 'General Affairs',
+                'jabatan' => 'Resepsionis',
+            ]
+        );
+
+        // Buat resepsionis berdasarkan karyawan kedua
+        Resepsionis::firstOrCreate(
+            ['email_resepsionis' => $karyawan2->email_karyawan],
+            [
+                'id_karyawan' => $karyawan2->id_karyawan,
+                'nama_resepsionis' => $karyawan2->nama_karyawan,
+                'password_resepsionis' => Hash::make('password123'),
+            ]
+        );
     }
 }
