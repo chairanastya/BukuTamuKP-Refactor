@@ -3,42 +3,93 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Resepsionis;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class PasswordResetLinkController extends Controller
 {
     /**
+     * Password reset tokens table name
+     */
+    private const PASSWORD_RESET_TABLE = 'password_reset_tokens';
+
+    /**
      * Display the password reset link request view.
      */
     public function create(): View
     {
-        return view('auth.forgot-password');
+        return view('resepsionis.forgot-password');
     }
 
     /**
      * Handle an incoming password reset link request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'email' => ['required', 'email'],
+            'email' => 'required|email',
+        ], [
+            'email.required' => 'Email wajib diisi',
+            'email.email' => 'Format email tidak valid',
         ]);
 
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
-        $status = Password::sendResetLink(
-            $request->only('email')
+        $resepsionis = Resepsionis::where('email_resepsionis', $request->email)->first();
+
+        if (!$resepsionis) {
+            return back()->withErrors([
+                'email' => 'Email tidak ditemukan dalam sistem kami.',
+            ])->onlyInput('email');
+        }
+
+        $token = $this->createPasswordResetToken($request->email);
+        $this->sendPasswordResetEmail($request->email, $token);
+
+        return back()->with('status', 'Link reset password telah dikirim ke email Anda! Silakan cek inbox atau folder spam.');
+    }
+
+    /**
+     * Create password reset token
+     */
+    private function createPasswordResetToken(string $email): string
+    {
+        $token = Str::random(64);
+
+        DB::table(self::PASSWORD_RESET_TABLE)->updateOrInsert(
+            ['email' => $email],
+            [
+                'email' => $email,
+                'token' => Hash::make($token),
+                'created_at' => now()
+            ]
         );
 
-        return $status == Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+        return $token;
+    }
+
+    /**
+     * Send password reset email
+     */
+    private function sendPasswordResetEmail(string $email, string $token): void
+    {
+        try {
+            Mail::send('emails.reset-password', ['token' => $token, 'email' => $email], function ($message) use ($email) {
+                $message->to($email);
+                $message->subject('Reset Password - Buku Tamu Digital');
+            });
+        } catch (\Exception $e) {
+            Log::error('Failed to send reset password email', [
+                'email' => $email,
+                'error' => $e->getMessage()
+            ]);
+
+            throw new \Exception('Gagal mengirim email. Pastikan konfigurasi email sudah benar.');
+        }
     }
 }
