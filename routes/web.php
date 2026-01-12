@@ -32,7 +32,7 @@ Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
 
         // Dashboard resepsionis
         Route::get('/dashboard', function () {
-            return view('resepsionis.login');
+            return view('resepsionis.dashboard');
         })->name('dashboard');
     });
 });
