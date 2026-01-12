@@ -3,11 +3,13 @@
 
 @push('styles')
     <style>
+        /* Base Styles */
         body {
             font-family: 'Open Sans', sans-serif;
             background-color: white;
         }
 
+        /* Modal Styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -60,12 +62,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: color 0.2s;
         }
 
         .modal-close:hover {
             color: #F7B218;
         }
 
+        /* Autocomplete Dropdown Styles */
         .autocomplete-dropdown {
             position: absolute;
             margin-top: 10px;
@@ -75,9 +79,11 @@
             background: white;
             border: 1px solid #084E8F;
             border-radius: 0.5rem;
+            max-height: 250px;
             overflow-y: auto;
             z-index: 50;
             display: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .autocomplete-dropdown.show {
@@ -88,6 +94,7 @@
             padding: 0.75rem 1rem;
             cursor: pointer;
             border-bottom: 1px solid #e5e7eb;
+            transition: background-color 0.2s;
         }
 
         .autocomplete-item:hover {
@@ -109,17 +116,27 @@
             font-size: 0.875rem;
         }
 
-        .karyawan-cards {
+        /* Karyawan Card & Search Styles */
+        .karyawan-search-row {
             display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            margin-top: 1rem;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .karyawan-search-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .karyawan-action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
         }
 
         .karyawan-card {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
             padding: 0.5rem;
             background-color: white;
             border: 2px solid #084E8F;
@@ -150,38 +167,7 @@
             line-height: 1.2;
         }
 
-        .karyawan-card-buttons {
-            display: none;
-        }
-
-        .karyawan-btn {
-            display: none;
-        }
-
-        .karyawan-btn:hover {
-            display: none;
-        }
-
-        .karyawan-btn svg {
-            display: none;
-        }
-
-        .karyawan-search-row {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .karyawan-search-container {
-            flex: 1;
-        }
-
-        .karyawan-action-buttons {
-            display: flex;
-            gap: 0.5rem;
-            flex-shrink: 0;
-        }
-
+        /* Action Buttons */
         .karyawan-add-btn,
         .karyawan-minus-btn {
             width: 50px;
@@ -204,6 +190,7 @@
         .karyawan-minus-btn:hover {
             background-color: #f0f9ff;
             border-color: #084E8F;
+            transform: scale(1.05);
         }
 
         .karyawan-add-btn svg,
@@ -212,7 +199,7 @@
             height: 28px;
         }
 
-        /* Upload area */
+        /* Upload Area Styles */
         .upload-area {
             border: 2px dashed #3b82f6;
             border-radius: 0.75rem;
@@ -234,29 +221,31 @@
             color: #1e40af;
         }
 
+        /* Input Wrapper Styles */
         .input-wrapper {
             border: 2px solid #084E8F;
             border-radius: 0.5rem;
             padding: 0.5rem;
             width: 100%;
-            transition: border-color 0.2s ease;
+            transition: all 0.2s ease;
             background-color: #F9FCFF;
         }
 
-        .input-wrapper:focus {
+        .input-wrapper.filled {
+            background-color: white;
+        }
+
+        .input-wrapper:focus-within {
             border-color: #084E8F;
             box-shadow: 0 0 0 3px rgba(8, 78, 143, 0.1);
         }
 
         .input-wrapper input,
         .input-wrapper textarea {
-            background-color: #F9FCFF;
+            background-color: transparent;
             width: 100%;
-        }
-
-        .input-wrapper input.filled,
-        .input-wrapper textarea.filled {
-            background-color: white;
+            border: none;
+            outline: none;
         }
     </style>
 @endpush
@@ -419,48 +408,64 @@
 
 @push('scripts')
     <script>
+        // Global Variables
         let selectedKaryawan = [];
         let rowCounter = 0;
+        let stream = null;
 
-        // Initialize first row
-        document.addEventListener('DOMContentLoaded', function () {
+        // DOM Elements
+        const video = document.getElementById('webcam_video');
+        const canvas = document.getElementById('capture_canvas');
+        const ctx = canvas.getContext('2d');
+        const webcamModal = document.getElementById('webcam_modal');
+        const successModal = document.getElementById('success_modal');
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add first karyawan row
             addKaryawanRow();
+
+            // Show success modal if exists
+            @if(session('success'))
+                showSuccessModal();
+            @endif
+
+            // Setup input background color changes
+            setupInputBackgrounds();
         });
 
+        // Karyawan Management Functions
         function addKaryawanRow() {
             const container = document.getElementById('karyawan_rows_container');
             const rowId = rowCounter++;
 
             const rowHtml = `
-                                                                    <div id="karyawan-row-${rowId}" class="karyawan-search-row">
-                                                                        <!-- Search or Card Container -->
-                                                                        <div class="karyawan-search-container relative" id="content-${rowId}">
-                                                                            <div class="w-full px-2 py-2 border-2 border-[#084E8F] rounded-lg focus:border-[#084E8F] transition">
-                                                                                <input type="text" 
-                                                                                    id="karyawan_input_${rowId}" 
-                                                                                    placeholder="Cari nama karyawan..."
-                                                                                    class="w-full karyawan-search-input"
-                                                                                    autocomplete="off"
-                                                                                    data-row-id="${rowId}">
-                                                                            </div>
-                                                                            <!-- Autocomplete Dropdown -->
-                                                                            <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>
-                                                                        </div>
-                                                                        <!-- Action Buttons -->
-                                                                        <div class="karyawan-action-buttons">
-                                                                            <button type="button" class="karyawan-add-btn" onclick="addKaryawanRow()" title="Tambah karyawan">
-                                                                                <svg fill="currentColor" viewBox="0 0 24 24">
-                                                                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                                                                                </svg>
-                                                                            </button>
-                                                                            <button type="button" class="karyawan-minus-btn" onclick="removeKaryawanRow(${rowId})" title="Hapus baris">
-                                                                                <svg fill="currentColor" viewBox="0 0 24 24">
-                                                                                    <path d="M19 13H5v-2h14v2z"/>
-                                                                                </svg>
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-                                                                `;
+                <div id="karyawan-row-${rowId}" class="karyawan-search-row">
+                    <div class="karyawan-search-container" id="content-${rowId}">
+                        <div class="w-full px-2 py-2 border-2 border-[#084E8F] rounded-lg transition">
+                            <input type="text" 
+                                id="karyawan_input_${rowId}" 
+                                placeholder="Cari nama karyawan..."
+                                class="w-full karyawan-search-input"
+                                autocomplete="off"
+                                data-row-id="${rowId}">
+                        </div>
+                        <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>
+                    </div>
+                    <div class="karyawan-action-buttons">
+                        <button type="button" class="karyawan-add-btn" onclick="addKaryawanRow()" title="Tambah karyawan">
+                            <svg fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="karyawan-minus-btn" onclick="removeKaryawanRow(${rowId})" title="Hapus baris">
+                            <svg fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 13H5v-2h14v2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
 
             container.insertAdjacentHTML('beforeend', rowHtml);
             setupRowListeners(rowId);
@@ -468,13 +473,10 @@
 
         function removeKaryawanRow(rowId) {
             const row = document.getElementById(`karyawan-row-${rowId}`);
-            const rowData = selectedKaryawan.find(k => k.rowId === rowId);
-
-            // Remove dari selectedKaryawan
-            if (rowData) {
-                selectedKaryawan = selectedKaryawan.filter(k => k.rowId !== rowId);
-                updateHiddenInput();
-            }
+            
+            // Remove from selected array
+            selectedKaryawan = selectedKaryawan.filter(k => k.rowId !== rowId);
+            updateHiddenInput();
 
             // Remove DOM element
             if (row) row.remove();
@@ -483,11 +485,11 @@
         function setupRowListeners(rowId) {
             const input = document.getElementById(`karyawan_input_${rowId}`);
             const dropdown = document.getElementById(`autocomplete_dropdown_${rowId}`);
-            let debounceId;
+            let debounceTimeout;
 
-            input.addEventListener('input', function () {
+            input.addEventListener('input', function() {
                 const query = this.value.trim();
-                clearTimeout(debounceId);
+                clearTimeout(debounceTimeout);
 
                 if (query.length < 2) {
                     dropdown.classList.remove('show');
@@ -495,31 +497,27 @@
                     return;
                 }
 
-                debounceId = setTimeout(() => {
-                    searchKaryawanForRow(query, rowId, dropdown);
+                debounceTimeout = setTimeout(() => {
+                    searchKaryawan(query, rowId, dropdown);
                 }, 300);
             });
 
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function (e) {
+            // Close dropdown on outside click
+            document.addEventListener('click', function(e) {
                 if (!input.contains(e.target) && !dropdown.contains(e.target)) {
                     dropdown.classList.remove('show');
                 }
             });
         }
 
-        function searchKaryawanForRow(query, rowId, dropdown) {
+        function searchKaryawan(query, rowId, dropdown) {
             fetch(`{{ route('tamu.search-karyawan') }}?q=${encodeURIComponent(query)}`)
                 .then(response => response.json())
-                .then(data => {
-                    displayAutocompleteForRow(data, rowId, dropdown);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+                .then(data => displayAutocomplete(data, rowId, dropdown))
+                .catch(error => console.error('Error searching karyawan:', error));
         }
 
-        function displayAutocompleteForRow(karyawans, rowId, dropdown) {
+        function displayAutocomplete(karyawans, rowId, dropdown) {
             if (karyawans.length === 0) {
                 dropdown.innerHTML = '<div class="autocomplete-item">Tidak ada hasil</div>';
                 dropdown.classList.add('show');
@@ -528,31 +526,31 @@
 
             let html = '';
             karyawans.forEach(karyawan => {
-                // Skip jika sudah dipilih
+                // Skip if already selected
                 if (selectedKaryawan.find(k => k.id_karyawan === karyawan.id_karyawan)) {
                     return;
                 }
 
                 html += `
-                                                                        <div class="autocomplete-item" onclick="selectKaryawanForRow(${rowId}, ${karyawan.id_karyawan}, '${karyawan.nama_karyawan}', '${karyawan.jabatan}', '${karyawan.departemen}')">
-                                                                            <div class="autocomplete-name">${karyawan.nama_karyawan}</div>
-                                                                            <div class="autocomplete-detail">${karyawan.jabatan} - ${karyawan.departemen}</div>
-                                                                        </div>
-                                                                    `;
+                    <div class="autocomplete-item" onclick="selectKaryawan(${rowId}, ${karyawan.id_karyawan}, '${escapeHtml(karyawan.nama_karyawan)}', '${escapeHtml(karyawan.jabatan)}', '${escapeHtml(karyawan.departemen)}')">
+                        <div class="autocomplete-name">${escapeHtml(karyawan.nama_karyawan)}</div>
+                        <div class="autocomplete-detail">${escapeHtml(karyawan.jabatan)} - ${escapeHtml(karyawan.departemen)}</div>
+                    </div>
+                `;
             });
 
             dropdown.innerHTML = html;
             dropdown.classList.add('show');
         }
 
-        function selectKaryawanForRow(rowId, id, nama, jabatan, departemen) {
-            // Check if already selected in other rows
+        function selectKaryawan(rowId, id, nama, jabatan, departemen) {
+            // Check if already selected
             if (selectedKaryawan.find(k => k.id_karyawan === id)) {
                 alert('Karyawan ini sudah dipilih di baris lain');
                 return;
             }
 
-            // Remove old selection for this row if exists
+            // Remove old selection for this row
             selectedKaryawan = selectedKaryawan.filter(k => k.rowId !== rowId);
 
             // Add new selection
@@ -564,23 +562,20 @@
                 departemen: departemen
             });
 
-            renderRowContent(rowId, id, nama, jabatan, departemen);
+            renderKaryawanCard(rowId, nama, jabatan, departemen);
             updateHiddenInput();
         }
 
-        function renderRowContent(rowId, id, nama, jabatan, departemen) {
+        function renderKaryawanCard(rowId, nama, jabatan, departemen) {
             const content = document.getElementById(`content-${rowId}`);
-
-            const cardHtml = `
-                                                                    <div class="karyawan-card w-full\" style="margin: 0; padding: 0;\">
-                                                                        <div class="karyawan-card-info\">
-                                                                            <div class="karyawan-card-name">${nama}</div>
-                                                                            <div class="karyawan-card-detail">${jabatan} - ${departemen}</div>
-                                                                        </div>
-                                                                    </div>
-                                                                `;
-
-            content.innerHTML = cardHtml;
+            content.innerHTML = `
+                <div class="karyawan-card w-full">
+                    <div class="karyawan-card-info">
+                        <div class="karyawan-card-name">${escapeHtml(nama)}</div>
+                        <div class="karyawan-card-detail">${escapeHtml(jabatan)} - ${escapeHtml(departemen)}</div>
+                    </div>
+                </div>
+            `;
         }
 
         function updateHiddenInput() {
@@ -588,20 +583,14 @@
             document.getElementById('karyawan_ids').value = JSON.stringify(ids);
         }
 
-        // Webcam
-        let stream = null;
-        const video = document.getElementById('webcam_video');
-        const canvas = document.getElementById('capture_canvas');
-        const ctx = canvas.getContext('2d');
-        const modal = document.getElementById('webcam_modal');
-
+        // Webcam Functions
         function openWebcamModal() {
-            modal.classList.add('show');
+            webcamModal.classList.add('show');
             startWebcam();
         }
 
         function closeWebcamModal() {
-            modal.classList.remove('show');
+            webcamModal.classList.remove('show');
             stopWebcam();
         }
 
@@ -611,30 +600,12 @@
                     video: { facingMode: 'user' },
                     audio: false
                 });
-
                 video.srcObject = stream;
             } catch (error) {
                 console.error('Error accessing webcam:', error);
                 alert('Tidak dapat mengakses kamera. Pastikan Anda memberikan izin akses kamera.');
                 closeWebcamModal();
             }
-        }
-
-        function capturePhoto() {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            const photoData = canvas.toDataURL('image/jpeg', 0.8);
-
-            document.getElementById('foto_ktp_base64').value = photoData;
-
-            document.getElementById('preview_img').src = photoData;
-            document.getElementById('image_preview').classList.remove('hidden');
-            document.getElementById('webcam_area').classList.add('hidden');
-
-            closeWebcamModal();
         }
 
         function stopWebcam() {
@@ -644,54 +615,72 @@
             }
         }
 
-        modal.addEventListener('click', function (e) {
-            if (e.target === modal) {
+        function capturePhoto() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const photoData = canvas.toDataURL('image/jpeg', 0.8);
+            document.getElementById('foto_ktp_base64').value = photoData;
+            document.getElementById('preview_img').src = photoData;
+            document.getElementById('image_preview').classList.remove('hidden');
+            document.getElementById('webcam_area').classList.add('hidden');
+
+            closeWebcamModal();
+        }
+
+        // Close modal on overlay click
+        webcamModal.addEventListener('click', function(e) {
+            if (e.target === webcamModal) {
                 closeWebcamModal();
             }
         });
 
-        const successModal = document.getElementById('success_modal');
+        // Success Modal Functions
         function showSuccessModal() {
             if (successModal) successModal.classList.add('show');
         }
 
         function closeSuccessModal() {
-            if (successModal) successModal.classList.remove('show');
-            const msg = document.getElementById('success_message');
-            if (msg) msg.textContent = '';
+            if (successModal) {
+                successModal.classList.remove('show');
+                const msg = document.getElementById('success_message');
+                if (msg) msg.textContent = '';
+            }
         }
 
-
-        document.addEventListener('DOMContentLoaded', function () {
-            @if(session('success'))
-                showSuccessModal();
-            @endif
-
-                                                                // Setup input/textarea background color based on filled state
-                                                                const inputs = document.querySelectorAll('input[type="text"], input[type="email"], textarea');
-
+        // Input Background Management
+        function setupInputBackgrounds() {
+            const inputs = document.querySelectorAll('input[type="text"], input[type="email"], textarea');
+            
             inputs.forEach(input => {
-                // Check initial state
                 updateInputBackground(input);
-
-                // Listen for input changes
-                input.addEventListener('input', function () {
-                    updateInputBackground(this);
-                });
-
-                // Also listen for change event
-                input.addEventListener('change', function () {
-                    updateInputBackground(this);
-                });
+                input.addEventListener('input', () => updateInputBackground(input));
+                input.addEventListener('change', () => updateInputBackground(input));
             });
-        });
+        }
 
         function updateInputBackground(input) {
-            if (input.value.trim() !== '') {
-                input.classList.add('filled');
-            } else {
-                input.classList.remove('filled');
+            const wrapper = input.closest('.input-wrapper');
+            if (wrapper) {
+                if (input.value.trim() !== '') {
+                    wrapper.classList.add('filled');
+                } else {
+                    wrapper.classList.remove('filled');
+                }
             }
+        }
+
+        // Utility Functions
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
         }
     </script>
 @endpush
