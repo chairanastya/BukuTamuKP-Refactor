@@ -10,7 +10,6 @@
             overflow: hidden;
         }
 
-        /* Decorative circles pattern */
         .bg-pattern {
             position: absolute;
             width: 100%;
@@ -62,7 +61,6 @@
             right: 15%;
         }
 
-        /* Dots pattern */
         .dots-pattern {
             position: absolute;
             display: grid;
@@ -88,7 +86,6 @@
             border-radius: 50%;
         }
 
-        /* Arrow pattern */
         .arrows {
             position: absolute;
             right: 5%;
@@ -107,28 +104,24 @@
     </style>
 @endpush
 @section('content')
-    <!-- Background Pattern -->
     <div class="bg-pattern">
         <div class="circle circle-1"></div>
         <div class="circle circle-2"></div>
         <div class="donut donut-1"></div>
         <div class="donut donut-2"></div>
 
-        <!-- Dots Pattern Top -->
         <div class="dots-pattern dots-pattern-top">
             @for ($i = 0; $i < 16; $i++)
                 <div class="dot"></div>
             @endfor
         </div>
 
-        <!-- Dots Pattern Bottom -->
         <div class="dots-pattern dots-pattern-bottom">
             @for ($i = 0; $i < 16; $i++)
                 <div class="dot"></div>
             @endfor
         </div>
 
-        <!-- Arrow Pattern -->
         <div class="arrows">
             <div class="arrow"></div>
             <div class="arrow"></div>
@@ -136,15 +129,12 @@
         </div>
     </div>
 
-    <!-- Login Card -->
     <div class="relative flex items-center justify-center min-h-screen px-4">
         <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
-            <!-- Title -->
             <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-8">
                 Buku Tamu Digital
             </h1>
 
-            <!-- Error Messages -->
             @if ($errors->any())
                 <div class="mb-4 bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg">
                     <ul class="list-disc list-inside text-sm">
@@ -155,18 +145,15 @@
                 </div>
             @endif
 
-            <!-- Success Message -->
-            @if (session('success'))
+            @if (session('status'))
                 <div class="mb-4 bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded-lg">
-                    <p class="text-sm">{{ session('success') }}</p>
+                    <p class="text-sm">{{ session('status') }}</p>
                 </div>
             @endif
 
-            <!-- Login Form -->
-            <form method="POST" action="{{ route('resepsionis.login') }}">
+            <form method="POST" action="{{ route('login') }}">
                 @csrf
 
-                <!-- Email Input -->
                 <div class="mb-6">
                     <div
                         class="flex items-center border-2 border-blue-300 rounded-lg px-4 py-3 focus-within:border-blue-600 transition">
@@ -178,7 +165,6 @@
                     </div>
                 </div>
 
-                <!-- Password Input -->
                 <div class="mb-4">
                     <div
                         class="flex items-center border-2 border-blue-300 rounded-lg px-4 py-3 focus-within:border-blue-600 transition">
@@ -192,7 +178,6 @@
                     </div>
                 </div>
 
-                <!-- Show Password Checkbox -->
                 <div class="mb-6 flex items-center justify-end">
                     <label class="flex items-center cursor-pointer text-sm text-gray-600 hover:text-gray-800">
                         <input type="checkbox" id="showPassword"
@@ -201,13 +186,11 @@
                     </label>
                 </div>
 
-                <!-- Login Button -->
                 <button type="submit"
                     class="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
                     Login
                 </button>
 
-                <!-- Forgot Password Link -->
                 <div class="mt-6 text-center">
                     <a href="{{ route('resepsionis.password.request') }}"
                         class="text-sm text-gray-500 hover:text-gray-700 hover:underline">
