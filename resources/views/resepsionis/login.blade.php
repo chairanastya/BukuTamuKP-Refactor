@@ -131,6 +131,16 @@
 
     <div class="relative flex items-center justify-center min-h-screen px-4">
         <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
+            <div class="mb-4 flex items-center justify-between">
+                <a href="{{ route('tamu.form') }}" class="inline-flex items-center text-blue-600 hover:text-blue-900 font-normal transition duration-200">
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    Kembali ke Form Tamu
+                </a>
+            </div>
             <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-8">
                 Buku Tamu Digital
             </h1>
