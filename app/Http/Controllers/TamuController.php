@@ -33,14 +33,13 @@ class TamuController extends Controller
 
     public function submitForm(Request $request)
     {
-        // 1. Validasi input
         $validated = $request->validate([
             'nama_lengkap' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'instansi' => 'nullable|string|max:255',
             'tujuan' => 'required|string',
-            'foto_ktp' => 'required|string', // base64 string
-            'karyawan_ids' => 'required|string', // JSON array
+            'foto_ktp' => 'required|string',
+            'karyawan_ids' => 'required|string',
         ], [
             'nama_lengkap.required' => 'Nama lengkap wajib diisi',
             'email.required' => 'Email wajib diisi',
@@ -53,10 +52,8 @@ class TamuController extends Controller
         try {
             DB::beginTransaction();
 
-            // 2. Upload foto KTP ke Cloudinary
             $base64Image = $validated['foto_ktp'];
 
-            // Initialize Cloudinary
             $cloudinary = new Cloudinary([
                 'cloud' => [
                     'cloud_name' => config('cloudinary.cloud_name'),
@@ -64,8 +61,6 @@ class TamuController extends Controller
                     'api_secret' => config('cloudinary.api_secret'),
                 ]
             ]);
-
-            // Upload image
             $uploadResult = $cloudinary->uploadApi()->upload($base64Image, [
                 'folder' => 'ktp_tamu',
                 'resource_type' => 'image',
@@ -76,7 +71,6 @@ class TamuController extends Controller
                 ]
             ]);
 
-            // 3. Simpan data tamu
             $tamu = Tamu::create([
                 'nama_tamu' => $validated['nama_lengkap'],
                 'email_tamu' => $validated['email'],
@@ -84,7 +78,6 @@ class TamuController extends Controller
                 'ktp_public_id' => $uploadResult['public_id'],
             ]);
 
-            // 4. Simpan data kunjungan
             $kunjungan = Kunjungan::create([
                 'id_tamu' => $tamu->id_tamu,
                 'tujuan_kunjungan' => $validated['tujuan'],
@@ -93,7 +86,6 @@ class TamuController extends Controller
                 'status' => 'pending',
             ]);
 
-            // 5. Simpan relasi karyawan yang dituju
             $karyawanIds = json_decode($validated['karyawan_ids'], true);
 
             if (!empty($karyawanIds)) {
@@ -104,20 +96,17 @@ class TamuController extends Controller
 
             DB::commit();
 
-            // 6. TODO: Generate token approval & kirim email (nanti)
+            // Generate token approval & kirim email (nanti)
 
-            // 7. Redirect ke halaman sukses
             return redirect()->route('tamu.form')->with('success', 'Data kunjungan berhasil dikirim! Silakan tunggu approval dari karyawan.');
 
         } catch (\Exception $e) {
             DB::rollBack();
 
-            // Jika ada error, hapus foto dari Cloudinary
             if (isset($uploadResult['public_id'])) {
                 try {
                     $cloudinary->uploadApi()->destroy($uploadResult['public_id']);
                 } catch (\Exception $deleteError) {
-                    // Log error tapi jangan throw
                 }
             }
 

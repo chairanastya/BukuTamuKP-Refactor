@@ -5,7 +5,7 @@
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
-            background-color: #f5f5f5;
+            background-color: white;
         }
 
         .modal-overlay {
@@ -63,19 +63,18 @@
         }
 
         .modal-close:hover {
-            color: #1f2937;
+            color: #F7B218;
         }
 
         .autocomplete-dropdown {
             position: absolute;
+            margin-top: 10px;
             top: 100%;
             left: 0;
             right: 0;
             background: white;
-            border: 1px solid #3b82f6;
-            border-top: none;
-            border-radius: 0 0 0.5rem 0.5rem;
-            max-height: 250px;
+            border: 1px solid #084E8F;
+            border-radius: 0.5rem;
             overflow-y: auto;
             z-index: 50;
             display: none;
@@ -92,7 +91,7 @@
         }
 
         .autocomplete-item:hover {
-            background-color: #f3f4f6;
+            background-color: #F9FCFF;
         }
 
         .autocomplete-item:last-child {
@@ -110,40 +109,107 @@
             font-size: 0.875rem;
         }
 
-        .karyawan-chips {
+        .karyawan-cards {
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1rem;
         }
 
-        .karyawan-chip {
-            display: inline-flex;
+        .karyawan-card {
+            display: flex;
             align-items: center;
-            gap: 0.5rem;
-            background-color: #dbeafe;
-            color: #1e40af;
-            padding: 0.5rem 0.75rem;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            background-color: white;
+            border: 2px solid #084E8F;
             border-radius: 0.5rem;
-            font-size: 0.875rem;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        .karyawan-chip button {
-            background: none;
-            border: none;
-            color: #1e40af;
-            font-weight: bold;
+        .karyawan-card-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            gap: 0.125rem;
+            min-width: 0;
+        }
+
+        .karyawan-card-name {
+            color: #084E8F;
+            font-weight: 600;
+            font-size: 0.95rem;
+            line-height: 1.3;
+        }
+
+        .karyawan-card-detail {
+            color: #6b7280;
+            font-size: 0.8rem;
+            line-height: 1.2;
+        }
+
+        .karyawan-card-buttons {
+            display: none;
+        }
+
+        .karyawan-btn {
+            display: none;
+        }
+
+        .karyawan-btn:hover {
+            display: none;
+        }
+
+        .karyawan-btn svg {
+            display: none;
+        }
+
+        .karyawan-search-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .karyawan-search-container {
+            flex: 1;
+        }
+
+        .karyawan-action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .karyawan-add-btn,
+        .karyawan-minus-btn {
+            width: 50px;
+            height: 50px;
+            border: 2px dashed #084E8F;
+            border-radius: 0.375rem;
+            background-color: white;
+            color: #084E8F;
             cursor: pointer;
-            padding: 0;
-            width: 20px;
-            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            font-weight: bold;
+            padding: 0;
         }
 
-        .karyawan-chip button:hover {
-            color: #1e3a8a;
+        .karyawan-add-btn:hover,
+        .karyawan-minus-btn:hover {
+            background-color: #f0f9ff;
+            border-color: #084E8F;
+        }
+
+        .karyawan-add-btn svg,
+        .karyawan-minus-btn svg {
+            width: 28px;
+            height: 28px;
         }
 
         /* Upload area */
@@ -157,7 +223,7 @@
         }
 
         .upload-area:hover {
-            background-color: #eff6ff;
+            background-color: #F9FCFF;
             border-color: #2563eb;
         }
 
@@ -166,6 +232,31 @@
             height: 80px;
             margin: 0 auto 1rem;
             color: #1e40af;
+        }
+
+        .input-wrapper {
+            border: 2px solid #084E8F;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            width: 100%;
+            transition: border-color 0.2s ease;
+            background-color: #F9FCFF;
+        }
+
+        .input-wrapper:focus {
+            border-color: #084E8F;
+            box-shadow: 0 0 0 3px rgba(8, 78, 143, 0.1);
+        }
+
+        .input-wrapper input,
+        .input-wrapper textarea {
+            background-color: #F9FCFF;
+            width: 100%;
+        }
+
+        .input-wrapper input.filled,
+        .input-wrapper textarea.filled {
+            background-color: white;
         }
     </style>
 @endpush
@@ -181,59 +272,55 @@
                 <div class="lg:col-span-2 space-y-6">
                     <!-- Nama Lengkap -->
                     <div>
-                        <label for="nama_lengkap" class="block text-blue-900 font-semibold mb-2">
+                        <label for="nama_lengkap" class="block text-[#084E8F] font-bold mb-2">
                             Nama Lengkap
                         </label>
-                        <input type="text" id="nama_lengkap" name="nama_lengkap" placeholder="Tuliskan nama lengkap anda"
-                            class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:border-blue-600 transition"
-                            required>
+                        <div class="input-wrapper">
+                            <input type="text" id="nama_lengkap" name="nama_lengkap"
+                                placeholder="Tuliskan nama lengkap anda" required>
+                        </div>
                     </div>
 
                     <!-- Alamat Email -->
                     <div>
-                        <label for="email" class="block text-blue-900 font-semibold mb-2">
+                        <label for="email" class="block text-[#084E8F] font-bold mb-2">
                             Alamat Email
                         </label>
-                        <input type="email" id="email" name="email" placeholder="Tuliskan alamat email anda"
-                            class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:border-blue-600 transition"
-                            required>
+                        <div class="input-wrapper">
+                            <input type="email" id="email" name="email" placeholder="Tuliskan alamat email anda" required>
+                        </div>
                     </div>
 
                     <!-- Instansi Asal -->
                     <div>
-                        <label for="instansi" class="block text-blue-900 font-semibold mb-2">
+                        <label for="instansi" class="block text-[#084E8F] font-bold mb-2">
                             Instansi Asal
                         </label>
-                        <input type="text" id="instansi" name="instansi" placeholder="Tuliskan instansi asal anda"
-                            class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:border-blue-600 transition">
+                        <div class="input-wrapper">
+                            <input type="text" id="instansi" name="instansi" placeholder="Tuliskan instansi asal anda"
+                                required>
+                        </div>
                     </div>
 
                     <!-- Tujuan Kedatangan -->
                     <div>
-                        <label for="tujuan" class="block text-blue-900 font-semibold mb-2">
+                        <label for="tujuan" class="block text-[#084E8F] font-bold mb-2">
                             Tujuan Kedatangan
                         </label>
-                        <textarea id="tujuan" name="tujuan" rows="4" placeholder="Jelaskan tujuan kedatangan anda"
-                            class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:border-blue-600 transition resize-none"
-                            required></textarea>
+                        <div class="input-wrapper">
+                            <textarea id="tujuan" name="tujuan" rows="4" placeholder="Jelaskan tujuan kedatangan anda"
+                                class="resize-none" required></textarea>
+                        </div>
                     </div>
 
                     <!-- Karyawan yang Anda Tuju -->
                     <div>
-                        <label for="karyawan_input" class="block text-blue-900 font-semibold mb-2">
+                        <label class="block text-[#084E8F] font-bold mb-2">
                             Karyawan yang Anda Tuju
                         </label>
-                        <div class="relative">
-                            <input type="text" id="karyawan_input" placeholder="Cari nama karyawan..."
-                                class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:border-blue-600 transition"
-                                autocomplete="off">
 
-                            <!-- Autocomplete Dropdown -->
-                            <div id="autocomplete_dropdown" class="autocomplete-dropdown"></div>
-                        </div>
-
-                        <!-- Selected Karyawan Chips -->
-                        <div id="selected_karyawan" class="karyawan-chips"></div>
+                        <!-- Container untuk search rows -->
+                        <div id="karyawan_rows_container" class="space-y-3"></div>
 
                         <!-- Hidden input untuk menyimpan ID karyawan yang dipilih -->
                         <input type="hidden" id="karyawan_ids" name="karyawan_ids" value="[]">
@@ -244,7 +331,7 @@
                 <div class="lg:col-span-1 space-y-6">
                     <!-- Webcam Foto KTP -->
                     <div>
-                        <label class="block text-blue-900 font-semibold mb-2">
+                        <label class="block text-[#084E8F] font-bold mb-2">
                             Foto Identitas (KTP)
                         </label>
 
@@ -257,8 +344,7 @@
                                     d="M21 5v14c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2zm-2 0H5v14h14V5z" />
                                 <path d="M14.25 14.5l-1.5 1.875L11 14.5 8 18h8z" />
                             </svg>
-                            <p class="text-blue-900 font-semibold">Klik untuk ambil foto</p>
-                            <p class="text-gray-500 text-sm mt-1">Menggunakan kamera</p>
+                            <p class="text-[#084E8F] font-bold">Klik untuk ambil foto</p>
                         </div>
 
                         <!-- Preview Captured Image (shown after capture) -->
@@ -266,7 +352,7 @@
                             <img id="preview_img" src="" alt="Preview KTP"
                                 class="w-full rounded-lg border-2 border-blue-300">
                             <button type="button" onclick="openWebcamModal()"
-                                class="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
+                                class="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition">
                                 Foto Ulang
                             </button>
                         </div>
@@ -276,7 +362,7 @@
 
                     <!-- Submit Button -->
                     <button type="submit"
-                        class="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                        class="w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
                         </svg>
@@ -297,14 +383,13 @@
 
             <!-- Video Preview -->
             <div id="video_container">
-                <video id="webcam_video" autoplay playsinline
-                    class="w-full rounded-lg border-2 border-blue-300"></video>
+                <video id="webcam_video" autoplay playsinline class="w-full rounded-lg border-2 border-blue-300"></video>
                 <button type="button" onclick="capturePhoto()"
-                    class="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition">
+                    class="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition">
                     Ambil Foto
                 </button>
                 <button type="button" onclick="closeWebcamModal()"
-                    class="mt-2 w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-4 rounded-lg transition">
+                    class="mt-2 w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition">
                     Batalkan
                 </button>
             </div>
@@ -324,7 +409,8 @@
             <div class="px-1">
                 <p class="text-gray-700" id="success_message">{{ session('success') }}</p>
                 <div class="mt-6 flex justify-end">
-                    <button type="button" onclick="closeSuccessModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg">Tutup</button>
+                    <button type="button" onclick="closeSuccessModal()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Tutup</button>
                 </div>
             </div>
         </div>
@@ -334,39 +420,106 @@
 @push('scripts')
     <script>
         let selectedKaryawan = [];
-        let debounceTimer;
+        let rowCounter = 0;
 
-        const input = document.getElementById('karyawan_input');
-        const dropdown = document.getElementById('autocomplete_dropdown');
-
-        input.addEventListener('input', function () {
-            const query = this.value.trim();
-
-            clearTimeout(debounceTimer);
-
-            if (query.length < 2) {
-                dropdown.classList.remove('show');
-                dropdown.innerHTML = '';
-                return;
-            }
-
-            debounceTimer = setTimeout(() => {
-                searchKaryawan(query);
-            }, 300);
+        // Initialize first row
+        document.addEventListener('DOMContentLoaded', function () {
+            addKaryawanRow();
         });
 
-        function searchKaryawan(query) {
+        function addKaryawanRow() {
+            const container = document.getElementById('karyawan_rows_container');
+            const rowId = rowCounter++;
+
+            const rowHtml = `
+                                                                    <div id="karyawan-row-${rowId}" class="karyawan-search-row">
+                                                                        <!-- Search or Card Container -->
+                                                                        <div class="karyawan-search-container relative" id="content-${rowId}">
+                                                                            <div class="w-full px-2 py-2 border-2 border-[#084E8F] rounded-lg focus:border-[#084E8F] transition">
+                                                                                <input type="text" 
+                                                                                    id="karyawan_input_${rowId}" 
+                                                                                    placeholder="Cari nama karyawan..."
+                                                                                    class="w-full karyawan-search-input"
+                                                                                    autocomplete="off"
+                                                                                    data-row-id="${rowId}">
+                                                                            </div>
+                                                                            <!-- Autocomplete Dropdown -->
+                                                                            <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>
+                                                                        </div>
+                                                                        <!-- Action Buttons -->
+                                                                        <div class="karyawan-action-buttons">
+                                                                            <button type="button" class="karyawan-add-btn" onclick="addKaryawanRow()" title="Tambah karyawan">
+                                                                                <svg fill="currentColor" viewBox="0 0 24 24">
+                                                                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                                                                </svg>
+                                                                            </button>
+                                                                            <button type="button" class="karyawan-minus-btn" onclick="removeKaryawanRow(${rowId})" title="Hapus baris">
+                                                                                <svg fill="currentColor" viewBox="0 0 24 24">
+                                                                                    <path d="M19 13H5v-2h14v2z"/>
+                                                                                </svg>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                `;
+
+            container.insertAdjacentHTML('beforeend', rowHtml);
+            setupRowListeners(rowId);
+        }
+
+        function removeKaryawanRow(rowId) {
+            const row = document.getElementById(`karyawan-row-${rowId}`);
+            const rowData = selectedKaryawan.find(k => k.rowId === rowId);
+
+            // Remove dari selectedKaryawan
+            if (rowData) {
+                selectedKaryawan = selectedKaryawan.filter(k => k.rowId !== rowId);
+                updateHiddenInput();
+            }
+
+            // Remove DOM element
+            if (row) row.remove();
+        }
+
+        function setupRowListeners(rowId) {
+            const input = document.getElementById(`karyawan_input_${rowId}`);
+            const dropdown = document.getElementById(`autocomplete_dropdown_${rowId}`);
+            let debounceId;
+
+            input.addEventListener('input', function () {
+                const query = this.value.trim();
+                clearTimeout(debounceId);
+
+                if (query.length < 2) {
+                    dropdown.classList.remove('show');
+                    dropdown.innerHTML = '';
+                    return;
+                }
+
+                debounceId = setTimeout(() => {
+                    searchKaryawanForRow(query, rowId, dropdown);
+                }, 300);
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                }
+            });
+        }
+
+        function searchKaryawanForRow(query, rowId, dropdown) {
             fetch(`{{ route('tamu.search-karyawan') }}?q=${encodeURIComponent(query)}`)
                 .then(response => response.json())
                 .then(data => {
-                    displayAutocomplete(data);
+                    displayAutocompleteForRow(data, rowId, dropdown);
                 })
                 .catch(error => {
                     console.error('Error:', error);
                 });
         }
 
-        function displayAutocomplete(karyawans) {
+        function displayAutocompleteForRow(karyawans, rowId, dropdown) {
             if (karyawans.length === 0) {
                 dropdown.innerHTML = '<div class="autocomplete-item">Tidak ada hasil</div>';
                 dropdown.classList.add('show');
@@ -381,66 +534,59 @@
                 }
 
                 html += `
-                                                                <div class="autocomplete-item" onclick="selectKaryawan(${karyawan.id_karyawan}, '${karyawan.nama_karyawan}', '${karyawan.jabatan}', '${karyawan.departemen}')">
-                                                                    <div class="autocomplete-name">${karyawan.nama_karyawan}</div>
-                                                                    <div class="autocomplete-detail">${karyawan.jabatan} - ${karyawan.departemen}</div>
-                                                                </div>
-                                                            `;
+                                                                        <div class="autocomplete-item" onclick="selectKaryawanForRow(${rowId}, ${karyawan.id_karyawan}, '${karyawan.nama_karyawan}', '${karyawan.jabatan}', '${karyawan.departemen}')">
+                                                                            <div class="autocomplete-name">${karyawan.nama_karyawan}</div>
+                                                                            <div class="autocomplete-detail">${karyawan.jabatan} - ${karyawan.departemen}</div>
+                                                                        </div>
+                                                                    `;
             });
 
             dropdown.innerHTML = html;
             dropdown.classList.add('show');
         }
 
-        function selectKaryawan(id, nama, jabatan, departemen) {
-            selectedKaryawan.push({ id_karyawan: id, nama_karyawan: nama, jabatan, departemen });
-
-            renderSelectedKaryawan();
-
-            input.value = '';
-            dropdown.classList.remove('show');
-            dropdown.innerHTML = '';
-
-            updateHiddenInput();
-        }
-
-        function removeKaryawan(id) {
-            selectedKaryawan = selectedKaryawan.filter(k => k.id_karyawan !== id);
-            renderSelectedKaryawan();
-            updateHiddenInput();
-        }
-
-        function renderSelectedKaryawan() {
-            const container = document.getElementById('selected_karyawan');
-
-            if (selectedKaryawan.length === 0) {
-                container.innerHTML = '';
+        function selectKaryawanForRow(rowId, id, nama, jabatan, departemen) {
+            // Check if already selected in other rows
+            if (selectedKaryawan.find(k => k.id_karyawan === id)) {
+                alert('Karyawan ini sudah dipilih di baris lain');
                 return;
             }
 
-            let html = '';
-            selectedKaryawan.forEach(karyawan => {
-                html += `
-                                                                <div class="karyawan-chip">
-                                                                    <span>${karyawan.nama_karyawan}</span>
-                                                                    <button type="button" onclick="removeKaryawan(${karyawan.id_karyawan})">&times;</button>
-                                                                </div>
-                                                            `;
+            // Remove old selection for this row if exists
+            selectedKaryawan = selectedKaryawan.filter(k => k.rowId !== rowId);
+
+            // Add new selection
+            selectedKaryawan.push({
+                rowId: rowId,
+                id_karyawan: id,
+                nama_karyawan: nama,
+                jabatan: jabatan,
+                departemen: departemen
             });
 
-            container.innerHTML = html;
+            renderRowContent(rowId, id, nama, jabatan, departemen);
+            updateHiddenInput();
+        }
+
+        function renderRowContent(rowId, id, nama, jabatan, departemen) {
+            const content = document.getElementById(`content-${rowId}`);
+
+            const cardHtml = `
+                                                                    <div class="karyawan-card w-full\" style="margin: 0; padding: 0;\">
+                                                                        <div class="karyawan-card-info\">
+                                                                            <div class="karyawan-card-name">${nama}</div>
+                                                                            <div class="karyawan-card-detail">${jabatan} - ${departemen}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                `;
+
+            content.innerHTML = cardHtml;
         }
 
         function updateHiddenInput() {
             const ids = selectedKaryawan.map(k => k.id_karyawan);
             document.getElementById('karyawan_ids').value = JSON.stringify(ids);
         }
-
-        document.addEventListener('click', function (e) {
-            if (!input.contains(e.target) && !dropdown.contains(e.target)) {
-                dropdown.classList.remove('show');
-            }
-        });
 
         // Webcam
         let stream = null;
@@ -498,7 +644,7 @@
             }
         }
 
-        modal.addEventListener('click', function(e) {
+        modal.addEventListener('click', function (e) {
             if (e.target === modal) {
                 closeWebcamModal();
             }
@@ -520,6 +666,32 @@
             @if(session('success'))
                 showSuccessModal();
             @endif
+
+                                                                // Setup input/textarea background color based on filled state
+                                                                const inputs = document.querySelectorAll('input[type="text"], input[type="email"], textarea');
+
+            inputs.forEach(input => {
+                // Check initial state
+                updateInputBackground(input);
+
+                // Listen for input changes
+                input.addEventListener('input', function () {
+                    updateInputBackground(this);
+                });
+
+                // Also listen for change event
+                input.addEventListener('change', function () {
+                    updateInputBackground(this);
+                });
+            });
         });
+
+        function updateInputBackground(input) {
+            if (input.value.trim() !== '') {
+                input.classList.add('filled');
+            } else {
+                input.classList.remove('filled');
+            }
+        }
     </script>
 @endpush
