@@ -596,7 +596,6 @@
                 let hasError = false;
                 let firstErrorElement = null;
 
-                // Validate Nama Lengkap
                 if (!inputs.nama.value?.trim()) {
                     e.preventDefault();
                     showError(inputs.nama, errors.nama);
@@ -604,7 +603,6 @@
                     if (!firstErrorElement) firstErrorElement = inputs.nama;
                 }
 
-                // Validate Email
                 if (!inputs.email.value?.trim() || !emailRegex.test(inputs.email.value)) {
                     e.preventDefault();
                     showError(inputs.email, errors.email);
@@ -612,7 +610,6 @@
                     if (!firstErrorElement) firstErrorElement = inputs.email;
                 }
 
-                // Validate Instansi
                 if (!inputs.instansi.value?.trim()) {
                     e.preventDefault();
                     showError(inputs.instansi, errors.instansi);
@@ -620,7 +617,6 @@
                     if (!firstErrorElement) firstErrorElement = inputs.instansi;
                 }
 
-                // Validate Tujuan
                 if (!inputs.tujuan.value?.trim()) {
                     e.preventDefault();
                     showError(inputs.tujuan, errors.tujuan);
@@ -628,7 +624,6 @@
                     if (!firstErrorElement) firstErrorElement = inputs.tujuan;
                 }
 
-                // Validate Karyawan
                 if (selectedKaryawan.length === 0) {
                     e.preventDefault();
                     hasError = true;
@@ -656,7 +651,6 @@
                     }, 5000);
                 }
 
-                // Validate Foto KTP
                 if (!inputs.foto.value?.trim()) {
                     e.preventDefault();
                     hasError = true;
@@ -688,7 +682,6 @@
             }
         }
 
-        // Karyawan Management Functions
         function addKaryawanRow() {
             const container = document.getElementById('karyawan_rows_container');
             const rowId = rowCounter++;
@@ -761,7 +754,6 @@
                 }, 300);
             });
 
-            // Close dropdown on outside click
             document.addEventListener('click', function (e) {
                 if (!input.contains(e.target) && !dropdown.contains(e.target)) {
                     dropdown.classList.remove('show');
@@ -855,7 +847,6 @@
             minusButtons.forEach(btn => btn.disabled = shouldDisable);
         }
 
-        // Webcam Functions
         function openWebcamModal() {
             webcamModal.classList.add('show');
             startWebcam();
@@ -891,12 +882,10 @@
             try {
                 console.log('Mengambil foto...');
                 
-                // Validasi video stream
                 if (!video || !video.videoWidth || !video.videoHeight) {
                     throw new Error('Kamera tidak siap. Silakan coba lagi.');
                 }
                 
-                // Set maximum dimensions untuk kompresi
                 const maxWidth = 1024;
                 const maxHeight = 768;
                 
@@ -904,7 +893,6 @@
                 let height = video.videoHeight;
                 console.log(`Ukuran asli: ${width}x${height}`);
                 
-                // Calculate scaling ratio untuk maintain aspect ratio
                 if (width > maxWidth || height > maxHeight) {
                     const ratio = Math.min(maxWidth / width, maxHeight / height);
                     width = Math.round(width * ratio);
@@ -916,14 +904,12 @@
                 canvas.height = height;
                 ctx.drawImage(video, 0, 0, width, height);
 
-                // Compress dengan quality 0.7 (70%) untuk balance antara kualitas dan ukuran
                 const photoData = canvas.toDataURL('image/jpeg', 0.7);
                 
                 if (!photoData || photoData.length < 100) {
                     throw new Error('Gagal mengambil foto. Silakan coba lagi.');
                 }
                 
-                // Cek ukuran hasil kompresi
                 const sizeInMB = (photoData.length * 0.75) / (1024 * 1024);
                 console.log(`Ukuran foto: ${sizeInMB.toFixed(2)} MB`);
                 
@@ -949,7 +935,6 @@
             if (e.target === webcamModal) closeWebcamModal();
         });
 
-        // Success Modal Functions
         function showSuccessModal() {
             if (successModal) successModal.classList.add('show');
         }
@@ -962,7 +947,6 @@
             }
         }
 
-        // Input Background Management
         function setupInputBackgrounds() {
             const inputs = document.querySelectorAll('input[type="text"], input[type="email"], textarea');
             inputs.forEach(input => {
@@ -979,7 +963,6 @@
             }
         }
 
-        // Utility Functions
         function escapeHtml(text) {
             const map = {
                 '&': '&amp;',
