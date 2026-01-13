@@ -429,37 +429,37 @@
                     let actions = '';
                     if (kunjungan.status === 'pending') {
                         actions = `
-                                <div class="flex gap-3 mt-6">
-                                    <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
-                                    <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
-                                </div>
-                            `;
+                            <div class="flex gap-3 mt-6">
+                                <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
+                                <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
+                            </div>
+                        `;
                     }
 
                     let cancelReason = '';
                     if (kunjungan.status === 'canceled' && kunjungan.alasan_batal) {
                         cancelReason = `
-                                <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                    <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
-                                    <p class="text-red-700">${kunjungan.alasan_batal}</p>
-                                </div>
-                            `;
+                            <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
+                                <p class="text-red-700">${kunjungan.alasan_batal}</p>
+                            </div>
+                        `;
                     }
 
                     document.getElementById('detailContent').innerHTML = `
-                            <div class="space-y-3">
-                                <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
-                                <div><strong>Jam:</strong> ${kunjungan.jam}</div>
-                                <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
-                                <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
-                                <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
-                                <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
-                                <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
-                                <div><strong>Status:</strong> ${kunjungan.status}</div>
-                                ${cancelReason}
-                                ${actions}
-                            </div>
-                        `;
+                        <div class="space-y-3">
+                            <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
+                            <div><strong>Jam:</strong> ${kunjungan.jam}</div>
+                            <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
+                            <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
+                            <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
+                            <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
+                            <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
+                            <div><strong>Status:</strong> ${kunjungan.status}</div>
+                            ${cancelReason}
+                            ${actions}
+                        </div>
+                    `;
 
                     document.getElementById('detailModal').classList.add('show');
                 });

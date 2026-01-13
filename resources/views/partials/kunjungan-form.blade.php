@@ -28,8 +28,7 @@
                         Alamat Email
                     </label>
                     <div class="input-wrapper">
-                        <input type="email" id="email" name="email" placeholder="Tuliskan alamat email anda"
-                            required>
+                        <input type="email" id="email" name="email" placeholder="Tuliskan alamat email anda" required>
                     </div>
                     <div id="email_error" class="error-message">
                         @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
@@ -124,7 +123,8 @@
                                 @svg('heroicon-o-x-circle', 'w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5')
                                 <div class="text-sm">
                                     <p class="font-bold text-red-800 mb-1">Gagal Upload Foto</p>
-                                    <pre class="text-red-700 whitespace-pre-wrap font-sans">{{ $errors->first('foto_error') }}</pre>
+                                    <pre
+                                        class="text-red-700 whitespace-pre-wrap font-sans">{{ $errors->first('foto_error') }}</pre>
                                 </div>
                             </div>
                         </div>
@@ -152,9 +152,19 @@
 
         <!-- Video Preview -->
         <div id="video_container">
-            <video id="webcam_video" autoplay playsinline class="w-full rounded-lg mb-4"
-                style="background: #f3f4f6;"></video>
-            <div class="flex gap-3">
+            <div class="video-wrapper">
+                <video id="webcam_video" autoplay playsinline class="w-full rounded-lg"
+                    style="background: #f3f4f6;"></video>
+
+                <!-- KTP Frame Overlay -->
+                <div class="ktp-overlay">
+                    <div class="ktp-frame">
+                        <div class="ktp-guide-text">Posisikan KTP di dalam frame</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-4">
                 <button type="button" onclick="closeWebcamModal()" style="background-color: #D9D9D9; color: #000000;"
                     class="flex-1 font-semibold py-3 px-4 rounded-lg transition hover:opacity-90 flex items-center justify-center gap-2">
                     @svg('heroicon-o-x-mark', 'w-5 h-5')
