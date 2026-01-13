@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property \Carbon\Carbon $tanggal_kunjungan
+ * @property \Carbon\Carbon|null $expired_at
+ */
 class Kunjungan extends Model
 {
     protected $table = 'kunjungan';

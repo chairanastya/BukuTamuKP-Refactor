@@ -6,6 +6,7 @@ use App\Models\Kunjungan;
 use App\Models\Karyawan;
 use App\Models\Tamu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Cloudinary\Cloudinary;
 
@@ -146,7 +147,7 @@ class ResepsionisController extends Controller
                 $signature
             );
 
-            \Log::info('Generated KTP signed URL', [
+            Log::info('Generated KTP signed URL', [
                 'tamu_id' => $tamuId,
                 'public_id' => $publicId,
                 'url_preview' => substr($signedUrl, 0, 100) . '...'
@@ -158,7 +159,7 @@ class ResepsionisController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Error generating signed URL for KTP', [
+            Log::error('Error generating signed URL for KTP', [
                 'tamu_id' => $tamuId,
                 'error' => $e->getMessage()
             ]);
@@ -187,7 +188,7 @@ class ResepsionisController extends Controller
             $apiSecret = config('cloudinary.api_secret');
             $publicId = $tamu->ktp_public_id;
 
-            \Log::info('Streaming KTP from Cloudinary', [
+            Log::info('Streaming KTP from Cloudinary', [
                 'tamu_id' => $tamuId,
                 'public_id' => $publicId
             ]);
@@ -201,7 +202,7 @@ class ResepsionisController extends Controller
                 $publicId
             );
 
-            \Log::info('Downloading from URL', [
+            Log::info('Downloading from URL', [
                 'tamu_id' => $tamuId,
                 'public_id' => $publicId,
                 'url' => $imageUrl
@@ -217,10 +218,9 @@ class ResepsionisController extends Controller
             $imageContent = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $error = curl_error($ch);
-            curl_close($ch);
 
             if ($httpCode !== 200 || !$imageContent) {
-                \Log::error('Failed to download KTP', [
+                Log::error('Failed to download KTP', [
                     'http_code' => $httpCode,
                     'curl_error' => $error,
                     'tamu_id' => $tamuId,
@@ -234,7 +234,7 @@ class ResepsionisController extends Controller
                 abort(500, $errorMsg);
             }
 
-            \Log::info('Successfully streamed KTP', [
+            Log::info('Successfully streamed KTP', [
                 'tamu_id' => $tamuId,
                 'size' => strlen($imageContent)
             ]);
@@ -246,7 +246,7 @@ class ResepsionisController extends Controller
                 ->header('X-Content-Type-Options', 'nosniff');
 
         } catch (\Exception $e) {
-            \Log::error('Error streaming KTP', [
+            Log::error('Error streaming KTP', [
                 'tamu_id' => $tamuId,
                 'error' => $e->getMessage(),
                 'line' => $e->getLine()
