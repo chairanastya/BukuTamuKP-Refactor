@@ -6,6 +6,7 @@ use App\Models\Kunjungan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\KunjunganNotification;
+use Illuminate\Support\Facades\Log;
 
 class KunjunganConfirmController extends Controller
 {
@@ -16,7 +17,7 @@ class KunjunganConfirmController extends Controller
     {
         $action = $request->get('action'); // 'terima' atau 'tolak'
         
-        \Log::info('Menampilkan halaman konfirmasi', [
+        Log::info('Menampilkan halaman konfirmasi', [
             'token' => $token,
             'action' => $action,
         ]);
@@ -61,7 +62,7 @@ class KunjunganConfirmController extends Controller
     {
         $action = $request->input('action'); // 'terima' atau 'tolak'
         
-        \Log::info('Proses konfirmasi kunjungan', [
+        Log::info('Proses konfirmasi kunjungan', [
             'token' => $token,
             'action' => $action,
         ]);
@@ -94,7 +95,7 @@ class KunjunganConfirmController extends Controller
             $kunjungan->status = 'approved'; // approved = diterima
             $kunjungan->save();
             
-            \Log::info('Kunjungan diterima (approved), ID: ' . $kunjungan->id_kunjungan);
+            Log::info('Kunjungan diterima (approved), ID: ' . $kunjungan->id_kunjungan);
 
             // Kirim email notifikasi ke tamu
             $this->sendNotificationToTamu($kunjungan, 'diterima');
@@ -109,7 +110,7 @@ class KunjunganConfirmController extends Controller
             $kunjungan->status = 'canceled'; // canceled = ditolak
             $kunjungan->save();
             
-            \Log::info('Kunjungan ditolak (canceled), ID: ' . $kunjungan->id_kunjungan);
+            Log::info('Kunjungan ditolak (canceled), ID: ' . $kunjungan->id_kunjungan);
 
             // Kirim email notifikasi ke tamu
             $this->sendNotificationToTamu($kunjungan, 'ditolak');
@@ -139,25 +140,25 @@ class KunjunganConfirmController extends Controller
             $karyawan = $kunjungan->karyawan()->first();
             
             if (!$karyawan) {
-                \Log::warning('Tidak ada karyawan yang terkait dengan kunjungan ID: ' . $kunjungan->id_kunjungan);
+                Log::warning('Tidak ada karyawan yang terkait dengan kunjungan ID: ' . $kunjungan->id_kunjungan);
                 return;
             }
             
             if (!$tamu->email_tamu) {
-                \Log::warning('Tamu tidak memiliki email, ID: ' . $tamu->id_tamu);
+                Log::warning('Tamu tidak memiliki email, ID: ' . $tamu->id_tamu);
                 return;
             }
             
-            \Log::info('Mengirim notifikasi ke tamu: ' . $tamu->email_tamu);
+            Log::info('Mengirim notifikasi ke tamu: ' . $tamu->email_tamu);
             
             Mail::to($tamu->email_tamu)->send(
                 new KunjunganNotification($tamu, $karyawan, $kunjungan, $status)
             );
             
-            \Log::info('Email notifikasi berhasil dikirim ke: ' . $tamu->nama_tamu);
+            Log::info('Email notifikasi berhasil dikirim ke: ' . $tamu->nama_tamu);
             
         } catch (\Exception $e) {
-            \Log::error('Gagal kirim email ke tamu: ' . $e->getMessage(), [
+            Log::error('Gagal kirim email ke tamu: ' . $e->getMessage(), [
                 'kunjungan_id' => $kunjungan->id_kunjungan,
                 'error' => $e->getMessage(),
             ]);

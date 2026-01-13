@@ -8,6 +8,8 @@ use App\Models\Tamu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\KunjunganNotification;
 use Cloudinary\Cloudinary;
 
 class ResepsionisController extends Controller
@@ -70,6 +72,11 @@ class ResepsionisController extends Controller
 
         $kunjungan->update(['status' => 'accepted']);
 
+        Log::info('Kunjungan diterima (accepted), ID: ' . $kunjungan->id_kunjungan);
+
+        // Send email notification to guest
+        $this->sendNotificationToTamu($kunjungan, 'diterima');
+
         return response()->json(['success' => true, 'message' => 'Kunjungan berhasil diterima']);
     }
 
@@ -89,6 +96,11 @@ class ResepsionisController extends Controller
             'status' => 'canceled',
             'alasan_batal' => $request->alasan_batal,
         ]);
+
+        Log::info('Kunjungan ditolak (canceled), ID: ' . $kunjungan->id_kunjungan);
+
+        // Send email notification to guest
+        $this->sendNotificationToTamu($kunjungan, 'ditolak');
 
         return response()->json(['success' => true, 'message' => 'Kunjungan berhasil ditolak']);
     }
@@ -253,6 +265,39 @@ class ResepsionisController extends Controller
             ]);
 
             abort(500, 'Gagal memuat KTP');
+        }
+    }
+
+    private function sendNotificationToTamu(Kunjungan $kunjungan, string $status)
+    {
+        try {
+            $tamu = $kunjungan->tamu;
+            
+            $karyawan = $kunjungan->karyawan()->first();
+            
+            if (!$karyawan) {
+                Log::warning('No employee associated with kunjungan ID: ' . $kunjungan->id_kunjungan);
+                return;
+            }
+            
+            if (!$tamu->email_tamu) {
+                Log::warning('Guest has no email, ID: ' . $tamu->id_tamu);
+                return;
+            }
+            
+            Log::info('Sending notification to guest: ' . $tamu->email_tamu);
+            
+            Mail::to($tamu->email_tamu)->send(
+                new KunjunganNotification($tamu, $karyawan, $kunjungan, $status)
+            );
+            
+            Log::info('Email notification successfully sent to: ' . $tamu->nama_tamu);
+            
+        } catch (\Exception $e) {
+            Log::error('Failed to send email to guest: ' . $e->getMessage(), [
+                'kunjungan_id' => $kunjungan->id_kunjungan,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 }
