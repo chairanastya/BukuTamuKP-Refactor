@@ -454,6 +454,21 @@
                             </svg>
                             Foto KTP wajib diambil sebelum mengirim data
                         </div>
+                        
+                        <!-- Error dari backend khusus upload foto -->
+                        @if($errors->has('foto_error'))
+                            <div class="mt-4 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                                <div class="flex items-start">
+                                    <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <div class="text-sm">
+                                        <p class="font-bold text-red-800 mb-1">Gagal Upload Foto</p>
+                                        <pre class="text-red-700 whitespace-pre-wrap font-sans">{{ $errors->first('foto_error') }}</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Submit Button -->
@@ -873,17 +888,61 @@
         }
 
         function capturePhoto() {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            try {
+                console.log('📸 Mengambil foto...');
+                
+                // Validasi video stream
+                if (!video || !video.videoWidth || !video.videoHeight) {
+                    throw new Error('Kamera tidak siap. Silakan coba lagi.');
+                }
+                
+                // Set maximum dimensions untuk kompresi
+                const maxWidth = 1024;
+                const maxHeight = 768;
+                
+                let width = video.videoWidth;
+                let height = video.videoHeight;
+                console.log(`📐 Ukuran asli: ${width}x${height}`);
+                
+                // Calculate scaling ratio untuk maintain aspect ratio
+                if (width > maxWidth || height > maxHeight) {
+                    const ratio = Math.min(maxWidth / width, maxHeight / height);
+                    width = Math.round(width * ratio);
+                    height = Math.round(height * ratio);
+                    console.log(`🔄 Resize ke: ${width}x${height}`);
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(video, 0, 0, width, height);
 
-            const photoData = canvas.toDataURL('image/jpeg', 0.8);
-            document.getElementById('foto_ktp_base64').value = photoData;
-            document.getElementById('preview_img').src = photoData;
-            document.getElementById('image_preview').classList.remove('hidden');
-            document.getElementById('webcam_area').classList.add('hidden');
+                // Compress dengan quality 0.7 (70%) untuk balance antara kualitas dan ukuran
+                const photoData = canvas.toDataURL('image/jpeg', 0.7);
+                
+                if (!photoData || photoData.length < 100) {
+                    throw new Error('Gagal mengambil foto. Silakan coba lagi.');
+                }
+                
+                // Cek ukuran hasil kompresi
+                const sizeInMB = (photoData.length * 0.75) / (1024 * 1024);
+                console.log(`💾 Ukuran foto: ${sizeInMB.toFixed(2)} MB`);
+                
+                if (sizeInMB > 1.8) {
+                    console.warn('⚠️ Foto cukup besar!');
+                    alert(`Ukuran foto: ${sizeInMB.toFixed(2)} MB\n\nJika upload gagal, coba ambil foto dengan pencahayaan lebih baik atau dari jarak lebih jauh.`);
+                }
+                
+                document.getElementById('foto_ktp_base64').value = photoData;
+                document.getElementById('preview_img').src = photoData;
+                document.getElementById('image_preview').classList.remove('hidden');
+                document.getElementById('webcam_area').classList.add('hidden');
 
-            closeWebcamModal();
+                console.log('✅ Foto berhasil diambil');
+                closeWebcamModal();
+            } catch (error) {
+                console.error('❌ Error capture foto:', error);
+                alert('Gagal mengambil foto: ' + error.message);
+            }
         }
 
         webcamModal.addEventListener('click', function (e) {
