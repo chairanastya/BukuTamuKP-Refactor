@@ -45,6 +45,8 @@ Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
         Route::get('/kunjungan/create', [ResepsionisController::class, 'createKunjungan'])->name('kunjungan.create');
         Route::post('/kunjungan/{id}/accept', [ResepsionisController::class, 'acceptKunjungan'])->name('kunjungan.accept');
         Route::post('/kunjungan/{id}/reject', [ResepsionisController::class, 'rejectKunjungan'])->name('kunjungan.reject');
+        Route::get('/ktp/{tamuId}/signed-url', [ResepsionisController::class, 'getKtpSignedUrl'])->name('ktp.signed-url');
+        Route::get('/ktp/{tamuId}/stream', [ResepsionisController::class, 'streamKtp'])->name('ktp.stream');
         Route::get('/riwayat', [ResepsionisController::class, 'riwayat'])->name('riwayat');
         Route::get('/karyawan', [ResepsionisController::class, 'daftarKaryawan'])->name('karyawan');
     });
