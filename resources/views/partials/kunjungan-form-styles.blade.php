@@ -232,6 +232,56 @@
             transform: none;
         }
 
+        /* Video Wrapper & KTP Overlay */
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .ktp-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 10;
+            border-radius: 8px;
+        }
+
+        .ktp-frame {
+            position: relative;
+            width: 85%;
+            aspect-ratio: 1.586;
+            max-width: 450px;
+            border: 3px dashed #47B9AE;
+            border-radius: 12px;
+            background: transparent;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.65);
+        }
+
+        /* Guide Text */
+        .ktp-guide-text {
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(71, 185, 174, 0.95);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
         /* Upload Area */
         .upload-area {
             border: 2px dashed #084E8F;
