@@ -14,6 +14,56 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
+        <!-- Sidebar Styles -->
+        <style>
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0; 
+                height: 100vh;
+                width: 170px;
+                background: linear-gradient(#47B9AE 0%, #0C4777 100%);
+                z-index: 30; 
+                display: flex;
+                flex-direction: column;
+                padding-top: 116px; 
+            }
+
+            .sidebar-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 1.25rem 1rem;
+                color: white;
+                text-decoration: none;
+                transition: background 0.2s;
+                cursor: pointer;
+                border: none;
+                background: transparent;
+                width: 100%;
+                font-size: 0.875rem;
+                font-weight: 600;
+            }
+
+            .sidebar-item:hover,
+            .sidebar-item.active {
+                background: #F7B218;
+            }
+
+            .sidebar-item svg {
+                width: 32px;
+                height: 32px;
+                margin-bottom: 0.5rem;
+            }
+
+            .main-content {
+                margin-left: 170px;
+                padding-top: 116px; 
+                min-height: 100vh;
+            }
+        </style>
+        
         @stack('styles')
     </head>
     <body class="font-sans antialiased">
@@ -65,6 +115,13 @@
                 </div>
             </header>
         @endif
+
+        <!-- Sidebar (only for authenticated resepsionis) -->
+        @auth('resepsionis')
+            <div class="sidebar">
+                @yield('sidebar')
+            </div>
+        @endauth
 
         <!-- Page Content -->
         @yield('content')

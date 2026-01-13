@@ -30,52 +30,6 @@ Buku Tamu Digital
         background-color: #f9fafb;
     }
 
-    .sidebar {
-        position: fixed;
-        left: 0;
-        top: 0; 
-        height: 100vh;
-        width: 170px;
-        background: linear-gradient(#47B9AE 0%, #0C4777 100%);
-        z-index: 30; 
-        display: flex;
-        flex-direction: column;
-        padding-top: 116px; 
-    }
-
-    .sidebar-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 1.25rem 1rem;
-        color: white;
-        text-decoration: none;
-        transition: background 0.2s;
-        cursor: pointer;
-        border: none;
-        background: transparent;
-        width: 100%;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-
-    .sidebar-item:hover,
-    .sidebar-item.active {
-        background: #F7B218;
-    }
-
-    .sidebar-item svg {
-        width: 32px;
-        height: 32px;
-        margin-bottom: 0.5rem;
-    }
-
-    .main-content {
-        margin-left: 170px;
-        padding-top: 116px; 
-        min-height: 100vh;
-    }
-
     .stats-card {
         background: white;
         border-radius: 12px;
@@ -215,9 +169,7 @@ Buku Tamu Digital
 </style>
 @endpush
 
-@section('content')
-<!-- Sidebar -->
-<div class="sidebar">
+@section('sidebar')
     <div class="sidebar-item active" onclick="switchTab('beranda')">
         @svg('fluentui-home-24', 'w-8 h-8')
         <span>Beranda</span>
@@ -230,8 +182,9 @@ Buku Tamu Digital
         @svg('gmdi-people-r', 'w-8 h-8')
         <span>Daftar Karyawan</span>
     </div>
-</div>
+@endsection
 
+@section('content')
 <!-- Main Content -->
 <div class="main-content">
     <!-- Tab: Beranda -->
@@ -239,10 +192,10 @@ Buku Tamu Digital
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-blue-900">Kunjungan Hari Ini</h2>
-                <button class="btn-primary flex items-center gap-2" onclick="alert('Fitur tambah kunjungan dalam pengembangan')">
+                <a href="{{ route('resepsionis.kunjungan.create') }}" class="btn-primary flex items-center gap-2">
                     @svg('heroicon-o-plus', 'w-5 h-5')
                     Buat Kunjungan Baru
-                </button>
+                </a>
             </div>
 
             <!-- Stats Cards -->
@@ -365,6 +318,12 @@ Buku Tamu Digital
 
     document.addEventListener('DOMContentLoaded', function() {
         initDataTable();
+        
+        // Handle hash-based tab activation
+        const hash = window.location.hash.substring(1);
+        if (hash && ['beranda', 'riwayat', 'karyawan'].includes(hash)) {
+            switchTab(hash);
+        }
     });
 
     function initDataTable() {

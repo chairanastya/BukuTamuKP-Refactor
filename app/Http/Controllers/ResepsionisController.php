@@ -96,6 +96,11 @@ class ResepsionisController extends Controller
         return response()->json(['success' => true, 'message' => 'Kunjungan berhasil ditolak']);
     }
 
+    public function createKunjungan()
+    {
+        return view('resepsionis.create-kunjungan');
+    }
+
     public function riwayat()
     {
         return view('resepsionis.riwayat');
