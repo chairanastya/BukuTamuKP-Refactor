@@ -19,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Performance optimization: Disable Blade component generation
+        // Icons can still be used via @svg('icon-name') directive
+        // This prevents Laravel from scanning and registering thousands of icon components
     }
 }

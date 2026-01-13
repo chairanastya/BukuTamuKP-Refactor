@@ -14,7 +14,27 @@
         border: 0 !important;
         box-shadow: none !important;
     }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: #5F81A1;
+        opacity: 1;
+    }
+
+    input::-webkit-input-placeholder,
+    textarea::-webkit-input-placeholder {
+        color: #5F81A1;
+        opacity: 1;
+    }
+
+    input::-moz-placeholder,
+    textarea::-moz-placeholder {
+        color: #5F81A1;
+        opacity: 1;
+    }
 }
+
+
 
 /* Remove default input border and outline
 input {

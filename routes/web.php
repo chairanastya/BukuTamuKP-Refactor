@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\TamuController;
+use App\Http\Controllers\KunjunganConfirmController;
+use App\Http\Controllers\ResepsionisController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -20,6 +22,10 @@ Route::prefix('tamu')->name('tamu.')->group(function () {
     Route::post('/submit', [TamuController::class, 'submitForm'])->name('submit');
 });
 
+// Route untuk konfirmasi kunjungan dari email
+Route::get('/kunjungan/confirm/{token}', [KunjunganConfirmController::class, 'confirm'])->name('kunjungan.confirm');
+Route::post('/kunjungan/process/{token}', [KunjunganConfirmController::class, 'process'])->name('kunjungan.process');
+
 Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
     // Login routes
     Route::get('/login', [SessionController::class, 'create'])->name('login');
@@ -34,9 +40,13 @@ Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
     Route::middleware('auth:resepsionis')->group(function () {
         Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 
-        Route::get('/dashboard', function () {
-            return view('resepsionis.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [ResepsionisController::class, 'dashboard'])->name('dashboard');
+        Route::get('/kunjungan/data', [ResepsionisController::class, 'getKunjunganData'])->name('kunjungan.data');
+        Route::get('/kunjungan/create', [ResepsionisController::class, 'createKunjungan'])->name('kunjungan.create');
+        Route::post('/kunjungan/{id}/accept', [ResepsionisController::class, 'acceptKunjungan'])->name('kunjungan.accept');
+        Route::post('/kunjungan/{id}/reject', [ResepsionisController::class, 'rejectKunjungan'])->name('kunjungan.reject');
+        Route::get('/riwayat', [ResepsionisController::class, 'riwayat'])->name('riwayat');
+        Route::get('/karyawan', [ResepsionisController::class, 'daftarKaryawan'])->name('karyawan');
     });
 });
 

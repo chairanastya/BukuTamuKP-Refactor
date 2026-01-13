@@ -51,4 +51,32 @@ class Kunjungan extends Model
     {
         return $this->hasOne(Notulensi::class, 'id_kunjungan', 'id_kunjungan');
     }
+
+    // Helper methods untuk status
+    public function getStatusLabelAttribute()
+    {
+        $statusLabels = [
+            'pending' => 'Menunggu',
+            'approved' => 'Diterima',
+            'canceled' => 'Ditolak',
+            'done' => 'Selesai',
+        ];
+
+        return $statusLabels[$this->status] ?? $this->status;
+    }
+
+    public function isApproved()
+    {
+        return $this->status === 'approved';
+    }
+
+    public function isCanceled()
+    {
+        return $this->status === 'canceled';
+    }
+
+    public function isPending()
+    {
+        return $this->status === 'pending';
+    }
 }

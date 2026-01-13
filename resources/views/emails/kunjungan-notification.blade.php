@@ -30,7 +30,7 @@
                     <tr>
                         <td style="padding: 40px 30px;">
                             <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333; line-height: 1.6;">
-                                Halo <strong style="color: #0C4777;">{{ $tamu->nama }}</strong>,
+                                Halo <strong style="color: #0C4777;">{{ $tamu->nama_tamu }}</strong>,
                             </p>
 
                             @if($status === 'diterima')
@@ -38,7 +38,6 @@
                                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 25px;">
                                     <tr>
                                         <td style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-left: 5px solid #28a745; padding: 25px; border-radius: 8px; text-align: center;">
-                                            <div style="font-size: 48px; margin-bottom: 10px;">✓</div>
                                             <h2 style="margin: 0 0 10px 0; font-size: 22px; color: #155724; font-weight: 600;">
                                                 Kunjungan Anda DITERIMA
                                             </h2>
@@ -50,7 +49,7 @@
                                 </table>
 
                                 <p style="margin: 0 0 25px 0; font-size: 15px; color: #555555; line-height: 1.6;">
-                                    <strong>{{ $karyawan->nama }}</strong> akan segera menjemput Anda. 
+                                    <strong>{{ $karyawan->nama_karyawan }}</strong> akan segera menjemput Anda. 
                                     Mohon menunggu sebentar di area resepsionis. Berikut adalah detail kunjungan Anda:
                                 </p>
                             @else
@@ -58,7 +57,6 @@
                                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 25px;">
                                     <tr>
                                         <td style="background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); border-left: 5px solid #dc3545; padding: 25px; border-radius: 8px; text-align: center;">
-                                            <div style="font-size: 48px; margin-bottom: 10px;">✗</div>
                                             <h2 style="margin: 0 0 10px 0; font-size: 22px; color: #721c24; font-weight: 600;">
                                                 Kunjungan Anda DITOLAK
                                             </h2>
@@ -70,7 +68,7 @@
                                 </table>
 
                                 <p style="margin: 0 0 25px 0; font-size: 15px; color: #555555; line-height: 1.6;">
-                                    Mohon maaf, <strong>{{ $karyawan->nama }}</strong> sedang tidak bisa menerima tamu saat ini. 
+                                    Mohon maaf, <strong>{{ $karyawan->nama_karyawan }}</strong> sedang tidak bisa menerima tamu saat ini. 
                                     Silakan koordinasi dengan resepsionis untuk menjadwalkan kunjungan di waktu lain.
                                 </p>
                             @endif
@@ -89,7 +87,7 @@
                                                     <strong>Karyawan yang Dituju</strong>
                                                 </td>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #212529;">
-                                                    : {{ $karyawan->nama }}
+                                                    : {{ $karyawan->nama_karyawan }}
                                                 </td>
                                             </tr>
                                             <tr>
@@ -105,7 +103,7 @@
                                                     <strong>Keperluan</strong>
                                                 </td>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #212529;">
-                                                    : {{ $kunjungan->keperluan }}
+                                                    : {{ $kunjungan->tujuan_kunjungan }}
                                                 </td>
                                             </tr>
                                             <tr>
@@ -113,7 +111,7 @@
                                                     <strong>Waktu Kunjungan</strong>
                                                 </td>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #212529;">
-                                                    : {{ \Carbon\Carbon::parse($kunjungan->tanggal_kunjungan)->format('d F Y, H:i') }} WIB
+                                                    : {{ \Carbon\Carbon::parse($kunjungan->tanggal_kunjungan)->format('d F Y') }}, {{ $kunjungan->jam_mulai }} WIB
                                                 </td>
                                             </tr>
                                             <tr>
@@ -168,7 +166,7 @@
                                             </p>
                                             <p style="margin: 0; color: #856404; font-size: 14px; line-height: 1.8;">
                                                 Silakan menemui resepsionis untuk informasi lebih lanjut atau untuk menjadwalkan kunjungan di waktu lain. 
-                                                Anda juga dapat menghubungi <strong>{{ $karyawan->nama }}</strong> melalui kontak resmi.
+                                                Anda juga dapat menghubungi <strong>{{ $karyawan->nama_karyawan }}</strong> melalui kontak resmi.
                                             </p>
                                         </td>
                                     </tr>

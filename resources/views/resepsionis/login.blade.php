@@ -101,6 +101,45 @@
             border-left: 40px solid white;
             margin: 10px;
         }
+
+        .input-wrapper-login {
+            border: 2px solid #084E8F;
+            border-radius: 8px;
+            padding: 12px 16px;
+            transition: all 0.2s ease;
+            background-color: #F9FCFF;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper-login.filled {
+            background-color: white;
+        }
+
+        .input-wrapper-login:focus-within {
+            box-shadow: 0 0 0 3px rgba(8, 78, 143, 0.1);
+        }
+
+        .input-wrapper-login.error {
+            border-color: #dc2626 !important;
+            background-color: #fef2f2;
+        }
+
+        .input-wrapper-login input {
+            background-color: transparent;
+            flex: 1;
+        }
+
+        .error-message-login {
+            color: #dc2626;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .error-message-login.show {
+            display: block;
+        }
     </style>
 @endpush
 @section('content')
@@ -132,12 +171,9 @@
     <div class="relative flex items-center justify-center min-h-screen px-4">
         <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
             <div class="mb-4 flex items-center justify-between">
-                <a href="{{ route('tamu.form') }}" class="inline-flex items-center text-blue-600 hover:text-blue-900 font-normal transition duration-200">
-                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                            clip-rule="evenodd"></path>
-                    </svg>
+                <a href="{{ route('tamu.form') }}"
+                    class="inline-flex items-center text-blue-600 hover:text-blue-900 font-normal transition duration-200">
+                    @svg('heroicon-o-arrow-left', 'w-4 h-4 mr-1')
                     Kembali ke Form Tamu
                 </a>
             </div>
@@ -146,45 +182,50 @@
             </h1>
 
             @if ($errors->any())
-                <div class="mb-4 bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg">
-                    <ul class="list-disc list-inside text-sm">
+                <div class="mb-4 bg-red-50 border-2 border-red-600 text-red-700 px-4 py-3 rounded-lg">
+                    <ul class="list-none text-sm space-y-1">
                         @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
+                            <li class="flex items-start">
+                                @svg('heroicon-o-x-circle', 'w-4 h-4 mr-2 flex-shrink-0 mt-0.5')
+                                <span>{{ $error }}</span>
+                            </li>
                         @endforeach
                     </ul>
                 </div>
             @endif
 
             @if (session('status'))
-                <div class="mb-4 bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded-lg">
-                    <p class="text-sm">{{ session('status') }}</p>
+                <div class="mb-4 bg-green-50 border-2 border-green-600 text-green-700 px-4 py-3 rounded-lg">
+                    <p class="text-sm flex items-start">
+                        @svg('heroicon-o-check-circle', 'w-4 h-4 mr-2 flex-shrink-0 mt-0.5')
+                        <span>{{ session('status') }}</span>
+                    </p>
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('login') }}">
+            <form method="POST" action="{{ route('login') }}" novalidate>
                 @csrf
 
                 <div class="mb-6">
-                    <div
-                        class="flex items-center border-2 border-blue-300 rounded-lg px-4 py-3 focus-within:border-blue-600 transition">
-                        <svg class="w-6 h-6 text-blue-900 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
-                        </svg>
+                    <div class="input-wrapper-login" id="email-wrapper">
+                        @svg('bi-person-fill', 'w-6 h-6 text-[#084E8F] mr-3')
                         <input type="email" name="email" id="email" placeholder="Email" value="{{ old('email') }}"
-                            class="flex-1 border-0 outline-none text-gray-700 placeholder-gray-400" required autofocus>
+                            class="flex-1 border-0 outline-none text-gray-700" required autofocus>
+                    </div>
+                    <div id="email_error" class="error-message-login">
+                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                        Email wajib diisi dengan format yang benar
                     </div>
                 </div>
-
                 <div class="mb-4">
-                    <div
-                        class="flex items-center border-2 border-blue-300 rounded-lg px-4 py-3 focus-within:border-blue-600 transition">
-                        <svg class="w-6 h-6 text-blue-900 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                clip-rule="evenodd"></path>
-                        </svg>
+                    <div class="input-wrapper-login" id="password-wrapper">
+                        @svg('fas-key', 'w-6 h-6 text-[#084E8F] mr-3')
                         <input type="password" name="password" id="password" placeholder="Password"
-                            class="flex-1 border-0 outline-none text-gray-700 placeholder-gray-400" required>
+                            class="flex-1 border-0 outline-none text-gray-700" required>
+                    </div>
+                    <div id="password_error" class="error-message-login">
+                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                        Password wajib diisi
                     </div>
                 </div>
 
@@ -216,6 +257,75 @@
             document.getElementById('showPassword').addEventListener('change', function () {
                 const passwordInput = document.getElementById('password');
                 passwordInput.type = this.checked ? 'text' : 'password';
+            });
+
+            function updateInputBackground(input) {
+                const wrapper = input.closest('.input-wrapper-login');
+                if (wrapper) {
+                    wrapper.classList.toggle('filled', input.value.trim() !== '');
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const form = document.querySelector('form');
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
+                const emailWrapper = document.getElementById('email-wrapper');
+                const passwordWrapper = document.getElementById('password-wrapper');
+                const emailError = document.getElementById('email_error');
+                const passwordError = document.getElementById('password_error');
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                form.addEventListener('submit', function (e) {
+                    let hasError = false;
+                    let firstErrorElement = null;
+
+                    emailWrapper.classList.remove('error');
+                    passwordWrapper.classList.remove('error');
+                    emailError.classList.remove('show');
+                    passwordError.classList.remove('show');
+
+                    if (!emailInput.value?.trim() || !emailRegex.test(emailInput.value)) {
+                        e.preventDefault();
+                        hasError = true;
+                        emailWrapper.classList.add('error');
+                        emailError.classList.add('show');
+                        if (!firstErrorElement) firstErrorElement = emailInput;
+
+                        setTimeout(() => {
+                            emailError.classList.remove('show');
+                            emailWrapper.classList.remove('error');
+                        }, 5000);
+                    }
+
+                    if (!passwordInput.value?.trim()) {
+                        e.preventDefault();
+                        hasError = true;
+                        passwordWrapper.classList.add('error');
+                        passwordError.classList.add('show');
+                        if (!firstErrorElement) firstErrorElement = passwordInput;
+
+                        setTimeout(() => {
+                            passwordError.classList.remove('show');
+                            passwordWrapper.classList.remove('error');
+                        }, 5000);
+                    }
+
+                    if (hasError && firstErrorElement) {
+                        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstErrorElement.focus();
+                        return false;
+                    }
+
+                    return true;
+                });
+
+                const inputs = document.querySelectorAll('.input-wrapper-login input');
+                inputs.forEach(input => {
+                    updateInputBackground(input);
+                    input.addEventListener('input', () => updateInputBackground(input));
+                    input.addEventListener('change', () => updateInputBackground(input));
+                });
             });
         </script>
     @endpush
