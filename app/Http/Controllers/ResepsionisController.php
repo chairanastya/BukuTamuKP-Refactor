@@ -70,9 +70,9 @@ class ResepsionisController extends Controller
             return response()->json(['success' => false, 'message' => 'Kunjungan sudah diproses'], 400);
         }
 
-        $kunjungan->update(['status' => 'accepted']);
+        $kunjungan->update(['status' => 'approved']);
 
-        Log::info('Kunjungan diterima (accepted), ID: ' . $kunjungan->id_kunjungan);
+        Log::info('Kunjungan diterima (approved), ID: ' . $kunjungan->id_kunjungan);
 
         // Send email notification to guest
         $this->sendNotificationToTamu($kunjungan, 'diterima');
