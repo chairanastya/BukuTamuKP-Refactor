@@ -567,8 +567,7 @@
             setupInputBackgrounds();
             setupFormValidation();
         });
-
-        // Form Validation
+        
         function setupFormValidation() {
             const form = document.querySelector('form');
             const inputs = {
