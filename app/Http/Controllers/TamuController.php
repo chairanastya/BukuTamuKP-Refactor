@@ -177,6 +177,11 @@ class TamuController extends Controller
             }
             $successMessage .= ' Silakan tunggu approval dari karyawan.';
 
+            // Check if submission is from receptionist
+            if (auth('resepsionis')->check()) {
+                return redirect()->route('resepsionis.dashboard')->with('success', $successMessage);
+            }
+
             return redirect()->route('tamu.form')->with('success', $successMessage);
 
         } catch (\Exception $e) {
