@@ -167,22 +167,15 @@
                 <div class="mb-6">
                     <div
                         class="flex items-center border-2 border-blue-300 rounded-lg px-4 py-3 focus-within:border-blue-600 transition">
-                        <svg class="w-6 h-6 text-blue-900 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
-                        </svg>
+                        @svg('bi-person-fill', 'w-6 h-6 text-[#084E8F] mr-3')
                         <input type="email" name="email" id="email" placeholder="Email" value="{{ old('email') }}"
                             class="flex-1 border-0 outline-none text-gray-700 placeholder-gray-400" required autofocus>
                     </div>
                 </div>
-
                 <div class="mb-4">
                     <div
                         class="flex items-center border-2 border-blue-300 rounded-lg px-4 py-3 focus-within:border-blue-600 transition">
-                        <svg class="w-6 h-6 text-blue-900 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                clip-rule="evenodd"></path>
-                        </svg>
+                         @svg('fas-key', 'w-6 h-6 text-[#084E8F] mr-3')
                         <input type="password" name="password" id="password" placeholder="Password"
                             class="flex-1 border-0 outline-none text-gray-700 placeholder-gray-400" required>
                     </div>

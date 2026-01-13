@@ -53,7 +53,7 @@
         .modal-title {
             font-size: 24px;
             font-weight: 700;
-            color: #000000;
+            color: #084E8F;
         }
 
         .modal-close {
@@ -326,11 +326,7 @@
                                 placeholder="Tuliskan nama lengkap anda" required>
                         </div>
                         <div id="nama_error" class="error-message">
-                            <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
                             Nama lengkap wajib diisi
                         </div>
                     </div>
@@ -344,11 +340,7 @@
                             <input type="email" id="email" name="email" placeholder="Tuliskan alamat email anda" required>
                         </div>
                         <div id="email_error" class="error-message">
-                            <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
                             Email wajib diisi dengan format yang benar
                         </div>
                     </div>
@@ -363,11 +355,7 @@
                                 required>
                         </div>
                         <div id="instansi_error" class="error-message">
-                            <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
                             Instansi asal wajib diisi
                         </div>
                     </div>
@@ -382,11 +370,7 @@
                                 class="resize-none" required></textarea>
                         </div>
                         <div id="tujuan_error" class="error-message">
-                            <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
                             Tujuan kedatangan wajib diisi
                         </div>
                     </div>
@@ -405,11 +389,7 @@
 
                         <!-- Error message -->
                         <div id="karyawan_error" class="error-message">
-                            <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
                             Minimal pilih 1 karyawan yang dituju
                         </div>
                     </div>
@@ -425,33 +405,23 @@
 
                         <!-- Webcam Area (default state) -->
                         <div id="webcam_area" class="upload-area" onclick="openWebcamModal()">
-                            <svg class="upload-icon" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M12 12.5c1.38 0 2.5-1.12 2.5-2.5S13.38 7.5 12 7.5 9.5 8.62 9.5 10s1.12 2.5 2.5 2.5z" />
-                                <path
-                                    d="M21 5v14c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2zm-2 0H5v14h14V5z" />
-                                <path d="M14.25 14.5l-1.5 1.875L11 14.5 8 18h8z" />
-                            </svg>
+                            @svg('zondicon-camera', 'upload-icon')
                             <p class="text-[#084E8F] font-bold">Klik untuk ambil foto</p>
                         </div>
 
                         <!-- Preview Captured Image (shown after capture) -->
                         <div id="image_preview" class="hidden">
                             <img id="preview_img" src="" alt="Preview KTP"
-                                class="w-full rounded-lg border-2 border-blue-300">
+                                class="w-full rounded-lg border-2 border-[#084E8F]">
                             <button type="button" onclick="openWebcamModal()"
-                                class="mt-3 w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-2 px-4 rounded-lg transition">
+                                class="mt-3 w-full bg-[#47B9AE] hover:bg-[#F7B218] text-white font-bold py-2 px-4 rounded-lg transition">
                                 Foto Ulang
                             </button>
                         </div>
 
                         <input type="hidden" id="foto_ktp_base64" name="foto_ktp" value="">
                         <div id="foto_error" class="error-message">
-                            <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
                             Foto KTP wajib diambil sebelum mengirim data
                         </div>
                         
@@ -459,9 +429,7 @@
                         @if($errors->has('foto_error'))
                             <div class="mt-4 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
                                 <div class="flex items-start">
-                                    <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                                    </svg>
+                                    @svg('heroicon-o-x-circle', 'w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5')
                                     <div class="text-sm">
                                         <p class="font-bold text-red-800 mb-1">Gagal Upload Foto</p>
                                         <pre class="text-red-700 whitespace-pre-wrap font-sans">{{ $errors->first('foto_error') }}</pre>
@@ -474,9 +442,7 @@
                     <!-- Submit Button -->
                     <button type="submit"
                         class="w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                        </svg>
+                        @svg('phosphor-paper-plane-tilt-fill', 'w-5 h-5')
                         Kirim Data
                     </button>
                 </div>
@@ -499,21 +465,12 @@
                 <div class="flex gap-3">
                     <button type="button" onclick="closeWebcamModal()" style="background-color: #D9D9D9; color: #000000;"
                         class="flex-1 font-semibold py-3 px-4 rounded-lg transition hover:opacity-90 flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                            </path>
-                        </svg>
+                        @svg('heroicon-o-x-mark', 'w-5 h-5')
                         Batalkan
                     </button>
                     <button type="button" onclick="capturePhoto()" style="background-color: #084E8F; color: white;"
                         class="flex-1 font-semibold py-3 px-4 rounded-lg transition hover:bg-[#F7B218] flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12.5c1.38 0 2.5-1.12 2.5-2.5S13.38 7.5 12 7.5 9.5 8.62 9.5 10s1.12 2.5 2.5 2.5z">
-                            </path>
-                            <path
-                                d="M21 5v14c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2zm-2 0H5v14h14V5z">
-                            </path>
-                        </svg>
+                        @svg('zondicon-camera', 'w-5 h-5')
                         Ambil Foto
                     </button>
                 </div>
@@ -700,14 +657,10 @@
                                 </div>
                                 <div class="karyawan-action-buttons">
                                     <button type="button" class="karyawan-add-btn" onclick="addKaryawanRow()" title="Tambah karyawan">
-                                        <svg fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                                        </svg>
+                                        @svg('heroicon-o-plus', 'w-7 h-7')
                                     </button>
                                     <button type="button" class="karyawan-minus-btn" onclick="removeKaryawanRow(${rowId})" title="Hapus baris">
-                                        <svg fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M19 13H5v-2h14v2z"/>
-                                        </svg>
+                                        @svg('heroicon-o-minus', 'w-7 h-7')
                                     </button>
                                 </div>
                             </div>`;
@@ -808,9 +761,7 @@
                                     <div class="karyawan-card-name">${escapeHtml(nama)}</div>
                                     <div class="karyawan-card-detail">${escapeHtml(jabatan)} - ${escapeHtml(departemen)}</div>
                                 </div>
-                                <svg fill="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px; color: #6b7280;">
-                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                                </svg>
+                                @svg('zondicon-edit-pencil', 'w-5 h-5 text-[#084E8F]')
                             </div>`;
         }
 
@@ -881,6 +832,7 @@
             try {
                 console.log('Mengambil foto...');
                 
+                // Validasi video stream
                 if (!video || !video.videoWidth || !video.videoHeight) {
                     throw new Error('Kamera tidak siap. Silakan coba lagi.');
                 }
