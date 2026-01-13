@@ -414,7 +414,7 @@
                             <img id="preview_img" src="" alt="Preview KTP"
                                 class="w-full rounded-lg border-2 border-[#084E8F]">
                             <button type="button" onclick="openWebcamModal()"
-                                class="mt-3 w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-2 px-4 rounded-lg transition">
+                                class="mt-3 w-full bg-[#47B9AE] hover:bg-[#F7B218] text-white font-bold py-2 px-4 rounded-lg transition">
                                 Foto Ulang
                             </button>
                         </div>
