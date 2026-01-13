@@ -60,7 +60,7 @@
                         @yield('header')
                     </h1>
                     @if(View::hasSection('header-action'))
-                        <div class="text-white hover:bg-blue-50 hover:text-blue-900 px-6 py-2 rounded-lg font-semibold transition duration-200 hover:shadow-lg">
+                        <div class="text-white hover:bg-blue-50 hover:bg-opacity-20 px-4 py-2 rounded-lg font-semibold transition duration-200">
                             @yield('header-action')
                         </div>
                     @endif

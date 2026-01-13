@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\TamuController;
 use App\Http\Controllers\KunjunganConfirmController;
+use App\Http\Controllers\ResepsionisController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -39,9 +40,13 @@ Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
     Route::middleware('auth:resepsionis')->group(function () {
         Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 
-        Route::get('/dashboard', function () {
-            return view('resepsionis.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [ResepsionisController::class, 'dashboard'])->name('dashboard');
+        Route::get('/kunjungan/data', [ResepsionisController::class, 'getKunjunganData'])->name('kunjungan.data');
+        Route::get('/kunjungan/create', [ResepsionisController::class, 'createKunjungan'])->name('kunjungan.create');
+        Route::post('/kunjungan/{id}/accept', [ResepsionisController::class, 'acceptKunjungan'])->name('kunjungan.accept');
+        Route::post('/kunjungan/{id}/reject', [ResepsionisController::class, 'rejectKunjungan'])->name('kunjungan.reject');
+        Route::get('/riwayat', [ResepsionisController::class, 'riwayat'])->name('riwayat');
+        Route::get('/karyawan', [ResepsionisController::class, 'daftarKaryawan'])->name('karyawan');
     });
 });
 
