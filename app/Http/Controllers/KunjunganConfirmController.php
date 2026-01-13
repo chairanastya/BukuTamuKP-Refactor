@@ -61,7 +61,7 @@ class KunjunganConfirmController extends Controller
     {
         $action = $request->input('action'); // 'terima' atau 'tolak'
         
-        \Log::info('⚙️ Proses konfirmasi kunjungan', [
+        \Log::info('Proses konfirmasi kunjungan', [
             'token' => $token,
             'action' => $action,
         ]);
