@@ -13,18 +13,17 @@
         const successModal = document.getElementById('success_modal');
 
         // Initialization
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             addKaryawanRow();
 
-            @if (session('success'))
+            @if(session('success'))
                 showSuccessModal();
             @endif
 
             setupInputBackgrounds();
             setupFormValidation();
         });
-
-        // Form Validation
+        
         function setupFormValidation() {
             const form = document.querySelector('form');
             const inputs = {
@@ -48,7 +47,7 @@
             const karyawanContainer = document.getElementById('karyawan_rows_container');
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', function (e) {
                 let hasError = false;
                 let firstErrorElement = null;
 
@@ -121,10 +120,7 @@
                 }
 
                 if (hasError && firstErrorElement) {
-                    firstErrorElement.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
+                    firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     return false;
                 }
 
@@ -141,33 +137,32 @@
             }
         }
 
-        // Karyawan Management Functions
         function addKaryawanRow() {
             const container = document.getElementById('karyawan_rows_container');
             const rowId = rowCounter++;
 
             const rowHtml = `
-                <div id="karyawan-row-${rowId}" class="karyawan-search-row">
-                    <div class="karyawan-search-container" id="content-${rowId}">
-                        <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
-                            <input type="text" 
-                                id="karyawan_input_${rowId}" 
-                                placeholder="Cari nama karyawan..."
-                                class="w-full karyawan-search-input"
-                                autocomplete="off"
-                                data-row-id="${rowId}">
-                        </div>
-                        <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>
-                    </div>
-                    <div class="karyawan-action-buttons">
-                        <button type="button" class="karyawan-add-btn" onclick="addKaryawanRow()" title="Tambah karyawan">
-                            @svg('heroicon-o-plus', 'w-7 h-7')
-                        </button>
-                        <button type="button" class="karyawan-minus-btn" onclick="removeKaryawanRow(${rowId})" title="Hapus baris">
-                            @svg('heroicon-o-minus', 'w-7 h-7')
-                        </button>
-                    </div>
-                </div>`;
+                            <div id="karyawan-row-${rowId}" class="karyawan-search-row">
+                                <div class="karyawan-search-container" id="content-${rowId}">
+                                    <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
+                                        <input type="text" 
+                                            id="karyawan_input_${rowId}" 
+                                            placeholder="Cari nama karyawan..."
+                                            class="w-full karyawan-search-input"
+                                            autocomplete="off"
+                                            data-row-id="${rowId}">
+                                    </div>
+                                    <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>
+                                </div>
+                                <div class="karyawan-action-buttons">
+                                    <button type="button" class="karyawan-add-btn" onclick="addKaryawanRow()" title="Tambah karyawan">
+                                        @svg('heroicon-o-plus', 'w-7 h-7')
+                                    </button>
+                                    <button type="button" class="karyawan-minus-btn" onclick="removeKaryawanRow(${rowId})" title="Hapus baris">
+                                        @svg('heroicon-o-minus', 'w-7 h-7')
+                                    </button>
+                                </div>
+                            </div>`;
 
             container.insertAdjacentHTML('beforeend', rowHtml);
             setupRowListeners(rowId);
@@ -195,7 +190,7 @@
             const dropdown = document.getElementById(`autocomplete_dropdown_${rowId}`);
             let debounceTimeout;
 
-            input.addEventListener('input', function() {
+            input.addEventListener('input', function () {
                 const query = this.value.trim();
                 clearTimeout(debounceTimeout);
 
@@ -210,7 +205,7 @@
                 }, 300);
             });
 
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!input.contains(e.target) && !dropdown.contains(e.target)) {
                     dropdown.classList.remove('show');
                 }
@@ -234,10 +229,10 @@
             const html = karyawans
                 .filter(k => !selectedKaryawan.find(sk => sk.id_karyawan === k.id_karyawan))
                 .map(k => `
-                    <div class="autocomplete-item" onclick="selectKaryawan(${rowId}, ${k.id_karyawan}, '${escapeHtml(k.nama_karyawan)}', '${escapeHtml(k.jabatan)}', '${escapeHtml(k.departemen)}')">
-                        <div class="autocomplete-name">${escapeHtml(k.nama_karyawan)}</div>
-                        <div class="autocomplete-detail">${escapeHtml(k.jabatan)} - ${escapeHtml(k.departemen)}</div>
-                    </div>`)
+                                <div class="autocomplete-item" onclick="selectKaryawan(${rowId}, ${k.id_karyawan}, '${escapeHtml(k.nama_karyawan)}', '${escapeHtml(k.jabatan)}', '${escapeHtml(k.departemen)}')">
+                                    <div class="autocomplete-name">${escapeHtml(k.nama_karyawan)}</div>
+                                    <div class="autocomplete-detail">${escapeHtml(k.jabatan)} - ${escapeHtml(k.departemen)}</div>
+                                </div>`)
                 .join('');
 
             dropdown.innerHTML = html;
@@ -251,13 +246,7 @@
             }
 
             selectedKaryawan = selectedKaryawan.filter(k => k.rowId !== rowId);
-            selectedKaryawan.push({
-                rowId,
-                id_karyawan: id,
-                nama_karyawan: nama,
-                jabatan,
-                departemen
-            });
+            selectedKaryawan.push({ rowId, id_karyawan: id, nama_karyawan: nama, jabatan, departemen });
 
             renderKaryawanCard(rowId, nama, jabatan, departemen);
             updateHiddenInput();
@@ -266,13 +255,13 @@
         function renderKaryawanCard(rowId, nama, jabatan, departemen) {
             const content = document.getElementById(`content-${rowId}`);
             content.innerHTML = `
-                <div class="karyawan-card w-full" onclick="resetKaryawanRow(${rowId})" title="Klik untuk mengganti karyawan">
-                    <div class="karyawan-card-info">
-                        <div class="karyawan-card-name">${escapeHtml(nama)}</div>
-                        <div class="karyawan-card-detail">${escapeHtml(jabatan)} - ${escapeHtml(departemen)}</div>
-                    </div>
-                    @svg('zondicon-edit-pencil', 'w-5 h-5 text-[#084E8F]')
-                </div>`;
+                            <div class="karyawan-card w-full" onclick="resetKaryawanRow(${rowId})" title="Klik untuk mengganti karyawan">
+                                <div class="karyawan-card-info">
+                                    <div class="karyawan-card-name">${escapeHtml(nama)}</div>
+                                    <div class="karyawan-card-detail">${escapeHtml(jabatan)} - ${escapeHtml(departemen)}</div>
+                                </div>
+                                @svg('zondicon-edit-pencil', 'w-5 h-5 text-[#084E8F]')
+                            </div>`;
         }
 
         function updateHiddenInput() {
@@ -286,15 +275,15 @@
 
             const content = document.getElementById(`content-${rowId}`);
             content.innerHTML = `
-                <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
-                    <input type="text" 
-                        id="karyawan_input_${rowId}" 
-                        placeholder="Cari nama karyawan..."
-                        class="w-full karyawan-search-input"
-                        autocomplete="off"
-                        data-row-id="${rowId}">
-                </div>
-                <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>`;
+                            <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
+                                <input type="text" 
+                                    id="karyawan_input_${rowId}" 
+                                    placeholder="Cari nama karyawan..."
+                                    class="w-full karyawan-search-input"
+                                    autocomplete="off"
+                                    data-row-id="${rowId}">
+                            </div>
+                            <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>`;
 
             setupRowListeners(rowId);
         }
@@ -307,7 +296,6 @@
             minusButtons.forEach(btn => btn.disabled = shouldDisable);
         }
 
-        // Webcam Functions
         function openWebcamModal() {
             webcamModal.classList.add('show');
             startWebcam();
@@ -321,9 +309,7 @@
         async function startWebcam() {
             try {
                 stream = await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        facingMode: 'user'
-                    },
+                    video: { facingMode: 'user' },
                     audio: false
                 });
                 video.srcObject = stream;
@@ -343,45 +329,51 @@
 
         function capturePhoto() {
             try {
+                console.log('Mengambil foto...');
+                
+                // Validasi video stream
                 if (!video || !video.videoWidth || !video.videoHeight) {
                     throw new Error('Kamera tidak siap. Silakan coba lagi.');
                 }
-
+                
                 const maxWidth = 1024;
                 const maxHeight = 768;
-
+                
                 let width = video.videoWidth;
                 let height = video.videoHeight;
-
+                console.log(`Ukuran asli: ${width}x${height}`);
+                
                 if (width > maxWidth || height > maxHeight) {
                     const ratio = Math.min(maxWidth / width, maxHeight / height);
                     width = Math.round(width * ratio);
                     height = Math.round(height * ratio);
+                    console.log(`Resize ke: ${width}x${height}`);
                 }
-
+                
                 canvas.width = width;
                 canvas.height = height;
                 ctx.drawImage(video, 0, 0, width, height);
 
                 const photoData = canvas.toDataURL('image/jpeg', 0.7);
-
+                
                 if (!photoData || photoData.length < 100) {
                     throw new Error('Gagal mengambil foto. Silakan coba lagi.');
                 }
-
+                
                 const sizeInMB = (photoData.length * 0.75) / (1024 * 1024);
-
+                console.log(`Ukuran foto: ${sizeInMB.toFixed(2)} MB`);
+                
                 if (sizeInMB > 1.8) {
-                    alert(
-                        `Ukuran foto: ${sizeInMB.toFixed(2)} MB\n\nJika upload gagal, coba ambil foto dengan pencahayaan lebih baik atau dari jarak lebih jauh.`
-                        );
+                    console.warn('Foto cukup besar!');
+                    alert(`Ukuran foto: ${sizeInMB.toFixed(2)} MB\n\nJika upload gagal, coba ambil foto dengan pencahayaan lebih baik atau dari jarak lebih jauh.`);
                 }
-
+                
                 document.getElementById('foto_ktp_base64').value = photoData;
                 document.getElementById('preview_img').src = photoData;
                 document.getElementById('image_preview').classList.remove('hidden');
                 document.getElementById('webcam_area').classList.add('hidden');
 
+                console.log('Foto berhasil diambil');
                 closeWebcamModal();
             } catch (error) {
                 console.error('Error capture foto:', error);
@@ -389,11 +381,10 @@
             }
         }
 
-        webcamModal.addEventListener('click', function(e) {
+        webcamModal.addEventListener('click', function (e) {
             if (e.target === webcamModal) closeWebcamModal();
         });
 
-        // Success Modal Functions
         function showSuccessModal() {
             if (successModal) successModal.classList.add('show');
         }
@@ -406,7 +397,6 @@
             }
         }
 
-        // Input Background Management
         function setupInputBackgrounds() {
             const inputs = document.querySelectorAll('input[type="text"], input[type="email"], textarea');
             inputs.forEach(input => {
@@ -423,7 +413,6 @@
             }
         }
 
-        // Utility Functions
         function escapeHtml(text) {
             const map = {
                 '&': '&amp;',
