@@ -101,6 +101,29 @@
             border-left: 40px solid white;
             margin: 10px;
         }
+
+        .input-wrapper-forgot {
+            border: 2px solid #084E8F;
+            border-radius: 8px;
+            padding: 12px 16px;
+            transition: all 0.2s ease;
+            background-color: #F9FCFF;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper-forgot.filled {
+            background-color: white;
+        }
+
+        .input-wrapper-forgot:focus-within {
+            box-shadow: 0 0 0 3px rgba(8, 78, 143, 0.1);
+        }
+
+        .input-wrapper-forgot input {
+            background-color: transparent;
+            flex: 1;
+        }
     </style>
 @endpush
 @section('content')
@@ -163,15 +186,11 @@
 
                 <!-- Email Input -->
                 <div class="mb-6">
-                    <div
-                        class="flex items-center border-2 border-blue-300 rounded-lg px-4 py-3 focus-within:border-blue-600 transition">
-                        <svg class="w-6 h-6 text-blue-900 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
-                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
-                        </svg>
+                    <div class="input-wrapper-forgot">
+                        @svg('heroicon-s-envelope', 'w-6 h-6 text-[#084E8F] mr-3')
                         <input type="email" name="email" id="email" placeholder="Email Resepsionis"
                             value="{{ old('email') }}"
-                            class="flex-1 border-0 outline-none text-gray-700 placeholder-gray-400" required autofocus>
+                            class="flex-1 border-0 outline-none text-gray-700" required autofocus>
                     </div>
                 </div>
 
@@ -185,15 +204,31 @@
                 <div class="mt-6 text-center">
                     <a href="{{ route('resepsionis.login') }}"
                         class="text-sm text-gray-600 hover:text-blue-700 hover:underline inline-flex items-center">
-                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                                clip-rule="evenodd"></path>
-                        </svg>
+                        @svg('heroicon-o-arrow-left', 'w-4 h-4 mr-1')
                         Kembali ke Login
                     </a>
                 </div>
             </form>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            function updateInputBackground(input) {
+                const wrapper = input.closest('.input-wrapper-forgot');
+                if (wrapper) {
+                    wrapper.classList.toggle('filled', input.value.trim() !== '');
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const inputs = document.querySelectorAll('.input-wrapper-forgot input');
+                inputs.forEach(input => {
+                    updateInputBackground(input);
+                    input.addEventListener('input', () => updateInputBackground(input));
+                    input.addEventListener('change', () => updateInputBackground(input));
+                });
+            });
+        </script>
+    @endpush
 @endsection

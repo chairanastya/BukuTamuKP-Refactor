@@ -138,7 +138,7 @@
                                 <tr>
                                     <td style="background-color: #e7f3ff; border-left: 4px solid #0C4777; padding: 20px; border-radius: 6px;">
                                         <p style="margin: 0 0 12px 0; font-size: 15px; color: #0C4777; font-weight: 600;">
-                                            📋 INFORMASI PENGISIAN NOTULENSI
+                                            INFORMASI PENGISIAN NOTULENSI
                                         </p>
                                         <ul style="margin: 0; padding-left: 20px; color: #495057; font-size: 14px; line-height: 1.8;">
                                             <li style="margin-bottom: 8px;">Link ini <strong>hanya berlaku untuk Anda</strong> dan tidak dapat dibagikan</li>

@@ -8,6 +8,9 @@ use App\Models\Kunjungan;
 use Cloudinary\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use App\Mail\KunjunganConfirmation;
 
 class TamuController extends Controller
 {
@@ -56,7 +59,7 @@ class TamuController extends Controller
             
             // Log info ukuran foto
             $sizeInMB = (strlen($base64Image) * 0.75) / (1024 * 1024);
-            \Log::info('📸 Upload foto KTP', [
+            \Log::info('Upload foto KTP', [
                 'size_mb' => number_format($sizeInMB, 2),
                 'nama_tamu' => $validated['nama_lengkap'],
             ]);
@@ -70,7 +73,7 @@ class TamuController extends Controller
             // Disable SSL verification untuk development (putenv akan dipakai oleh Guzzle)
             if (config('app.env') === 'local') {
                 putenv('CURLOPT_SSL_VERIFYPEER=0');
-                \Log::info('🔓 SSL verification disabled (development mode)');
+                \Log::info('SSL verification disabled (development mode)');
             }
             
             $cloudinaryConfig = [
@@ -89,7 +92,7 @@ class TamuController extends Controller
             
             $cloudinary = new Cloudinary($cloudinaryConfig);
             
-            \Log::info('☁️ Mengirim ke Cloudinary...');
+            \Log::info('Mengirim ke Cloudinary...');
             
             $uploadResult = $cloudinary->uploadApi()->upload($base64Image, [
                 'folder' => 'ktp_tamu',
@@ -101,7 +104,7 @@ class TamuController extends Controller
                 ]
             ]);
             
-            \Log::info('✅ Upload ke Cloudinary berhasil', [
+            \Log::info('Upload ke Cloudinary berhasil', [
                 'public_id' => $uploadResult['public_id'],
             ]);
 
@@ -111,6 +114,12 @@ class TamuController extends Controller
                 'instansi_tamu' => $validated['instansi'],
                 'ktp_public_id' => $uploadResult['public_id'],
             ]);
+            
+            \Log::info('Tamu berhasil dibuat, ID: ' . $tamu->id_tamu);
+
+            // Generate token untuk approval
+            $token = Str::random(64);
+            $expiredAt = now()->addHours(24); // Token berlaku 24 jam
 
             $kunjungan = Kunjungan::create([
                 'id_tamu' => $tamu->id_tamu,
@@ -118,7 +127,11 @@ class TamuController extends Controller
                 'tanggal_kunjungan' => now()->toDateString(),
                 'jam_mulai' => now()->toTimeString(),
                 'status' => 'pending',
+                'token_approval' => $token,
+                'expired_at' => $expiredAt,
             ]);
+            
+            \Log::info('Kunjungan berhasil dibuat, ID: ' . $kunjungan->id_kunjungan);
 
             $karyawanIds = json_decode($validated['karyawan_ids'], true);
 
@@ -126,18 +139,50 @@ class TamuController extends Controller
                 foreach ($karyawanIds as $karyawanId) {
                     $kunjungan->karyawan()->attach($karyawanId);
                 }
+                \Log::info('Berhasil attach ' . count($karyawanIds) . ' karyawan');
             }
 
             DB::commit();
 
-            // Generate token approval & kirim email (nanti)
+            // Kirim email ke setiap karyawan yang dituju
+            \Log::info('Mulai mengirim email ke karyawan...');
+            $emailsSent = 0;
+            $emailsFailed = 0;
+            
+            foreach ($karyawanIds as $karyawanId) {
+                try {
+                    $karyawan = Karyawan::find($karyawanId);
+                    
+                    if ($karyawan && $karyawan->email_karyawan) {
+                        Mail::to($karyawan->email_karyawan)->send(
+                            new KunjunganConfirmation($karyawan, $tamu, $kunjungan, $token)
+                        );
+                        $emailsSent++;
+                        \Log::info("Email terkirim ke: {$karyawan->nama_karyawan} ({$karyawan->email_karyawan})");
+                    } else {
+                        \Log::warning("Karyawan ID {$karyawanId} tidak memiliki email");
+                        $emailsFailed++;
+                    }
+                } catch (\Exception $mailError) {
+                    \Log::error("Gagal kirim email ke karyawan ID {$karyawanId}: " . $mailError->getMessage());
+                    $emailsFailed++;
+                }
+            }
+            
+            \Log::info("Email summary: {$emailsSent} terkirim, {$emailsFailed} gagal");
 
-            return redirect()->route('tamu.form')->with('success', 'Data kunjungan berhasil dikirim! Silakan tunggu approval dari karyawan.');
+            $successMessage = 'Data kunjungan berhasil dikirim!';
+            if ($emailsSent > 0) {
+                $successMessage .= " Email konfirmasi telah dikirim ke {$emailsSent} karyawan.";
+            }
+            $successMessage .= ' Silakan tunggu approval dari karyawan.';
+
+            return redirect()->route('tamu.form')->with('success', $successMessage);
 
         } catch (\Exception $e) {
             DB::rollBack();
             
-            \Log::error('❌ Error submit form tamu', [
+            \Log::error('Error submit form tamu', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -146,9 +191,9 @@ class TamuController extends Controller
             if (isset($uploadResult['public_id'])) {
                 try {
                     $cloudinary->uploadApi()->destroy($uploadResult['public_id']);
-                    \Log::info('🗑️ Cleanup: foto berhasil dihapus dari Cloudinary');
+                    \Log::info('Cleanup: foto berhasil dihapus dari Cloudinary');
                 } catch (\Exception $deleteError) {
-                    \Log::error('⚠️ Gagal hapus foto dari Cloudinary');
+                    \Log::error('Gagal hapus foto dari Cloudinary');
                 }
             }
             
@@ -158,7 +203,7 @@ class TamuController extends Controller
             if (str_contains($e->getMessage(), 'Cloudinary') || 
                 str_contains($e->getMessage(), 'upload') ||
                 str_contains($e->getMessage(), 'Invalid image')) {
-                $errorMessage = '❌ GAGAL UPLOAD FOTO\n\n';
+                $errorMessage = 'GAGAL UPLOAD FOTO\n\n';
                 $errorMessage .= 'Error: ' . $e->getMessage() . '\n\n';
                 $errorMessage .= 'Kemungkinan penyebab:\n';
                 $errorMessage .= '• Koneksi internet tidak stabil\n';
