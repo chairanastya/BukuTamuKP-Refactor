@@ -19,10 +19,7 @@
         /* Modal Styles */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             background-color: rgba(0, 0, 0, 0.7);
             display: none;
             align-items: center;
@@ -36,8 +33,8 @@
 
         .modal-content {
             background: white;
-            border-radius: 1rem;
-            padding: 2rem;
+            border-radius: 16px;
+            padding: 32px;
             max-width: 600px;
             width: 90%;
             max-height: 90vh;
@@ -48,19 +45,21 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
         }
 
         .modal-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #1e40af;
+            font-size: 24px;
+            font-weight: 700;
+            color: #000000;
         }
 
         .modal-close {
             background: none;
             border: none;
-            font-size: 2rem;
+            font-size: 32px;
             color: #6b7280;
             cursor: pointer;
             padding: 0;
@@ -70,13 +69,14 @@
             align-items: center;
             justify-content: center;
             transition: color 0.2s;
+            line-height: 1;
         }
 
         .modal-close:hover {
-            color: #F7B218;
+            color: #374151;
         }
 
-        /* Autocomplete Dropdown Styles */
+        /* Autocomplete Dropdown */
         .autocomplete-dropdown {
             position: absolute;
             margin-top: 10px;
@@ -85,7 +85,7 @@
             right: 0;
             background: white;
             border: 1px solid #084E8F;
-            border-radius: 0.5rem;
+            border-radius: 8px;
             max-height: 250px;
             overflow-y: auto;
             z-index: 50;
@@ -98,7 +98,7 @@
         }
 
         .autocomplete-item {
-            padding: 0.75rem 1rem;
+            padding: 12px 16px;
             cursor: pointer;
             border-bottom: 1px solid #e5e7eb;
             transition: background-color 0.2s;
@@ -115,18 +115,18 @@
         .autocomplete-name {
             color: #1e40af;
             font-weight: 500;
-            margin-bottom: 0.25rem;
+            margin-bottom: 4px;
         }
 
         .autocomplete-detail {
             color: #6b7280;
-            font-size: 0.875rem;
+            font-size: 14px;
         }
 
-        /* Karyawan Card & Search Styles */
+        /* Karyawan Search & Card */
         .karyawan-search-row {
             display: flex;
-            gap: 0.5rem;
+            gap: 8px;
             align-items: center;
         }
 
@@ -138,17 +138,17 @@
 
         .karyawan-action-buttons {
             display: flex;
-            gap: 0.5rem;
+            gap: 8px;
             flex-shrink: 0;
         }
 
         .karyawan-card {
             display: flex;
             align-items: center;
-            padding: 0 0.75rem;
+            padding: 0 12px;
             background-color: white;
             border: 2px solid #084E8F;
-            border-radius: 0.5rem;
+            border-radius: 8px;
             width: 100%;
             height: 50px;
             box-sizing: border-box;
@@ -165,8 +165,8 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 0.25rem 0;
-            gap: 0.125rem;
+            padding: 4px 0;
+            gap: 2px;
             min-width: 0;
             overflow: hidden;
         }
@@ -174,7 +174,7 @@
         .karyawan-card-name {
             color: #084E8F;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 15px;
             line-height: 1.3;
             white-space: nowrap;
             overflow: hidden;
@@ -183,7 +183,7 @@
 
         .karyawan-card-detail {
             color: #6b7280;
-            font-size: 0.8rem;
+            font-size: 13px;
             line-height: 1.2;
             white-space: nowrap;
             overflow: hidden;
@@ -196,7 +196,7 @@
             width: 50px;
             height: 50px;
             border: 2px dashed #084E8F;
-            border-radius: 0.375rem;
+            border-radius: 6px;
             background-color: white;
             color: #084E8F;
             cursor: pointer;
@@ -212,7 +212,6 @@
         .karyawan-add-btn:hover,
         .karyawan-minus-btn:hover {
             background-color: #f0f9ff;
-            border-color: #084E8F;
             transform: scale(1.05);
         }
 
@@ -236,33 +235,33 @@
             transform: none;
         }
 
-        /* Upload Area Styles */
+        /* Upload Area */
         .upload-area {
-            border: 2px dashed #3b82f6;
-            border-radius: 0.75rem;
-            padding: 3rem 2rem;
+            border: 2px dashed #084E8F;
+            border-radius: 12px;
+            padding: 48px 32px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
+            background-color: #F9FCFF;
         }
 
         .upload-area:hover {
-            background-color: #F9FCFF;
-            border-color: #2563eb;
+            background-color: white;
         }
 
         .upload-icon {
             width: 80px;
             height: 80px;
-            margin: 0 auto 1rem;
-            color: #1e40af;
+            margin: 0 auto 16px;
+            color: #084E8F;
         }
 
-        /* Input Wrapper Styles */
+        /* Input Wrapper */
         .input-wrapper {
             border: 2px solid #084E8F;
-            border-radius: 0.5rem;
-            padding: 0.5rem;
+            border-radius: 8px;
+            padding: 8px;
             width: 100%;
             transition: all 0.2s ease;
             background-color: #F9FCFF;
@@ -273,7 +272,6 @@
         }
 
         .input-wrapper:focus-within {
-            border-color: #084E8F;
             box-shadow: 0 0 0 3px rgba(8, 78, 143, 0.1);
         }
 
@@ -284,13 +282,35 @@
             border: none;
             outline: none;
         }
+
+        /* Error States */
+        .input-wrapper.error,
+        .input-wrapper:has(input:invalid:not(:placeholder-shown)),
+        .input-wrapper:has(textarea:invalid:not(:placeholder-shown)),
+        .upload-area.error {
+            border-color: #dc2626 !important;
+            background-color: #fef2f2;
+        }
+
+        /* Error Message */
+        .error-message {
+            color: #dc2626;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
     </style>
 @endpush
 
 @section('content')
     <!-- Main Form -->
     <div class="container mx-auto px-4 py-8">
-        <form action="{{ route('tamu.submit') }}" method="POST" enctype="multipart/form-data" class="max-w-6xl mx-auto">
+        <form action="{{ route('tamu.submit') }}" method="POST" enctype="multipart/form-data" class="max-w-6xl mx-auto"
+            novalidate>
             @csrf
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -305,6 +325,14 @@
                             <input type="text" id="nama_lengkap" name="nama_lengkap"
                                 placeholder="Tuliskan nama lengkap anda" required>
                         </div>
+                        <div id="nama_error" class="error-message">
+                            <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Nama lengkap wajib diisi
+                        </div>
                     </div>
 
                     <!-- Alamat Email -->
@@ -314,6 +342,14 @@
                         </label>
                         <div class="input-wrapper">
                             <input type="email" id="email" name="email" placeholder="Tuliskan alamat email anda" required>
+                        </div>
+                        <div id="email_error" class="error-message">
+                            <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Email wajib diisi dengan format yang benar
                         </div>
                     </div>
 
@@ -326,6 +362,14 @@
                             <input type="text" id="instansi" name="instansi" placeholder="Tuliskan instansi asal anda"
                                 required>
                         </div>
+                        <div id="instansi_error" class="error-message">
+                            <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Instansi asal wajib diisi
+                        </div>
                     </div>
 
                     <!-- Tujuan Kedatangan -->
@@ -336,6 +380,14 @@
                         <div class="input-wrapper">
                             <textarea id="tujuan" name="tujuan" rows="4" placeholder="Jelaskan tujuan kedatangan anda"
                                 class="resize-none" required></textarea>
+                        </div>
+                        <div id="tujuan_error" class="error-message">
+                            <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Tujuan kedatangan wajib diisi
                         </div>
                     </div>
 
@@ -350,6 +402,16 @@
 
                         <!-- Hidden input untuk menyimpan ID karyawan yang dipilih -->
                         <input type="hidden" id="karyawan_ids" name="karyawan_ids" value="[]">
+
+                        <!-- Error message -->
+                        <div id="karyawan_error" class="error-message">
+                            <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Minimal pilih 1 karyawan yang dituju
+                        </div>
                     </div>
                 </div>
 
@@ -378,12 +440,20 @@
                             <img id="preview_img" src="" alt="Preview KTP"
                                 class="w-full rounded-lg border-2 border-blue-300">
                             <button type="button" onclick="openWebcamModal()"
-                                class="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                                class="mt-3 w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-2 px-4 rounded-lg transition">
                                 Foto Ulang
                             </button>
                         </div>
 
                         <input type="hidden" id="foto_ktp_base64" name="foto_ktp" value="">
+                        <div id="foto_error" class="error-message">
+                            <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Foto KTP wajib diambil sebelum mengirim data
+                        </div>
                     </div>
 
                     <!-- Submit Button -->
@@ -409,15 +479,29 @@
 
             <!-- Video Preview -->
             <div id="video_container">
-                <video id="webcam_video" autoplay playsinline class="w-full rounded-lg border-2 border-blue-300"></video>
-                <button type="button" onclick="capturePhoto()"
-                    class="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition">
-                    Ambil Foto
-                </button>
-                <button type="button" onclick="closeWebcamModal()"
-                    class="mt-2 w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition">
-                    Batalkan
-                </button>
+                <video id="webcam_video" autoplay playsinline class="w-full rounded-lg mb-4"
+                    style="background: #f3f4f6;"></video>
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeWebcamModal()" style="background-color: #D9D9D9; color: #000000;"
+                        class="flex-1 font-semibold py-3 px-4 rounded-lg transition hover:opacity-90 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                            </path>
+                        </svg>
+                        Batalkan
+                    </button>
+                    <button type="button" onclick="capturePhoto()" style="background-color: #084E8F; color: white;"
+                        class="flex-1 font-semibold py-3 px-4 rounded-lg transition hover:bg-[#F7B218] flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12.5c1.38 0 2.5-1.12 2.5-2.5S13.38 7.5 12 7.5 9.5 8.62 9.5 10s1.12 2.5 2.5 2.5z">
+                            </path>
+                            <path
+                                d="M21 5v14c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2zm-2 0H5v14h14V5z">
+                            </path>
+                        </svg>
+                        Ambil Foto
+                    </button>
+                </div>
             </div>
 
             <!-- Canvas (hidden, untuk capture) -->
@@ -458,18 +542,136 @@
         const successModal = document.getElementById('success_modal');
 
         // Initialization
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add first karyawan row
+        document.addEventListener('DOMContentLoaded', function () {
             addKaryawanRow();
 
-            // Show success modal if exists
             @if(session('success'))
                 showSuccessModal();
             @endif
 
-            // Setup input background color changes
             setupInputBackgrounds();
+            setupFormValidation();
         });
+
+        // Form Validation
+        function setupFormValidation() {
+            const form = document.querySelector('form');
+            const inputs = {
+                nama: document.getElementById('nama_lengkap'),
+                email: document.getElementById('email'),
+                instansi: document.getElementById('instansi'),
+                tujuan: document.getElementById('tujuan'),
+                foto: document.getElementById('foto_ktp_base64')
+            };
+
+            const errors = {
+                nama: document.getElementById('nama_error'),
+                email: document.getElementById('email_error'),
+                instansi: document.getElementById('instansi_error'),
+                tujuan: document.getElementById('tujuan_error'),
+                karyawan: document.getElementById('karyawan_error'),
+                foto: document.getElementById('foto_error')
+            };
+
+            const webcamArea = document.getElementById('webcam_area');
+            const karyawanContainer = document.getElementById('karyawan_rows_container');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            form.addEventListener('submit', function (e) {
+                let hasError = false;
+                let firstErrorElement = null;
+
+                // Validate Nama Lengkap
+                if (!inputs.nama.value?.trim()) {
+                    e.preventDefault();
+                    showError(inputs.nama, errors.nama);
+                    hasError = true;
+                    if (!firstErrorElement) firstErrorElement = inputs.nama;
+                }
+
+                // Validate Email
+                if (!inputs.email.value?.trim() || !emailRegex.test(inputs.email.value)) {
+                    e.preventDefault();
+                    showError(inputs.email, errors.email);
+                    hasError = true;
+                    if (!firstErrorElement) firstErrorElement = inputs.email;
+                }
+
+                // Validate Instansi
+                if (!inputs.instansi.value?.trim()) {
+                    e.preventDefault();
+                    showError(inputs.instansi, errors.instansi);
+                    hasError = true;
+                    if (!firstErrorElement) firstErrorElement = inputs.instansi;
+                }
+
+                // Validate Tujuan
+                if (!inputs.tujuan.value?.trim()) {
+                    e.preventDefault();
+                    showError(inputs.tujuan, errors.tujuan);
+                    hasError = true;
+                    if (!firstErrorElement) firstErrorElement = inputs.tujuan;
+                }
+
+                // Validate Karyawan
+                if (selectedKaryawan.length === 0) {
+                    e.preventDefault();
+                    hasError = true;
+                    errors.karyawan.classList.add('show');
+                    const firstRow = karyawanContainer.querySelector('.karyawan-search-container');
+                    if (firstRow) {
+                        const inputWrapper = firstRow.querySelector('.border-2');
+                        if (inputWrapper) {
+                            inputWrapper.classList.add('border-red-600');
+                            inputWrapper.classList.remove('border-[#084E8F]');
+                        }
+                    }
+                    if (!firstErrorElement) firstErrorElement = karyawanContainer;
+
+                    setTimeout(() => {
+                        errors.karyawan.classList.remove('show');
+                        const firstRow = karyawanContainer.querySelector('.karyawan-search-container');
+                        if (firstRow) {
+                            const inputWrapper = firstRow.querySelector('.border-2');
+                            if (inputWrapper) {
+                                inputWrapper.classList.remove('border-red-600');
+                                inputWrapper.classList.add('border-[#084E8F]');
+                            }
+                        }
+                    }, 5000);
+                }
+
+                // Validate Foto KTP
+                if (!inputs.foto.value?.trim()) {
+                    e.preventDefault();
+                    hasError = true;
+                    errors.foto.classList.add('show');
+                    webcamArea.classList.add('error');
+                    if (!firstErrorElement) firstErrorElement = webcamArea;
+
+                    setTimeout(() => {
+                        errors.foto.classList.remove('show');
+                        webcamArea.classList.remove('error');
+                    }, 5000);
+                }
+
+                if (hasError && firstErrorElement) {
+                    firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return false;
+                }
+
+                return true;
+            });
+
+            function showError(input, errorElement) {
+                errorElement.classList.add('show');
+                input.closest('.input-wrapper').classList.add('error');
+                setTimeout(() => {
+                    errorElement.classList.remove('show');
+                    input.closest('.input-wrapper').classList.remove('error');
+                }, 5000);
+            }
+        }
 
         // Karyawan Management Functions
         function addKaryawanRow() {
@@ -477,32 +679,31 @@
             const rowId = rowCounter++;
 
             const rowHtml = `
-                <div id="karyawan-row-${rowId}" class="karyawan-search-row">
-                    <div class="karyawan-search-container" id="content-${rowId}">
-                        <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
-                            <input type="text" 
-                                id="karyawan_input_${rowId}" 
-                                placeholder="Cari nama karyawan..."
-                                class="w-full karyawan-search-input"
-                                autocomplete="off"
-                                data-row-id="${rowId}">
-                        </div>
-                        <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>
-                    </div>
-                    <div class="karyawan-action-buttons">
-                        <button type="button" class="karyawan-add-btn" onclick="addKaryawanRow()" title="Tambah karyawan">
-                            <svg fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                            </svg>
-                        </button>
-                        <button type="button" class="karyawan-minus-btn" onclick="removeKaryawanRow(${rowId})" title="Hapus baris">
-                            <svg fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M19 13H5v-2h14v2z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            `;
+                            <div id="karyawan-row-${rowId}" class="karyawan-search-row">
+                                <div class="karyawan-search-container" id="content-${rowId}">
+                                    <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
+                                        <input type="text" 
+                                            id="karyawan_input_${rowId}" 
+                                            placeholder="Cari nama karyawan..."
+                                            class="w-full karyawan-search-input"
+                                            autocomplete="off"
+                                            data-row-id="${rowId}">
+                                    </div>
+                                    <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>
+                                </div>
+                                <div class="karyawan-action-buttons">
+                                    <button type="button" class="karyawan-add-btn" onclick="addKaryawanRow()" title="Tambah karyawan">
+                                        <svg fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                        </svg>
+                                    </button>
+                                    <button type="button" class="karyawan-minus-btn" onclick="removeKaryawanRow(${rowId})" title="Hapus baris">
+                                        <svg fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M19 13H5v-2h14v2z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>`;
 
             container.insertAdjacentHTML('beforeend', rowHtml);
             setupRowListeners(rowId);
@@ -510,25 +711,18 @@
         }
 
         function removeKaryawanRow(rowId) {
-            // Hitung jumlah row yang ada
             const rows = document.querySelectorAll('[id^="karyawan-row-"]');
-            
-            // Jangan hapus jika hanya ada 1 row
+
             if (rows.length <= 1) {
                 alert('Minimal harus ada satu karyawan yang dituju');
                 return;
             }
-            
+
             const row = document.getElementById(`karyawan-row-${rowId}`);
-            
-            // Remove from selected array
             selectedKaryawan = selectedKaryawan.filter(k => k.rowId !== rowId);
             updateHiddenInput();
 
-            // Remove DOM element
             if (row) row.remove();
-            
-            // Update tombol minus visibility
             updateMinusButtonsVisibility();
         }
 
@@ -537,7 +731,7 @@
             const dropdown = document.getElementById(`autocomplete_dropdown_${rowId}`);
             let debounceTimeout;
 
-            input.addEventListener('input', function() {
+            input.addEventListener('input', function () {
                 const query = this.value.trim();
                 clearTimeout(debounceTimeout);
 
@@ -553,7 +747,7 @@
             });
 
             // Close dropdown on outside click
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!input.contains(e.target) && !dropdown.contains(e.target)) {
                     dropdown.classList.remove('show');
                 }
@@ -574,43 +768,27 @@
                 return;
             }
 
-            let html = '';
-            karyawans.forEach(karyawan => {
-                // Skip if already selected
-                if (selectedKaryawan.find(k => k.id_karyawan === karyawan.id_karyawan)) {
-                    return;
-                }
-
-                html += `
-                    <div class="autocomplete-item" onclick="selectKaryawan(${rowId}, ${karyawan.id_karyawan}, '${escapeHtml(karyawan.nama_karyawan)}', '${escapeHtml(karyawan.jabatan)}', '${escapeHtml(karyawan.departemen)}')">
-                        <div class="autocomplete-name">${escapeHtml(karyawan.nama_karyawan)}</div>
-                        <div class="autocomplete-detail">${escapeHtml(karyawan.jabatan)} - ${escapeHtml(karyawan.departemen)}</div>
-                    </div>
-                `;
-            });
+            const html = karyawans
+                .filter(k => !selectedKaryawan.find(sk => sk.id_karyawan === k.id_karyawan))
+                .map(k => `
+                                <div class="autocomplete-item" onclick="selectKaryawan(${rowId}, ${k.id_karyawan}, '${escapeHtml(k.nama_karyawan)}', '${escapeHtml(k.jabatan)}', '${escapeHtml(k.departemen)}')">
+                                    <div class="autocomplete-name">${escapeHtml(k.nama_karyawan)}</div>
+                                    <div class="autocomplete-detail">${escapeHtml(k.jabatan)} - ${escapeHtml(k.departemen)}</div>
+                                </div>`)
+                .join('');
 
             dropdown.innerHTML = html;
             dropdown.classList.add('show');
         }
 
         function selectKaryawan(rowId, id, nama, jabatan, departemen) {
-            // Check if already selected
             if (selectedKaryawan.find(k => k.id_karyawan === id)) {
                 alert('Karyawan ini sudah dipilih di baris lain');
                 return;
             }
 
-            // Remove old selection for this row
             selectedKaryawan = selectedKaryawan.filter(k => k.rowId !== rowId);
-
-            // Add new selection
-            selectedKaryawan.push({
-                rowId: rowId,
-                id_karyawan: id,
-                nama_karyawan: nama,
-                jabatan: jabatan,
-                departemen: departemen
-            });
+            selectedKaryawan.push({ rowId, id_karyawan: id, nama_karyawan: nama, jabatan, departemen });
 
             renderKaryawanCard(rowId, nama, jabatan, departemen);
             updateHiddenInput();
@@ -619,16 +797,15 @@
         function renderKaryawanCard(rowId, nama, jabatan, departemen) {
             const content = document.getElementById(`content-${rowId}`);
             content.innerHTML = `
-                <div class="karyawan-card w-full" onclick="resetKaryawanRow(${rowId})" title="Klik untuk mengganti karyawan">
-                    <div class="karyawan-card-info">
-                        <div class="karyawan-card-name">${escapeHtml(nama)}</div>
-                        <div class="karyawan-card-detail">${escapeHtml(jabatan)} - ${escapeHtml(departemen)}</div>
-                    </div>
-                    <svg fill="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px; color: #6b7280;">
-                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                    </svg>
-                </div>
-            `;
+                            <div class="karyawan-card w-full" onclick="resetKaryawanRow(${rowId})" title="Klik untuk mengganti karyawan">
+                                <div class="karyawan-card-info">
+                                    <div class="karyawan-card-name">${escapeHtml(nama)}</div>
+                                    <div class="karyawan-card-detail">${escapeHtml(jabatan)} - ${escapeHtml(departemen)}</div>
+                                </div>
+                                <svg fill="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px; color: #6b7280;">
+                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                </svg>
+                            </div>`;
         }
 
         function updateHiddenInput() {
@@ -637,42 +814,30 @@
         }
 
         function resetKaryawanRow(rowId) {
-            // Remove from selected array
             selectedKaryawan = selectedKaryawan.filter(k => k.rowId !== rowId);
             updateHiddenInput();
 
-            // Reset content to input search
             const content = document.getElementById(`content-${rowId}`);
             content.innerHTML = `
-                <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
-                    <input type="text" 
-                        id="karyawan_input_${rowId}" 
-                        placeholder="Cari nama karyawan..."
-                        class="w-full karyawan-search-input"
-                        autocomplete="off"
-                        data-row-id="${rowId}">
-                </div>
-                <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>
-            `;
+                            <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
+                                <input type="text" 
+                                    id="karyawan_input_${rowId}" 
+                                    placeholder="Cari nama karyawan..."
+                                    class="w-full karyawan-search-input"
+                                    autocomplete="off"
+                                    data-row-id="${rowId}">
+                            </div>
+                            <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>`;
 
-            // Re-setup listeners for the new input
             setupRowListeners(rowId);
         }
 
         function updateMinusButtonsVisibility() {
             const rows = document.querySelectorAll('[id^="karyawan-row-"]');
             const minusButtons = document.querySelectorAll('.karyawan-minus-btn');
-            
-            // Jika hanya ada 1 row, disable tombol minus
-            if (rows.length === 1) {
-                minusButtons.forEach(btn => {
-                    btn.disabled = true;
-                });
-            } else {
-                minusButtons.forEach(btn => {
-                    btn.disabled = false;
-                });
-            }
+            const shouldDisable = rows.length === 1;
+
+            minusButtons.forEach(btn => btn.disabled = shouldDisable);
         }
 
         // Webcam Functions
@@ -721,11 +886,8 @@
             closeWebcamModal();
         }
 
-        // Close modal on overlay click
-        webcamModal.addEventListener('click', function(e) {
-            if (e.target === webcamModal) {
-                closeWebcamModal();
-            }
+        webcamModal.addEventListener('click', function (e) {
+            if (e.target === webcamModal) closeWebcamModal();
         });
 
         // Success Modal Functions
@@ -744,7 +906,6 @@
         // Input Background Management
         function setupInputBackgrounds() {
             const inputs = document.querySelectorAll('input[type="text"], input[type="email"], textarea');
-            
             inputs.forEach(input => {
                 updateInputBackground(input);
                 input.addEventListener('input', () => updateInputBackground(input));
@@ -755,11 +916,7 @@
         function updateInputBackground(input) {
             const wrapper = input.closest('.input-wrapper');
             if (wrapper) {
-                if (input.value.trim() !== '') {
-                    wrapper.classList.add('filled');
-                } else {
-                    wrapper.classList.remove('filled');
-                }
+                wrapper.classList.toggle('filled', input.value.trim() !== '');
             }
         }
 
