@@ -85,18 +85,35 @@
                     </p>
                 </div>
 
-                <div class="flex gap-4">
-                    <form action="{{ route('kunjungan.process', $kunjungan->token_approval) }}" method="POST" class="flex-1">
-                        @csrf
-                        <input type="hidden" name="action" value="tolak">
-                        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
+                <form action="{{ route('kunjungan.process', $kunjungan->token_approval) }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="action" value="tolak">
+                    
+                    <!-- Form Alasan Penolakan -->
+                    <div class="mb-6">
+                        <label for="alasan_penolakan" class="block text-gray-700 font-semibold mb-2">
+                            Alasan Penolakan <span class="text-red-500">*</span>
+                        </label>
+                        <textarea 
+                            name="alasan_penolakan" 
+                            id="alasan_penolakan" 
+                            rows="4" 
+                            required
+                            placeholder="Jelaskan alasan Anda menolak kunjungan ini..."
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-red-500 focus:ring-2 focus:ring-red-200 transition duration-200 resize-none"
+                        ></textarea>
+                        <p class="text-gray-500 text-sm mt-2">Alasan ini akan disampaikan kepada tamu via email.</p>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
                             Ya, Tolak Kunjungan
                         </button>
-                    </form>
-                    <a href="{{ url('/') }}" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-lg transition duration-200 text-center">
-                        Batal
-                    </a>
-                </div>
+                        <a href="{{ url('/') }}" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-lg transition duration-200 text-center flex items-center justify-center">
+                            Batal
+                        </a>
+                    </div>
+                </form>
             @endif
         </div>
     </div>

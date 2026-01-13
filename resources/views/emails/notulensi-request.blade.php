@@ -16,11 +16,11 @@
                     
                     <!-- Header -->
                     <tr>
-                        <td style="background: linear-gradient(135deg, #0C4777 0%, #1a5a8f 100%); padding: 40px 30px; text-align: center;">
+                        <td style="background-color: #084E8F; padding: 40px 30px; text-align: center;">
                             <h1 style="margin: 0; font-size: 28px; color: #ffffff; font-weight: 600; letter-spacing: 1px;">
                                 BUKU TAMU DIGITAL
                             </h1>
-                            <p style="margin: 12px 0 0 0; font-size: 16px; color: #e0e7ef; font-weight: 400;">
+                            <p style="margin: 12px 0 0 0; font-size: 16px; color: #ffffff; font-weight: 400; opacity: 0.9;">
                                 Permintaan Pengisian Notulensi Rapat
                             </p>
                         </td>
@@ -30,11 +30,11 @@
                     <tr>
                         <td style="padding: 40px 30px;">
                             <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333; line-height: 1.6;">
-                                Halo <strong style="color: #0C4777;">{{ $karyawan->nama }}</strong>,
+                                Halo <strong style="color: #084E8F;">{{ $karyawan->nama_karyawan }}</strong>,
                             </p>
 
                             <p style="margin: 0 0 25px 0; font-size: 15px; color: #555555; line-height: 1.6;">
-                                Anda telah mengikuti rapat dengan tamu. Mohon luangkan waktu untuk mengisi notulensi rapat sebagai dokumentasi dan arsip internal.
+                                Anda telah menerima tamu. Mohon luangkan waktu untuk mengisi notulensi rapat sebagai dokumentasi dan arsip internal.
                             </p>
 
                             <!-- Meeting Info Card -->
@@ -51,7 +51,7 @@
                                                     <strong>Nama Tamu</strong>
                                                 </td>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #212529;">
-                                                    : {{ $tamu->nama }}
+                                                    : {{ $kunjungan->tamu->nama_tamu }}
                                                 </td>
                                             </tr>
                                             <tr>
@@ -59,7 +59,7 @@
                                                     <strong>Instansi</strong>
                                                 </td>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #212529;">
-                                                    : {{ $tamu->instansi }}
+                                                    : {{ $kunjungan->tamu->instansi_tamu ?? '-' }}
                                                 </td>
                                             </tr>
                                             <tr>
@@ -67,7 +67,7 @@
                                                     <strong>Keperluan</strong>
                                                 </td>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #212529;">
-                                                    : {{ $kunjungan->keperluan }}
+                                                    : {{ $kunjungan->tujuan_kunjungan }}
                                                 </td>
                                             </tr>
                                             <tr>
@@ -75,16 +75,16 @@
                                                     <strong>Waktu Rapat</strong>
                                                 </td>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #212529;">
-                                                    : {{ \Carbon\Carbon::parse($kunjungan->tanggal_kunjungan)->format('d F Y, H:i') }} WIB
+                                                    : {{ \Carbon\Carbon::parse($kunjungan->tanggal_kunjungan)->format('d F Y') }}, {{ $kunjungan->jam_mulai }} WIB
                                                 </td>
                                             </tr>
-                                            @if(isset($kunjungan->karyawans) && $kunjungan->karyawans->count() > 1)
+                                            @if($kunjungan->karyawan->count() > 1)
                                             <tr>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #495057; vertical-align: top;">
                                                     <strong>Peserta Lainnya</strong>
                                                 </td>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #212529;">
-                                                    : {{ $kunjungan->karyawans->where('id', '!=', $karyawan->id)->pluck('nama')->join(', ') }}
+                                                    : {{ $kunjungan->karyawan->where('id_karyawan', '!=', $karyawan->id_karyawan)->pluck('nama_karyawan')->join(', ') }}
                                                 </td>
                                             </tr>
                                             @endif
@@ -102,7 +102,7 @@
                                 <tr>
                                     <td align="center" style="padding: 10px 0 30px 0;">
                                         <a href="{{ route('notulensi.create', ['token' => $token]) }}" 
-                                           style="background: linear-gradient(135deg, #0C4777 0%, #1a5a8f 100%); 
+                                           style="background-color: #084E8F; 
                                                   color: #ffffff; 
                                                   padding: 16px 40px; 
                                                   text-decoration: none; 
@@ -136,8 +136,8 @@
                             <!-- Info Box -->
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 30px;">
                                 <tr>
-                                    <td style="background-color: #e7f3ff; border-left: 4px solid #0C4777; padding: 20px; border-radius: 6px;">
-                                        <p style="margin: 0 0 12px 0; font-size: 15px; color: #0C4777; font-weight: 600;">
+                                    <td style="background-color: #e7f3ff; border-left: 4px solid #084E8F; padding: 20px; border-radius: 6px;">
+                                        <p style="margin: 0 0 12px 0; font-size: 15px; color: #084E8F; font-weight: 600;">
                                             INFORMASI PENGISIAN NOTULENSI
                                         </p>
                                         <ul style="margin: 0; padding-left: 20px; color: #495057; font-size: 14px; line-height: 1.8;">
@@ -177,7 +177,7 @@
                                         <p style="margin: 0 0 5px 0; font-size: 15px; color: #333333;">
                                             Terima kasih atas kerja samanya,
                                         </p>
-                                        <p style="margin: 0; font-size: 15px; color: #0C4777; font-weight: 600;">
+                                        <p style="margin: 0; font-size: 15px; color: #084E8F; font-weight: 600;">
                                             Tim Buku Tamu Digital
                                         </p>
                                     </td>

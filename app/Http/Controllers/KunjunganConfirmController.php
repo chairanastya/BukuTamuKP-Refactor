@@ -6,6 +6,7 @@ use App\Models\Kunjungan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\KunjunganNotification;
+use App\Mail\NotulensiRequest;
 
 class KunjunganConfirmController extends Controller
 {
@@ -99,6 +100,9 @@ class KunjunganConfirmController extends Controller
             // Kirim email notifikasi ke tamu
             $this->sendNotificationToTamu($kunjungan, 'diterima');
 
+            // Kirim email ke karyawan untuk mengisi notulensi
+            $this->sendNotulensiRequestToKaryawan($kunjungan, $token);
+
             return view('kunjungan.success', [
                 'type' => 'terima',
                 'kunjungan' => $kunjungan->load('tamu'),
@@ -106,10 +110,19 @@ class KunjunganConfirmController extends Controller
             ]);
 
         } elseif ($action === 'tolak') {
+            $request->validate([
+                'alasan_penolakan' => 'required|string|min:10|max:500',
+            ], [
+                'alasan_penolakan.required' => 'Alasan penolakan harus diisi.',
+                'alasan_penolakan.min' => 'Alasan penolakan minimal 10 karakter.',
+                'alasan_penolakan.max' => 'Alasan penolakan maksimal 500 karakter.',
+            ]);
+
             $kunjungan->status = 'canceled'; // canceled = ditolak
+            $kunjungan->alasan_batal = $request->input('alasan_penolakan');
             $kunjungan->save();
             
-            \Log::info('Kunjungan ditolak (canceled), ID: ' . $kunjungan->id_kunjungan);
+            \Log::info('Kunjungan ditolak (canceled), ID: ' . $kunjungan->id_kunjungan . ', Alasan: ' . $kunjungan->alasan_batal);
 
             // Kirim email notifikasi ke tamu
             $this->sendNotificationToTamu($kunjungan, 'ditolak');
@@ -158,6 +171,44 @@ class KunjunganConfirmController extends Controller
             
         } catch (\Exception $e) {
             \Log::error('Gagal kirim email ke tamu: ' . $e->getMessage(), [
+                'kunjungan_id' => $kunjungan->id_kunjungan,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Kirim email notulensi request ke karyawan
+     */
+    private function sendNotulensiRequestToKaryawan(Kunjungan $kunjungan, string $token)
+    {
+        try {
+            // Ambil semua karyawan yang terlibat
+            $karyawanList = $kunjungan->karyawan;
+            
+            if ($karyawanList->isEmpty()) {
+                \Log::warning('Tidak ada karyawan untuk kirim notulensi request, ID: ' . $kunjungan->id_kunjungan);
+                return;
+            }
+            
+            // Kirim email ke setiap karyawan
+            foreach ($karyawanList as $karyawan) {
+                if (!$karyawan->email_karyawan) {
+                    \Log::warning('Karyawan tidak memiliki email, ID: ' . $karyawan->id_karyawan . ', Nama: ' . $karyawan->nama_karyawan);
+                    continue;
+                }
+                
+                \Log::info('Mengirim email notulensi request ke karyawan: ' . $karyawan->email_karyawan);
+                
+                Mail::to($karyawan->email_karyawan)->send(
+                    new NotulensiRequest($karyawan, $kunjungan, $token)
+                );
+                
+                \Log::info('Email notulensi request berhasil dikirim ke: ' . $karyawan->nama_karyawan);
+            }
+            
+        } catch (\Exception $e) {
+            \Log::error('Gagal kirim email notulensi request: ' . $e->getMessage(), [
                 'kunjungan_id' => $kunjungan->id_kunjungan,
                 'error' => $e->getMessage(),
             ]);

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\TamuController;
 use App\Http\Controllers\KunjunganConfirmController;
+use App\Http\Controllers\NotulensiController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -24,6 +25,13 @@ Route::prefix('tamu')->name('tamu.')->group(function () {
 // Route untuk konfirmasi kunjungan dari email
 Route::get('/kunjungan/confirm/{token}', [KunjunganConfirmController::class, 'confirm'])->name('kunjungan.confirm');
 Route::post('/kunjungan/process/{token}', [KunjunganConfirmController::class, 'process'])->name('kunjungan.process');
+
+// Route untuk notulensi
+Route::prefix('notulensi')->name('notulensi.')->group(function () {
+    Route::get('/create/{token}', [NotulensiController::class, 'create'])->name('create');
+    Route::post('/store/{token}', [NotulensiController::class, 'store'])->name('store');
+    Route::get('/view/{token}', [NotulensiController::class, 'view'])->name('view');
+});
 
 Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
     // Login routes

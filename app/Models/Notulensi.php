@@ -13,6 +13,13 @@ class Notulensi extends Model
         'id_kunjungan',
         'anggota_rapat',
         'isi_notulensi',
+        'token_karyawan',
+        'token_tamu',
+        'expired_at',
+    ];
+
+    protected $casts = [
+        'expired_at' => 'datetime',
     ];
 
     // Relationships
