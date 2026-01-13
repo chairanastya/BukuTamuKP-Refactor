@@ -889,7 +889,7 @@
 
         function capturePhoto() {
             try {
-                console.log('📸 Mengambil foto...');
+                console.log('Mengambil foto...');
                 
                 // Validasi video stream
                 if (!video || !video.videoWidth || !video.videoHeight) {
@@ -902,14 +902,14 @@
                 
                 let width = video.videoWidth;
                 let height = video.videoHeight;
-                console.log(`📐 Ukuran asli: ${width}x${height}`);
+                console.log(`Ukuran asli: ${width}x${height}`);
                 
                 // Calculate scaling ratio untuk maintain aspect ratio
                 if (width > maxWidth || height > maxHeight) {
                     const ratio = Math.min(maxWidth / width, maxHeight / height);
                     width = Math.round(width * ratio);
                     height = Math.round(height * ratio);
-                    console.log(`🔄 Resize ke: ${width}x${height}`);
+                    console.log(`Resize ke: ${width}x${height}`);
                 }
                 
                 canvas.width = width;
@@ -925,10 +925,10 @@
                 
                 // Cek ukuran hasil kompresi
                 const sizeInMB = (photoData.length * 0.75) / (1024 * 1024);
-                console.log(`💾 Ukuran foto: ${sizeInMB.toFixed(2)} MB`);
+                console.log(`Ukuran foto: ${sizeInMB.toFixed(2)} MB`);
                 
                 if (sizeInMB > 1.8) {
-                    console.warn('⚠️ Foto cukup besar!');
+                    console.warn('Foto cukup besar!');
                     alert(`Ukuran foto: ${sizeInMB.toFixed(2)} MB\n\nJika upload gagal, coba ambil foto dengan pencahayaan lebih baik atau dari jarak lebih jauh.`);
                 }
                 
@@ -937,10 +937,10 @@
                 document.getElementById('image_preview').classList.remove('hidden');
                 document.getElementById('webcam_area').classList.add('hidden');
 
-                console.log('✅ Foto berhasil diambil');
+                console.log('Foto berhasil diambil');
                 closeWebcamModal();
             } catch (error) {
-                console.error('❌ Error capture foto:', error);
+                console.error('Error capture foto:', error);
                 alert('Gagal mengambil foto: ' + error.message);
             }
         }

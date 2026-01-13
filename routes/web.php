@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\TamuController;
+use App\Http\Controllers\KunjunganConfirmController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -19,6 +20,10 @@ Route::prefix('tamu')->name('tamu.')->group(function () {
     Route::get('/search-karyawan', [TamuController::class, 'searchKaryawan'])->name('search-karyawan');
     Route::post('/submit', [TamuController::class, 'submitForm'])->name('submit');
 });
+
+// Route untuk konfirmasi kunjungan dari email
+Route::get('/kunjungan/confirm/{token}', [KunjunganConfirmController::class, 'confirm'])->name('kunjungan.confirm');
+Route::post('/kunjungan/process/{token}', [KunjunganConfirmController::class, 'process'])->name('kunjungan.process');
 
 Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
     // Login routes

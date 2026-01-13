@@ -30,7 +30,7 @@
                     <tr>
                         <td style="padding: 40px 30px;">
                             <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333; line-height: 1.6;">
-                                Halo <strong style="color: #0C4777;">{{ $karyawan->nama }}</strong>,
+                                Halo <strong style="color: #0C4777;">{{ $karyawan->nama_karyawan }}</strong>,
                             </p>
 
                             <p style="margin: 0 0 25px 0; font-size: 15px; color: #555555; line-height: 1.6;">
@@ -51,7 +51,15 @@
                                                     <strong>Nama Tamu</strong>
                                                 </td>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #212529;">
-                                                    : {{ $tamu->nama }}
+                                                    : {{ $tamu->nama_tamu }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #495057; vertical-align: top;">
+                                                    <strong>Email</strong>
+                                                </td>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #212529;">
+                                                    : {{ $tamu->email_tamu }}
                                                 </td>
                                             </tr>
                                             <tr>
@@ -59,15 +67,7 @@
                                                     <strong>Instansi</strong>
                                                 </td>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #212529;">
-                                                    : {{ $tamu->instansi }}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px 0; font-size: 14px; color: #495057; vertical-align: top;">
-                                                    <strong>No. Telepon</strong>
-                                                </td>
-                                                <td style="padding: 8px 0; font-size: 14px; color: #212529;">
-                                                    : {{ $tamu->no_hp }}
+                                                    : {{ $tamu->instansi_tamu ?? '-' }}
                                                 </td>
                                             </tr>
                                             <tr>
@@ -75,7 +75,7 @@
                                                     <strong>Keperluan</strong>
                                                 </td>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #212529;">
-                                                    : {{ $kunjungan->keperluan }}
+                                                    : {{ $kunjungan->tujuan_kunjungan }}
                                                 </td>
                                             </tr>
                                             <tr>
@@ -83,7 +83,7 @@
                                                     <strong>Waktu Kunjungan</strong>
                                                 </td>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #212529;">
-                                                    : {{ \Carbon\Carbon::parse($kunjungan->tanggal_kunjungan)->format('d F Y, H:i') }} WIB
+                                                    : {{ \Carbon\Carbon::parse($kunjungan->tanggal_kunjungan)->format('d F Y') }}, {{ $kunjungan->jam_mulai }} WIB
                                                 </td>
                                             </tr>
                                         </table>
@@ -111,7 +111,7 @@
                                                   box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
                                                   min-width: 200px;
                                                   text-align: center;">
-                                            ✓ Terima & Jemput Tamu
+                                            Terima & Jemput Tamu
                                         </a>
                                     </td>
                                 </tr>
@@ -129,7 +129,7 @@
                                                   box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
                                                   min-width: 200px;
                                                   text-align: center;">
-                                            ✗ Tidak Bisa Menerima
+                                            Tidak Bisa Menerima
                                         </a>
                                     </td>
                                 </tr>
