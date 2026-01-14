@@ -27,13 +27,53 @@ class ResepsionisController extends Controller
             'canceled' => Kunjungan::whereDate('tanggal_kunjungan', $today)->where('status', 'canceled')->count(),
         ];
 
-        return view('resepsionis.dashboard', compact('stats'));
+        $allTimeStats = [
+            'total' => Kunjungan::count(),
+            'pending' => Kunjungan::where('status', 'pending')->count(),
+            'done' => Kunjungan::where('status', 'done')->count(),
+            'canceled' => Kunjungan::where('status', 'canceled')->count(),
+        ];
+
+        return view('resepsionis.dashboard', compact('stats', 'allTimeStats'));
     }
 
     public function getKunjunganData(Request $request)
     {
         $query = Kunjungan::with(['tamu', 'karyawan'])
             ->whereDate('tanggal_kunjungan', now()->toDateString())
+            ->orderBy('tanggal_kunjungan', 'desc')
+            ->orderBy('jam_mulai', 'desc');
+
+        $kunjungans = $query->get()->map(function ($kunjungan) {
+            return [
+                'id_kunjungan' => $kunjungan->id_kunjungan,
+                'id_tamu' => $kunjungan->tamu->id_tamu ?? null,
+                'ktp_token' => $kunjungan->tamu->ktp_access_token ?? null,
+                'tanggal' => $kunjungan->tanggal_kunjungan->format('d/m/Y'),
+                'jam' => substr($kunjungan->jam_mulai, 0, 5) . ' - ' . substr($kunjungan->jam_selesai ?? '00:00', 0, 5),
+                'nama_tamu' => $kunjungan->tamu->nama_tamu ?? '-',
+                'email_tamu' => $kunjungan->tamu->email_tamu ?? '-',
+                'has_ktp' => !empty($kunjungan->tamu->ktp_public_id),
+                'instansi' => $kunjungan->tamu->instansi_tamu ?? '-',
+                'karyawan' => $kunjungan->karyawan->map(function ($k) {
+                    return [
+                        'nama' => $k->nama_karyawan,
+                        'jabatan' => $k->jabatan ?? '-',
+                        'departemen' => $k->departemen ?? '-',
+                    ];
+                }),
+                'tujuan_kunjungan' => $kunjungan->tujuan_kunjungan ?? '-',
+                'status' => $kunjungan->status,
+                'alasan_batal' => $kunjungan->alasan_batal,
+            ];
+        });
+
+        return response()->json(['data' => $kunjungans]);
+    }
+
+    public function getRiwayatData(Request $request)
+    {
+        $query = Kunjungan::with(['tamu', 'karyawan'])
             ->orderBy('tanggal_kunjungan', 'desc')
             ->orderBy('jam_mulai', 'desc');
 
@@ -116,7 +156,14 @@ class ResepsionisController extends Controller
 
     public function riwayat()
     {
-        return view('resepsionis.riwayat');
+        $allTimeStats = [
+            'total' => Kunjungan::count(),
+            'pending' => Kunjungan::where('status', 'pending')->count(),
+            'done' => Kunjungan::where('status', 'done')->count(),
+            'canceled' => Kunjungan::where('status', 'canceled')->count(),
+        ];
+
+        return view('resepsionis.riwayat', compact('allTimeStats'));
     }
 
     public function daftarKaryawan()
