@@ -2,9 +2,302 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Kunjungan;
+use App\Models\Karyawan;
+use App\Models\Tamu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\KunjunganNotification;
+use Cloudinary\Cloudinary;
 
 class ResepsionisController extends Controller
 {
-    //
+    public function dashboard()
+    {
+        $today = now()->toDateString();
+
+        // Get statistics for today
+        $stats = [
+            'total' => Kunjungan::whereDate('tanggal_kunjungan', $today)->count(),
+            'pending' => Kunjungan::whereDate('tanggal_kunjungan', $today)->where('status', 'pending')->count(),
+            'done' => Kunjungan::whereDate('tanggal_kunjungan', $today)->where('status', 'done')->count(),
+            'canceled' => Kunjungan::whereDate('tanggal_kunjungan', $today)->where('status', 'canceled')->count(),
+        ];
+
+        return view('resepsionis.dashboard', compact('stats'));
+    }
+
+    public function getKunjunganData(Request $request)
+    {
+        $query = Kunjungan::with(['tamu', 'karyawan'])
+            ->whereDate('tanggal_kunjungan', now()->toDateString())
+            ->orderBy('tanggal_kunjungan', 'desc')
+            ->orderBy('jam_mulai', 'desc');
+
+        $kunjungans = $query->get()->map(function ($kunjungan) {
+            return [
+                'id_kunjungan' => $kunjungan->id_kunjungan,
+                'id_tamu' => $kunjungan->tamu->id_tamu ?? null,
+                'tanggal' => $kunjungan->tanggal_kunjungan->format('d/m/Y'),
+                'jam' => substr($kunjungan->jam_mulai, 0, 5) . ' - ' . substr($kunjungan->jam_selesai ?? '00:00', 0, 5),
+                'nama_tamu' => $kunjungan->tamu->nama_tamu ?? '-',
+                'email_tamu' => $kunjungan->tamu->email_tamu ?? '-',
+                'has_ktp' => !empty($kunjungan->tamu->ktp_public_id),
+                'instansi' => $kunjungan->tamu->instansi_tamu ?? '-',
+                'karyawan' => $kunjungan->karyawan->map(function ($k) {
+                    return [
+                        'nama' => $k->nama_karyawan,
+                        'jabatan' => $k->jabatan ?? '-',
+                        'departemen' => $k->departemen ?? '-',
+                    ];
+                }),
+                'tujuan_kunjungan' => $kunjungan->tujuan_kunjungan ?? '-',
+                'status' => $kunjungan->status,
+                'alasan_batal' => $kunjungan->alasan_batal,
+            ];
+        });
+
+        return response()->json(['data' => $kunjungans]);
+    }
+
+    public function acceptKunjungan(Request $request, $id)
+    {
+        $kunjungan = Kunjungan::findOrFail($id);
+
+        if ($kunjungan->status !== 'pending') {
+            return response()->json(['success' => false, 'message' => 'Kunjungan sudah diproses'], 400);
+        }
+
+        $kunjungan->update(['status' => 'approved']);
+
+        Log::info('Kunjungan diterima (approved), ID: ' . $kunjungan->id_kunjungan);
+
+        // Send email notification to guest
+        $this->sendNotificationToTamu($kunjungan, 'diterima');
+
+        return response()->json(['success' => true, 'message' => 'Kunjungan berhasil diterima']);
+    }
+
+    public function rejectKunjungan(Request $request, $id)
+    {
+        $request->validate([
+            'alasan_batal' => 'required|string|max:500',
+        ]);
+
+        $kunjungan = Kunjungan::findOrFail($id);
+
+        if ($kunjungan->status !== 'pending') {
+            return response()->json(['success' => false, 'message' => 'Kunjungan sudah diproses'], 400);
+        }
+
+        $kunjungan->update([
+            'status' => 'canceled',
+            'alasan_batal' => $request->alasan_batal,
+        ]);
+
+        Log::info('Kunjungan ditolak (canceled), ID: ' . $kunjungan->id_kunjungan);
+
+        // Send email notification to guest
+        $this->sendNotificationToTamu($kunjungan, 'ditolak');
+
+        return response()->json(['success' => true, 'message' => 'Kunjungan berhasil ditolak']);
+    }
+
+    public function createKunjungan()
+    {
+        return view('resepsionis.create-kunjungan');
+    }
+
+    public function riwayat()
+    {
+        return view('resepsionis.riwayat');
+    }
+
+    public function daftarKaryawan()
+    {
+        $karyawans = Karyawan::orderBy('nama_karyawan')->get();
+        return view('resepsionis.karyawan', compact('karyawans'));
+    }
+
+    /**
+     * Generate signed URL untuk melihat KTP private dari Cloudinary
+     */
+    public function getKtpSignedUrl($tamuId)
+    {
+        try {
+            $tamu = Tamu::findOrFail($tamuId);
+
+            if (!$tamu->ktp_public_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'KTP tidak ditemukan'
+                ], 404);
+            }
+
+            $cloudName = config('cloudinary.cloud_name');
+            $apiKey = config('cloudinary.api_key');
+            $apiSecret = config('cloudinary.api_secret');
+            $publicId = $tamu->ktp_public_id;
+
+            // Generate authenticated signature for private image
+            $timestamp = time() + 3600; // Valid for 1 hour
+
+            // Build the string to sign: public_id + timestamp
+            $toSign = "public_id={$publicId}&timestamp={$timestamp}{$apiSecret}";
+            $signature = hash('sha1', $toSign);
+
+            // Build authenticated download URL for private images
+            $signedUrl = sprintf(
+                'https://res.cloudinary.com/%s/image/private/s--%s--/v1/%s?api_key=%s&timestamp=%s&signature=%s',
+                $cloudName,
+                substr($signature, 0, 8),
+                $publicId,
+                $apiKey,
+                $timestamp,
+                $signature
+            );
+
+            Log::info('Generated KTP signed URL', [
+                'tamu_id' => $tamuId,
+                'public_id' => $publicId,
+                'url_preview' => substr($signedUrl, 0, 100) . '...'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'url' => $signedUrl
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error generating signed URL for KTP', [
+                'tamu_id' => $tamuId,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat KTP: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Stream KTP image dari Cloudinary dengan signed URL manual
+     * Menggunakan manual signature untuk kompatibilitas SDK
+     */
+    public function streamKtp($tamuId)
+    {
+        try {
+            $tamu = Tamu::findOrFail($tamuId);
+
+            if (!$tamu->ktp_public_id) {
+                abort(404, 'KTP tidak ditemukan');
+            }
+
+            $cloudName = config('cloudinary.cloud_name');
+            $apiSecret = config('cloudinary.api_secret');
+            $publicId = $tamu->ktp_public_id;
+
+            Log::info('Streaming KTP from Cloudinary', [
+                'tamu_id' => $tamuId,
+                'public_id' => $publicId
+            ]);
+
+            // Untuk type: upload (public), gunakan public URL biasa
+            // Nama folder sudah diganti dari ktp_tamu ke tamu-ktp untuk menghindari parsing error
+
+            $imageUrl = sprintf(
+                'https://res.cloudinary.com/%s/image/upload/%s',
+                $cloudName,
+                $publicId
+            );
+
+            Log::info('Downloading from URL', [
+                'tamu_id' => $tamuId,
+                'public_id' => $publicId,
+                'url' => $imageUrl
+            ]);
+
+            // Download image dengan curl
+            $ch = curl_init($imageUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+
+            $imageContent = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error = curl_error($ch);
+
+            if ($httpCode !== 200 || !$imageContent) {
+                Log::error('Failed to download KTP', [
+                    'http_code' => $httpCode,
+                    'curl_error' => $error,
+                    'tamu_id' => $tamuId,
+                    'public_id' => $publicId,
+                    'url' => $imageUrl
+                ]);
+
+                $errorMsg = $httpCode === 401 ? 'KTP tidak dapat diakses' :
+                    ($httpCode === 404 ? 'KTP tidak ditemukan' :
+                        'Gagal memuat KTP (HTTP ' . $httpCode . ')');
+                abort(500, $errorMsg);
+            }
+
+            Log::info('Successfully streamed KTP', [
+                'tamu_id' => $tamuId,
+                'size' => strlen($imageContent)
+            ]);
+
+            // Return image response
+            return response($imageContent)
+                ->header('Content-Type', 'image/jpeg')
+                ->header('Cache-Control', 'private, max-age=600')
+                ->header('X-Content-Type-Options', 'nosniff');
+
+        } catch (\Exception $e) {
+            Log::error('Error streaming KTP', [
+                'tamu_id' => $tamuId,
+                'error' => $e->getMessage(),
+                'line' => $e->getLine()
+            ]);
+
+            abort(500, 'Gagal memuat KTP');
+        }
+    }
+
+    private function sendNotificationToTamu(Kunjungan $kunjungan, string $status)
+    {
+        try {
+            $tamu = $kunjungan->tamu;
+            
+            $karyawan = $kunjungan->karyawan()->first();
+            
+            if (!$karyawan) {
+                Log::warning('No employee associated with kunjungan ID: ' . $kunjungan->id_kunjungan);
+                return;
+            }
+            
+            if (!$tamu->email_tamu) {
+                Log::warning('Guest has no email, ID: ' . $tamu->id_tamu);
+                return;
+            }
+            
+            Log::info('Sending notification to guest: ' . $tamu->email_tamu);
+            
+            Mail::to($tamu->email_tamu)->send(
+                new KunjunganNotification($tamu, $karyawan, $kunjungan, $status)
+            );
+            
+            Log::info('Email notification successfully sent to: ' . $tamu->nama_tamu);
+            
+        } catch (\Exception $e) {
+            Log::error('Failed to send email to guest: ' . $e->getMessage(), [
+                'kunjungan_id' => $kunjungan->id_kunjungan,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
 }

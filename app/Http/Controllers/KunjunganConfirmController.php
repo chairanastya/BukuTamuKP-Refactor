@@ -7,22 +7,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\KunjunganNotification;
 use App\Mail\NotulensiRequest;
+use Illuminate\Support\Facades\Log;
 
 class KunjunganConfirmController extends Controller
 {
-    /**
-     * Tampilkan halaman konfirmasi
-     */
+
     public function confirm(Request $request, $token)
     {
-        $action = $request->get('action'); // 'terima' atau 'tolak'
+        $action = $request->get('action'); 
         
-        \Log::info('Menampilkan halaman konfirmasi', [
+        Log::info('Menampilkan halaman konfirmasi', [
             'token' => $token,
             'action' => $action,
         ]);
 
-        // Find kunjungan by token
         $kunjungan = Kunjungan::where('token_approval', $token)->first();
 
         if (!$kunjungan) {
@@ -31,43 +29,35 @@ class KunjunganConfirmController extends Controller
             ]);
         }
 
-        // Check if token expired
         if ($kunjungan->expired_at && now()->isAfter($kunjungan->expired_at)) {
             return view('kunjungan.error', [
                 'message' => 'Link konfirmasi sudah kadaluarsa (berlaku 24 jam).'
             ]);
         }
 
-        // Check if already confirmed
         if ($kunjungan->status !== 'pending') {
             return view('kunjungan.error', [
                 'message' => 'Kunjungan ini sudah dikonfirmasi sebelumnya dengan status: ' . $kunjungan->status_label
             ]);
         }
 
-        // Load relasi tamu
         $kunjungan->load('tamu');
 
-        // Tampilkan halaman konfirmasi
         return view('kunjungan.confirm', [
             'kunjungan' => $kunjungan,
             'action' => $action,
         ]);
     }
 
-    /**
-     * Proses konfirmasi setelah user klik tombol di halaman konfirmasi
-     */
     public function process(Request $request, $token)
     {
-        $action = $request->input('action'); // 'terima' atau 'tolak'
+        $action = $request->input('action'); 
         
-        \Log::info('Proses konfirmasi kunjungan', [
+        Log::info('Proses konfirmasi kunjungan', [
             'token' => $token,
             'action' => $action,
         ]);
 
-        // Find kunjungan by token
         $kunjungan = Kunjungan::where('token_approval', $token)->first();
 
         if (!$kunjungan) {
@@ -76,31 +66,26 @@ class KunjunganConfirmController extends Controller
             ]);
         }
 
-        // Check if token expired
         if ($kunjungan->expired_at && now()->isAfter($kunjungan->expired_at)) {
             return view('kunjungan.error', [
                 'message' => 'Link konfirmasi sudah kadaluarsa (berlaku 24 jam).'
             ]);
         }
 
-        // Check if already confirmed
         if ($kunjungan->status !== 'pending') {
             return view('kunjungan.error', [
                 'message' => 'Kunjungan ini sudah dikonfirmasi sebelumnya dengan status: ' . $kunjungan->status_label
             ]);
         }
 
-        // Process confirmation
         if ($action === 'terima') {
-            $kunjungan->status = 'approved'; // approved = diterima
+            $kunjungan->status = 'approved'; 
             $kunjungan->save();
             
-            \Log::info('Kunjungan diterima (approved), ID: ' . $kunjungan->id_kunjungan);
+            Log::info('Kunjungan diterima (approved), ID: ' . $kunjungan->id_kunjungan);
 
-            // Kirim email notifikasi ke tamu
             $this->sendNotificationToTamu($kunjungan, 'diterima');
 
-            // Kirim email ke karyawan untuk mengisi notulensi
             $this->sendNotulensiRequestToKaryawan($kunjungan, $token);
 
             return view('kunjungan.success', [
@@ -118,13 +103,12 @@ class KunjunganConfirmController extends Controller
                 'alasan_penolakan.max' => 'Alasan penolakan maksimal 500 karakter.',
             ]);
 
-            $kunjungan->status = 'canceled'; // canceled = ditolak
+            $kunjungan->status = 'canceled'; 
             $kunjungan->alasan_batal = $request->input('alasan_penolakan');
             $kunjungan->save();
             
-            \Log::info('Kunjungan ditolak (canceled), ID: ' . $kunjungan->id_kunjungan . ', Alasan: ' . $kunjungan->alasan_batal);
+            Log::info('Kunjungan ditolak (canceled), ID: ' . $kunjungan->id_kunjungan . ', Alasan: ' . $kunjungan->alasan_batal);
 
-            // Kirim email notifikasi ke tamu
             $this->sendNotificationToTamu($kunjungan, 'ditolak');
 
             return view('kunjungan.success', [
@@ -140,75 +124,66 @@ class KunjunganConfirmController extends Controller
         }
     }
 
-    /**
-     * Kirim notifikasi email ke tamu
-     */
     private function sendNotificationToTamu(Kunjungan $kunjungan, string $status)
     {
         try {
             $tamu = $kunjungan->tamu;
             
-            // Ambil karyawan pertama yang dituju (jika ada multiple, ambil yang pertama)
             $karyawan = $kunjungan->karyawan()->first();
             
             if (!$karyawan) {
-                \Log::warning('Tidak ada karyawan yang terkait dengan kunjungan ID: ' . $kunjungan->id_kunjungan);
+                Log::warning('Tidak ada karyawan yang terkait dengan kunjungan ID: ' . $kunjungan->id_kunjungan);
                 return;
             }
             
             if (!$tamu->email_tamu) {
-                \Log::warning('Tamu tidak memiliki email, ID: ' . $tamu->id_tamu);
+                Log::warning('Tamu tidak memiliki email, ID: ' . $tamu->id_tamu);
                 return;
             }
             
-            \Log::info('Mengirim notifikasi ke tamu: ' . $tamu->email_tamu);
+            Log::info('Mengirim notifikasi ke tamu: ' . $tamu->email_tamu);
             
             Mail::to($tamu->email_tamu)->send(
                 new KunjunganNotification($tamu, $karyawan, $kunjungan, $status)
             );
             
-            \Log::info('Email notifikasi berhasil dikirim ke: ' . $tamu->nama_tamu);
+            Log::info('Email notifikasi berhasil dikirim ke: ' . $tamu->nama_tamu);
             
         } catch (\Exception $e) {
-            \Log::error('Gagal kirim email ke tamu: ' . $e->getMessage(), [
+            Log::error('Gagal kirim email ke tamu: ' . $e->getMessage(), [
                 'kunjungan_id' => $kunjungan->id_kunjungan,
                 'error' => $e->getMessage(),
             ]);
         }
     }
 
-    /**
-     * Kirim email notulensi request ke karyawan
-     */
     private function sendNotulensiRequestToKaryawan(Kunjungan $kunjungan, string $token)
     {
         try {
-            // Ambil semua karyawan yang terlibat
             $karyawanList = $kunjungan->karyawan;
             
             if ($karyawanList->isEmpty()) {
-                \Log::warning('Tidak ada karyawan untuk kirim notulensi request, ID: ' . $kunjungan->id_kunjungan);
+                Log::warning('Tidak ada karyawan untuk kirim notulensi request, ID: ' . $kunjungan->id_kunjungan);
                 return;
             }
             
-            // Kirim email ke setiap karyawan
             foreach ($karyawanList as $karyawan) {
                 if (!$karyawan->email_karyawan) {
-                    \Log::warning('Karyawan tidak memiliki email, ID: ' . $karyawan->id_karyawan . ', Nama: ' . $karyawan->nama_karyawan);
+                    Log::warning('Karyawan tidak memiliki email, ID: ' . $karyawan->id_karyawan . ', Nama: ' . $karyawan->nama_karyawan);
                     continue;
                 }
                 
-                \Log::info('Mengirim email notulensi request ke karyawan: ' . $karyawan->email_karyawan);
+                Log::info('Mengirim email notulensi request ke karyawan: ' . $karyawan->email_karyawan);
                 
                 Mail::to($karyawan->email_karyawan)->send(
                     new NotulensiRequest($karyawan, $kunjungan, $token)
                 );
                 
-                \Log::info('Email notulensi request berhasil dikirim ke: ' . $karyawan->nama_karyawan);
+                Log::info('Email notulensi request berhasil dikirim ke: ' . $karyawan->nama_karyawan);
             }
             
         } catch (\Exception $e) {
-            \Log::error('Gagal kirim email notulensi request: ' . $e->getMessage(), [
+            Log::error('Gagal kirim email notulensi request: ' . $e->getMessage(), [
                 'kunjungan_id' => $kunjungan->id_kunjungan,
                 'error' => $e->getMessage(),
             ]);
