@@ -65,7 +65,7 @@
             </p>
         </div>
 
-        <form action="{{ route('notulensi.store', $token) }}" method="POST" enctype="multipart/form-data">
+        <form id="notulensi-form" action="{{ route('notulensi.store', $token) }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -368,9 +368,105 @@
         const video = document.getElementById('webcam_video');
         const canvas = document.getElementById('capture_canvas');
         const ctx = canvas.getContext('2d');
+        const storageKey = 'notulensi_images_{{ $token }}';
         
         let stream = null;
         let capturedImages = [];
+
+        // Load saved images from localStorage on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            loadSavedImages();
+        });
+
+        // Save images to localStorage
+        function saveImagesToStorage() {
+            const imageData = [];
+            capturedImages.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageData.push({
+                        name: file.name,
+                        type: file.type,
+                        data: e.target.result
+                    });
+                    
+                    // Save when all files are read
+                    if (imageData.length === capturedImages.length) {
+                        try {
+                            localStorage.setItem(storageKey, JSON.stringify(imageData));
+                        } catch (e) {
+                            console.error('Error saving to localStorage:', e);
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // If no images, clear storage
+            if (capturedImages.length === 0) {
+                localStorage.removeItem(storageKey);
+            }
+        }
+
+        // Load images from localStorage
+        function loadSavedImages() {
+            try {
+                const saved = localStorage.getItem(storageKey);
+                if (!saved) return;
+                
+                const imageData = JSON.parse(saved);
+                if (!imageData || imageData.length === 0) return;
+                
+                // Convert base64 back to File objects
+                const promises = imageData.map(img => {
+                    return fetch(img.data)
+                        .then(res => res.blob())
+                        .then(blob => new File([blob], img.name, { type: img.type }));
+                });
+                
+                Promise.all(promises).then(files => {
+                    capturedImages = files;
+                    
+                    // Update file input
+                    const dt = new DataTransfer();
+                    files.forEach(file => dt.items.add(file));
+                    dokumentasiInput.files = dt.files;
+                    
+                    // Render previews
+                    renderPreviews();
+                });
+            } catch (e) {
+                console.error('Error loading from localStorage:', e);
+                localStorage.removeItem(storageKey);
+            }
+        }
+
+        // Clear saved images (on successful submit)
+        function clearSavedImages() {
+            localStorage.removeItem(storageKey);
+        }
+
+        // Render all image previews
+        function renderPreviews() {
+            previewContainer.innerHTML = '';
+            capturedImages.forEach((file, index) => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'relative';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-[#084E8F]">
+                            <button type="button" onclick="removeImage(${index})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                                ×
+                            </button>
+                        `;
+                        previewContainer.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
 
         // Karyawan modal functions
         const karyawanModal = document.getElementById('karyawan_modal');
@@ -493,6 +589,9 @@
                         capturedImages.forEach(img => dt.items.add(img));
                         dokumentasiInput.files = dt.files;
                         
+                        // Save to localStorage
+                        saveImagesToStorage();
+                        
                         // Trigger change event to update preview
                         dokumentasiInput.dispatchEvent(new Event('change'));
                         
@@ -522,25 +621,11 @@
             capturedImages.forEach(img => dt.items.add(img));
             dokumentasiInput.files = dt.files;
             
+            // Save to localStorage
+            saveImagesToStorage();
+            
             // Re-render all previews
-            previewContainer.innerHTML = '';
-            capturedImages.forEach((file, index) => {
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const div = document.createElement('div');
-                        div.className = 'relative';
-                        div.innerHTML = `
-                            <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-[#084E8F]">
-                            <button type="button" onclick="removeImage(${index})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
-                                ×
-                            </button>
-                        `;
-                        previewContainer.appendChild(div);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
+            renderPreviews();
         });
 
         // Remove image
@@ -550,6 +635,9 @@
             capturedImages.forEach(file => dt.items.add(file));
             dokumentasiInput.files = dt.files;
             
+            // Save to localStorage
+            saveImagesToStorage();
+            
             // Trigger change event to re-render previews
             dokumentasiInput.dispatchEvent(new Event('change', { bubbles: true }));
         }
@@ -557,6 +645,33 @@
         // Close modal on backdrop click
         dokumentasiModal.addEventListener('click', function (e) {
             if (e.target === dokumentasiModal) closeDokumentasiModal();
+        });
+
+        // Optional: Clear localStorage when form is successfully submitted
+        // This won't run if there's a validation error since the page will reload
+        const form = document.getElementById('notulensi-form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                // Set a flag that form is being submitted
+                sessionStorage.setItem('form_submitted_{{ $token }}', 'true');
+            });
+        }
+
+        // Check if we just returned from a validation error
+        // If not (successful submission), the success page will clear it
+        window.addEventListener('load', function() {
+            const wasSubmitted = sessionStorage.getItem('form_submitted_{{ $token }}');
+            if (wasSubmitted) {
+                // We're back from server, check if there are validation errors
+                const hasErrors = document.querySelector('.text-red-500');
+                if (!hasErrors) {
+                    // No errors, form was successful (though we're on the same page)
+                    // Don't clear here, let success page handle it
+                } else {
+                    // There are errors, keep the images
+                }
+                sessionStorage.removeItem('form_submitted_{{ $token }}');
+            }
         });
     </script>
 @endpush

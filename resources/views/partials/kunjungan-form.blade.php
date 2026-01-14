@@ -12,14 +12,23 @@
                     <label for="nama_lengkap" class="block text-[#084E8F] font-bold mb-2">
                         Nama Lengkap
                     </label>
-                    <div class="input-wrapper">
+                    <div class="input-wrapper {{ $errors->has('nama_lengkap') ? 'border-red-500 bg-red-50' : '' }}">
                         <input type="text" id="nama_lengkap" name="nama_lengkap"
-                            placeholder="Tuliskan nama lengkap anda" required>
+                            placeholder="Tuliskan nama lengkap anda" 
+                            value="{{ old('nama_lengkap') }}"
+                            required>
                     </div>
-                    <div id="nama_error" class="error-message">
-                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                        Nama lengkap wajib diisi
-                    </div>
+                    @error('nama_lengkap')
+                        <div class="error-message show">
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                            {{ $message }}
+                        </div>
+                    @else
+                        <div id="nama_error" class="error-message">
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                            Nama lengkap wajib diisi
+                        </div>
+                    @enderror
                 </div>
 
                 <!-- Alamat Email -->
@@ -27,13 +36,23 @@
                     <label for="email" class="block text-[#084E8F] font-bold mb-2">
                         Alamat Email
                     </label>
-                    <div class="input-wrapper">
-                        <input type="email" id="email" name="email" placeholder="Tuliskan alamat email anda" required>
+                    <div class="input-wrapper {{ $errors->has('email') ? 'border-red-500 bg-red-50' : '' }}">
+                        <input type="email" id="email" name="email" 
+                            placeholder="Tuliskan alamat email anda" 
+                            value="{{ old('email') }}"
+                            required>
                     </div>
-                    <div id="email_error" class="error-message">
-                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                        Email tidak valid
-                    </div>
+                    @error('email')
+                        <div class="error-message show">
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                            {{ $message }}
+                        </div>
+                    @else
+                        <div id="email_error" class="error-message">
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                            Email tidak valid
+                        </div>
+                    @enderror
                 </div>
 
                 <!-- Instansi Asal -->
@@ -41,14 +60,23 @@
                     <label for="instansi" class="block text-[#084E8F] font-bold mb-2">
                         Instansi Asal
                     </label>
-                    <div class="input-wrapper">
-                        <input type="text" id="instansi" name="instansi" placeholder="Tuliskan instansi asal anda"
+                    <div class="input-wrapper {{ $errors->has('instansi') ? 'border-red-500 bg-red-50' : '' }}">
+                        <input type="text" id="instansi" name="instansi" 
+                            placeholder="Tuliskan instansi asal anda"
+                            value="{{ old('instansi') }}"
                             required>
                     </div>
-                    <div id="instansi_error" class="error-message">
-                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                        Instansi asal wajib diisi
-                    </div>
+                    @error('instansi')
+                        <div class="error-message show">
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                            {{ $message }}
+                        </div>
+                    @else
+                        <div id="instansi_error" class="error-message">
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                            Instansi asal wajib diisi
+                        </div>
+                    @enderror
                 </div>
 
                 <!-- Tujuan Kedatangan -->
@@ -56,14 +84,23 @@
                     <label for="tujuan" class="block text-[#084E8F] font-bold mb-2">
                         Tujuan Kedatangan
                     </label>
-                    <div class="input-wrapper">
-                        <textarea id="tujuan" name="tujuan" rows="4" placeholder="Jelaskan tujuan kedatangan anda"
-                            class="resize-none" required></textarea>
+                    <div class="input-wrapper {{ $errors->has('tujuan') ? 'border-red-500 bg-red-50' : '' }}">
+                        <textarea id="tujuan" name="tujuan" rows="4" 
+                            placeholder="Jelaskan tujuan kedatangan anda"
+                            class="resize-none" 
+                            required>{{ old('tujuan') }}</textarea>
                     </div>
-                    <div id="tujuan_error" class="error-message">
-                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                        Tujuan kedatangan wajib diisi
-                    </div>
+                    @error('tujuan')
+                        <div class="error-message show">
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                            {{ $message }}
+                        </div>
+                    @else
+                        <div id="tujuan_error" class="error-message">
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                            Tujuan kedatangan wajib diisi
+                        </div>
+                    @enderror
                 </div>
 
                 <!-- Karyawan yang Anda Tuju -->
@@ -76,13 +113,20 @@
                     <div id="karyawan_rows_container" class="space-y-3"></div>
 
                     <!-- Hidden input untuk menyimpan ID karyawan yang dipilih -->
-                    <input type="hidden" id="karyawan_ids" name="karyawan_ids" value="[]">
+                    <input type="hidden" id="karyawan_ids" name="karyawan_ids" value="{{ old('karyawan_ids', '[]') }}">
 
                     <!-- Error message -->
-                    <div id="karyawan_error" class="error-message">
-                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                        Minimal pilih 1 karyawan yang dituju
-                    </div>
+                    @error('karyawan_ids')
+                        <div class="error-message show">
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                            {{ $message }}
+                        </div>
+                    @else
+                        <div id="karyawan_error" class="error-message">
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                            Minimal pilih 1 karyawan yang dituju
+                        </div>
+                    @enderror
                 </div>
             </div>
 
@@ -110,11 +154,19 @@
                         </button>
                     </div>
 
-                    <input type="hidden" id="foto_ktp_base64" name="foto_ktp" value="">
-                    <div id="foto_error" class="error-message">
-                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                        Foto KTP wajib diambil sebelum mengirim data
-                    </div>
+                    <input type="hidden" id="foto_ktp_base64" name="foto_ktp" value="{{ old('foto_ktp') }}">
+                    
+                    @error('foto_ktp')
+                        <div class="error-message show">
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                            {{ $message }}
+                        </div>
+                    @else
+                        <div id="foto_error" class="error-message">
+                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                            Foto KTP wajib diambil sebelum mengirim data
+                        </div>
+                    @enderror
 
                     <!-- Error dari backend khusus upload foto -->
                     @if ($errors->has('foto_error'))
