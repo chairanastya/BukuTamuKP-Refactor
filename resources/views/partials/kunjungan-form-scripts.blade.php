@@ -1,18 +1,15 @@
 @push('scripts')
     <script>
-        // Global Variables
         let selectedKaryawan = [];
         let rowCounter = 0;
         let stream = null;
 
-        // DOM Elements
         const video = document.getElementById('webcam_video');
         const canvas = document.getElementById('capture_canvas');
         const ctx = canvas.getContext('2d');
         const webcamModal = document.getElementById('webcam_modal');
         const successModal = document.getElementById('success_modal');
 
-        // Initialization
         document.addEventListener('DOMContentLoaded', function () {
             addKaryawanRow();
 
@@ -142,27 +139,27 @@
             const rowId = rowCounter++;
 
             const rowHtml = `
-                                                                            <div id="karyawan-row-${rowId}" class="karyawan-search-row">
-                                                                                <div class="karyawan-search-container" id="content-${rowId}">
-                                                                                    <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
-                                                                                        <input type="text" 
-                                                                                            id="karyawan_input_${rowId}" 
-                                                                                            placeholder="Cari nama karyawan..."
-                                                                                            class="w-full karyawan-search-input"
-                                                                                            autocomplete="off"
-                                                                                            data-row-id="${rowId}">
-                                                                                    </div>
-                                                                                    <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>
-                                                                                </div>
-                                                                                <div class="karyawan-action-buttons">
-                                                                                    <button type="button" class="karyawan-add-btn" onclick="addKaryawanRow()" title="Tambah karyawan">
-                                                                                        @svg('heroicon-o-plus', 'w-7 h-7')
-                                                                                    </button>
-                                                                                    <button type="button" class="karyawan-minus-btn" onclick="removeKaryawanRow(${rowId})" title="Hapus baris">
-                                                                                        @svg('heroicon-o-minus', 'w-7 h-7')
-                                                                                    </button>
-                                                                                </div>
-                                                                            </div>`;
+                <div id="karyawan-row-${rowId}" class="karyawan-search-row">
+                    <div class="karyawan-search-container" id="content-${rowId}">
+                        <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
+                            <input type="text" 
+                                id="karyawan_input_${rowId}" 
+                                placeholder="Cari nama karyawan..."
+                                class="w-full karyawan-search-input"
+                                autocomplete="off"
+                                data-row-id="${rowId}">
+                        </div>
+                        <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>
+                    </div>
+                    <div class="karyawan-action-buttons">
+                        <button type="button" class="karyawan-add-btn" onclick="addKaryawanRow()" title="Tambah karyawan">
+                            @svg('heroicon-o-plus', 'w-7 h-7')
+                        </button>
+                        <button type="button" class="karyawan-minus-btn" onclick="removeKaryawanRow(${rowId})" title="Hapus baris">
+                            @svg('heroicon-o-minus', 'w-7 h-7')
+                        </button>
+                    </div>
+                </div>`;
 
             container.insertAdjacentHTML('beforeend', rowHtml);
             setupRowListeners(rowId);
@@ -229,10 +226,10 @@
             const html = karyawans
                 .filter(k => !selectedKaryawan.find(sk => sk.id_karyawan === k.id_karyawan))
                 .map(k => `
-                                                                                <div class="autocomplete-item" onclick="selectKaryawan(${rowId}, ${k.id_karyawan}, '${escapeHtml(k.nama_karyawan)}', '${escapeHtml(k.jabatan)}', '${escapeHtml(k.departemen)}')">
-                                                                                    <div class="autocomplete-name">${escapeHtml(k.nama_karyawan)}</div>
-                                                                                    <div class="autocomplete-detail">${escapeHtml(k.jabatan)} - ${escapeHtml(k.departemen)}</div>
-                                                                                </div>`)
+                        <div class="autocomplete-item" onclick="selectKaryawan(${rowId}, ${k.id_karyawan}, '${escapeHtml(k.nama_karyawan)}', '${escapeHtml(k.jabatan)}', '${escapeHtml(k.departemen)}')">
+                            <div class="autocomplete-name">${escapeHtml(k.nama_karyawan)}</div>
+                            <div class="autocomplete-detail">${escapeHtml(k.jabatan)} - ${escapeHtml(k.departemen)}</div>
+                        </div>`)
                 .join('');
 
             dropdown.innerHTML = html;
@@ -255,13 +252,13 @@
         function renderKaryawanCard(rowId, nama, jabatan, departemen) {
             const content = document.getElementById(`content-${rowId}`);
             content.innerHTML = `
-                                                                            <div class="karyawan-card w-full" onclick="resetKaryawanRow(${rowId})" title="Klik untuk mengganti karyawan">
-                                                                                <div class="karyawan-card-info">
-                                                                                    <div class="karyawan-card-name">${escapeHtml(nama)}</div>
-                                                                                    <div class="karyawan-card-detail">${escapeHtml(jabatan)} - ${escapeHtml(departemen)}</div>
-                                                                                </div>
-                                                                                @svg('zondicon-edit-pencil', 'w-5 h-5 text-[#084E8F]')
-                                                                            </div>`;
+                <div class="karyawan-card w-full" onclick="resetKaryawanRow(${rowId})" title="Klik untuk mengganti karyawan">
+                    <div class="karyawan-card-info">
+                        <div class="karyawan-card-name">${escapeHtml(nama)}</div>
+                        <div class="karyawan-card-detail">${escapeHtml(jabatan)} - ${escapeHtml(departemen)}</div>
+                    </div>
+                    @svg('zondicon-edit-pencil', 'w-5 h-5 text-[#084E8F]')
+                </div>`;
         }
 
         function updateHiddenInput() {
@@ -275,15 +272,15 @@
 
             const content = document.getElementById(`content-${rowId}`);
             content.innerHTML = `
-                                                                            <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
-                                                                                <input type="text" 
-                                                                                    id="karyawan_input_${rowId}" 
-                                                                                    placeholder="Cari nama karyawan..."
-                                                                                    class="w-full karyawan-search-input"
-                                                                                    autocomplete="off"
-                                                                                    data-row-id="${rowId}">
-                                                                            </div>
-                                                                            <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>`;
+                <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
+                    <input type="text" 
+                        id="karyawan_input_${rowId}" 
+                        placeholder="Cari nama karyawan..."
+                        class="w-full karyawan-search-input"
+                        autocomplete="off"
+                        data-row-id="${rowId}">
+                </div>
+                <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>`;
 
             setupRowListeners(rowId);
         }
@@ -331,31 +328,25 @@
             try {
                 console.log('Mengambil foto...');
 
-                // Validasi video stream
                 if (!video || !video.videoWidth || !video.videoHeight) {
                     throw new Error('Kamera tidak siap. Silakan coba lagi.');
                 }
-
-                // Validasi canvas dan context
                 if (!canvas || !ctx) {
                     throw new Error('Canvas tidak tersedia.');
                 }
 
                 console.log(`Video size: ${video.videoWidth}x${video.videoHeight}`);
 
-                // Hitung ukuran dan posisi frame KTP
                 const videoRect = video.getBoundingClientRect();
-                const frameWidthPercent = 0.85; // 85% dari video width
-                const aspectRatio = 1.586; // Aspect ratio KTP
+                const frameWidthPercent = 0.85;
+                const aspectRatio = 1.586;
 
                 const frameWidth = videoRect.width * frameWidthPercent;
                 const frameHeight = frameWidth / aspectRatio;
 
-                // Posisi frame di tengah video
                 const frameX = (videoRect.width - frameWidth) / 2;
                 const frameY = (videoRect.height - frameHeight) / 2;
 
-                // Konversi ke koordinat video asli
                 const scaleX = video.videoWidth / videoRect.width;
                 const scaleY = video.videoHeight / videoRect.height;
 
@@ -364,13 +355,11 @@
                 let sourceWidth = Math.round(frameWidth * scaleX);
                 let sourceHeight = Math.round(frameHeight * scaleY);
 
-                // Validasi dan clamp koordinat agar tidak keluar batas
                 sourceX = Math.max(0, Math.min(sourceX, video.videoWidth - 1));
                 sourceY = Math.max(0, Math.min(sourceY, video.videoHeight - 1));
                 sourceWidth = Math.min(sourceWidth, video.videoWidth - sourceX);
                 sourceHeight = Math.min(sourceHeight, video.videoHeight - sourceY);
 
-                // Validasi nilai
                 if (sourceWidth <= 0 || sourceHeight <= 0 || isNaN(sourceWidth) || isNaN(sourceHeight)) {
                     console.warn('Koordinat crop tidak valid, menggunakan full video');
                     sourceX = 0;
@@ -381,7 +370,6 @@
 
                 console.log(`Frame area: ${sourceWidth}x${sourceHeight} at (${sourceX}, ${sourceY})`);
 
-                // Set canvas dengan ukuran frame
                 const maxWidth = 800;
                 let finalWidth = sourceWidth;
                 let finalHeight = sourceHeight;
@@ -395,14 +383,12 @@
                 canvas.height = finalHeight;
                 console.log(`Canvas size: ${canvas.width}x${canvas.height}`);
 
-                // Clear canvas sebelum draw
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Crop dan gambar hanya area frame KTP (langsung tanpa flip)
                 ctx.drawImage(
                     video,
-                    sourceX, sourceY, sourceWidth, sourceHeight,  // Source (crop area)
-                    0, 0, canvas.width, canvas.height              // Destination (canvas)
+                    sourceX, sourceY, sourceWidth, sourceHeight,
+                    0, 0, canvas.width, canvas.height
                 );
 
                 const photoData = canvas.toDataURL('image/jpeg', 0.8);
