@@ -180,36 +180,32 @@
 @endpush
 
 @section('sidebar')
-    <div class="sidebar-item active" onclick="switchTab('beranda')">
+    <a href="{{ route('resepsionis.dashboard') }}" class="sidebar-item {{ request()->routeIs('resepsionis.dashboard') ? 'active' : '' }}">
         @svg('fluentui-home-24', 'w-8 h-8')
         <span>Beranda</span>
-    </div>
-    <div class="sidebar-item" onclick="switchTab('riwayat')">
+    </a>
+    <a href="{{ route('resepsionis.riwayat') }}" class="sidebar-item {{ request()->routeIs('resepsionis.riwayat') ? 'active' : '' }}">
         @svg('gmdi-history', 'w-8 h-8')
         <span>Riwayat</span>
-    </div>
-    <div class="sidebar-item" onclick="switchTab('karyawan')">
+    </a>
+    <a href="{{ route('resepsionis.karyawan') }}" class="sidebar-item {{ request()->routeIs('resepsionis.karyawan') ? 'active' : '' }}">
         @svg('gmdi-people-r', 'w-8 h-8')
         <span>Daftar Karyawan</span>
-    </div>
+    </a>
 @endsection
 
 @section('content')
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Tab: Beranda -->
-        <div id="tab-beranda" class="tab-content active">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-blue-900">Kunjungan Hari Ini</h2>
-                    <a href="{{ route('resepsionis.kunjungan.create') }}" class="btn-primary flex items-center gap-2">
-                        @svg('heroicon-o-plus', 'w-5 h-5')
-                        Buat Kunjungan Baru
-                    </a>
-                </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-blue-900">Kunjungan Hari Ini</h2>
+                <a href="{{ route('resepsionis.kunjungan.create') }}" class="btn-primary flex items-center gap-2">
+                    @svg('heroicon-o-plus', 'w-5 h-5')
+                    Buat Kunjungan Baru
+                </a>
+            </div>
 
-                <!-- Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <div class="stats-card">
                         <div>
                             <p class="text-gray-600 text-sm mb-1">Total Kunjungan</p>
@@ -273,28 +269,11 @@
             </div>
         </div>
 
-        <!-- Tab: Riwayat -->
-        <div id="tab-riwayat" class="tab-content">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Riwayat Kunjungan</h2>
-                <div class="bg-white rounded-lg shadow p-6">
-                    <p class="text-gray-600">Fitur riwayat dalam pengembangan...</p>
-                </div>
-            </div>
-        </div>
+    @yield('modals')
+@endsection
 
-        <!-- Tab: Daftar Karyawan -->
-        <div id="tab-karyawan" class="tab-content">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Daftar Karyawan</h2>
-                <div class="bg-white rounded-lg shadow p-6">
-                    <p class="text-gray-600">Fitur daftar karyawan dalam pengembangan...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Detail Modal -->
+@section('modals')
+    <div id="detailModal" class="modal-overlay">
     <div id="detailModal" class="modal-overlay">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
@@ -341,24 +320,27 @@
         let currentKunjunganId = null;
 
         document.addEventListener('DOMContentLoaded', function () {
-            initDataTable();
-
-            // Handle hash-based tab activation
-            const hash = window.location.hash.substring(1);
-            if (hash && ['beranda', 'riwayat', 'karyawan'].includes(hash)) {
-                switchTab(hash);
-            }
+            setTimeout(function() {
+                initDataTable();
+            }, 100);
         });
 
         function initDataTable() {
+            if ($.fn.DataTable.isDataTable('#myTable')) {
+                $('#myTable').DataTable().destroy();
+            }
+            
             table = new DataTable('#myTable', {
                 ajax: {
                     url: '{{ route("resepsionis.kunjungan.data") }}',
                     dataSrc: 'data',
                     error: function (xhr, error, thrown) {
                         console.error('DataTables AJAX error:', error, thrown);
-                        console.error('Response:', xhr.responseText);
-                        alert('Error loading data: ' + error);
+                        if (xhr.status === 0) {
+                            setTimeout(function() {
+                                table.ajax.reload();
+                            }, 500);
+                        }
                     }
                 },
                 columns: [
@@ -466,7 +448,7 @@
         }
 
         function acceptKunjungan(id) {
-            if (!confirm('Terima kunjungan ini?')) return;
+            if (!confirm('Terima kunjungan ini? Email notifikasi akan dikirim ke karyawan tujuan untuk mengisi notulensi.')) return;
 
             // Show loading overlay
             showLoading();
@@ -481,7 +463,7 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Kunjungan berhasil diterima');
+                        alert('Kunjungan berhasil diterima. Email telah dikirim ke karyawan tujuan untuk mengisi notulensi.');
                         closeModal();
                         table.ajax.reload();
                         location.reload();
@@ -578,43 +560,24 @@
             document.getElementById('dropdown').classList.toggle('hidden');
         }
 
-        function switchTab(tab) {
-            // Show loading saat switch tab
-            showLoading();
-
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-
-            document.getElementById('tab-' + tab).classList.add('active');
-            event.target.closest('.sidebar-item').classList.add('active');
-
-            // Hide loading setelah tab selesai di-render
-            setTimeout(() => {
-                hideLoading();
-            }, 300);
-        }
-
         document.addEventListener('click', function (e) {
             if (!e.target.closest('button[onclick="toggleDropdown()"]')) {
                 document.getElementById('dropdown').classList.add('hidden');
             }
         });
 
-        // Close KTP modal when clicking outside
         document.getElementById('ktpModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeKtpModal();
             }
         });
 
-        // Close detail modal when clicking outside
         document.getElementById('detailModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeModal();
             }
         });
 
-        // Close reject modal when clicking outside
         document.getElementById('rejectModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeRejectModal();

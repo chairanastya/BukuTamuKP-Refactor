@@ -65,7 +65,7 @@
             </p>
         </div>
 
-        <form action="{{ route('notulensi.store', $token) }}" method="POST" enctype="multipart/form-data">
+        <form id="notulensi-form" action="{{ route('notulensi.store', $token) }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -368,11 +368,96 @@
         const video = document.getElementById('webcam_video');
         const canvas = document.getElementById('capture_canvas');
         const ctx = canvas.getContext('2d');
+        const storageKey = 'notulensi_images_{{ $token }}';
         
         let stream = null;
         let capturedImages = [];
 
-        // Karyawan modal functions
+        window.addEventListener('DOMContentLoaded', function() {
+            loadSavedImages();
+        });
+
+        function saveImagesToStorage() {
+            const imageData = [];
+            capturedImages.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageData.push({
+                        name: file.name,
+                        type: file.type,
+                        data: e.target.result
+                    });
+                    
+                    if (imageData.length === capturedImages.length) {
+                        try {
+                            localStorage.setItem(storageKey, JSON.stringify(imageData));
+                        } catch (e) {
+                            console.error('Error saving to localStorage:', e);
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            if (capturedImages.length === 0) {
+                localStorage.removeItem(storageKey);
+            }
+        }
+
+        function loadSavedImages() {
+            try {
+                const saved = localStorage.getItem(storageKey);
+                if (!saved) return;
+                
+                const imageData = JSON.parse(saved);
+                if (!imageData || imageData.length === 0) return;
+                
+                const promises = imageData.map(img => {
+                    return fetch(img.data)
+                        .then(res => res.blob())
+                        .then(blob => new File([blob], img.name, { type: img.type }));
+                });
+                
+                Promise.all(promises).then(files => {
+                    capturedImages = files;
+                    
+                    const dt = new DataTransfer();
+                    files.forEach(file => dt.items.add(file));
+                    dokumentasiInput.files = dt.files;
+                    
+                    renderPreviews();
+                });
+            } catch (e) {
+                console.error('Error loading from localStorage:', e);
+                localStorage.removeItem(storageKey);
+            }
+        }
+
+        function clearSavedImages() {
+            localStorage.removeItem(storageKey);
+        }
+
+        function renderPreviews() {
+            previewContainer.innerHTML = '';
+            capturedImages.forEach((file, index) => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'relative';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-[#084E8F]">
+                            <button type="button" onclick="removeImage(${index})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                                ×
+                            </button>
+                        `;
+                        previewContainer.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
         const karyawanModal = document.getElementById('karyawan_modal');
         
         function openKaryawanModal() {
@@ -493,6 +578,9 @@
                         capturedImages.forEach(img => dt.items.add(img));
                         dokumentasiInput.files = dt.files;
                         
+                        // Save to localStorage
+                        saveImagesToStorage();
+                        
                         // Trigger change event to update preview
                         dokumentasiInput.dispatchEvent(new Event('change'));
                         
@@ -507,43 +595,59 @@
 
         // Handle file input change
         dokumentasiInput.addEventListener('change', function(e) {
-            previewContainer.innerHTML = '';
             const files = Array.from(e.target.files);
             
-            // Update captured images array
-            capturedImages = files;
-
-            files.forEach((file, index) => {
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const div = document.createElement('div');
-                        div.className = 'relative';
-                        div.innerHTML = `
-                            <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-[#084E8F]">
-                            <button type="button" onclick="removeImage(${index})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
-                                ×
-                            </button>
-                        `;
-                        previewContainer.appendChild(div);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
+            // Merge with existing captured images, avoiding duplicates
+            const existingNames = new Set(capturedImages.map(f => f.name));
+            const newFiles = files.filter(f => !existingNames.has(f.name));
+            
+            if (newFiles.length > 0) {
+                capturedImages = [...capturedImages, ...newFiles];
+            }
+            
+            // Update the file input with all captured images
+            const dt = new DataTransfer();
+            capturedImages.forEach(img => dt.items.add(img));
+            dokumentasiInput.files = dt.files;
+            
+            // Save to localStorage
+            saveImagesToStorage();
+            
+            // Re-render all previews
+            renderPreviews();
         });
 
-        // Remove image
         function removeImage(index) {
             capturedImages.splice(index, 1);
             const dt = new DataTransfer();
             capturedImages.forEach(file => dt.items.add(file));
             dokumentasiInput.files = dt.files;
-            dokumentasiInput.dispatchEvent(new Event('change'));
+            
+            saveImagesToStorage();
+            
+            dokumentasiInput.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
-        // Close modal on backdrop click
         dokumentasiModal.addEventListener('click', function (e) {
             if (e.target === dokumentasiModal) closeDokumentasiModal();
+        });
+
+        const form = document.getElementById('notulensi-form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                sessionStorage.setItem('form_submitted_{{ $token }}', 'true');
+            });
+        }
+
+        window.addEventListener('load', function() {
+            const wasSubmitted = sessionStorage.getItem('form_submitted_{{ $token }}');
+            if (wasSubmitted) {
+                const hasErrors = document.querySelector('.text-red-500');
+                if (!hasErrors) {
+                } else {
+                }
+                sessionStorage.removeItem('form_submitted_{{ $token }}');
+            }
         });
     </script>
 @endpush

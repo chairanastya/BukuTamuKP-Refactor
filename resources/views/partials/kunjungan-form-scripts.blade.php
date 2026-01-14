@@ -11,6 +11,8 @@
         const successModal = document.getElementById('success_modal');
 
         document.addEventListener('DOMContentLoaded', function () {
+            restoreOldValues();
+            
             addKaryawanRow();
 
             @if(session('success'))
@@ -20,6 +22,36 @@
             setupInputBackgrounds();
             setupFormValidation();
         });
+
+        function restoreOldValues() {
+            const fotoKtpBase64 = document.getElementById('foto_ktp_base64').value;
+            if (fotoKtpBase64 && fotoKtpBase64.trim() !== '') {
+                const previewImg = document.getElementById('preview_img');
+                const imagePreview = document.getElementById('image_preview');
+                const webcamArea = document.getElementById('webcam_area');
+                
+                if (previewImg && imagePreview && webcamArea) {
+                    previewImg.src = fotoKtpBase64;
+                    imagePreview.classList.remove('hidden');
+                    webcamArea.classList.add('hidden');
+                }
+            }
+
+            const karyawanIdsInput = document.getElementById('karyawan_ids');
+            if (karyawanIdsInput && karyawanIdsInput.value) {
+                try {
+                    const karyawanIds = JSON.parse(karyawanIdsInput.value);
+                    if (Array.isArray(karyawanIds) && karyawanIds.length > 0) {
+                        selectedKaryawan = karyawanIds.map(id => ({
+                            id: id,
+                            nama: 'Loading...'
+                        }));
+                    }
+                } catch (e) {
+                    console.error('Error parsing karyawan_ids:', e);
+                }
+            }
+        }
 
         function setupFormValidation() {
             const form = document.querySelector('form');

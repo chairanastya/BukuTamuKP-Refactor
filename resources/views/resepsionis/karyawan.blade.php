@@ -67,8 +67,30 @@
             color: #374151;
         }
 
+        .btn-success {
+            background: #10B981;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-danger {
+            background: #EF4444;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
         .btn-view {
-            background: #0C4777;
+            background: #F59E0B;
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 6px;
@@ -76,12 +98,6 @@
             font-weight: 600;
             text-decoration: none;
             display: inline-block;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-view:hover {
-            background: #083558;
         }
 
         .modal-overlay {
@@ -108,6 +124,10 @@
             overflow-y: auto;
         }
 
+        .modal-content.large {
+            max-width: 900px;
+        }
+
         table.dataTable {
             width: 100% !important;
         }
@@ -121,90 +141,89 @@
 @endpush
 
 @section('sidebar')
-    <a href="{{ route('resepsionis.dashboard') }}" class="sidebar-item">
+    <a href="{{ route('resepsionis.dashboard') }}" class="sidebar-item {{ request()->routeIs('resepsionis.dashboard') ? 'active' : '' }}">
         @svg('fluentui-home-24', 'w-8 h-8')
         <span>Beranda</span>
     </a>
-    <div class="sidebar-item">
+    <a href="{{ route('resepsionis.riwayat') }}" class="sidebar-item {{ request()->routeIs('resepsionis.riwayat') ? 'active' : '' }}">
         @svg('gmdi-history', 'w-8 h-8')
         <span>Riwayat</span>
-    </div>
-    <div class="sidebar-item active">
+    </a>
+    <a href="{{ route('resepsionis.karyawan') }}" class="sidebar-item {{ request()->routeIs('resepsionis.karyawan') ? 'active' : '' }}">
         @svg('gmdi-people-r', 'w-8 h-8')
         <span>Daftar Karyawan</span>
-    </div>
+    </a>
 @endsection
 
 @section('content')
-<div class="main-content">
-    <div class="container mx-auto px-4 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 class="text-3xl font-bold text-blue-900 mb-6">Daftar Karyawan</h1>
+    <div class="main-content">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-blue-900">Daftar Karyawan</h2>
+            </div>
 
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="stats-card">
-                <div>
-                    <p class="text-gray-600 text-sm mb-1">Total Karyawan</p>
-                    <p class="text-3xl font-bold text-blue-900">{{ $stats['total'] }}</p>
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="stats-card">
+                    <div>
+                        <p class="text-gray-600 text-sm mb-1">Total Karyawan</p>
+                        <p class="text-3xl font-bold text-blue-900">{{ $stats['total'] }}</p>
+                    </div>
+                    <div class="stats-icon" style="background: #E5E7EB;">
+                        @svg('gmdi-people-r', 'w-6 h-6 text-gray-600')
+                    </div>
                 </div>
-                <div class="stats-icon" style="background: #E5E7EB;">
-                    @svg('gmdi-people-r', 'w-6 h-6 text-gray-600')
+
+                <div class="stats-card">
+                    <div>
+                        <p class="text-gray-600 text-sm mb-1">Total Departemen</p>
+                        <p class="text-3xl font-bold text-blue-600">{{ $stats['departemen'] }}</p>
+                    </div>
+                    <div class="stats-icon" style="background: #DBEAFE;">
+                        @svg('heroicon-o-building-office', 'w-6 h-6 text-blue-600')
+                    </div>
+                </div>
+
+                <div class="stats-card">
+                    <div>
+                        <p class="text-gray-600 text-sm mb-1">Status</p>
+                        <p class="text-lg font-semibold text-green-600">Aktif</p>
+                    </div>
+                    <div class="stats-icon" style="background: #D1FAE5;">
+                        @svg('heroicon-o-check-circle', 'w-7 h-7 text-green-600')
+                    </div>
                 </div>
             </div>
 
-            <div class="stats-card">
-                <div>
-                    <p class="text-gray-600 text-sm mb-1">Total Departemen</p>
-                    <p class="text-3xl font-bold text-blue-900">{{ $stats['departemen'] }}</p>
-                </div>
-                <div class="stats-icon" style="background: #DBEAFE;">
-                    @svg('heroicon-o-building-office', 'w-6 h-6 text-blue-600')
-                </div>
+            <!-- DataTable -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <table id="karyawanTable" class="display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Nama Karyawan</th>
+                            <th>Email</th>
+                            <th>Departemen</th>
+                            <th>Jabatan</th>
+                            <th>Role</th>
+                            <th>Detail</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
-
-            <div class="stats-card">
-                <div>
-                    <p class="text-gray-600 text-sm mb-1">Status</p>
-                    <p class="text-lg font-semibold text-green-600">✓ Aktif</p>
-                </div>
-                <div class="stats-icon" style="background: #D1FAE5;">
-                    @svg('heroicon-o-check-circle', 'w-7 h-7 text-green-600')
-                </div>
-            </div>
-        </div>
-
-        <!-- DataTable -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <table id="karyawanTable" class="display" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>No.</th>
-                        <th>Nama Karyawan</th>
-                        <th>Email</th>
-                        <th>Departemen</th>
-                        <th>Jabatan</th>
-                        <th>Role</th>
-                        <th>Detail</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
         </div>
     </div>
-</div>
-</div>
 
-<!-- Detail Modal -->
-<div id="detailModal" class="modal-overlay">
-    <div class="modal-content">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-2xl font-bold">Detail Karyawan</h3>
-            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+    <div id="detailModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold">Detail Karyawan</h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div id="detailContent"></div>
         </div>
-        <div id="detailContent"></div>
     </div>
-</div>
 @endsection
 
 @push('scripts')
@@ -214,18 +233,27 @@
         let table;
 
         document.addEventListener('DOMContentLoaded', function () {
-            initDataTable();
+            setTimeout(function() {
+                initDataTable();
+            }, 100);
         });
 
         function initDataTable() {
+            if ($.fn.DataTable.isDataTable('#karyawanTable')) {
+                $('#karyawanTable').DataTable().destroy();
+            }
+            
             table = new DataTable('#karyawanTable', {
                 ajax: {
                     url: '{{ route("resepsionis.karyawan.data") }}',
                     dataSrc: 'data',
                     error: function (xhr, error, thrown) {
                         console.error('DataTables AJAX error:', error, thrown);
-                        console.error('Response:', xhr.responseText);
-                        alert('Error loading data: ' + error);
+                        if (xhr.status === 0) {
+                            setTimeout(function() {
+                                table.ajax.reload();
+                            }, 500);
+                        }
                     }
                 },
                 columns: [
@@ -251,7 +279,7 @@
                     {
                         data: null,
                         render: function (data) {
-                            return '<button onclick="viewDetail(' + data.id_karyawan + ')" class="btn-view">👁 Detail</button>';
+                            return '<button onclick="viewDetail(' + data.id_karyawan + ')" class="text-blue-600 hover:underline">👁 Detail</button>';
                         }
                     }
                 ],
@@ -266,11 +294,9 @@
                 .then(result => {
                     const karyawan = result.data.find(k => k.id_karyawan === id);
                     if (!karyawan) return;
-
                     let roleInfo = karyawan.is_resepsionis 
                         ? '<span class="badge badge-resepsionis">Resepsionis</span>'
                         : '<span class="badge badge-karyawan">Karyawan</span>';
-
                     document.getElementById('detailContent').innerHTML = `
                         <div class="space-y-4">
                             <div class="bg-gray-50 p-4 rounded-lg">
@@ -301,7 +327,6 @@
                             </div>
                         </div>
                     `;
-
                     document.getElementById('detailModal').classList.add('show');
                 });
         }
@@ -320,7 +345,6 @@
             }
         });
 
-        // Close modal when clicking outside
         document.getElementById('detailModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeModal();

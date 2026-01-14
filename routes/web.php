@@ -47,6 +47,8 @@ Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
 
         Route::get('/dashboard', [ResepsionisController::class, 'dashboard'])->name('dashboard');
         Route::get('/kunjungan/data', [ResepsionisController::class, 'getKunjunganData'])->name('kunjungan.data');
+        Route::get('/riwayat/data', [ResepsionisController::class, 'getRiwayatData'])->name('riwayat.data');
+        Route::get('/karyawan/data', [ResepsionisController::class, 'getKaryawanData'])->name('karyawan.data');
         Route::get('/kunjungan/create', [ResepsionisController::class, 'createKunjungan'])->name('kunjungan.create');
         Route::post('/kunjungan/{id}/accept', [ResepsionisController::class, 'acceptKunjungan'])->name('kunjungan.accept');
         Route::post('/kunjungan/{id}/reject', [ResepsionisController::class, 'rejectKunjungan'])->name('kunjungan.reject');

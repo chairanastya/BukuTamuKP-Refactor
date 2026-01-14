@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\KunjunganNotification;
+use App\Mail\NotulensiRequest;
 use Cloudinary\Cloudinary;
 
 class ResepsionisController extends Controller
@@ -19,7 +20,6 @@ class ResepsionisController extends Controller
     {
         $today = now()->toDateString();
 
-        // Get statistics for today
         $stats = [
             'total' => Kunjungan::whereDate('tanggal_kunjungan', $today)->count(),
             'pending' => Kunjungan::whereDate('tanggal_kunjungan', $today)->where('status', 'pending')->count(),
@@ -27,13 +27,53 @@ class ResepsionisController extends Controller
             'canceled' => Kunjungan::whereDate('tanggal_kunjungan', $today)->where('status', 'canceled')->count(),
         ];
 
-        return view('resepsionis.dashboard', compact('stats'));
+        $allTimeStats = [
+            'total' => Kunjungan::count(),
+            'pending' => Kunjungan::where('status', 'pending')->count(),
+            'done' => Kunjungan::where('status', 'done')->count(),
+            'canceled' => Kunjungan::where('status', 'canceled')->count(),
+        ];
+
+        return view('resepsionis.dashboard', compact('stats', 'allTimeStats'));
     }
 
     public function getKunjunganData(Request $request)
     {
         $query = Kunjungan::with(['tamu', 'karyawan'])
             ->whereDate('tanggal_kunjungan', now()->toDateString())
+            ->orderBy('tanggal_kunjungan', 'desc')
+            ->orderBy('jam_mulai', 'desc');
+
+        $kunjungans = $query->get()->map(function ($kunjungan) {
+            return [
+                'id_kunjungan' => $kunjungan->id_kunjungan,
+                'id_tamu' => $kunjungan->tamu->id_tamu ?? null,
+                'ktp_token' => $kunjungan->tamu->ktp_access_token ?? null,
+                'tanggal' => $kunjungan->tanggal_kunjungan->format('d/m/Y'),
+                'jam' => substr($kunjungan->jam_mulai, 0, 5) . ' - ' . substr($kunjungan->jam_selesai ?? '00:00', 0, 5),
+                'nama_tamu' => $kunjungan->tamu->nama_tamu ?? '-',
+                'email_tamu' => $kunjungan->tamu->email_tamu ?? '-',
+                'has_ktp' => !empty($kunjungan->tamu->ktp_public_id),
+                'instansi' => $kunjungan->tamu->instansi_tamu ?? '-',
+                'karyawan' => $kunjungan->karyawan->map(function ($k) {
+                    return [
+                        'nama' => $k->nama_karyawan,
+                        'jabatan' => $k->jabatan ?? '-',
+                        'departemen' => $k->departemen ?? '-',
+                    ];
+                }),
+                'tujuan_kunjungan' => $kunjungan->tujuan_kunjungan ?? '-',
+                'status' => $kunjungan->status,
+                'alasan_batal' => $kunjungan->alasan_batal,
+            ];
+        });
+
+        return response()->json(['data' => $kunjungans]);
+    }
+
+    public function getRiwayatData(Request $request)
+    {
+        $query = Kunjungan::with(['tamu', 'karyawan'])
             ->orderBy('tanggal_kunjungan', 'desc')
             ->orderBy('jam_mulai', 'desc');
 
@@ -76,8 +116,11 @@ class ResepsionisController extends Controller
 
         Log::info('Kunjungan diterima (approved), ID: ' . $kunjungan->id_kunjungan);
 
-        // Send email notification to guest
+        // Send notification to guest (tamu)
         $this->sendNotificationToTamu($kunjungan, 'diterima');
+
+        // Send notulensi request to all karyawan involved in the visit
+        $this->sendNotulensiRequestToKaryawan($kunjungan);
 
         return response()->json(['success' => true, 'message' => 'Kunjungan berhasil diterima']);
     }
@@ -101,7 +144,6 @@ class ResepsionisController extends Controller
 
         Log::info('Kunjungan ditolak (canceled), ID: ' . $kunjungan->id_kunjungan);
 
-        // Send email notification to guest
         $this->sendNotificationToTamu($kunjungan, 'ditolak');
 
         return response()->json(['success' => true, 'message' => 'Kunjungan berhasil ditolak']);
@@ -114,12 +156,18 @@ class ResepsionisController extends Controller
 
     public function riwayat()
     {
-        return view('resepsionis.riwayat');
+        $allTimeStats = [
+            'total' => Kunjungan::count(),
+            'pending' => Kunjungan::where('status', 'pending')->count(),
+            'done' => Kunjungan::where('status', 'done')->count(),
+            'canceled' => Kunjungan::where('status', 'canceled')->count(),
+        ];
+
+        return view('resepsionis.riwayat', compact('allTimeStats'));
     }
 
     public function daftarKaryawan()
     {
-        // Get statistics for karyawan
         $stats = [
             'total' => Karyawan::count(),
             'departemen' => Karyawan::distinct('departemen')->count('departemen'),
@@ -143,12 +191,9 @@ class ResepsionisController extends Controller
                 ];
             });
 
-        return response()->json(['data' => $karyawans]);
+        return response()->json(['data' => $karyawans]);    
     }
 
-    /**
-     * Generate signed URL untuk melihat KTP private dari Cloudinary
-     */
     public function getKtpSignedUrl($tamuId)
     {
         try {
@@ -166,14 +211,11 @@ class ResepsionisController extends Controller
             $apiSecret = config('cloudinary.api_secret');
             $publicId = $tamu->ktp_public_id;
 
-            // Generate authenticated signature for private image
-            $timestamp = time() + 3600; // Valid for 1 hour
+            $timestamp = time() + 3600; 
 
-            // Build the string to sign: public_id + timestamp
             $toSign = "public_id={$publicId}&timestamp={$timestamp}{$apiSecret}";
             $signature = hash('sha1', $toSign);
 
-            // Build authenticated download URL for private images
             $signedUrl = sprintf(
                 'https://res.cloudinary.com/%s/image/private/s--%s--/v1/%s?api_key=%s&timestamp=%s&signature=%s',
                 $cloudName,
@@ -208,15 +250,9 @@ class ResepsionisController extends Controller
         }
     }
 
-    /**
-     * Stream KTP image dari Cloudinary dengan signed URL manual
-     * Menggunakan manual signature untuk kompatibilitas SDK
-     * Updated: Gunakan access_token untuk keamanan (bukan ID sequential)
-     */
     public function streamKtp($token)
     {
         try {
-            // Cari tamu berdasarkan token, bukan ID
             $tamu = Tamu::where('ktp_access_token', $token)->firstOrFail();
 
             if (!$tamu->ktp_public_id) {
@@ -233,9 +269,6 @@ class ResepsionisController extends Controller
                 'access_via' => 'token'
             ]);
 
-            // Untuk type: upload (public), gunakan public URL biasa
-            // Nama folder sudah diganti dari ktp_tamu ke tamu-ktp untuk menghindari parsing error
-
             $imageUrl = sprintf(
                 'https://res.cloudinary.com/%s/image/upload/%s',
                 $cloudName,
@@ -248,7 +281,6 @@ class ResepsionisController extends Controller
                 'url' => $imageUrl
             ]);
 
-            // Download image dengan curl
             $ch = curl_init($imageUrl);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
@@ -279,7 +311,6 @@ class ResepsionisController extends Controller
                 'size' => strlen($imageContent)
             ]);
 
-            // Return image response
             return response($imageContent)
                 ->header('Content-Type', 'image/jpeg')
                 ->header('Cache-Control', 'private, max-age=600')
@@ -296,15 +327,9 @@ class ResepsionisController extends Controller
         }
     }
 
-    /**
-     * Stream dokumentasi image dari Cloudinary
-     * Menggunakan proxy server-side untuk keamanan
-     * Updated: Gunakan access_token untuk keamanan (bukan ID sequential)
-     */
     public function streamDokumentasi($token)
     {
         try {
-            // Cari dokumentasi berdasarkan token, bukan ID
             $dokumentasi = Dokumentasi::where('access_token', $token)->firstOrFail();
 
             if (!$dokumentasi->dokumentasi_public_id) {
@@ -320,7 +345,6 @@ class ResepsionisController extends Controller
                 'access_via' => 'token'
             ]);
 
-            // Bangun URL Cloudinary untuk dokumentasi (public)
             $imageUrl = sprintf(
                 'https://res.cloudinary.com/%s/image/upload/%s',
                 $cloudName,
@@ -333,7 +357,6 @@ class ResepsionisController extends Controller
                 'url' => $imageUrl
             ]);
 
-            // Download image dengan curl
             $ch = curl_init($imageUrl);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
@@ -344,7 +367,6 @@ class ResepsionisController extends Controller
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
             $error = curl_error($ch);
-            curl_close($ch);
 
             if ($httpCode !== 200 || !$imageContent) {
                 Log::error('Failed to download dokumentasi', [
@@ -367,7 +389,6 @@ class ResepsionisController extends Controller
                 'content_type' => $contentType
             ]);
 
-            // Return image response dengan content type yang sesuai
             return response($imageContent)
                 ->header('Content-Type', $contentType ?: 'image/jpeg')
                 ->header('Cache-Control', 'private, max-age=3600')
@@ -413,6 +434,48 @@ class ResepsionisController extends Controller
             Log::error('Failed to send email to guest: ' . $e->getMessage(), [
                 'kunjungan_id' => $kunjungan->id_kunjungan,
                 'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    private function sendNotulensiRequestToKaryawan(Kunjungan $kunjungan)
+    {
+        try {
+            // Load relationships
+            $kunjungan->load(['tamu', 'karyawan']);
+
+            // Get token for notulensi form
+            $token = $kunjungan->token_approval;
+
+            if (!$token) {
+                Log::error('No token_approval found for kunjungan ID: ' . $kunjungan->id_kunjungan);
+                return;
+            }
+
+            // Send email to each karyawan involved in the visit
+            foreach ($kunjungan->karyawan as $karyawan) {
+                if (!$karyawan->email_karyawan) {
+                    Log::warning('Karyawan has no email, ID: ' . $karyawan->id_karyawan);
+                    continue;
+                }
+
+                Log::info('Sending notulensi request to karyawan: ' . $karyawan->email_karyawan, [
+                    'karyawan_id' => $karyawan->id_karyawan,
+                    'kunjungan_id' => $kunjungan->id_kunjungan,
+                ]);
+
+                Mail::to($karyawan->email_karyawan)->send(
+                    new NotulensiRequest($karyawan, $kunjungan, $token)
+                );
+
+                Log::info('Notulensi request email sent to: ' . $karyawan->nama_karyawan);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Failed to send notulensi request emails: ' . $e->getMessage(), [
+                'kunjungan_id' => $kunjungan->id_kunjungan,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
         }
     }
