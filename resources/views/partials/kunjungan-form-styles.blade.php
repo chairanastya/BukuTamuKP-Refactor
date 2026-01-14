@@ -241,6 +241,11 @@
             overflow: hidden;
         }
 
+        /* Mirror video untuk UX lebih baik */
+        #webcam_video {
+            transform: scaleX(-1);
+        }
+
         .ktp-overlay {
             position: absolute;
             top: 0;
