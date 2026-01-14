@@ -409,27 +409,27 @@ class ResepsionisController extends Controller
     {
         try {
             $tamu = $kunjungan->tamu;
-            
+
             $karyawan = $kunjungan->karyawan()->first();
-            
+
             if (!$karyawan) {
                 Log::warning('No employee associated with kunjungan ID: ' . $kunjungan->id_kunjungan);
                 return;
             }
-            
+
             if (!$tamu->email_tamu) {
                 Log::warning('Guest has no email, ID: ' . $tamu->id_tamu);
                 return;
             }
-            
+
             Log::info('Sending notification to guest: ' . $tamu->email_tamu);
-            
+
             Mail::to($tamu->email_tamu)->send(
                 new KunjunganNotification($tamu, $karyawan, $kunjungan, $status)
             );
-            
+
             Log::info('Email notification successfully sent to: ' . $tamu->nama_tamu);
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to send email to guest: ' . $e->getMessage(), [
                 'kunjungan_id' => $kunjungan->id_kunjungan,
