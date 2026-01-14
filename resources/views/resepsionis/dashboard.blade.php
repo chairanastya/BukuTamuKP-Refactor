@@ -374,8 +374,8 @@
                     {
                         data: null,
                         render: function (data) {
-                            if (!data.has_ktp || !data.id_tamu) return '-';
-                            return `<button onclick="viewKtp(${data.id_tamu})" class="text-blue-600 hover:underline font-regular">👁 Lihat KTP</button>`;
+                            if (!data.has_ktp || !data.ktp_token) return '-';
+                            return `<button onclick="viewKtp('${data.ktp_token}')" class="text-blue-600 hover:underline font-regular">👁 Lihat KTP</button>`;
                         }
                     },
                     { data: 'instansi' },
@@ -533,7 +533,7 @@
             document.getElementById('alasanBatal').value = '';
         }
 
-        function viewKtp(tamuId) {
+        function viewKtp(ktpToken) {
             const modal = document.getElementById('ktpModal');
             const content = document.getElementById('ktpContent');
 
@@ -541,8 +541,8 @@
             content.innerHTML = '<div class="flex flex-col items-center gap-3"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div><p class="text-gray-600">Memuat KTP...</p></div>';
             modal.classList.add('show');
 
-            // Langsung load image dari stream endpoint
-            const streamUrl = `/resepsionis/ktp/${tamuId}/stream`;
+            // Langsung load image dari stream endpoint dengan token
+            const streamUrl = `/resepsionis/ktp/${ktpToken}/stream`;
             const img = new Image();
 
             img.onload = function () {

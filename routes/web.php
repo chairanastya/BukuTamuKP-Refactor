@@ -30,6 +30,7 @@ Route::prefix('notulensi')->name('notulensi.')->group(function () {
     Route::get('/create/{token}', [NotulensiController::class, 'create'])->name('create');
     Route::post('/store/{token}', [NotulensiController::class, 'store'])->name('store');
     Route::get('/view/{token}', [NotulensiController::class, 'view'])->name('view');
+    Route::get('/dokumentasi/{token}/stream', [ResepsionisController::class, 'streamDokumentasi'])->name('dokumentasi.stream');
 });
 
 Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
@@ -50,7 +51,7 @@ Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
         Route::post('/kunjungan/{id}/accept', [ResepsionisController::class, 'acceptKunjungan'])->name('kunjungan.accept');
         Route::post('/kunjungan/{id}/reject', [ResepsionisController::class, 'rejectKunjungan'])->name('kunjungan.reject');
         Route::get('/ktp/{tamuId}/signed-url', [ResepsionisController::class, 'getKtpSignedUrl'])->name('ktp.signed-url');
-        Route::get('/ktp/{tamuId}/stream', [ResepsionisController::class, 'streamKtp'])->name('ktp.stream');
+        Route::get('/ktp/{token}/stream', [ResepsionisController::class, 'streamKtp'])->name('ktp.stream');
         Route::get('/riwayat', [ResepsionisController::class, 'riwayat'])->name('riwayat');
         Route::get('/karyawan', [ResepsionisController::class, 'daftarKaryawan'])->name('karyawan');
     });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Kunjungan;
 use App\Models\Karyawan;
 use App\Models\Tamu;
+use App\Models\Dokumentasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -40,6 +41,7 @@ class ResepsionisController extends Controller
             return [
                 'id_kunjungan' => $kunjungan->id_kunjungan,
                 'id_tamu' => $kunjungan->tamu->id_tamu ?? null,
+                'ktp_token' => $kunjungan->tamu->ktp_access_token ?? null,
                 'tanggal' => $kunjungan->tanggal_kunjungan->format('d/m/Y'),
                 'jam' => substr($kunjungan->jam_mulai, 0, 5) . ' - ' . substr($kunjungan->jam_selesai ?? '00:00', 0, 5),
                 'nama_tamu' => $kunjungan->tamu->nama_tamu ?? '-',
@@ -186,11 +188,13 @@ class ResepsionisController extends Controller
     /**
      * Stream KTP image dari Cloudinary dengan signed URL manual
      * Menggunakan manual signature untuk kompatibilitas SDK
+     * Updated: Gunakan access_token untuk keamanan (bukan ID sequential)
      */
-    public function streamKtp($tamuId)
+    public function streamKtp($token)
     {
         try {
-            $tamu = Tamu::findOrFail($tamuId);
+            // Cari tamu berdasarkan token, bukan ID
+            $tamu = Tamu::where('ktp_access_token', $token)->firstOrFail();
 
             if (!$tamu->ktp_public_id) {
                 abort(404, 'KTP tidak ditemukan');
@@ -201,8 +205,9 @@ class ResepsionisController extends Controller
             $publicId = $tamu->ktp_public_id;
 
             Log::info('Streaming KTP from Cloudinary', [
-                'tamu_id' => $tamuId,
-                'public_id' => $publicId
+                'tamu_id' => $tamu->id_tamu,
+                'public_id' => $publicId,
+                'access_via' => 'token'
             ]);
 
             // Untuk type: upload (public), gunakan public URL biasa
@@ -215,7 +220,7 @@ class ResepsionisController extends Controller
             );
 
             Log::info('Downloading from URL', [
-                'tamu_id' => $tamuId,
+                'tamu_id' => $tamu->id_tamu,
                 'public_id' => $publicId,
                 'url' => $imageUrl
             ]);
@@ -235,7 +240,7 @@ class ResepsionisController extends Controller
                 Log::error('Failed to download KTP', [
                     'http_code' => $httpCode,
                     'curl_error' => $error,
-                    'tamu_id' => $tamuId,
+                    'tamu_id' => $tamu->id_tamu,
                     'public_id' => $publicId,
                     'url' => $imageUrl
                 ]);
@@ -247,7 +252,7 @@ class ResepsionisController extends Controller
             }
 
             Log::info('Successfully streamed KTP', [
-                'tamu_id' => $tamuId,
+                'tamu_id' => $tamu->id_tamu,
                 'size' => strlen($imageContent)
             ]);
 
@@ -259,12 +264,100 @@ class ResepsionisController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error streaming KTP', [
-                'tamu_id' => $tamuId,
+                'token' => $token,
                 'error' => $e->getMessage(),
                 'line' => $e->getLine()
             ]);
 
             abort(500, 'Gagal memuat KTP');
+        }
+    }
+
+    /**
+     * Stream dokumentasi image dari Cloudinary
+     * Menggunakan proxy server-side untuk keamanan
+     * Updated: Gunakan access_token untuk keamanan (bukan ID sequential)
+     */
+    public function streamDokumentasi($token)
+    {
+        try {
+            // Cari dokumentasi berdasarkan token, bukan ID
+            $dokumentasi = Dokumentasi::where('access_token', $token)->firstOrFail();
+
+            if (!$dokumentasi->dokumentasi_public_id) {
+                abort(404, 'Dokumentasi tidak ditemukan');
+            }
+
+            $cloudName = config('cloudinary.cloud_name');
+            $publicId = $dokumentasi->dokumentasi_public_id;
+
+            Log::info('Streaming dokumentasi from Cloudinary', [
+                'dokumentasi_id' => $dokumentasi->id_dokumentasi,
+                'public_id' => $publicId,
+                'access_via' => 'token'
+            ]);
+
+            // Bangun URL Cloudinary untuk dokumentasi (public)
+            $imageUrl = sprintf(
+                'https://res.cloudinary.com/%s/image/upload/%s',
+                $cloudName,
+                $publicId
+            );
+
+            Log::info('Downloading dokumentasi from URL', [
+                'dokumentasi_id' => $dokumentasi->id_dokumentasi,
+                'public_id' => $publicId,
+                'url' => $imageUrl
+            ]);
+
+            // Download image dengan curl
+            $ch = curl_init($imageUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+
+            $imageContent = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+            $error = curl_error($ch);
+            curl_close($ch);
+
+            if ($httpCode !== 200 || !$imageContent) {
+                Log::error('Failed to download dokumentasi', [
+                    'http_code' => $httpCode,
+                    'curl_error' => $error,
+                    'dokumentasi_id' => $dokumentasi->id_dokumentasi,
+                    'public_id' => $publicId,
+                    'url' => $imageUrl
+                ]);
+
+                $errorMsg = $httpCode === 401 ? 'Dokumentasi tidak dapat diakses' :
+                    ($httpCode === 404 ? 'Dokumentasi tidak ditemukan' :
+                        'Gagal memuat dokumentasi (HTTP ' . $httpCode . ')');
+                abort(500, $errorMsg);
+            }
+
+            Log::info('Successfully streamed dokumentasi', [
+                'dokumentasi_id' => $dokumentasi->id_dokumentasi,
+                'size' => strlen($imageContent),
+                'content_type' => $contentType
+            ]);
+
+            // Return image response dengan content type yang sesuai
+            return response($imageContent)
+                ->header('Content-Type', $contentType ?: 'image/jpeg')
+                ->header('Cache-Control', 'private, max-age=3600')
+                ->header('X-Content-Type-Options', 'nosniff');
+
+        } catch (\Exception $e) {
+            Log::error('Error streaming dokumentasi', [
+                'token' => $token,
+                'error' => $e->getMessage(),
+                'line' => $e->getLine()
+            ]);
+
+            abort(500, 'Gagal memuat dokumentasi');
         }
     }
 
