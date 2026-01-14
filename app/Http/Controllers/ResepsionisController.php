@@ -119,8 +119,31 @@ class ResepsionisController extends Controller
 
     public function daftarKaryawan()
     {
-        $karyawans = Karyawan::orderBy('nama_karyawan')->get();
-        return view('resepsionis.karyawan', compact('karyawans'));
+        // Get statistics for karyawan
+        $stats = [
+            'total' => Karyawan::count(),
+            'departemen' => Karyawan::distinct('departemen')->count('departemen'),
+        ];
+
+        return view('resepsionis.karyawan', compact('stats'));
+    }
+
+    public function getKaryawanData(Request $request)
+    {
+        $karyawans = Karyawan::orderBy('nama_karyawan')
+            ->get()
+            ->map(function ($karyawan) {
+                return [
+                    'id_karyawan' => $karyawan->id_karyawan,
+                    'nama_karyawan' => $karyawan->nama_karyawan,
+                    'email_karyawan' => $karyawan->email_karyawan,
+                    'departemen' => $karyawan->departemen ?? '-',
+                    'jabatan' => $karyawan->jabatan ?? '-',
+                    'is_resepsionis' => $karyawan->resepsionis ? true : false,
+                ];
+            });
+
+        return response()->json(['data' => $karyawans]);
     }
 
     /**
@@ -365,27 +388,27 @@ class ResepsionisController extends Controller
     {
         try {
             $tamu = $kunjungan->tamu;
-            
+
             $karyawan = $kunjungan->karyawan()->first();
-            
+
             if (!$karyawan) {
                 Log::warning('No employee associated with kunjungan ID: ' . $kunjungan->id_kunjungan);
                 return;
             }
-            
+
             if (!$tamu->email_tamu) {
                 Log::warning('Guest has no email, ID: ' . $tamu->id_tamu);
                 return;
             }
-            
+
             Log::info('Sending notification to guest: ' . $tamu->email_tamu);
-            
+
             Mail::to($tamu->email_tamu)->send(
                 new KunjunganNotification($tamu, $karyawan, $kunjungan, $status)
             );
-            
+
             Log::info('Email notification successfully sent to: ' . $tamu->nama_tamu);
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to send email to guest: ' . $e->getMessage(), [
                 'kunjungan_id' => $kunjungan->id_kunjungan,
