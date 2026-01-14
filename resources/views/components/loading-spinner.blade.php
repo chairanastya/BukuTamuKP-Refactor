@@ -15,21 +15,22 @@
 </div>
 
 <script>
-    // Global loading functions with 1 second delay
+    // Global loading functions - hanya tampilkan jika proses > 300ms
     let loadingTimer = null;
     let loadingStartTime = null;
 
     window.showLoading = function () {
         loadingStartTime = Date.now();
 
-        // Set timer untuk menampilkan loading setelah 1 detik
+        // Set timer untuk menampilkan loading setelah 300ms
+        // Jika proses selesai sebelum 300ms, loading tidak akan muncul
         loadingTimer = setTimeout(() => {
             document.getElementById('loading-overlay').classList.add('active');
-        }, 1000);
+        }, 300);
     }
 
     window.hideLoading = function () {
-        // Jika loading belum muncul (belum 1 detik), cancel timer
+        // Jika loading belum muncul (proses < 300ms), cancel timer
         if (loadingTimer) {
             clearTimeout(loadingTimer);
             loadingTimer = null;
