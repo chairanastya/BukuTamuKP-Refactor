@@ -466,7 +466,7 @@
         }
 
         function acceptKunjungan(id) {
-            if (!confirm('Terima kunjungan ini?')) return;
+            if (!confirm('Terima kunjungan ini? Email notifikasi akan dikirim ke karyawan tujuan untuk mengisi notulensi.')) return;
 
             fetch(`/resepsionis/kunjungan/${id}/accept`, {
                 method: 'POST',
@@ -478,7 +478,7 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Kunjungan berhasil diterima');
+                        alert('Kunjungan berhasil diterima. Email telah dikirim ke karyawan tujuan untuk mengisi notulensi.');
                         closeModal();
                         table.ajax.reload();
                         location.reload();
