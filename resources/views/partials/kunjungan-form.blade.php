@@ -1,13 +1,10 @@
-<!-- Main Form -->
 <div class="container mx-auto px-4 py-8">
     <form action="{{ route('tamu.submit') }}" method="POST" enctype="multipart/form-data" class="max-w-6xl mx-auto"
         novalidate>
         @csrf
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Column - Form Fields -->
             <div class="lg:col-span-2 space-y-6">
-                <!-- Nama Lengkap -->
                 <div>
                     <label for="nama_lengkap" class="block text-[#084E8F] font-bold mb-2">
                         Nama Lengkap
@@ -31,7 +28,6 @@
                     @enderror
                 </div>
 
-                <!-- Alamat Email -->
                 <div>
                     <label for="email" class="block text-[#084E8F] font-bold mb-2">
                         Alamat Email
@@ -55,7 +51,6 @@
                     @enderror
                 </div>
 
-                <!-- Instansi Asal -->
                 <div>
                     <label for="instansi" class="block text-[#084E8F] font-bold mb-2">
                         Instansi Asal
@@ -79,7 +74,6 @@
                     @enderror
                 </div>
 
-                <!-- Tujuan Kedatangan -->
                 <div>
                     <label for="tujuan" class="block text-[#084E8F] font-bold mb-2">
                         Tujuan Kedatangan
@@ -103,19 +97,15 @@
                     @enderror
                 </div>
 
-                <!-- Karyawan yang Anda Tuju -->
                 <div>
                     <label class="block text-[#084E8F] font-bold mb-2">
                         Karyawan yang Anda Tuju
                     </label>
 
-                    <!-- Container untuk search rows -->
                     <div id="karyawan_rows_container" class="space-y-3"></div>
 
-                    <!-- Hidden input untuk menyimpan ID karyawan yang dipilih -->
                     <input type="hidden" id="karyawan_ids" name="karyawan_ids" value="{{ old('karyawan_ids', '[]') }}">
 
-                    <!-- Error message -->
                     @error('karyawan_ids')
                         <div class="error-message show">
                             @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
@@ -130,21 +120,17 @@
                 </div>
             </div>
 
-            <!-- Right Column - Webcam KTP & Submit -->
             <div class="lg:col-span-1 space-y-6">
-                <!-- Webcam Foto KTP -->
                 <div>
                     <label class="block text-[#084E8F] font-bold mb-2">
                         Foto Identitas (KTP)
                     </label>
 
-                    <!-- Webcam Area (default state) -->
                     <div id="webcam_area" class="upload-area" onclick="openWebcamModal()">
                         @svg('zondicon-camera', 'upload-icon')
                         <p class="text-[#084E8F] font-bold">Klik untuk ambil foto</p>
                     </div>
 
-                    <!-- Preview Captured Image (shown after capture) -->
                     <div id="image_preview" class="hidden">
                         <img id="preview_img" src="" alt="Preview KTP"
                             class="w-full rounded-lg border-2 border-[#084E8F]">
@@ -168,7 +154,6 @@
                         </div>
                     @enderror
 
-                    <!-- Error dari backend khusus upload foto -->
                     @if ($errors->has('foto_error'))
                         <div class="mt-4 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
                             <div class="flex items-start">
@@ -183,7 +168,6 @@
                     @endif
                 </div>
 
-                <!-- Submit Button -->
                 <button type="submit"
                     class="w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
                     @svg('phosphor-paper-plane-tilt-fill', 'w-5 h-5')
@@ -194,7 +178,6 @@
     </form>
 </div>
 
-<!-- Modal Popup untuk Webcam -->
 <div id="webcam_modal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
@@ -202,13 +185,11 @@
             <button type="button" class="modal-close" onclick="closeWebcamModal()">&times;</button>
         </div>
 
-        <!-- Video Preview -->
         <div id="video_container">
             <div class="video-wrapper">
                 <video id="webcam_video" autoplay playsinline class="w-full rounded-lg"
                     style="background: #f3f4f6;"></video>
 
-                <!-- KTP Frame Overlay -->
                 <div class="ktp-overlay">
                     <div class="ktp-frame">
                         <div class="ktp-guide-text">Posisikan KTP di dalam frame</div>
@@ -230,12 +211,10 @@
             </div>
         </div>
 
-        <!-- Canvas (hidden, untuk capture) -->
         <canvas id="capture_canvas" class="hidden"></canvas>
     </div>
 </div>
 
-<!-- Modal Popup untuk Success -->
 <div id="success_modal" class="modal-overlay" aria-hidden="true">
     <div class="modal-content">
         <div class="modal-header">

@@ -373,12 +373,10 @@
         let stream = null;
         let capturedImages = [];
 
-        // Load saved images from localStorage on page load
         window.addEventListener('DOMContentLoaded', function() {
             loadSavedImages();
         });
 
-        // Save images to localStorage
         function saveImagesToStorage() {
             const imageData = [];
             capturedImages.forEach((file, index) => {
@@ -390,7 +388,6 @@
                         data: e.target.result
                     });
                     
-                    // Save when all files are read
                     if (imageData.length === capturedImages.length) {
                         try {
                             localStorage.setItem(storageKey, JSON.stringify(imageData));
@@ -402,13 +399,11 @@
                 reader.readAsDataURL(file);
             });
             
-            // If no images, clear storage
             if (capturedImages.length === 0) {
                 localStorage.removeItem(storageKey);
             }
         }
 
-        // Load images from localStorage
         function loadSavedImages() {
             try {
                 const saved = localStorage.getItem(storageKey);
@@ -417,7 +412,6 @@
                 const imageData = JSON.parse(saved);
                 if (!imageData || imageData.length === 0) return;
                 
-                // Convert base64 back to File objects
                 const promises = imageData.map(img => {
                     return fetch(img.data)
                         .then(res => res.blob())
@@ -427,12 +421,10 @@
                 Promise.all(promises).then(files => {
                     capturedImages = files;
                     
-                    // Update file input
                     const dt = new DataTransfer();
                     files.forEach(file => dt.items.add(file));
                     dokumentasiInput.files = dt.files;
                     
-                    // Render previews
                     renderPreviews();
                 });
             } catch (e) {
@@ -441,12 +433,10 @@
             }
         }
 
-        // Clear saved images (on successful submit)
         function clearSavedImages() {
             localStorage.removeItem(storageKey);
         }
 
-        // Render all image previews
         function renderPreviews() {
             previewContainer.innerHTML = '';
             capturedImages.forEach((file, index) => {
@@ -468,7 +458,6 @@
             });
         }
 
-        // Karyawan modal functions
         const karyawanModal = document.getElementById('karyawan_modal');
         
         function openKaryawanModal() {
@@ -628,47 +617,34 @@
             renderPreviews();
         });
 
-        // Remove image
         function removeImage(index) {
             capturedImages.splice(index, 1);
             const dt = new DataTransfer();
             capturedImages.forEach(file => dt.items.add(file));
             dokumentasiInput.files = dt.files;
             
-            // Save to localStorage
             saveImagesToStorage();
             
-            // Trigger change event to re-render previews
             dokumentasiInput.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
-        // Close modal on backdrop click
         dokumentasiModal.addEventListener('click', function (e) {
             if (e.target === dokumentasiModal) closeDokumentasiModal();
         });
 
-        // Optional: Clear localStorage when form is successfully submitted
-        // This won't run if there's a validation error since the page will reload
         const form = document.getElementById('notulensi-form');
         if (form) {
             form.addEventListener('submit', function() {
-                // Set a flag that form is being submitted
                 sessionStorage.setItem('form_submitted_{{ $token }}', 'true');
             });
         }
 
-        // Check if we just returned from a validation error
-        // If not (successful submission), the success page will clear it
         window.addEventListener('load', function() {
             const wasSubmitted = sessionStorage.getItem('form_submitted_{{ $token }}');
             if (wasSubmitted) {
-                // We're back from server, check if there are validation errors
                 const hasErrors = document.querySelector('.text-red-500');
                 if (!hasErrors) {
-                    // No errors, form was successful (though we're on the same page)
-                    // Don't clear here, let success page handle it
                 } else {
-                    // There are errors, keep the images
                 }
                 sessionStorage.removeItem('form_submitted_{{ $token }}');
             }

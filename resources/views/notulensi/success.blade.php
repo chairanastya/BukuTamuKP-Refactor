@@ -48,13 +48,10 @@
 <script>
     // Clear saved images from localStorage when reaching success page
     window.addEventListener('DOMContentLoaded', function() {
-        // Get token from URL or pass it from controller
         const urlParams = new URLSearchParams(window.location.search);
         const currentUrl = window.location.pathname;
         
-        // Try to extract token from referrer or clear all notulensi storage
         try {
-            // Clear all notulensi_images entries from localStorage
             Object.keys(localStorage).forEach(key => {
                 if (key.startsWith('notulensi_images_')) {
                     localStorage.removeItem(key);
@@ -62,7 +59,6 @@
                 }
             });
             
-            // Clear session storage flag
             Object.keys(sessionStorage).forEach(key => {
                 if (key.startsWith('form_submitted_')) {
                     sessionStorage.removeItem(key);
