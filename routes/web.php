@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\TamuController;
 use App\Http\Controllers\KunjunganConfirmController;
+use App\Http\Controllers\NotulensiController;
 use App\Http\Controllers\ResepsionisController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -22,16 +23,19 @@ Route::prefix('tamu')->name('tamu.')->group(function () {
     Route::post('/submit', [TamuController::class, 'submitForm'])->name('submit');
 });
 
-// Route untuk konfirmasi kunjungan dari email
 Route::get('/kunjungan/confirm/{token}', [KunjunganConfirmController::class, 'confirm'])->name('kunjungan.confirm');
 Route::post('/kunjungan/process/{token}', [KunjunganConfirmController::class, 'process'])->name('kunjungan.process');
 
+Route::prefix('notulensi')->name('notulensi.')->group(function () {
+    Route::get('/create/{token}', [NotulensiController::class, 'create'])->name('create');
+    Route::post('/store/{token}', [NotulensiController::class, 'store'])->name('store');
+    Route::get('/view/{token}', [NotulensiController::class, 'view'])->name('view');
+});
+
 Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
-    // Login routes
     Route::get('/login', [SessionController::class, 'create'])->name('login');
     Route::post('/login', [SessionController::class, 'store']);
 
-    // Forgot Password Routes
     Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
     Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
     Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');

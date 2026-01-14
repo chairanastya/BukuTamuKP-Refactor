@@ -16,11 +16,11 @@
                     
                     <!-- Header -->
                     <tr>
-                        <td style="background: linear-gradient(135deg, #0C4777 0%, #1a5a8f 100%); padding: 40px 30px; text-align: center;">
+                        <td style="background-color: #084E8F; padding: 40px 30px; text-align: center;">
                             <h1 style="margin: 0; font-size: 28px; color: #ffffff; font-weight: 600; letter-spacing: 1px;">
                                 BUKU TAMU DIGITAL
                             </h1>
-                            <p style="margin: 12px 0 0 0; font-size: 16px; color: #e0e7ef; font-weight: 400;">
+                            <p style="margin: 12px 0 0 0; font-size: 16px; color: #ffffff; font-weight: 400; opacity: 0.9;">
                                 Notulensi Rapat Tersedia
                             </p>
                         </td>
@@ -30,7 +30,7 @@
                     <tr>
                         <td style="padding: 40px 30px;">
                             <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333; line-height: 1.6;">
-                                Halo <strong style="color: #0C4777;">{{ $tamu->nama }}</strong>,
+                                Halo <strong style="color: #084E8F;">{{ $tamu->nama_tamu }}</strong>,
                             </p>
 
                             <p style="margin: 0 0 25px 0; font-size: 15px; color: #555555; line-height: 1.6;">
@@ -51,7 +51,7 @@
                                                     <strong>Keperluan</strong>
                                                 </td>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #212529;">
-                                                    : {{ $kunjungan->keperluan }}
+                                                    : {{ $kunjungan->tujuan_kunjungan }}
                                                 </td>
                                             </tr>
                                             <tr>
@@ -59,16 +59,16 @@
                                                     <strong>Waktu Rapat</strong>
                                                 </td>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #212529;">
-                                                    : {{ \Carbon\Carbon::parse($kunjungan->tanggal_kunjungan)->format('d F Y, H:i') }} WIB
+                                                    : {{ \Carbon\Carbon::parse($kunjungan->tanggal_kunjungan)->format('d F Y') }}, {{ $kunjungan->jam_mulai }} WIB
                                                 </td>
                                             </tr>
-                                            @if(isset($kunjungan->karyawans) && $kunjungan->karyawans->count() > 0)
+                                            @if($kunjungan->karyawan->count() > 0)
                                             <tr>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #495057; vertical-align: top;">
                                                     <strong>Peserta dari Internal</strong>
                                                 </td>
                                                 <td style="padding: 8px 0; font-size: 14px; color: #212529;">
-                                                    : {{ $kunjungan->karyawans->pluck('nama')->join(', ') }}
+                                                    : {{ $kunjungan->karyawan->pluck('nama_karyawan')->join(', ') }}
                                                 </td>
                                             </tr>
                                             @endif
@@ -96,7 +96,7 @@
                                 <tr>
                                     <td align="center" style="padding: 10px 0 30px 0;">
                                         <a href="{{ route('notulensi.view', ['token' => $token]) }}" 
-                                           style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); 
+                                           style="background-color: #084E8F; 
                                                   color: #ffffff; 
                                                   padding: 16px 40px; 
                                                   text-decoration: none; 
@@ -120,6 +120,9 @@
                                 <tr>
                                     <td style="background-color: #f8f9fa; padding: 16px; border-radius: 6px; border: 1px solid #e9ecef;">
                                         <a href="{{ route('notulensi.view', ['token' => $token]) }}" 
+                                           style="color: #084E8F; font-size: 13px; word-break: break-all; text-decoration: none; line-height: 1.5;">
+                                            {{ route('notulensi.view', ['token' => $token]) }}
+                                        </a> 
                                            style="color: #0C4777; font-size: 13px; word-break: break-all; text-decoration: none; line-height: 1.5;">
                                             {{ route('notulensi.view', ['token' => $token]) }}
                                         </a>
@@ -130,8 +133,8 @@
                             <!-- Info Box -->
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 30px;">
                                 <tr>
-                                    <td style="background-color: #e7f3ff; border-left: 4px solid #0C4777; padding: 20px; border-radius: 6px;">
-                                        <p style="margin: 0 0 12px 0; font-size: 15px; color: #0C4777; font-weight: 600;">
+                                    <td style="background-color: #e7f3ff; border-left: 4px solid #084E8F; padding: 20px; border-radius: 6px;">
+                                        <p style="margin: 0 0 12px 0; font-size: 15px; color: #084E8F; font-weight: 600;">
                                             TENTANG NOTULENSI
                                         </p>
                                         <ul style="margin: 0; padding-left: 20px; color: #495057; font-size: 14px; line-height: 1.8;">
@@ -186,7 +189,7 @@
                                         <p style="margin: 0 0 5px 0; font-size: 15px; color: #333333;">
                                             Terima kasih atas kunjungan dan kerja samanya,
                                         </p>
-                                        <p style="margin: 0; font-size: 15px; color: #0C4777; font-weight: 600;">
+                                        <p style="margin: 0; font-size: 15px; color: #084E8F; font-weight: 600;">
                                             Tim Buku Tamu Digital
                                         </p>
                                     </td>

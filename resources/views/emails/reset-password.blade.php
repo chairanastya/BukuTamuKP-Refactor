@@ -16,11 +16,11 @@
                     
                     <!-- Header -->
                     <tr>
-                        <td style="background: linear-gradient(135deg, #0C4777 0%, #1a5a8f 100%); padding: 40px 30px; text-align: center;">
+                        <td style="background-color: #084E8F; padding: 40px 30px; text-align: center;">
                             <h1 style="margin: 0; font-size: 28px; color: #ffffff; font-weight: 600; letter-spacing: 1px;">
                                 BUKU TAMU DIGITAL
                             </h1>
-                            <p style="margin: 12px 0 0 0; font-size: 16px; color: #e0e7ef; font-weight: 400;">
+                            <p style="margin: 12px 0 0 0; font-size: 16px; color: #ffffff; font-weight: 400; opacity: 0.9;">
                                 Reset Password Resepsionis
                             </p>
                         </td>
@@ -43,7 +43,7 @@
                                 <tr>
                                     <td align="center" style="padding: 30px 0;">
                                         <a href="{{ route('resepsionis.password.reset', ['token' => $token, 'email' => $email]) }}" 
-                                           style="background: linear-gradient(135deg, #0C4777 0%, #1a5a8f 100%); 
+                                           style="background-color: #084E8F; 
                                                   color: #ffffff; 
                                                   padding: 16px 40px; 
                                                   text-decoration: none; 
@@ -67,7 +67,7 @@
                                 <tr>
                                     <td style="background-color: #f8f9fa; padding: 16px; border-radius: 6px; border: 1px solid #e9ecef;">
                                         <a href="{{ route('resepsionis.password.reset', ['token' => $token, 'email' => $email]) }}" 
-                                           style="color: #0C4777; font-size: 13px; word-break: break-all; text-decoration: none; line-height: 1.5;">
+                                           style="color: #084E8F; font-size: 13px; word-break: break-all; text-decoration: none; line-height: 1.5;">
                                             {{ route('resepsionis.password.reset', ['token' => $token, 'email' => $email]) }}
                                         </a>
                                     </td>
@@ -97,7 +97,7 @@
                                         <p style="margin: 0 0 5px 0; font-size: 15px; color: #333333;">
                                             Terima kasih,
                                         </p>
-                                        <p style="margin: 0; font-size: 15px; color: #0C4777; font-weight: 600;">
+                                        <p style="margin: 0; font-size: 15px; color: #084E8F; font-weight: 600;">
                                             Tim Buku Tamu Digital
                                         </p>
                                     </td>
