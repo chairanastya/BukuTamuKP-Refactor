@@ -374,8 +374,8 @@
                     {
                         data: null,
                         render: function (data) {
-                            if (!data.has_ktp || !data.ktp_token) return '-';
-                            return `<button onclick="viewKtp('${data.ktp_token}')" class="text-blue-600 hover:underline font-regular">👁 Lihat KTP</button>`;
+                            if (!data.has_ktp || !data.id_tamu) return '-';
+                            return `<button onclick="viewKtp(${data.id_tamu})" class="text-blue-600 hover:underline font-regular">👁 Lihat KTP</button>`;
                         }
                     },
                     { data: 'instansi' },
@@ -429,37 +429,37 @@
                     let actions = '';
                     if (kunjungan.status === 'pending') {
                         actions = `
-                                <div class="flex gap-3 mt-6">
-                                    <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
-                                    <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
-                                </div>
-                            `;
+                                                <div class="flex gap-3 mt-6">
+                                                    <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
+                                                    <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
+                                                </div>
+                                            `;
                     }
 
                     let cancelReason = '';
                     if (kunjungan.status === 'canceled' && kunjungan.alasan_batal) {
                         cancelReason = `
-                                <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                    <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
-                                    <p class="text-red-700">${kunjungan.alasan_batal}</p>
-                                </div>
-                            `;
+                                                <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                                    <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
+                                                    <p class="text-red-700">${kunjungan.alasan_batal}</p>
+                                                </div>
+                                            `;
                     }
 
                     document.getElementById('detailContent').innerHTML = `
-                            <div class="space-y-3">
-                                <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
-                                <div><strong>Jam:</strong> ${kunjungan.jam}</div>
-                                <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
-                                <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
-                                <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
-                                <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
-                                <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
-                                <div><strong>Status:</strong> ${kunjungan.status}</div>
-                                ${cancelReason}
-                                ${actions}
-                            </div>
-                        `;
+                                            <div class="space-y-3">
+                                                <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
+                                                <div><strong>Jam:</strong> ${kunjungan.jam}</div>
+                                                <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
+                                                <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
+                                                <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
+                                                <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
+                                                <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
+                                                <div><strong>Status:</strong> ${kunjungan.status}</div>
+                                                ${cancelReason}
+                                                ${actions}
+                                            </div>
+                                        `;
 
                     document.getElementById('detailModal').classList.add('show');
                 });
@@ -467,6 +467,9 @@
 
         function acceptKunjungan(id) {
             if (!confirm('Terima kunjungan ini?')) return;
+
+            // Show loading overlay
+            showLoading();
 
             fetch(`/resepsionis/kunjungan/${id}/accept`, {
                 method: 'POST',
@@ -483,6 +486,10 @@
                         table.ajax.reload();
                         location.reload();
                     }
+                })
+                .catch(error => {
+                    hideLoading();
+                    alert('Terjadi kesalahan: ' + error);
                 });
         }
 
@@ -498,6 +505,9 @@
                 alert('Alasan pembatalan harus diisi');
                 return;
             }
+
+            // Show loading overlay
+            showLoading();
 
             fetch(`/resepsionis/kunjungan/${currentKunjunganId}/reject`, {
                 method: 'POST',
@@ -515,6 +525,10 @@
                         table.ajax.reload();
                         location.reload();
                     }
+                })
+                .catch(error => {
+                    hideLoading();
+                    alert('Terjadi kesalahan: ' + error);
                 });
         }
 
@@ -533,16 +547,16 @@
             document.getElementById('alasanBatal').value = '';
         }
 
-        function viewKtp(ktpToken) {
+        function viewKtp(tamuId) {
             const modal = document.getElementById('ktpModal');
             const content = document.getElementById('ktpContent');
 
-            // Show loading
-            content.innerHTML = '<div class="flex flex-col items-center gap-3"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div><p class="text-gray-600">Memuat KTP...</p></div>';
+            // Show inline loading (tidak pakai overlay full)
+            content.innerHTML = createInlineSpinner('Memuat KTP...');
             modal.classList.add('show');
 
-            // Langsung load image dari stream endpoint dengan token
-            const streamUrl = `/resepsionis/ktp/${ktpToken}/stream`;
+            // Langsung load image dari stream endpoint
+            const streamUrl = `/resepsionis/ktp/${tamuId}/stream`;
             const img = new Image();
 
             img.onload = function () {
@@ -565,11 +579,19 @@
         }
 
         function switchTab(tab) {
+            // Show loading saat switch tab
+            showLoading();
+
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
 
             document.getElementById('tab-' + tab).classList.add('active');
             event.target.closest('.sidebar-item').classList.add('active');
+
+            // Hide loading setelah tab selesai di-render
+            setTimeout(() => {
+                hideLoading();
+            }, 300);
         }
 
         document.addEventListener('click', function (e) {
