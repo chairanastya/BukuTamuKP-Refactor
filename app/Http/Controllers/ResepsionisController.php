@@ -168,8 +168,30 @@ class ResepsionisController extends Controller
 
     public function daftarKaryawan()
     {
-        $karyawans = Karyawan::orderBy('nama_karyawan')->get();
-        return view('resepsionis.karyawan', compact('karyawans'));
+        $stats = [
+            'total' => Karyawan::count(),
+            'departemen' => Karyawan::distinct('departemen')->count('departemen'),
+        ];
+
+        return view('resepsionis.karyawan', compact('stats'));
+    }
+
+    public function getKaryawanData(Request $request)
+    {
+        $karyawans = Karyawan::orderBy('nama_karyawan')
+            ->get()
+            ->map(function ($karyawan) {
+                return [
+                    'id_karyawan' => $karyawan->id_karyawan,
+                    'nama_karyawan' => $karyawan->nama_karyawan,
+                    'email_karyawan' => $karyawan->email_karyawan,
+                    'departemen' => $karyawan->departemen ?? '-',
+                    'jabatan' => $karyawan->jabatan ?? '-',
+                    'is_resepsionis' => $karyawan->resepsionis ? true : false,
+                ];
+            });
+
+        return response()->json(['data' => $karyawans]);    
     }
 
     public function getKtpSignedUrl($tamuId)

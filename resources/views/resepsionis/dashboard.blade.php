@@ -320,18 +320,27 @@
         let currentKunjunganId = null;
 
         document.addEventListener('DOMContentLoaded', function () {
-            initDataTable();
+            setTimeout(function() {
+                initDataTable();
+            }, 100);
         });
 
         function initDataTable() {
+            if ($.fn.DataTable.isDataTable('#myTable')) {
+                $('#myTable').DataTable().destroy();
+            }
+            
             table = new DataTable('#myTable', {
                 ajax: {
                     url: '{{ route("resepsionis.kunjungan.data") }}',
                     dataSrc: 'data',
                     error: function (xhr, error, thrown) {
                         console.error('DataTables AJAX error:', error, thrown);
-                        console.error('Response:', xhr.responseText);
-                        alert('Error loading data: ' + error);
+                        if (xhr.status === 0) {
+                            setTimeout(function() {
+                                table.ajax.reload();
+                            }, 500);
+                        }
                     }
                 },
                 columns: [

@@ -178,6 +178,7 @@
                 <h2 class="text-2xl font-bold text-blue-900">Riwayat Kunjungan</h2>
             </div>
 
+            <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="stats-card">
                     <div>
@@ -220,6 +221,7 @@
                 </div>
             </div>
 
+            <!-- DataTable -->
             <div class="bg-white rounded-lg shadow p-6">
                 <table id="riwayatTable" class="display" style="width:100%">
                     <thead>
@@ -285,18 +287,27 @@
         let currentKunjunganId = null;
 
         document.addEventListener('DOMContentLoaded', function () {
-            initRiwayatTable();
+            setTimeout(function() {
+                initRiwayatTable();
+            }, 100);
         });
 
         function initRiwayatTable() {
+            if ($.fn.DataTable.isDataTable('#riwayatTable')) {
+                $('#riwayatTable').DataTable().destroy();
+            }
+            
             table = new DataTable('#riwayatTable', {
                 ajax: {
                     url: '{{ route("resepsionis.riwayat.data") }}',
                     dataSrc: 'data',
                     error: function (xhr, error, thrown) {
                         console.error('DataTables AJAX error:', error, thrown);
-                        console.error('Response:', xhr.responseText);
-                        alert('Error loading data: ' + error);
+                        if (xhr.status === 0) {
+                            setTimeout(function() {
+                                table.ajax.reload();
+                            }, 500);
+                        }
                     }
                 },
                 columns: [
