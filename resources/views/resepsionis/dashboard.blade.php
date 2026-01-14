@@ -566,6 +566,14 @@
             }
         });
 
+        document.querySelectorAll('.sidebar-item').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.href && !this.classList.contains('active')) {
+                    showLoading();
+                }
+            });
+        });
+
         document.getElementById('ktpModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeKtpModal();

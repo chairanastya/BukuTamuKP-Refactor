@@ -345,6 +345,14 @@
             }
         });
 
+        document.querySelectorAll('.sidebar-item').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.href && !this.classList.contains('active')) {
+                    showLoading();
+                }
+            });
+        });
+
         document.getElementById('detailModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeModal();
