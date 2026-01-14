@@ -136,8 +136,8 @@
                 </label>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     @foreach($notulensi->kunjungan->dokumentasi as $doc)
-                        <a href="{{ $doc->dokumentasi_url }}" target="_blank" class="block">
-                            <img src="{{ $doc->dokumentasi_url }}" alt="Dokumentasi" class="w-full h-32 object-cover rounded-lg border-2 border-[#084E8F] hover:opacity-90 transition duration-200 shadow hover:shadow-lg">
+                        <a href="{{ route('notulensi.dokumentasi.stream', $doc->access_token) }}" target="_blank" class="block">
+                            <img src="{{ route('notulensi.dokumentasi.stream', $doc->access_token) }}" alt="Dokumentasi" class="w-full h-32 object-cover rounded-lg border-2 border-[#084E8F] hover:opacity-90 transition duration-200 shadow hover:shadow-lg">
                         </a>
                     @endforeach
                 </div>

@@ -122,9 +122,6 @@
                                         <a href="{{ route('notulensi.view', ['token' => $token]) }}" 
                                            style="color: #084E8F; font-size: 13px; word-break: break-all; text-decoration: none; line-height: 1.5;">
                                             {{ route('notulensi.view', ['token' => $token]) }}
-                                        </a> 
-                                           style="color: #0C4777; font-size: 13px; word-break: break-all; text-decoration: none; line-height: 1.5;">
-                                            {{ route('notulensi.view', ['token' => $token]) }}
                                         </a>
                                     </td>
                                 </tr>
