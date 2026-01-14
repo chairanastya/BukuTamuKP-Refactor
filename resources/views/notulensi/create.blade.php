@@ -507,13 +507,24 @@
 
         // Handle file input change
         dokumentasiInput.addEventListener('change', function(e) {
-            previewContainer.innerHTML = '';
             const files = Array.from(e.target.files);
             
-            // Update captured images array
-            capturedImages = files;
-
-            files.forEach((file, index) => {
+            // Merge with existing captured images, avoiding duplicates
+            const existingNames = new Set(capturedImages.map(f => f.name));
+            const newFiles = files.filter(f => !existingNames.has(f.name));
+            
+            if (newFiles.length > 0) {
+                capturedImages = [...capturedImages, ...newFiles];
+            }
+            
+            // Update the file input with all captured images
+            const dt = new DataTransfer();
+            capturedImages.forEach(img => dt.items.add(img));
+            dokumentasiInput.files = dt.files;
+            
+            // Re-render all previews
+            previewContainer.innerHTML = '';
+            capturedImages.forEach((file, index) => {
                 if (file.type.startsWith('image/')) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
@@ -538,7 +549,9 @@
             const dt = new DataTransfer();
             capturedImages.forEach(file => dt.items.add(file));
             dokumentasiInput.files = dt.files;
-            dokumentasiInput.dispatchEvent(new Event('change'));
+            
+            // Trigger change event to re-render previews
+            dokumentasiInput.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
         // Close modal on backdrop click
