@@ -269,11 +269,7 @@
             </div>
         </div>
 
-    @yield('modals')
-@endsection
-
-@section('modals')
-    <div id="detailModal" class="modal-overlay">
+    <!-- Modals -->
     <div id="detailModal" class="modal-overlay">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
@@ -356,8 +352,8 @@
                     {
                         data: null,
                         render: function (data) {
-                            if (!data.has_ktp || !data.id_tamu) return '-';
-                            return `<button onclick="viewKtp(${data.id_tamu})" class="text-blue-600 hover:underline font-regular">👁 Lihat KTP</button>`;
+                            if (!data.has_ktp || !data.ktp_token) return '-';
+                            return `<button onclick="viewKtp('${data.ktp_token}')" class="text-blue-600 hover:underline font-regular">👁 Lihat KTP</button>`;
                         }
                     },
                     { data: 'instansi' },
@@ -521,24 +517,36 @@
         }
 
         function closeModal() {
-            document.getElementById('detailModal').classList.remove('show');
+            const modal = document.getElementById('detailModal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
         }
 
         function closeRejectModal() {
-            document.getElementById('rejectModal').classList.remove('show');
-            document.getElementById('alasanBatal').value = '';
+            const modal = document.getElementById('rejectModal');
+            const textarea = document.getElementById('alasanBatal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
+            if (textarea) {
+                textarea.value = '';
+            }
         }
 
-        function viewKtp(tamuId) {
+        function viewKtp(ktpToken) {
             const modal = document.getElementById('ktpModal');
             const content = document.getElementById('ktpContent');
 
-            // Show inline loading (tidak pakai overlay full)
+            if (!modal || !content) {
+                console.error('Modal KTP tidak ditemukan');
+                return;
+            }
+
             content.innerHTML = createInlineSpinner('Memuat KTP...');
             modal.classList.add('show');
 
-            // Langsung load image dari stream endpoint
-            const streamUrl = `/resepsionis/ktp/${tamuId}/stream`;
+            const streamUrl = `/resepsionis/ktp/${ktpToken}/stream`;
             const img = new Image();
 
             img.onload = function () {
@@ -553,7 +561,10 @@
         }
 
         function closeKtpModal() {
-            document.getElementById('ktpModal').classList.remove('show');
+            const modal = document.getElementById('ktpModal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
         }
 
         function toggleDropdown() {
@@ -574,22 +585,31 @@
             });
         });
 
-        document.getElementById('ktpModal').addEventListener('click', function (e) {
-            if (e.target === this) {
-                closeKtpModal();
-            }
-        });
+        const ktpModal = document.getElementById('ktpModal');
+        if (ktpModal) {
+            ktpModal.addEventListener('click', function (e) {
+                if (e.target === this) {
+                    closeKtpModal();
+                }
+            });
+        }
 
-        document.getElementById('detailModal').addEventListener('click', function (e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
+        const detailModal = document.getElementById('detailModal');
+        if (detailModal) {
+            detailModal.addEventListener('click', function (e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+        }
 
-        document.getElementById('rejectModal').addEventListener('click', function (e) {
-            if (e.target === this) {
-                closeRejectModal();
-            }
-        });
+        const rejectModal = document.getElementById('rejectModal');
+        if (rejectModal) {
+            rejectModal.addEventListener('click', function (e) {
+                if (e.target === this) {
+                    closeRejectModal();
+                }
+            });
+        }
     </script>
 @endpush
