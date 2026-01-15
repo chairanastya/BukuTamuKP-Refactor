@@ -45,16 +45,16 @@ class KaryawanController extends Controller
     {
         $keyword = $request->input('q', '');
 
-        if (empty($keyword)) {
-            return response()->json([]);
+        $query = Karyawan::select('departemen')
+            ->whereNotNull('departemen')
+            ->distinct()
+            ->orderBy('departemen', 'asc');
+
+        if (!empty($keyword)) {
+            $query->where('departemen', 'ILIKE', '%' . $keyword . '%');
         }
 
-        $departemens = Karyawan::select('departemen')
-            ->where('departemen', 'ILIKE', '%' . $keyword . '%')
-            ->distinct()
-            ->orderBy('departemen', 'asc')
-            ->limit(10)
-            ->pluck('departemen');
+        $departemens = $query->pluck('departemen');
 
         return response()->json($departemens);
     }
@@ -63,16 +63,16 @@ class KaryawanController extends Controller
     {
         $keyword = $request->input('q', '');
 
-        if (empty($keyword)) {
-            return response()->json([]);
+        $query = Karyawan::select('jabatan')
+            ->whereNotNull('jabatan')
+            ->distinct()
+            ->orderBy('jabatan', 'asc');
+
+        if (!empty($keyword)) {
+            $query->where('jabatan', 'ILIKE', '%' . $keyword . '%');
         }
 
-        $jabatans = Karyawan::select('jabatan')
-            ->where('jabatan', 'ILIKE', '%' . $keyword . '%')
-            ->distinct()
-            ->orderBy('jabatan', 'asc')
-            ->limit(10)
-            ->pluck('jabatan');
+        $jabatans = $query->pluck('jabatan');
 
         return response()->json($jabatans);
     }
