@@ -184,7 +184,7 @@
     <div class="main-content">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-blue-900">Riwayat Kunjungan</h2>
+                <h2 class="text-2xl font-bold text-[#084E8F]">Riwayat Kunjungan</h2>
             </div>
 
             <!-- Stats Cards -->
@@ -192,7 +192,7 @@
                 <div class="stats-card" data-filter="all" onclick="filterByStatus('all')">
                     <div>
                         <p class="text-gray-600 text-sm mb-1">Total Kunjungan</p>
-                        <p class="text-3xl font-bold text-blue-900">{{ $allTimeStats['total'] }}</p>
+                        <p class="text-3xl font-bold text-[#084E8F]">{{ $allTimeStats['total'] }}</p>
                     </div>
                     <div class="stats-icon" style="background: #E5E7EB;">
                         @svg('akar-people-group', 'w-6 h-6 text-gray-600')

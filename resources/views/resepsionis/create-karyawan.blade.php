@@ -37,3 +37,371 @@ Buku Tamu Digital
     </a>
 @endsection
 
+@include('partials.kunjungan-form-styles')
+
+@push('styles')
+    <style>
+        /* Adjust container for fixed header and sidebar */
+        .container {
+            margin-left: 180px;
+            padding-top: 110px;            
+            max-width: calc(100vw - 120px - 4rem);
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+    
+        .form-card {
+            padding: 1.5rem;
+        }
+        
+        .upload-area {
+            padding: 24px 16px;
+        }
+        
+        .upload-icon {
+            width: 60px;
+            height: 60px;        }
+    </style>
+@endpush
+
+@section('content')
+<div class="container mx-auto py-8">
+    <div class="max-w-5xl mx-auto">
+        <h1 class="text-2xl font-bold text-[#084E8F] mb-6">Tambah Karyawan Baru</h1>
+        
+        <form id="karyawan_form" action="{{ route('resepsionis.karyawan.store') }}" method="POST" class="space-y-6">
+            @csrf
+
+            <div>
+                <label for="nama_karyawan" class="block text-[#084E8F] font-bold mb-2">
+                    Nama Lengkap Karyawan
+                </label>
+                <div class="input-wrapper {{ $errors->has('nama_karyawan') ? 'border-red-500 bg-red-50' : '' }}">
+                    <input type="text" id="nama_karyawan" name="nama_karyawan"
+                        placeholder="Tuliskan nama lengkap karyawan" 
+                        value="{{ old('nama_karyawan') }}"
+                        required>
+                </div>
+                @error('nama_karyawan')
+                    <div class="error-message show">
+                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                        {{ $message }}
+                    </div>
+                @else
+                    <div id="nama_error" class="error-message">
+                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                        Nama lengkap karyawan wajib diisi
+                    </div>
+                @enderror
+            </div>
+
+            <div>
+                <label for="email_karyawan" class="block text-[#084E8F] font-bold mb-2">
+                    Alamat Email Karyawan
+                </label>
+                <div class="input-wrapper {{ $errors->has('email_karyawan') ? 'border-red-500 bg-red-50' : '' }}">
+                    <input type="email" id="email_karyawan" name="email_karyawan" 
+                        placeholder="Tuliskan alamat email karyawan" 
+                        value="{{ old('email_karyawan') }}"
+                        required>
+                </div>
+                @error('email_karyawan')
+                    <div class="error-message show">
+                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                        {{ $message }}
+                    </div>
+                @else
+                    <div id="email_error" class="error-message">
+                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                        Email tidak valid
+                    </div>
+                @enderror
+            </div>
+
+            <div>
+                <label for="departemen" class="block text-[#084E8F] font-bold mb-2">
+                    Departemen
+                </label>
+                <div class="relative">
+                    <div class="input-wrapper {{ $errors->has('departemen') ? 'border-red-500 bg-red-50' : '' }}">
+                        <input type="text" id="departemen" name="departemen"
+                            placeholder="Tuliskan atau pilih departemen" 
+                            value="{{ old('departemen') }}"
+                            autocomplete="off"
+                            required>
+                    </div>
+                    <div id="departemen_dropdown" class="autocomplete-dropdown"></div>
+                </div>
+                @error('departemen')
+                    <div class="error-message show">
+                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                        {{ $message }}
+                    </div>
+                @else
+                    <div id="departemen_error" class="error-message">
+                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                        Departemen wajib diisi
+                    </div>
+                @enderror
+            </div>
+
+            <div>
+                <label for="jabatan" class="block text-[#084E8F] font-bold mb-2">
+                    Jabatan
+                </label>
+                <div class="relative">
+                    <div class="input-wrapper {{ $errors->has('jabatan') ? 'border-red-500 bg-red-50' : '' }}">
+                        <input type="text" id="jabatan" name="jabatan"
+                            placeholder="Tuliskan atau pilih jabatan" 
+                            value="{{ old('jabatan') }}"
+                            autocomplete="off"
+                            required>
+                    </div>
+                    <div id="jabatan_dropdown" class="autocomplete-dropdown"></div>
+                </div>
+                @error('jabatan')
+                    <div class="error-message show">
+                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                        {{ $message }}
+                    </div>
+                @else
+                    <div id="jabatan_error" class="error-message">
+                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                        Jabatan wajib diisi
+                    </div>
+                @enderror
+            </div>
+
+            <div class="flex gap-4">
+                <a href="{{ route('resepsionis.karyawan') }}#karyawan" 
+                    class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                    @svg('heroicon-o-x-mark', 'w-5 h-5')
+                    Batalkan
+                </a>
+                <button type="submit"
+                    class="flex-1 bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                    @svg('phosphor-paper-plane-tilt-fill', 'w-5 h-5')
+                    Kirim Data
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let debounceTimeout;
+
+    function toggleDropdown() {
+        document.getElementById('dropdown').classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('dropdown');
+        if (!e.target.closest('[onclick="toggleDropdown()"]') && !dropdown.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    // Form validation
+    const form = document.getElementById('karyawan_form');
+    const namaInput = document.getElementById('nama_karyawan');
+    const emailInput = document.getElementById('email_karyawan');
+    const departemenInput = document.getElementById('departemen');
+    const jabatanInput = document.getElementById('jabatan');
+
+    function validateNama() {
+        const namaError = document.getElementById('nama_error');
+        if (namaInput.value.trim() === '') {
+            namaError.classList.add('show');
+            return false;
+        } else {
+            namaError.classList.remove('show');
+            return true;
+        }
+    }
+
+    function validateEmail() {
+        const emailError = document.getElementById('email_error');
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailInput.value.trim())) {
+            emailError.classList.add('show');
+            return false;
+        } else {
+            emailError.classList.remove('show');
+            return true;
+        }
+    }
+
+    function validateDepartemen() {
+        const departemenError = document.getElementById('departemen_error');
+        if (departemenInput.value.trim() === '') {
+            departemenError.classList.add('show');
+            return false;
+        } else {
+            departemenError.classList.remove('show');
+            return true;
+        }
+    }
+
+    function validateJabatan() {
+        const jabatanError = document.getElementById('jabatan_error');
+        if (jabatanInput.value.trim() === '') {
+            jabatanError.classList.add('show');
+            return false;
+        } else {
+            jabatanError.classList.remove('show');
+            return true;
+        }
+    }
+
+    namaInput.addEventListener('blur', validateNama);
+    emailInput.addEventListener('blur', validateEmail);
+    departemenInput.addEventListener('blur', validateDepartemen);
+    jabatanInput.addEventListener('blur', validateJabatan);
+
+    form.addEventListener('submit', function(e) {
+        const isNamaValid = validateNama();
+        const isEmailValid = validateEmail();
+        const isDepartemenValid = validateDepartemen();
+        const isJabatanValid = validateJabatan();
+
+        if (!isNamaValid || !isEmailValid || !isDepartemenValid || !isJabatanValid) {
+            e.preventDefault();
+        }
+    });
+
+    // Autocomplete for Departemen
+    const departemenDropdown = document.getElementById('departemen_dropdown');
+    
+    departemenInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        clearTimeout(debounceTimeout);
+        
+        if (query.length < 2) {
+            departemenDropdown.classList.remove('show');
+            departemenDropdown.innerHTML = '';
+            return;
+        }
+
+        debounceTimeout = setTimeout(() => {
+            searchDepartemen(query);
+        }, 300);
+    });
+
+    departemenInput.addEventListener('focus', function() {
+        if (this.value.trim().length >= 2) {
+            searchDepartemen(this.value.trim());
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!departemenInput.contains(e.target) && !departemenDropdown.contains(e.target)) {
+            departemenDropdown.classList.remove('show');
+        }
+    });
+
+    function searchDepartemen(query) {
+        fetch(`{{ route('resepsionis.karyawan.search-departemen') }}?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => displayDepartemenAutocomplete(data))
+            .catch(error => console.error('Error searching departemen:', error));
+    }
+
+    function displayDepartemenAutocomplete(items) {
+        if (items.length === 0) {
+            departemenDropdown.innerHTML = '<div class="autocomplete-item">Tidak ada hasil - ketik untuk input baru</div>';
+            departemenDropdown.classList.add('show');
+            return;
+        }
+
+        const html = items.map(item => `
+            <div class="autocomplete-item" onclick="selectDepartemen('${escapeHtml(item)}')">
+                ${escapeHtml(item)}
+            </div>
+        `).join('');
+
+        departemenDropdown.innerHTML = html;
+        departemenDropdown.classList.add('show');
+    }
+
+    function selectDepartemen(value) {
+        departemenInput.value = value;
+        departemenDropdown.classList.remove('show');
+        validateDepartemen();
+    }
+
+    // Autocomplete for Jabatan
+    const jabatanDropdown = document.getElementById('jabatan_dropdown');
+    
+    jabatanInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        clearTimeout(debounceTimeout);
+        
+        if (query.length < 2) {
+            jabatanDropdown.classList.remove('show');
+            jabatanDropdown.innerHTML = '';
+            return;
+        }
+
+        debounceTimeout = setTimeout(() => {
+            searchJabatan(query);
+        }, 300);
+    });
+
+    jabatanInput.addEventListener('focus', function() {
+        if (this.value.trim().length >= 2) {
+            searchJabatan(this.value.trim());
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!jabatanInput.contains(e.target) && !jabatanDropdown.contains(e.target)) {
+            jabatanDropdown.classList.remove('show');
+        }
+    });
+
+    function searchJabatan(query) {
+        fetch(`{{ route('resepsionis.karyawan.search-jabatan') }}?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => displayJabatanAutocomplete(data))
+            .catch(error => console.error('Error searching jabatan:', error));
+    }
+
+    function displayJabatanAutocomplete(items) {
+        if (items.length === 0) {
+            jabatanDropdown.innerHTML = '<div class="autocomplete-item">Tidak ada hasil - ketik untuk input baru</div>';
+            jabatanDropdown.classList.add('show');
+            return;
+        }
+
+        const html = items.map(item => `
+            <div class="autocomplete-item" onclick="selectJabatan('${escapeHtml(item)}')">
+                ${escapeHtml(item)}
+            </div>
+        `).join('');
+
+        jabatanDropdown.innerHTML = html;
+        jabatanDropdown.classList.add('show');
+    }
+
+    function selectJabatan(value) {
+        jabatanInput.value = value;
+        jabatanDropdown.classList.remove('show');
+        validateJabatan();
+    }
+
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+</script>
+@endsection
+

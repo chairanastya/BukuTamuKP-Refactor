@@ -188,7 +188,7 @@ class ResepsionisController extends Controller
                     'email_karyawan' => $karyawan->email_karyawan,
                     'departemen' => $karyawan->departemen ?? '-',
                     'jabatan' => $karyawan->jabatan ?? '-',
-                    'is_resepsionis' => $karyawan->resepsionis ? true : false,
+                    'is_resepsionis' => strtolower($karyawan->jabatan ?? '') === 'resepsionis',
                 ];
             });
 
