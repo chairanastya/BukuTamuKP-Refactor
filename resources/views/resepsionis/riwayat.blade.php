@@ -1354,13 +1354,23 @@
         }
 
         function viewDetail(id) {
-            showLoading();
+            const modal = document.getElementById('detailModal');
+            const content = document.getElementById('detailContent');
+
+            if (!modal || !content) {
+                console.error('Modal detail tidak ditemukan');
+                return;
+            }
+
+            content.innerHTML = createInlineSpinner('Memuat Detail Kunjungan...');
+            modal.classList.add('show');
+
             fetch(`{{ route('resepsionis.riwayat.data') }}`)
                 .then(res => res.json())
                 .then(result => {
                     const kunjungan = result.data.find(k => k.id_kunjungan === id);
                     if (!kunjungan) {
-                        hideLoading();
+                        content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">❌ Detail tidak ditemukan</p><p class="text-sm">Kunjungan tidak ditemukan dalam sistem</p></div>';
                         return;
                     }
 
@@ -1402,13 +1412,10 @@
                                         ${actions}
                                     </div>
                                 `;
-
-                    document.getElementById('detailModal').classList.add('show');
-                    hideLoading();
                 })
                 .catch(error => {
                     console.error('Error fetching detail:', error);
-                    hideLoading();
+                    content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">❌ Gagal memuat detail</p><p class="text-sm">Terjadi kesalahan saat memuat data</p></div>';
                 });
         }
 
