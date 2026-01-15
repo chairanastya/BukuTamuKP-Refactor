@@ -302,6 +302,27 @@
             </div>
         </div>
     </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-red-600">Terjadi Kesalahan</h3>
+                <button onclick="closeErrorModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div id="errorContent" class="mb-6">
+                <div class="flex items-center gap-3">
+                    @svg('heroicon-o-exclamation-triangle', 'w-12 h-12 text-red-500')
+                    <p class="text-gray-700" id="errorMessage"></p>
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button onclick="closeErrorModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -394,6 +415,15 @@
             document.getElementById('successModal').classList.remove('show');
         }
 
+        function showErrorModal(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorModal').classList.add('show');
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').classList.remove('show');
+        }
+
         function confirmDelete() {
             if (!deleteKaryawanId) return;
 
@@ -422,12 +452,14 @@
                     table.ajax.reload();
                     showSuccessModal(data.message);
                 } else {
-                    alert(data.message || 'Gagal menghapus karyawan');
+                    closeDeleteModal();
+                    showErrorModal(data.message || 'Gagal menghapus karyawan');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Terjadi kesalahan saat menghapus karyawan');
+                closeDeleteModal();
+                showErrorModal('Terjadi kesalahan saat menghapus karyawan');
             })
             .finally(() => {
                 // Re-enable button and hide spinner

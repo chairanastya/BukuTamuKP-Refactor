@@ -645,6 +645,27 @@
             </div>
         </div>
     </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-red-600">Terjadi Kesalahan</h3>
+                <button onclick="closeErrorModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div id="errorContent" class="mb-6">
+                <div class="flex items-center gap-3">
+                    @svg('heroicon-o-exclamation-triangle', 'w-12 h-12 text-red-500')
+                    <p class="text-gray-700" id="errorMessage"></p>
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button onclick="closeErrorModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -680,6 +701,15 @@
         function closeSuccessModal() {
             document.getElementById('successModal').classList.remove('show');
             location.reload();
+        }
+
+        function showErrorModal(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorModal').classList.add('show');
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').classList.remove('show');
         }
 
         function filterByStatus(status) {
@@ -1361,7 +1391,7 @@
                 .then(result => {
                     const kunjungan = result.data.find(k => k.id_kunjungan === id);
                     if (!kunjungan) {
-                        content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">❌ Detail tidak ditemukan</p><p class="text-sm">Kunjungan tidak ditemukan dalam sistem</p></div>';
+                        content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">Detail tidak ditemukan</p><p class="text-sm">Kunjungan tidak ditemukan dalam sistem</p></div>';
                         return;
                     }
 
@@ -1406,7 +1436,7 @@
                 })
                 .catch(error => {
                     console.error('Error fetching detail:', error);
-                    content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">❌ Gagal memuat detail</p><p class="text-sm">Terjadi kesalahan saat memuat data</p></div>';
+                    content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">Gagal memuat detail</p><p class="text-sm">Terjadi kesalahan saat memuat data</p></div>';
                 });
         }
 
@@ -1449,7 +1479,8 @@
                     button.disabled = false;
                     buttonText.textContent = 'Terima';
                     spinner.classList.add('hidden');
-                    alert('Terjadi kesalahan: ' + error);
+                    closeAcceptModal();
+                    showErrorModal('Terjadi kesalahan saat menerima kunjungan');
                 });
         }
 
@@ -1462,7 +1493,7 @@
         function confirmReject() {
             const alasan = document.getElementById('alasanBatal').value.trim();
             if (!alasan) {
-                alert('Alasan pembatalan harus diisi');
+                showErrorModal('Alasan pembatalan harus diisi');
                 return;
             }
 
@@ -1495,7 +1526,8 @@
                     button.disabled = false;
                     buttonText.textContent = 'Tolak Kunjungan';
                     spinner.classList.add('hidden');
-                    alert('Terjadi kesalahan: ' + error);
+                    closeRejectModal();
+                    showErrorModal('Terjadi kesalahan saat menolak kunjungan');
                 });
         }
 
@@ -1579,7 +1611,7 @@
             };
 
             img.onerror = function () {
-                content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">❌ Gagal memuat KTP</p><p class="text-sm">Terjadi kesalahan saat memuat gambar</p></div>';
+                content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">Gagal memuat KTP</p><p class="text-sm">Terjadi kesalahan saat memuat gambar</p></div>';
             };
 
             img.src = streamUrl;
