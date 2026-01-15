@@ -696,7 +696,7 @@
         }
 
         function populateFilterDropdowns() {
-            fetch('{{ route("resepsionis.kunjungan.data") }}')
+            fetch('{{ route("resepsionis.riwayat.data") }}')
                 .then(res => res.json())
                 .then(result => {
                     const data = result.data;
