@@ -519,7 +519,6 @@
         let table;
         let currentKunjunganId = null;
         let currentFilter = 'all';
-        let currentDateFilter = '';
         let currentInstansiFilter = '';
         let currentKaryawanFilter = '';
 
@@ -679,10 +678,6 @@
             // Main dropdown dengan kategori
             const mainDropdown = $(`
                 <div class="filter-main-dropdown" id="mainFilterDropdown">
-                    <div class="filter-category-item" data-category="tanggal">
-                        <span>📅 Tanggal</span>
-                        <span style="font-size: 10px;">▶</span>
-                    </div>
                     <div class="filter-category-item" data-category="instansi">
                         <span>🏢 Instansi</span>
                         <span style="font-size: 10px;">▶</span>
@@ -694,13 +689,9 @@
                 </div>
             `);
             
-            // Sub-dropdowns untuk setiap kategori
-            const dateSubDropdown = $('<div class="filter-sub-dropdown" id="dateSubDropdown"></div>');
             const instansiSubDropdown = $('<div class="filter-sub-dropdown" id="instansiSubDropdown"></div>');
             const karyawanSubDropdown = $('<div class="filter-sub-dropdown" id="karyawanSubDropdown"></div>');
             
-            // Append sub-dropdowns ke kategori items
-            mainDropdown.find('[data-category="tanggal"]').append(dateSubDropdown);
             mainDropdown.find('[data-category="instansi"]').append(instansiSubDropdown);
             mainDropdown.find('[data-category="karyawan"]').append(karyawanSubDropdown);
             
@@ -751,21 +742,6 @@
                 .then(result => {
                     const data = result.data;
                     
-                    // Get unique dates
-                    const dates = [...new Set(data.map(item => item.tanggal))].sort().reverse();
-                    const dateDropdown = $('#dateSubDropdown');
-                    dateDropdown.empty();
-                    dates.forEach(date => {
-                        const item = $(`<div class="filter-dropdown-item" data-value="${date}">${date}</div>`);
-                        item.on('click', function(e) {
-                            e.stopPropagation();
-                            applyDateFilter(date);
-                        });
-                        dateDropdown.append(item);
-                    });
-                    dateDropdown.append(`<div class="filter-clear" onclick="clearDateFilter()">✕ Hapus Filter</div>`);
-                    
-                    // Get unique instansi
                     const instansi = [...new Set(data.map(item => item.instansi))].sort();
                     const instansiDropdown = $('#instansiSubDropdown');
                     instansiDropdown.empty();
@@ -803,7 +779,6 @@
 
         function updateFilterBadge() {
             let count = 0;
-            if (currentDateFilter) count++;
             if (currentInstansiFilter) count++;
             if (currentKaryawanFilter) count++;
             
@@ -815,25 +790,6 @@
                 badge.html('');
                 $('#filterByBtn').removeClass('active');
             }
-        }
-
-        function applyDateFilter(date) {
-            currentDateFilter = date;
-            $('#dateSubDropdown .filter-dropdown-item').removeClass('active');
-            $(`#dateSubDropdown .filter-dropdown-item[data-value="${date}"]`).addClass('active');
-            $('#mainFilterDropdown').removeClass('show');
-            $('.filter-sub-dropdown').removeClass('show');
-            updateFilterBadge();
-            applyAllFilters();
-        }
-
-        function clearDateFilter() {
-            currentDateFilter = '';
-            $('#dateSubDropdown .filter-dropdown-item').removeClass('active');
-            $('#mainFilterDropdown').removeClass('show');
-            $('.filter-sub-dropdown').removeClass('show');
-            updateFilterBadge();
-            applyAllFilters();
         }
 
         function applyInstansiFilter(instansi) {
@@ -883,21 +839,13 @@
             // Tambahkan custom search function
             $.fn.dataTable.ext.search.push(
                 function(settings, data, dataIndex) {
-                    const tanggal = data[1]; // kolom tanggal
-                    const instansi = data[5]; // kolom instansi
-                    const karyawan = data[6]; // kolom karyawan (HTML content)
+                    const instansi = data[5];
+                    const karyawan = data[6];
                     
-                    // Filter tanggal
-                    if (currentDateFilter && tanggal !== currentDateFilter) {
-                        return false;
-                    }
-                    
-                    // Filter instansi
                     if (currentInstansiFilter && instansi !== currentInstansiFilter) {
                         return false;
                     }
                     
-                    // Filter karyawan - cek apakah nama karyawan ada dalam HTML content
                     if (currentKaryawanFilter && !karyawan.includes(currentKaryawanFilter)) {
                         return false;
                     }
