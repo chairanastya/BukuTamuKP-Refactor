@@ -169,10 +169,31 @@
             width: 100% !important;
         }
 
-        .dataTables_wrapper .dataTables_filter input {
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            padding: 0.5rem;
+        .dt-length select.dt-input {
+            padding-right: 28px !important;
+        }
+
+        .dataTables_wrapper .dataTables_filter input,
+        .dt-search input.dt-input {
+            border: 1px solid #d1d5db !important;
+            border-radius: 4px !important;
+            padding: 4px 12px !important;
+            font-size: 14px !important;
+            background-color: white !important;
+            transition: all 0.2s !important;
+            min-width: 200px;
+        }
+
+        .dataTables_wrapper .dataTables_filter input::placeholder,
+        .dt-search input.dt-input::placeholder {
+            color: #9CA3AF;
+        }
+
+        .dataTables_wrapper .dataTables_filter input:focus,
+        .dt-search input.dt-input:focus {
+            outline: none !important;
+            border-color: #47B9AE !important;
+            box-shadow: 0 0 0 3px rgba(71, 185, 174, 0.1) !important;
         }
 
         .tab-content {
@@ -181,6 +202,183 @@
 
         .tab-content.active {
             display: block;
+        }
+
+        .filter-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            position: relative;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 1px solid #d1d5db;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            background: #f3f4f6;
+            border-color: #47B9AE;
+        }
+
+        .filter-btn.active {
+            background: #0C4777;
+            color: white;
+            border-color: #0C4777;
+        }
+
+        .filter-main-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 4px;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            min-width: 180px;
+            z-index: 100;
+            display: none;
+        }
+
+        .filter-main-dropdown.show {
+            display: block;
+        }
+
+        .filter-category-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 500;
+        }
+
+        .filter-category-item:hover {
+            background: #f3f4f6;
+        }
+
+        .filter-category-item:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .filter-category-item:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+
+        .filter-sub-dropdown {
+            position: absolute;
+            top: 0;
+            right: 100%;
+            margin-right: 4px;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            min-width: 200px;
+            max-width: 300px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 101;
+            display: none;
+        }
+
+        .filter-sub-dropdown.show {
+            display: block;
+        }
+
+        .filter-dropdown-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 14px;
+        }
+
+        .filter-dropdown-item:hover {
+            background: #f3f4f6;
+        }
+
+        .filter-dropdown-item.active {
+            background: #DBEAFE;
+            color: #1E40AF;
+            font-weight: 600;
+        }
+
+        .filter-clear {
+            padding: 10px 16px;
+            border-top: 1px solid #e5e7eb;
+            cursor: pointer;
+            color: #EF4444;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .filter-clear:hover {
+            background: #FEE2E2;
+        }
+
+        .active-filter-badge {
+            background: #0C4777;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .dataTables_wrapper .dt-layout-row:first-child {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 24px !important;
+            margin-bottom: 16px !important;
+        }
+        
+        .dataTables_wrapper .dt-layout-start {
+            flex: 0 0 auto !important;
+        }
+        
+        .dataTables_wrapper .dt-layout-end {
+            display: flex !important;
+            align-items: center !important;
+            gap: 50px !important;
+            flex: 0 0 auto !important;
+        }
+        
+        .dataTables_wrapper .dt-search {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            flex-wrap: nowrap !important;
+        }
+
+        .dataTables_wrapper .dataTables_filter label,
+        .dataTables_wrapper .dt-search label {
+            margin: 0 !important;
+            flex-shrink: 0 !important;
+        }
+        
+        .dataTables_wrapper .dt-search input.dt-input {
+            flex-shrink: 0 !important;
+        }
+        
+        .filter-container {
+            flex: 0 0 auto !important;
+            flex-shrink: 0 !important;
+            position: relative !important;
         }
     </style>
 @endpush
@@ -321,6 +519,9 @@
         let table;
         let currentKunjunganId = null;
         let currentFilter = 'all';
+        let currentDateFilter = '';
+        let currentInstansiFilter = '';
+        let currentKaryawanFilter = '';
 
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function() {
@@ -419,8 +620,293 @@
                     }
                 ],
                 pageLength: 10,
-                order: [[1, 'desc']]
+                order: [[1, 'desc']],
+                initComplete: function() {
+                    console.log('DataTable initialized, calling addCustomFilters');
+                    console.log('Table wrapper HTML:', $('#myTable_wrapper').html());
+                    setTimeout(function() {
+                        addCustomFilters();
+                    }, 200);
+                }
             });
+        }
+
+        function addCustomFilters() {
+            console.log('Adding custom filters...');
+            
+            // Coba cari filter wrapper dengan berbagai selector
+            let filterWrapper = $('.dataTables_filter');
+            if (filterWrapper.length === 0) {
+                filterWrapper = $('.dt-search');
+            }
+            if (filterWrapper.length === 0) {
+                filterWrapper = $('div[id$="_filter"]');
+            }
+            if (filterWrapper.length === 0) {
+                // Fallback: cari di dalam wrapper table
+                filterWrapper = $('#myTable_wrapper').find('.dataTables_filter, .dt-search');
+            }
+            
+            console.log('Filter wrapper found:', filterWrapper.length, filterWrapper);
+            
+            if (filterWrapper.length === 0) {
+                console.error('Filter wrapper not found! Trying alternative method...');
+                // Last resort: tambahkan di dalam wrapper langsung
+                const wrapper = $('#myTable_wrapper .dataTables_filter, #myTable_wrapper .dt-search').first();
+                if (wrapper.length > 0) {
+                    filterWrapper = wrapper;
+                } else {
+                    console.error('Cannot find any suitable location for filters');
+                    return;
+                }
+            }
+            
+            // Hapus filter lama jika ada
+            $('.filter-container').remove();
+            
+            // Buat container untuk filter button
+            const filterContainer = $('<div class="filter-container"></div>');
+            
+            // Single Filter Button
+            const filterBtn = $(`
+                <div class="filter-btn" id="filterByBtn">
+                    <span>🔍 Filter By</span>
+                    <span id="filterBadge"></span>
+                    <span style="font-size: 10px;">▼</span>
+                </div>
+            `);
+            
+            // Main dropdown dengan kategori
+            const mainDropdown = $(`
+                <div class="filter-main-dropdown" id="mainFilterDropdown">
+                    <div class="filter-category-item" data-category="tanggal">
+                        <span>📅 Tanggal</span>
+                        <span style="font-size: 10px;">▶</span>
+                    </div>
+                    <div class="filter-category-item" data-category="instansi">
+                        <span>🏢 Instansi</span>
+                        <span style="font-size: 10px;">▶</span>
+                    </div>
+                    <div class="filter-category-item" data-category="karyawan">
+                        <span>👤 Karyawan</span>
+                        <span style="font-size: 10px;">▶</span>
+                    </div>
+                </div>
+            `);
+            
+            // Sub-dropdowns untuk setiap kategori
+            const dateSubDropdown = $('<div class="filter-sub-dropdown" id="dateSubDropdown"></div>');
+            const instansiSubDropdown = $('<div class="filter-sub-dropdown" id="instansiSubDropdown"></div>');
+            const karyawanSubDropdown = $('<div class="filter-sub-dropdown" id="karyawanSubDropdown"></div>');
+            
+            // Append sub-dropdowns ke kategori items
+            mainDropdown.find('[data-category="tanggal"]').append(dateSubDropdown);
+            mainDropdown.find('[data-category="instansi"]').append(instansiSubDropdown);
+            mainDropdown.find('[data-category="karyawan"]').append(karyawanSubDropdown);
+            
+            filterContainer.append(filterBtn, mainDropdown);
+            
+            // Tambahkan filter container ke dt-layout-end (bersama dengan search)
+            filterWrapper.parent().append(filterContainer);
+            
+            console.log('Filter button added to layout');
+            
+            // Populate sub-dropdowns dengan data
+            populateFilterDropdowns();
+            
+            // Event handler untuk toggle main dropdown
+            filterBtn.on('click', function(e) {
+                e.stopPropagation();
+                mainDropdown.toggleClass('show');
+            });
+            
+            // Event handlers untuk menampilkan sub-dropdown
+            $('.filter-category-item').on('mouseenter', function() {
+                $('.filter-sub-dropdown').removeClass('show');
+                const subDropdown = $(this).find('.filter-sub-dropdown');
+                subDropdown.addClass('show');
+            });
+            
+            mainDropdown.on('mouseleave', function() {
+                $('.filter-sub-dropdown').removeClass('show');
+            });
+            
+            // Close dropdown saat klik di luar
+            $(document).on('click', function() {
+                mainDropdown.removeClass('show');
+                $('.filter-sub-dropdown').removeClass('show');
+            });
+            
+            // Prevent closing saat klik di dalam dropdown
+            mainDropdown.on('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            console.log('Custom filters added successfully');
+        }
+
+        function populateFilterDropdowns() {
+            fetch('{{ route("resepsionis.kunjungan.data") }}')
+                .then(res => res.json())
+                .then(result => {
+                    const data = result.data;
+                    
+                    // Get unique dates
+                    const dates = [...new Set(data.map(item => item.tanggal))].sort().reverse();
+                    const dateDropdown = $('#dateSubDropdown');
+                    dateDropdown.empty();
+                    dates.forEach(date => {
+                        const item = $(`<div class="filter-dropdown-item" data-value="${date}">${date}</div>`);
+                        item.on('click', function(e) {
+                            e.stopPropagation();
+                            applyDateFilter(date);
+                        });
+                        dateDropdown.append(item);
+                    });
+                    dateDropdown.append(`<div class="filter-clear" onclick="clearDateFilter()">✕ Hapus Filter</div>`);
+                    
+                    // Get unique instansi
+                    const instansi = [...new Set(data.map(item => item.instansi))].sort();
+                    const instansiDropdown = $('#instansiSubDropdown');
+                    instansiDropdown.empty();
+                    instansi.forEach(inst => {
+                        const item = $(`<div class="filter-dropdown-item" data-value="${inst}">${inst}</div>`);
+                        item.on('click', function(e) {
+                            e.stopPropagation();
+                            applyInstansiFilter(inst);
+                        });
+                        instansiDropdown.append(item);
+                    });
+                    instansiDropdown.append(`<div class="filter-clear" onclick="clearInstansiFilter()">✕ Hapus Filter</div>`);
+                    
+                    // Get unique karyawan
+                    const karyawanSet = new Set();
+                    data.forEach(item => {
+                        if (item.karyawan && item.karyawan.length > 0) {
+                            item.karyawan.forEach(k => karyawanSet.add(k.nama));
+                        }
+                    });
+                    const karyawan = [...karyawanSet].sort();
+                    const karyawanDropdown = $('#karyawanSubDropdown');
+                    karyawanDropdown.empty();
+                    karyawan.forEach(kary => {
+                        const item = $(`<div class="filter-dropdown-item" data-value="${kary}">${kary}</div>`);
+                        item.on('click', function(e) {
+                            e.stopPropagation();
+                            applyKaryawanFilter(kary);
+                        });
+                        karyawanDropdown.append(item);
+                    });
+                    karyawanDropdown.append(`<div class="filter-clear" onclick="clearKaryawanFilter()">✕ Hapus Filter</div>`);
+                });
+        }
+
+        function updateFilterBadge() {
+            let count = 0;
+            if (currentDateFilter) count++;
+            if (currentInstansiFilter) count++;
+            if (currentKaryawanFilter) count++;
+            
+            const badge = $('#filterBadge');
+            if (count > 0) {
+                badge.html(`<span class="active-filter-badge">${count}</span>`);
+                $('#filterByBtn').addClass('active');
+            } else {
+                badge.html('');
+                $('#filterByBtn').removeClass('active');
+            }
+        }
+
+        function applyDateFilter(date) {
+            currentDateFilter = date;
+            $('#dateSubDropdown .filter-dropdown-item').removeClass('active');
+            $(`#dateSubDropdown .filter-dropdown-item[data-value="${date}"]`).addClass('active');
+            $('#mainFilterDropdown').removeClass('show');
+            $('.filter-sub-dropdown').removeClass('show');
+            updateFilterBadge();
+            applyAllFilters();
+        }
+
+        function clearDateFilter() {
+            currentDateFilter = '';
+            $('#dateSubDropdown .filter-dropdown-item').removeClass('active');
+            $('#mainFilterDropdown').removeClass('show');
+            $('.filter-sub-dropdown').removeClass('show');
+            updateFilterBadge();
+            applyAllFilters();
+        }
+
+        function applyInstansiFilter(instansi) {
+            currentInstansiFilter = instansi;
+            $('#instansiSubDropdown .filter-dropdown-item').removeClass('active');
+            $(`#instansiSubDropdown .filter-dropdown-item[data-value="${instansi}"]`).addClass('active');
+            $('#mainFilterDropdown').removeClass('show');
+            $('.filter-sub-dropdown').removeClass('show');
+            updateFilterBadge();
+            applyAllFilters();
+        }
+
+        function clearInstansiFilter() {
+            currentInstansiFilter = '';
+            $('#instansiSubDropdown .filter-dropdown-item').removeClass('active');
+            $('#mainFilterDropdown').removeClass('show');
+            $('.filter-sub-dropdown').removeClass('show');
+            updateFilterBadge();
+            applyAllFilters();
+        }
+
+        function applyKaryawanFilter(karyawan) {
+            currentKaryawanFilter = karyawan;
+            $('#karyawanSubDropdown .filter-dropdown-item').removeClass('active');
+            $(`#karyawanSubDropdown .filter-dropdown-item[data-value="${karyawan}"]`).addClass('active');
+            $('#mainFilterDropdown').removeClass('show');
+            $('.filter-sub-dropdown').removeClass('show');
+            updateFilterBadge();
+            applyAllFilters();
+        }
+
+        function clearKaryawanFilter() {
+            currentKaryawanFilter = '';
+            $('#karyawanSubDropdown .filter-dropdown-item').removeClass('active');
+            $('#mainFilterDropdown').removeClass('show');
+            $('.filter-sub-dropdown').removeClass('show');
+            updateFilterBadge();
+            applyAllFilters();
+        }
+
+        function applyAllFilters() {
+            // Clear existing custom search
+            if ($.fn.dataTable.ext.search.length > 0) {
+                $.fn.dataTable.ext.search.pop();
+            }
+            
+            // Tambahkan custom search function
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex) {
+                    const tanggal = data[1]; // kolom tanggal
+                    const instansi = data[5]; // kolom instansi
+                    const karyawan = data[6]; // kolom karyawan (HTML content)
+                    
+                    // Filter tanggal
+                    if (currentDateFilter && tanggal !== currentDateFilter) {
+                        return false;
+                    }
+                    
+                    // Filter instansi
+                    if (currentInstansiFilter && instansi !== currentInstansiFilter) {
+                        return false;
+                    }
+                    
+                    // Filter karyawan - cek apakah nama karyawan ada dalam HTML content
+                    if (currentKaryawanFilter && !karyawan.includes(currentKaryawanFilter)) {
+                        return false;
+                    }
+                    
+                    return true;
+                }
+            );
+            
+            table.draw();
         }
 
         function viewDetail(id) {

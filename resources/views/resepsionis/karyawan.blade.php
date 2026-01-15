@@ -147,10 +147,31 @@
             width: 100% !important;
         }
 
-        .dataTables_wrapper .dataTables_filter input {
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            padding: 0.5rem;
+        .dt-length select.dt-input {
+            padding-right: 28px !important;
+        }
+
+        .dataTables_wrapper .dataTables_filter input,
+        .dt-search input.dt-input {
+            border: 1px solid #d1d5db !important;
+            border-radius: 4px !important;
+            padding: 2px 12px !important;
+            font-size: 14px !important;
+            background-color: white !important;
+            transition: all 0.2s !important;
+            min-width: 200px;
+        }
+
+        .dataTables_wrapper .dataTables_filter input::placeholder,
+        .dt-search input.dt-input::placeholder {
+            color: #9CA3AF;
+        }
+
+        .dataTables_wrapper .dataTables_filter input:focus,
+        .dt-search input.dt-input:focus {
+            outline: none !important;
+            border-color: #47B9AE !important;
+            box-shadow: 0 0 0 3px rgba(71, 185, 174, 0.1) !important;
         }
     </style>
 @endpush
@@ -427,16 +448,16 @@
             }
         });
 
-        // Debounce untuk loading navigation agar tidak ngelag
+        
         let navigationTimeout = null;
         document.querySelectorAll('.sidebar-item').forEach(link => {
             link.addEventListener('click', function (e) {
                 if (this.href && !this.classList.contains('active')) {
-                    // Clear previous timeout jika ada
+                    
                     if (navigationTimeout) {
                         clearTimeout(navigationTimeout);
                     }
-                    // Tampilkan loading dengan slight delay agar tidak ngelag
+                    
                     navigationTimeout = setTimeout(() => {
                         showLoading();
                     }, 50);
