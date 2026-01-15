@@ -271,6 +271,73 @@
             display: none;
         }
 
+        .date-range-filter {
+            padding: 16px;
+            min-width: 280px;
+        }
+
+        .date-input-group {
+            margin-bottom: 12px;
+        }
+
+        .date-input-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        .date-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .date-input:focus {
+            outline: none;
+            border-color: #47B9AE;
+            box-shadow: 0 0 0 3px rgba(71, 185, 174, 0.1);
+        }
+
+        .date-filter-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .date-filter-btn {
+            flex: 1;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .date-filter-btn-apply {
+            background: #0C4777;
+            color: white;
+        }
+
+        .date-filter-btn-apply:hover {
+            background: #084E8F;
+        }
+
+        .date-filter-btn-clear {
+            background: #EF4444;
+            color: white;
+        }
+
+        .date-filter-btn-clear:hover {
+            background: #DC2626;
+        }
+
         .filter-sub-dropdown.show {
             display: block;
         }
@@ -290,6 +357,37 @@
             background: #DBEAFE;
             color: #1E40AF;
             font-weight: 600;
+        }
+
+        .karyawan-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .karyawan-item:last-of-type {
+            border-bottom: none;
+        }
+
+        .karyawan-item:hover {
+            background: #f3f4f6;
+        }
+
+        .karyawan-item.active {
+            background: #DBEAFE;
+        }
+
+        .karyawan-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 2px;
+        }
+
+        .karyawan-detail {
+            font-size: 12px;
+            color: #6B7280;
         }
 
         .filter-clear {
@@ -601,7 +699,8 @@
             });
         }
 
-        let currentDateFilter = null;
+        let currentDateFilterStart = null;
+        let currentDateFilterEnd = null;
         let currentInstansiFilter = null;
         let currentKaryawanFilter = null;
 
@@ -652,7 +751,22 @@
                 </div>
             `);
             
-            const dateSubDropdown = $('<div class="filter-sub-dropdown" id="dateSubDropdown"></div>');
+            const dateSubDropdown = $(`
+                <div class="filter-sub-dropdown date-range-filter" id="dateSubDropdown">
+                    <div class="date-input-group">
+                        <label class="date-input-label">Dari Tanggal:</label>
+                        <input type="date" id="dateFilterStart" class="date-input">
+                    </div>
+                    <div class="date-input-group">
+                        <label class="date-input-label">Sampai Tanggal:</label>
+                        <input type="date" id="dateFilterEnd" class="date-input">
+                    </div>
+                    <div class="date-filter-actions">
+                        <button class="date-filter-btn date-filter-btn-apply" onclick="applyDateFilter()">Terapkan</button>
+                        <button class="date-filter-btn date-filter-btn-clear" onclick="clearDateFilter()">Hapus</button>
+                    </div>
+                </div>
+            `);
             const instansiSubDropdown = $('<div class="filter-sub-dropdown" id="instansiSubDropdown"></div>');
             const karyawanSubDropdown = $('<div class="filter-sub-dropdown" id="karyawanSubDropdown"></div>');
             
@@ -701,19 +815,6 @@
                 .then(result => {
                     const data = result.data;
                     
-                    const dates = [...new Set(data.map(item => item.tanggal))].sort().reverse();
-                    const dateDropdown = $('#dateSubDropdown');
-                    dateDropdown.empty();
-                    dates.forEach(date => {
-                        const item = $(`<div class="filter-dropdown-item" data-value="${date}">${date}</div>`);
-                        item.on('click', function(e) {
-                            e.stopPropagation();
-                            applyDateFilter(date);
-                        });
-                        dateDropdown.append(item);
-                    });
-                    dateDropdown.append(`<div class="filter-clear" onclick="clearDateFilter()">✕ Hapus Filter</div>`);
-                    
                     const instansi = [...new Set(data.map(item => item.instansi))].sort();
                     const instansiDropdown = $('#instansiSubDropdown');
                     instansiDropdown.empty();
@@ -727,20 +828,35 @@
                     });
                     instansiDropdown.append(`<div class="filter-clear" onclick="clearInstansiFilter()">✕ Hapus Filter</div>`);
                     
-                    const karyawanSet = new Set();
+                    const karyawanMap = new Map();
                     data.forEach(item => {
                         if (item.karyawan && item.karyawan.length > 0) {
-                            item.karyawan.forEach(k => karyawanSet.add(k.nama));
+                            item.karyawan.forEach(k => {
+                                const key = `${k.nama}|${k.departemen}|${k.jabatan}`;
+                                if (!karyawanMap.has(key)) {
+                                    karyawanMap.set(key, {
+                                        nama: k.nama,
+                                        departemen: k.departemen,
+                                        jabatan: k.jabatan
+                                    });
+                                }
+                            });
                         }
                     });
-                    const karyawan = [...karyawanSet].sort();
+                    const karyawan = [...karyawanMap.values()].sort((a, b) => a.nama.localeCompare(b.nama));
                     const karyawanDropdown = $('#karyawanSubDropdown');
                     karyawanDropdown.empty();
                     karyawan.forEach(kary => {
-                        const item = $(`<div class="filter-dropdown-item" data-value="${kary}">${kary}</div>`);
+                        const uniqueKey = `${kary.nama}|${kary.departemen}|${kary.jabatan}`;
+                        const item = $(`
+                            <div class="karyawan-item" data-value="${uniqueKey}">
+                                <div class="karyawan-name">${kary.nama}</div>
+                                <div class="karyawan-detail">${kary.departemen} • ${kary.jabatan}</div>
+                            </div>
+                        `);
                         item.on('click', function(e) {
                             e.stopPropagation();
-                            applyKaryawanFilter(kary);
+                            applyKaryawanFilter(uniqueKey, kary.nama, kary.departemen, kary.jabatan);
                         });
                         karyawanDropdown.append(item);
                     });
@@ -750,7 +866,7 @@
 
         function updateFilterBadge() {
             let count = 0;
-            if (currentDateFilter) count++;
+            if (currentDateFilterStart || currentDateFilterEnd) count++;
             if (currentInstansiFilter) count++;
             if (currentKaryawanFilter) count++;
             
@@ -764,21 +880,32 @@
             }
         }
 
-        function applyDateFilter(date) {
-            currentDateFilter = date;
-            $('#dateSubDropdown .filter-dropdown-item').removeClass('active');
-            $(`#dateSubDropdown .filter-dropdown-item[data-value="${date}"]`).addClass('active');
-            $('#mainFilterDropdown').removeClass('show');
-            $('.filter-sub-dropdown').removeClass('show');
+        function applyDateFilter() {
+            const startDate = $('#dateFilterStart').val();
+            const endDate = $('#dateFilterEnd').val();
+            
+            if (!startDate && !endDate) {
+                alert('Silakan pilih minimal satu tanggal (dari atau sampai)');
+                return;
+            }
+            
+            if (startDate && endDate && startDate > endDate) {
+                alert('Tanggal awal tidak boleh lebih besar dari tanggal akhir');
+                return;
+            }
+            
+            currentDateFilterStart = startDate || null;
+            currentDateFilterEnd = endDate || null;
+            
             updateFilterBadge();
             applyAllFilters();
         }
 
         function clearDateFilter() {
-            currentDateFilter = null;
-            $('#dateSubDropdown .filter-dropdown-item').removeClass('active');
-            $('#mainFilterDropdown').removeClass('show');
-            $('.filter-sub-dropdown').removeClass('show');
+            currentDateFilterStart = null;
+            currentDateFilterEnd = null;
+            $('#dateFilterStart').val('');
+            $('#dateFilterEnd').val('');
             updateFilterBadge();
             applyAllFilters();
         }
@@ -787,8 +914,6 @@
             currentInstansiFilter = instansi;
             $('#instansiSubDropdown .filter-dropdown-item').removeClass('active');
             $(`#instansiSubDropdown .filter-dropdown-item[data-value="${instansi}"]`).addClass('active');
-            $('#mainFilterDropdown').removeClass('show');
-            $('.filter-sub-dropdown').removeClass('show');
             updateFilterBadge();
             applyAllFilters();
         }
@@ -796,27 +921,21 @@
         function clearInstansiFilter() {
             currentInstansiFilter = null;
             $('#instansiSubDropdown .filter-dropdown-item').removeClass('active');
-            $('#mainFilterDropdown').removeClass('show');
-            $('.filter-sub-dropdown').removeClass('show');
             updateFilterBadge();
             applyAllFilters();
         }
 
-        function applyKaryawanFilter(karyawan) {
-            currentKaryawanFilter = karyawan;
-            $('#karyawanSubDropdown .filter-dropdown-item').removeClass('active');
-            $(`#karyawanSubDropdown .filter-dropdown-item[data-value="${karyawan}"]`).addClass('active');
-            $('#mainFilterDropdown').removeClass('show');
-            $('.filter-sub-dropdown').removeClass('show');
+        function applyKaryawanFilter(uniqueKey, nama, departemen, jabatan) {
+            currentKaryawanFilter = uniqueKey;
+            $('#karyawanSubDropdown .karyawan-item').removeClass('active');
+            $(`#karyawanSubDropdown .karyawan-item[data-value="${uniqueKey}"]`).addClass('active');
             updateFilterBadge();
             applyAllFilters();
         }
 
         function clearKaryawanFilter() {
             currentKaryawanFilter = null;
-            $('#karyawanSubDropdown .filter-dropdown-item').removeClass('active');
-            $('#mainFilterDropdown').removeClass('show');
-            $('.filter-sub-dropdown').removeClass('show');
+            $('#karyawanSubDropdown .karyawan-item').removeClass('active');
             updateFilterBadge();
             applyAllFilters();
         }
@@ -828,20 +947,36 @@
             
             $.fn.dataTable.ext.search.push(
                 function(settings, data, dataIndex) {
-                    const tanggal = data[1]; 
+                    const tanggalStr = data[1]; 
                     const instansi = data[5]; 
                     const karyawan = data[6]; 
                     
-                    if (currentDateFilter && tanggal !== currentDateFilter) {
-                        return false;
+                    if (currentDateFilterStart || currentDateFilterEnd) {
+                        const parts = tanggalStr.split('/');
+                        if (parts.length === 3) {
+                            const tanggalFormatted = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                            
+                            if (currentDateFilterStart && tanggalFormatted < currentDateFilterStart) {
+                                return false;
+                            }
+                            if (currentDateFilterEnd && tanggalFormatted > currentDateFilterEnd) {
+                                return false;
+                            }
+                        }
                     }
                     
                     if (currentInstansiFilter && instansi !== currentInstansiFilter) {
                         return false;
                     }
                     
-                    if (currentKaryawanFilter && !karyawan.includes(currentKaryawanFilter)) {
-                        return false;
+                    if (currentKaryawanFilter) {
+                        const [filterNama, filterDepartemen, filterJabatan] = currentKaryawanFilter.split('|');
+                        const hasMatch = karyawan.includes(filterNama) && 
+                                       karyawan.includes(filterDepartemen) && 
+                                       karyawan.includes(filterJabatan);
+                        if (!hasMatch) {
+                            return false;
+                        }
                     }
                     
                     return true;

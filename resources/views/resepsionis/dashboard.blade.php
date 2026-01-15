@@ -315,6 +315,37 @@
             font-weight: 600;
         }
 
+        .karyawan-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .karyawan-item:last-of-type {
+            border-bottom: none;
+        }
+
+        .karyawan-item:hover {
+            background: #f3f4f6;
+        }
+
+        .karyawan-item.active {
+            background: #DBEAFE;
+        }
+
+        .karyawan-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 2px;
+        }
+
+        .karyawan-detail {
+            font-size: 12px;
+            color: #6B7280;
+        }
+
         .filter-clear {
             padding: 10px 16px;
             border-top: 1px solid #e5e7eb;
@@ -531,17 +562,14 @@
         function filterByStatus(status) {
             currentFilter = status;
             
-            // Update visual indicator pada card
             document.querySelectorAll('.stats-card').forEach(card => {
                 card.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
             });
             document.querySelector(`[data-filter="${status}"]`).classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
             
-            // Apply filter ke DataTable
             if (status === 'all') {
                 table.column(7).search('').draw();
             } else {
-                // Column 7 adalah kolom status
                 table.column(7).search(status).draw();
             }
         }
@@ -593,11 +621,9 @@
                     {
                         data: 'status',
                         render: function (data, type, row) {
-                            // Untuk filter dan sorting, kembalikan raw data
                             if (type === 'filter' || type === 'sort') {
                                 return data;
                             }
-                            // Untuk display, kembalikan badge HTML
                             const badges = {
                                 pending: '<span class="badge badge-pending">Pending</span>',
                                 accepted: '<span class="badge badge-accepted">Accepted</span>',
@@ -679,11 +705,11 @@
             const mainDropdown = $(`
                 <div class="filter-main-dropdown" id="mainFilterDropdown">
                     <div class="filter-category-item" data-category="instansi">
-                        <span>🏢 Instansi</span>
+                        <span>Instansi</span>
                         <span style="font-size: 10px;">▶</span>
                     </div>
                     <div class="filter-category-item" data-category="karyawan">
-                        <span>👤 Karyawan</span>
+                        <span>Karyawan</span>
                         <span style="font-size: 10px;">▶</span>
                     </div>
                 </div>
@@ -755,21 +781,36 @@
                     });
                     instansiDropdown.append(`<div class="filter-clear" onclick="clearInstansiFilter()">✕ Hapus Filter</div>`);
                     
-                    // Get unique karyawan
-                    const karyawanSet = new Set();
+                    // Get unique karyawan dengan detail
+                    const karyawanMap = new Map();
                     data.forEach(item => {
                         if (item.karyawan && item.karyawan.length > 0) {
-                            item.karyawan.forEach(k => karyawanSet.add(k.nama));
+                            item.karyawan.forEach(k => {
+                                const key = `${k.nama}|${k.departemen}|${k.jabatan}`;
+                                if (!karyawanMap.has(key)) {
+                                    karyawanMap.set(key, {
+                                        nama: k.nama,
+                                        departemen: k.departemen,
+                                        jabatan: k.jabatan
+                                    });
+                                }
+                            });
                         }
                     });
-                    const karyawan = [...karyawanSet].sort();
+                    const karyawan = [...karyawanMap.values()].sort((a, b) => a.nama.localeCompare(b.nama));
                     const karyawanDropdown = $('#karyawanSubDropdown');
                     karyawanDropdown.empty();
                     karyawan.forEach(kary => {
-                        const item = $(`<div class="filter-dropdown-item" data-value="${kary}">${kary}</div>`);
+                        const uniqueKey = `${kary.nama}|${kary.departemen}|${kary.jabatan}`;
+                        const item = $(`
+                            <div class="karyawan-item" data-value="${uniqueKey}">
+                                <div class="karyawan-name">${kary.nama}</div>
+                                <div class="karyawan-detail">${kary.departemen} • ${kary.jabatan}</div>
+                            </div>
+                        `);
                         item.on('click', function(e) {
                             e.stopPropagation();
-                            applyKaryawanFilter(kary);
+                            applyKaryawanFilter(uniqueKey, kary.nama, kary.departemen, kary.jabatan);
                         });
                         karyawanDropdown.append(item);
                     });
@@ -796,8 +837,6 @@
             currentInstansiFilter = instansi;
             $('#instansiSubDropdown .filter-dropdown-item').removeClass('active');
             $(`#instansiSubDropdown .filter-dropdown-item[data-value="${instansi}"]`).addClass('active');
-            $('#mainFilterDropdown').removeClass('show');
-            $('.filter-sub-dropdown').removeClass('show');
             updateFilterBadge();
             applyAllFilters();
         }
@@ -805,38 +844,30 @@
         function clearInstansiFilter() {
             currentInstansiFilter = '';
             $('#instansiSubDropdown .filter-dropdown-item').removeClass('active');
-            $('#mainFilterDropdown').removeClass('show');
-            $('.filter-sub-dropdown').removeClass('show');
             updateFilterBadge();
             applyAllFilters();
         }
 
-        function applyKaryawanFilter(karyawan) {
-            currentKaryawanFilter = karyawan;
-            $('#karyawanSubDropdown .filter-dropdown-item').removeClass('active');
-            $(`#karyawanSubDropdown .filter-dropdown-item[data-value="${karyawan}"]`).addClass('active');
-            $('#mainFilterDropdown').removeClass('show');
-            $('.filter-sub-dropdown').removeClass('show');
+        function applyKaryawanFilter(uniqueKey, nama, departemen, jabatan) {
+            currentKaryawanFilter = uniqueKey;
+            $('#karyawanSubDropdown .karyawan-item').removeClass('active');
+            $(`#karyawanSubDropdown .karyawan-item[data-value="${uniqueKey}"]`).addClass('active');
             updateFilterBadge();
             applyAllFilters();
         }
 
         function clearKaryawanFilter() {
             currentKaryawanFilter = '';
-            $('#karyawanSubDropdown .filter-dropdown-item').removeClass('active');
-            $('#mainFilterDropdown').removeClass('show');
-            $('.filter-sub-dropdown').removeClass('show');
+            $('#karyawanSubDropdown .karyawan-item').removeClass('active');
             updateFilterBadge();
             applyAllFilters();
         }
 
         function applyAllFilters() {
-            // Clear existing custom search
             if ($.fn.dataTable.ext.search.length > 0) {
                 $.fn.dataTable.ext.search.pop();
             }
             
-            // Tambahkan custom search function
             $.fn.dataTable.ext.search.push(
                 function(settings, data, dataIndex) {
                     const instansi = data[5];
@@ -846,8 +877,14 @@
                         return false;
                     }
                     
-                    if (currentKaryawanFilter && !karyawan.includes(currentKaryawanFilter)) {
-                        return false;
+                    if (currentKaryawanFilter) {
+                        const [filterNama, filterDepartemen, filterJabatan] = currentKaryawanFilter.split('|');
+                        const hasMatch = karyawan.includes(filterNama) && 
+                                       karyawan.includes(filterDepartemen) && 
+                                       karyawan.includes(filterJabatan);
+                        if (!hasMatch) {
+                            return false;
+                        }
                     }
                     
                     return true;
