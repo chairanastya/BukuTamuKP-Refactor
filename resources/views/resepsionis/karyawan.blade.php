@@ -173,6 +173,142 @@
             border-color: #47B9AE !important;
             box-shadow: 0 0 0 3px rgba(71, 185, 174, 0.1) !important;
         }
+
+        .filter-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            position: relative;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 1px solid #d1d5db;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            background: #f3f4f6;
+            border-color: #47B9AE;
+        }
+
+        .filter-btn.active {
+            background: #0C4777;
+            color: white;
+            border-color: #0C4777;
+        }
+
+        .filter-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 4px;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            min-width: 200px;
+            max-width: 300px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .filter-dropdown.show {
+            display: block;
+        }
+
+        .filter-dropdown-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 14px;
+        }
+
+        .filter-dropdown-item:hover {
+            background: #f3f4f6;
+        }
+
+        .filter-dropdown-item.active {
+            background: #DBEAFE;
+            color: #1E40AF;
+            font-weight: 600;
+        }
+
+        .filter-clear {
+            padding: 10px 16px;
+            border-top: 1px solid #e5e7eb;
+            cursor: pointer;
+            color: #EF4444;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .filter-clear:hover {
+            background: #FEE2E2;
+        }
+
+        .active-filter-badge {
+            background: #0C4777;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .dataTables_wrapper .dt-layout-row:first-child {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 24px !important;
+            margin-bottom: 16px !important;
+        }
+        
+        .dataTables_wrapper .dt-layout-start {
+            flex: 0 0 auto !important;
+        }
+        
+        .dataTables_wrapper .dt-layout-end {
+            display: flex !important;
+            align-items: center !important;
+            gap: 16px !important;
+            flex: 0 0 auto !important;
+        }
+        
+        .dataTables_wrapper .dt-search {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            flex-wrap: nowrap !important;
+        }
+
+        .dataTables_wrapper .dataTables_filter label,
+        .dataTables_wrapper .dt-search label {
+            margin: 0 !important;
+            flex-shrink: 0 !important;
+        }
+        
+        .dataTables_wrapper .dt-search input.dt-input {
+            flex-shrink: 0 !important;
+        }
+        
+        .filter-container {
+            flex: 0 0 auto !important;
+            flex-shrink: 0 !important;
+            position: relative !important;
+        }
     </style>
 @endpush
 
@@ -308,6 +444,27 @@
             </div>
         </div>
     </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-red-600">Terjadi Kesalahan</h3>
+                <button onclick="closeErrorModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div id="errorContent" class="mb-6">
+                <div class="flex items-center gap-3">
+                    @svg('heroicon-o-exclamation-triangle', 'w-12 h-12 text-red-500')
+                    <p class="text-gray-700" id="errorMessage"></p>
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button onclick="closeErrorModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -316,6 +473,7 @@
     <script>
         let table;
         const trashIcon = `{!! svg('heroicon-s-trash', 'w-5 h-5')->toHtml() !!}`;
+        let currentDepartemenFilter = [];
 
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function () {
@@ -376,6 +534,129 @@
                 pageLength: 10,
                 order: [[7, 'desc']]
             });
+
+            setTimeout(function() {
+                addDepartemenFilter();
+            }, 200);
+        }
+
+        function addDepartemenFilter() {
+            let filterWrapper = $('.dataTables_filter');
+            if (filterWrapper.length === 0) {
+                filterWrapper = $('.dt-search');
+            }
+            
+            if (filterWrapper.length === 0) {
+                console.error('Filter wrapper not found!');
+                return;
+            }
+            
+            $('.filter-container').remove();
+            
+            const filterContainer = $('<div class="filter-container"></div>');
+            
+            const filterBtn = $(`
+                <div class="filter-btn" id="departemenFilterBtn">
+                    <span>Departemen</span>
+                    <span id="departemenBadge"></span>
+                    <span style="font-size: 10px;">▼</span>
+                </div>
+            `);
+            
+            const dropdown = $('<div class="filter-dropdown" id="departemenDropdown"></div>');
+            
+            filterContainer.append(filterBtn, dropdown);
+            filterWrapper.parent().append(filterContainer);
+            
+            populateDepartemenFilter();
+            
+            filterBtn.on('click', function(e) {
+                e.stopPropagation();
+                dropdown.toggleClass('show');
+            });
+            
+            $(document).on('click', function() {
+                dropdown.removeClass('show');
+            });
+            
+            dropdown.on('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
+        function populateDepartemenFilter() {
+            fetch('{{ route("resepsionis.karyawan.data") }}')
+                .then(res => res.json())
+                .then(result => {
+                    const data = result.data;
+                    const departemen = [...new Set(data.map(item => item.departemen).filter(d => d && d !== '-'))].sort();
+                    const dropdown = $('#departemenDropdown');
+                    dropdown.empty();
+                    
+                    departemen.forEach(dept => {
+                        const item = $(`<div class="filter-dropdown-item" data-value="${dept}">${dept}</div>`);
+                        item.on('click', function(e) {
+                            e.stopPropagation();
+                            applyDepartemenFilter(dept);
+                        });
+                        dropdown.append(item);
+                    });
+                    
+                    dropdown.append(`<div class="filter-clear" onclick="clearDepartemenFilter()">✕ Hapus Filter</div>`);
+                });
+        }
+
+        function applyDepartemenFilter(departemen) {
+            const index = currentDepartemenFilter.indexOf(departemen);
+            const item = $(`#departemenDropdown .filter-dropdown-item[data-value="${departemen}"]`);
+            
+            if (index > -1) {
+                currentDepartemenFilter.splice(index, 1);
+                item.removeClass('active');
+            } else {
+                currentDepartemenFilter.push(departemen);
+                item.addClass('active');
+            }
+            
+            updateDepartemenBadge();
+            applyDepartemenTableFilter();
+        }
+
+        function clearDepartemenFilter() {
+            currentDepartemenFilter = [];
+            $('#departemenDropdown .filter-dropdown-item').removeClass('active');
+            updateDepartemenBadge();
+            applyDepartemenTableFilter();
+        }
+
+        function updateDepartemenBadge() {
+            const badge = $('#departemenBadge');
+            const btn = $('#departemenFilterBtn');
+            
+            if (currentDepartemenFilter.length > 0) {
+                badge.html(`<span class="active-filter-badge">${currentDepartemenFilter.length}</span>`);
+                btn.addClass('active');
+            } else {
+                badge.html('');
+                btn.removeClass('active');
+            }
+        }
+
+        function applyDepartemenTableFilter() {
+            if ($.fn.dataTable.ext.search.length > 0) {
+                $.fn.dataTable.ext.search.pop();
+            }
+            
+            if (currentDepartemenFilter.length > 0) {
+                $.fn.dataTable.ext.search.push(
+                    function(settings, data, dataIndex) {
+                        const departemen = data[3];
+                        return currentDepartemenFilter.includes(departemen);
+                    }
+                );
+            }
+            
+            table.draw();
         }
 
         let deleteKaryawanId = null;
@@ -400,6 +681,15 @@
             document.getElementById('successModal').classList.remove('show');
         }
 
+        function showErrorModal(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorModal').classList.add('show');
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').classList.remove('show');
+        }
+
         function confirmDelete() {
             if (!deleteKaryawanId) return;
 
@@ -407,7 +697,6 @@
             const deleteButtonText = document.getElementById('deleteButtonText');
             const deleteSpinner = document.getElementById('deleteSpinner');
 
-            // Disable button and show spinner
             deleteButton.disabled = true;
             deleteButton.classList.add('opacity-70', 'cursor-not-allowed');
             deleteButtonText.textContent = 'Menghapus...';
@@ -421,27 +710,28 @@
                     'Accept': 'application/json'
                 }
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        closeDeleteModal();
-                        table.ajax.reload();
-                        showSuccessModal(data.message);
-                    } else {
-                        alert(data.message || 'Gagal menghapus karyawan');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan saat menghapus karyawan');
-                })
-                .finally(() => {
-                    // Re-enable button and hide spinner
-                    deleteButton.disabled = false;
-                    deleteButton.classList.remove('opacity-70', 'cursor-not-allowed');
-                    deleteButtonText.textContent = 'Hapus';
-                    deleteSpinner.classList.add('hidden');
-                });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeDeleteModal();
+                    table.ajax.reload();
+                    showSuccessModal(data.message);
+                } else {
+                    closeDeleteModal();
+                    showErrorModal(data.message || 'Gagal menghapus karyawan');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                closeDeleteModal();
+                showErrorModal('Terjadi kesalahan saat menghapus karyawan');
+            })
+            .finally(() => {
+                deleteButton.disabled = false;
+                deleteButton.classList.remove('opacity-70', 'cursor-not-allowed');
+                deleteButtonText.textContent = 'Hapus';
+                deleteSpinner.classList.add('hidden');
+            });
         }
 
         function toggleDropdown() {
@@ -483,7 +773,6 @@
             }
         });
 
-        // Check for session success message
         @if(session('success'))
             showSuccessModal('{{ session('success') }}');
         @endif
