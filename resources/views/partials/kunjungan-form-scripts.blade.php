@@ -55,6 +55,9 @@
 
         function setupFormValidation() {
             const form = document.querySelector('form');
+            const submitButton = form.querySelector('button[type="submit"]');
+            let isSubmitting = false;
+            
             const inputs = {
                 nama: document.getElementById('nama_lengkap'),
                 email: document.getElementById('email'),
@@ -77,6 +80,12 @@
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
             form.addEventListener('submit', function (e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    console.log('Form sedang diproses, harap tunggu...');
+                    return false;
+                }
+
                 let hasError = false;
                 let firstErrorElement = null;
 
@@ -151,6 +160,21 @@
                 if (hasError && firstErrorElement) {
                     firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     return false;
+                }
+
+                isSubmitting = true;
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    const originalText = submitButton.innerHTML;
+                    submitButton.innerHTML = '<span class="animate-pulse">Mengirim...</span>';
+                    
+                    setTimeout(() => {
+                        if (isSubmitting) {
+                            isSubmitting = false;
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = originalText;
+                        }
+                    }, 10000);
                 }
 
                 return true;

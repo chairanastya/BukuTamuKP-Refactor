@@ -19,28 +19,28 @@ Route::get('/resepsionis/login', function () {
 
 Route::prefix('tamu')->name('tamu.')->group(function () {
     Route::get('/form', [TamuController::class, 'showForm'])->name('form');
-    Route::get('/search-karyawan', [TamuController::class, 'searchKaryawan'])->name('search-karyawan');
-    Route::post('/submit', [TamuController::class, 'submitForm'])->name('submit');
+    Route::get('/search-karyawan', [TamuController::class, 'searchKaryawan'])->name('search-karyawan')->middleware('throttle:api');
+    Route::post('/submit', [TamuController::class, 'submitForm'])->name('submit')->middleware('throttle:submissions');
 });
 
 Route::get('/kunjungan/confirm/{token}', [KunjunganConfirmController::class, 'confirm'])->name('kunjungan.confirm');
-Route::post('/kunjungan/process/{token}', [KunjunganConfirmController::class, 'process'])->name('kunjungan.process');
+Route::post('/kunjungan/process/{token}', [KunjunganConfirmController::class, 'process'])->name('kunjungan.process')->middleware('throttle:submissions');
 
 Route::prefix('notulensi')->name('notulensi.')->group(function () {
     Route::get('/create/{token}', [NotulensiController::class, 'create'])->name('create');
-    Route::post('/store/{token}', [NotulensiController::class, 'store'])->name('store');
+    Route::post('/store/{token}', [NotulensiController::class, 'store'])->name('store')->middleware('throttle:submissions');
     Route::get('/view/{token}', [NotulensiController::class, 'view'])->name('view');
     Route::get('/dokumentasi/{token}/stream', [ResepsionisController::class, 'streamDokumentasi'])->name('dokumentasi.stream');
 });
 
 Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
     Route::get('/login', [SessionController::class, 'create'])->name('login');
-    Route::post('/login', [SessionController::class, 'store']);
+    Route::post('/login', [SessionController::class, 'store'])->middleware('throttle:login');
 
     Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
-    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email')->middleware('throttle:submissions');
     Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-    Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.update');
+    Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.update')->middleware('throttle:submissions');
 
     Route::middleware('auth:resepsionis')->group(function () {
         Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
@@ -50,8 +50,8 @@ Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
         Route::get('/riwayat/data', [ResepsionisController::class, 'getRiwayatData'])->name('riwayat.data');
         Route::get('/karyawan/data', [ResepsionisController::class, 'getKaryawanData'])->name('karyawan.data');
         Route::get('/kunjungan/create', [ResepsionisController::class, 'createKunjungan'])->name('kunjungan.create');
-        Route::post('/kunjungan/{id}/accept', [ResepsionisController::class, 'acceptKunjungan'])->name('kunjungan.accept');
-        Route::post('/kunjungan/{id}/reject', [ResepsionisController::class, 'rejectKunjungan'])->name('kunjungan.reject');
+        Route::post('/kunjungan/{id}/accept', [ResepsionisController::class, 'acceptKunjungan'])->name('kunjungan.accept')->middleware('throttle:submissions');
+        Route::post('/kunjungan/{id}/reject', [ResepsionisController::class, 'rejectKunjungan'])->name('kunjungan.reject')->middleware('throttle:submissions');
         Route::get('/ktp/{token}/stream', [ResepsionisController::class, 'streamKtp'])->name('ktp.stream');
         Route::get('/riwayat', [ResepsionisController::class, 'riwayat'])->name('riwayat');
         Route::get('/karyawan', [ResepsionisController::class, 'daftarKaryawan'])->name('karyawan');
