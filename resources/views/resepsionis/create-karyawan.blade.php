@@ -123,12 +123,16 @@ Buku Tamu Digital
                     Departemen
                 </label>
                 <div class="relative">
-                    <div class="input-wrapper {{ $errors->has('departemen') ? 'border-red-500 bg-red-50' : '' }}">
+                    <div class="input-wrapper {{ $errors->has('departemen') ? 'border-red-500 bg-red-50' : '' }} flex items-center">
                         <input type="text" id="departemen" name="departemen"
                             placeholder="Tuliskan atau pilih departemen" 
                             value="{{ old('departemen') }}"
                             autocomplete="off"
+                            class="flex-1"
                             required>
+                        <button type="button" onclick="toggleDepartemenDropdown()" class="ml-2 text-[#084E8F] hover:text-[#F7B218] transition">
+                            @svg('heroicon-o-chevron-down', 'w-5 h-5')
+                        </button>
                     </div>
                     <div id="departemen_dropdown" class="autocomplete-dropdown"></div>
                 </div>
@@ -150,12 +154,16 @@ Buku Tamu Digital
                     Jabatan
                 </label>
                 <div class="relative">
-                    <div class="input-wrapper {{ $errors->has('jabatan') ? 'border-red-500 bg-red-50' : '' }}">
+                    <div class="input-wrapper {{ $errors->has('jabatan') ? 'border-red-500 bg-red-50' : '' }} flex items-center">
                         <input type="text" id="jabatan" name="jabatan"
                             placeholder="Tuliskan atau pilih jabatan" 
                             value="{{ old('jabatan') }}"
                             autocomplete="off"
+                            class="flex-1"
                             required>
+                        <button type="button" onclick="toggleJabatanDropdown()" class="ml-2 text-[#084E8F] hover:text-[#F7B218] transition">
+                            @svg('heroicon-o-chevron-down', 'w-5 h-5')
+                        </button>
                     </div>
                     <div id="jabatan_dropdown" class="autocomplete-dropdown"></div>
                 </div>
@@ -188,8 +196,51 @@ Buku Tamu Digital
     </div>
 </div>
 
+<div id="successModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-green-600">Berhasil</h3>
+            <button onclick="closeSuccessModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        </div>
+        <div id="successContent" class="mb-6">
+            <div class="flex items-center gap-3">
+                @svg('heroicon-o-check-circle', 'w-12 h-12 text-green-500')
+                <p class="text-gray-700" id="successMessage"></p>
+            </div>
+        </div>
+        <div class="flex justify-end">
+            <button onclick="closeSuccessModal()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
     let debounceTimeout;
+
+    function showSuccessModal(message) {
+        document.getElementById('successMessage').textContent = message;
+        document.getElementById('successModal').classList.add('show');
+    }
+
+    function closeSuccessModal() {
+        document.getElementById('successModal').classList.remove('show');
+    }
+
+    // Check for session success message
+    @if(session('success'))
+        document.addEventListener('DOMContentLoaded', function() {
+            showSuccessModal('{{ session('success') }}');
+        });
+    @endif
+
+    document.addEventListener('click', function(e) {
+        const successModal = document.getElementById('successModal');
+        if (e.target === successModal) {
+            closeSuccessModal();
+        }
+    });
 
     function toggleDropdown() {
         document.getElementById('dropdown').classList.toggle('hidden');
@@ -272,31 +323,53 @@ Buku Tamu Digital
 
     // Autocomplete for Departemen
     const departemenDropdown = document.getElementById('departemen_dropdown');
+    let allDepartemen = [];
+    
+    function toggleDepartemenDropdown() {
+        if (departemenDropdown.classList.contains('show')) {
+            departemenDropdown.classList.remove('show');
+        } else {
+            loadAllDepartemen();
+        }
+    }
+
+    function loadAllDepartemen() {
+        fetch(`{{ route('resepsionis.karyawan.search-departemen') }}?q=`)
+            .then(response => response.json())
+            .then(data => {
+                allDepartemen = data;
+                displayDepartemenAutocomplete(data, departemenInput.value.trim());
+            })
+            .catch(error => console.error('Error loading departemen:', error));
+    }
     
     departemenInput.addEventListener('input', function() {
         const query = this.value.trim();
         
         clearTimeout(debounceTimeout);
         
-        if (query.length < 2) {
+        if (query.length === 0) {
             departemenDropdown.classList.remove('show');
-            departemenDropdown.innerHTML = '';
             return;
         }
 
         debounceTimeout = setTimeout(() => {
-            searchDepartemen(query);
+            if (allDepartemen.length > 0) {
+                displayDepartemenAutocomplete(allDepartemen, query);
+            } else {
+                searchDepartemen(query);
+            }
         }, 300);
     });
 
     departemenInput.addEventListener('focus', function() {
-        if (this.value.trim().length >= 2) {
-            searchDepartemen(this.value.trim());
+        if (this.value.trim().length > 0 && allDepartemen.length > 0) {
+            displayDepartemenAutocomplete(allDepartemen, this.value.trim());
         }
     });
 
     document.addEventListener('click', function(e) {
-        if (!departemenInput.contains(e.target) && !departemenDropdown.contains(e.target)) {
+        if (!departemenInput.contains(e.target) && !departemenDropdown.contains(e.target) && !e.target.closest('button[onclick="toggleDepartemenDropdown()"]')) {
             departemenDropdown.classList.remove('show');
         }
     });
@@ -304,22 +377,33 @@ Buku Tamu Digital
     function searchDepartemen(query) {
         fetch(`{{ route('resepsionis.karyawan.search-departemen') }}?q=${encodeURIComponent(query)}`)
             .then(response => response.json())
-            .then(data => displayDepartemenAutocomplete(data))
+            .then(data => {
+                allDepartemen = data;
+                displayDepartemenAutocomplete(data, query);
+            })
             .catch(error => console.error('Error searching departemen:', error));
     }
 
-    function displayDepartemenAutocomplete(items) {
-        if (items.length === 0) {
-            departemenDropdown.innerHTML = '<div class="autocomplete-item">Tidak ada hasil - ketik untuk input baru</div>';
-            departemenDropdown.classList.add('show');
-            return;
+    function displayDepartemenAutocomplete(items, query = '') {
+        const filteredItems = query ? items.filter(item => item.toLowerCase().includes(query.toLowerCase())) : items;
+        
+        let html = '';
+        
+        if (filteredItems.length > 0) {
+            html = filteredItems.map(item => `
+                <div class="autocomplete-item" onclick="selectDepartemen('${escapeHtml(item)}')">
+                    ${escapeHtml(item)}
+                </div>
+            `).join('');
         }
-
-        const html = items.map(item => `
-            <div class="autocomplete-item" onclick="selectDepartemen('${escapeHtml(item)}')">
-                ${escapeHtml(item)}
+        
+        // Add "Tambah Departemen" option
+        html += `
+            <div class="autocomplete-item" style="border-top: 1px solid #e5e7eb; background-color: #f3f4f6; font-weight: 600;" onclick="addNewDepartemen()">
+                @svg('heroicon-o-plus-circle', 'inline w-4 h-4 mr-2')
+                Tambah Departemen Baru
             </div>
-        `).join('');
+        `;
 
         departemenDropdown.innerHTML = html;
         departemenDropdown.classList.add('show');
@@ -331,33 +415,63 @@ Buku Tamu Digital
         validateDepartemen();
     }
 
+    function addNewDepartemen() {
+        departemenDropdown.classList.remove('show');
+        departemenInput.focus();
+        if (departemenInput.value.trim() === '') {
+            departemenInput.placeholder = 'Ketik departemen baru...';
+        }
+    }
+
     // Autocomplete for Jabatan
     const jabatanDropdown = document.getElementById('jabatan_dropdown');
+    let allJabatan = [];
+    
+    function toggleJabatanDropdown() {
+        if (jabatanDropdown.classList.contains('show')) {
+            jabatanDropdown.classList.remove('show');
+        } else {
+            loadAllJabatan();
+        }
+    }
+
+    function loadAllJabatan() {
+        fetch(`{{ route('resepsionis.karyawan.search-jabatan') }}?q=`)
+            .then(response => response.json())
+            .then(data => {
+                allJabatan = data;
+                displayJabatanAutocomplete(data, jabatanInput.value.trim());
+            })
+            .catch(error => console.error('Error loading jabatan:', error));
+    }
     
     jabatanInput.addEventListener('input', function() {
         const query = this.value.trim();
         
         clearTimeout(debounceTimeout);
         
-        if (query.length < 2) {
+        if (query.length === 0) {
             jabatanDropdown.classList.remove('show');
-            jabatanDropdown.innerHTML = '';
             return;
         }
 
         debounceTimeout = setTimeout(() => {
-            searchJabatan(query);
+            if (allJabatan.length > 0) {
+                displayJabatanAutocomplete(allJabatan, query);
+            } else {
+                searchJabatan(query);
+            }
         }, 300);
     });
 
     jabatanInput.addEventListener('focus', function() {
-        if (this.value.trim().length >= 2) {
-            searchJabatan(this.value.trim());
+        if (this.value.trim().length > 0 && allJabatan.length > 0) {
+            displayJabatanAutocomplete(allJabatan, this.value.trim());
         }
     });
 
     document.addEventListener('click', function(e) {
-        if (!jabatanInput.contains(e.target) && !jabatanDropdown.contains(e.target)) {
+        if (!jabatanInput.contains(e.target) && !jabatanDropdown.contains(e.target) && !e.target.closest('button[onclick="toggleJabatanDropdown()"]')) {
             jabatanDropdown.classList.remove('show');
         }
     });
@@ -365,22 +479,33 @@ Buku Tamu Digital
     function searchJabatan(query) {
         fetch(`{{ route('resepsionis.karyawan.search-jabatan') }}?q=${encodeURIComponent(query)}`)
             .then(response => response.json())
-            .then(data => displayJabatanAutocomplete(data))
+            .then(data => {
+                allJabatan = data;
+                displayJabatanAutocomplete(data, query);
+            })
             .catch(error => console.error('Error searching jabatan:', error));
     }
 
-    function displayJabatanAutocomplete(items) {
-        if (items.length === 0) {
-            jabatanDropdown.innerHTML = '<div class="autocomplete-item">Tidak ada hasil - ketik untuk input baru</div>';
-            jabatanDropdown.classList.add('show');
-            return;
+    function displayJabatanAutocomplete(items, query = '') {
+        const filteredItems = query ? items.filter(item => item.toLowerCase().includes(query.toLowerCase())) : items;
+        
+        let html = '';
+        
+        if (filteredItems.length > 0) {
+            html = filteredItems.map(item => `
+                <div class="autocomplete-item" onclick="selectJabatan('${escapeHtml(item)}')">
+                    ${escapeHtml(item)}
+                </div>
+            `).join('');
         }
-
-        const html = items.map(item => `
-            <div class="autocomplete-item" onclick="selectJabatan('${escapeHtml(item)}')">
-                ${escapeHtml(item)}
+        
+        // Add "Tambah Jabatan" option
+        html += `
+            <div class="autocomplete-item" style="border-top: 1px solid #e5e7eb; background-color: #f3f4f6; font-weight: 600;" onclick="addNewJabatan()">
+                @svg('heroicon-o-plus-circle', 'inline w-4 h-4 mr-2')
+                Tambah Jabatan Baru
             </div>
-        `).join('');
+        `;
 
         jabatanDropdown.innerHTML = html;
         jabatanDropdown.classList.add('show');
@@ -390,6 +515,14 @@ Buku Tamu Digital
         jabatanInput.value = value;
         jabatanDropdown.classList.remove('show');
         validateJabatan();
+    }
+
+    function addNewJabatan() {
+        jabatanDropdown.classList.remove('show');
+        jabatanInput.focus();
+        if (jabatanInput.value.trim() === '') {
+            jabatanInput.placeholder = 'Ketik jabatan baru...';
+        }
     }
 
     function escapeHtml(text) {

@@ -180,7 +180,7 @@ class TamuController extends Controller
 
             // Check if submission is from receptionist
             if (auth('resepsionis')->check()) {
-                return redirect()->route('resepsionis.dashboard')->with('success', $successMessage);
+                return redirect()->route('resepsionis.kunjungan.create')->with('success', $successMessage);
             }
 
             return redirect()->route('tamu.form')->with('success', $successMessage);
