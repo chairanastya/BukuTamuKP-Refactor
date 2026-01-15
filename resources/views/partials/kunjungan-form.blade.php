@@ -1,4 +1,5 @@
 <div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold text-[#084E8F] mb-6">Buat Kunjungan Baru</h1>
     <form action="{{ route('tamu.submit') }}" method="POST" enctype="multipart/form-data" class="max-w-6xl mx-auto"
         novalidate>
         @csrf

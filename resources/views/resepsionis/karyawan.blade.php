@@ -67,6 +67,21 @@
             color: #374151;
         }
 
+        .btn-primary {
+            background: #0C4777;
+            color: white;
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #F59E0B;
+        }
+
         .btn-success {
             background: #10B981;
             color: white;
@@ -162,7 +177,11 @@
     <div class="main-content">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-blue-900">Daftar Karyawan</h2>
+                <h2 class="text-2xl font-bold text-[#084E8F]">Daftar Karyawan</h2>
+                <a href="{{ route('resepsionis.karyawan.create') }}" class="btn-primary flex items-center gap-2">
+                    @svg('heroicon-o-plus', 'w-5 h-5')
+                    Tambah Karyawan Baru
+                </a>
             </div>
 
             <!-- Stats Cards -->
@@ -170,7 +189,7 @@
                 <div class="stats-card">
                     <div>
                         <p class="text-gray-600 text-sm mb-1">Total Karyawan</p>
-                        <p class="text-3xl font-bold text-blue-900">{{ $stats['total'] }}</p>
+                        <p class="text-3xl font-bold text-[#084E8F]">{{ $stats['total'] }}</p>
                     </div>
                     <div class="stats-icon" style="background: #E5E7EB;">
                         @svg('gmdi-people-r', 'w-6 h-6 text-gray-600')
@@ -209,7 +228,7 @@
                             <th>Departemen</th>
                             <th>Jabatan</th>
                             <th>Role</th>
-                            <th>Detail</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -218,13 +237,28 @@
         </div>
     </div>
 
-    <div id="detailModal" class="modal-overlay">
+    <div id="deleteModal" class="modal-overlay">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold">Detail Karyawan</h3>
-                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                <h3 class="text-2xl font-bold text-red-600">Konfirmasi Hapus Karyawan</h3>
+                <button onclick="closeDeleteModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
             </div>
-            <div id="detailContent"></div>
+            <div id="deleteContent" class="mb-6">
+                <p class="text-gray-700">Apakah Anda yakin ingin menghapus karyawan <strong id="karyawanName"></strong>?</p>
+                <p class="text-sm text-red-600 mt-2">Tindakan ini tidak dapat dibatalkan.</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeDeleteModal()" class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">
+                    Batalkan
+                </button>
+                <button id="deleteButton" onclick="confirmDelete()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
+                    <span id="deleteButtonText">Hapus</span>
+                    <svg id="deleteSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
     </div>
 @endsection
@@ -234,6 +268,7 @@
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.min.js"></script>
     <script>
         let table;
+        const trashIcon = `{!! svg('heroicon-s-trash', 'w-5 h-5')->toHtml() !!}`;
 
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function () {
@@ -282,60 +317,75 @@
                     {
                         data: null,
                         render: function (data) {
-                            return '<button onclick="viewDetail(' + data.id_karyawan + ')" class="text-blue-600 hover:underline">👁 Detail</button>';
+                            const escapedName = data.nama_karyawan.replace(/'/g, "\\'");
+                            return `<button onclick="openDeleteModal(${data.id_karyawan}, '${escapedName}')" class="text-red-600 hover:text-red-800 transition">${trashIcon}</button>`;
                         }
+                    },
+                    {
+                        data: 'created_at',
+                        visible: false
                     }
                 ],
                 pageLength: 10,
-                order: [[1, 'asc']]
+                order: [[7, 'desc']]
             });
         }
 
-        function viewDetail(id) {
-            fetch('{{ route("resepsionis.karyawan.data") }}')
-                .then(res => res.json())
-                .then(result => {
-                    const karyawan = result.data.find(k => k.id_karyawan === id);
-                    if (!karyawan) return;
-                    let roleInfo = karyawan.is_resepsionis
-                        ? '<span class="badge badge-resepsionis">Resepsionis</span>'
-                        : '<span class="badge badge-karyawan">Karyawan</span>';
-                    document.getElementById('detailContent').innerHTML = `
-                            <div class="space-y-4">
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <p class="text-sm text-gray-600 mb-1">Nama Lengkap</p>
-                                    <p class="text-lg font-semibold text-gray-900">${karyawan.nama_karyawan}</p>
-                                </div>
+        let deleteKaryawanId = null;
 
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <p class="text-sm text-gray-600 mb-1">Email</p>
-                                    <p class="text-lg font-semibold text-gray-900">${karyawan.email_karyawan}</p>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div class="bg-gray-50 p-4 rounded-lg">
-                                        <p class="text-sm text-gray-600 mb-1">Departemen</p>
-                                        <p class="text-lg font-semibold text-gray-900">${karyawan.departemen}</p>
-                                    </div>
-
-                                    <div class="bg-gray-50 p-4 rounded-lg">
-                                        <p class="text-sm text-gray-600 mb-1">Jabatan</p>
-                                        <p class="text-lg font-semibold text-gray-900">${karyawan.jabatan}</p>
-                                    </div>
-                                </div>
-
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <p class="text-sm text-gray-600 mb-2">Role</p>
-                                    ${roleInfo}
-                                </div>
-                            </div>
-                        `;
-                    document.getElementById('detailModal').classList.add('show');
-                });
+        function openDeleteModal(id, nama) {
+            deleteKaryawanId = id;
+            document.getElementById('karyawanName').textContent = nama;
+            document.getElementById('deleteModal').classList.add('show');
         }
 
-        function closeModal() {
-            document.getElementById('detailModal').classList.remove('show');
+        function closeDeleteModal() {
+            deleteKaryawanId = null;
+            document.getElementById('deleteModal').classList.remove('show');
+        }
+
+        function confirmDelete() {
+            if (!deleteKaryawanId) return;
+
+            const deleteButton = document.getElementById('deleteButton');
+            const deleteButtonText = document.getElementById('deleteButtonText');
+            const deleteSpinner = document.getElementById('deleteSpinner');
+
+            // Disable button and show spinner
+            deleteButton.disabled = true;
+            deleteButton.classList.add('opacity-70', 'cursor-not-allowed');
+            deleteButtonText.textContent = 'Menghapus...';
+            deleteSpinner.classList.remove('hidden');
+
+            fetch(`/resepsionis/karyawan/${deleteKaryawanId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeDeleteModal();
+                    table.ajax.reload();
+                    alert(data.message);
+                } else {
+                    alert(data.message || 'Gagal menghapus karyawan');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat menghapus karyawan');
+            })
+            .finally(() => {
+                // Re-enable button and hide spinner
+                deleteButton.disabled = false;
+                deleteButton.classList.remove('opacity-70', 'cursor-not-allowed');
+                deleteButtonText.textContent = 'Hapus';
+                deleteSpinner.classList.add('hidden');
+            });
         }
 
         function toggleDropdown() {
@@ -365,9 +415,9 @@
             });
         });
 
-        document.getElementById('detailModal').addEventListener('click', function (e) {
+        document.getElementById('deleteModal').addEventListener('click', function (e) {
             if (e.target === this) {
-                closeModal();
+                closeDeleteModal();
             }
         });
     </script>
