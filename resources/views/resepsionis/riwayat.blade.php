@@ -157,15 +157,18 @@
 @endpush
 
 @section('sidebar')
-    <a href="{{ route('resepsionis.dashboard') }}" class="sidebar-item {{ request()->routeIs('resepsionis.dashboard') ? 'active' : '' }}">
+    <a href="{{ route('resepsionis.dashboard') }}"
+        class="sidebar-item {{ request()->routeIs('resepsionis.dashboard') ? 'active' : '' }}">
         @svg('fluentui-home-24', 'w-8 h-8')
         <span>Beranda</span>
     </a>
-    <a href="{{ route('resepsionis.riwayat') }}" class="sidebar-item {{ request()->routeIs('resepsionis.riwayat') ? 'active' : '' }}">
+    <a href="{{ route('resepsionis.riwayat') }}"
+        class="sidebar-item {{ request()->routeIs('resepsionis.riwayat') ? 'active' : '' }}">
         @svg('gmdi-history', 'w-8 h-8')
         <span>Riwayat</span>
     </a>
-    <a href="{{ route('resepsionis.karyawan') }}" class="sidebar-item {{ request()->routeIs('resepsionis.karyawan') ? 'active' : '' }}">
+    <a href="{{ route('resepsionis.karyawan') }}"
+        class="sidebar-item {{ request()->routeIs('resepsionis.karyawan') ? 'active' : '' }}">
         @svg('gmdi-people-r', 'w-8 h-8')
         <span>Daftar Karyawan</span>
     </a>
@@ -273,7 +276,7 @@
                 <button onclick="closeKtpModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
             </div>
             <div id="ktpContent" class="flex justify-center items-center" style="min-height: 400px;">
-                <div class="text-gray-500">Memuat...</div>
+                <!-- Content akan di-replace dengan createInlineSpinner saat viewKtp dipanggil -->
             </div>
         </div>
     </div>
@@ -287,7 +290,7 @@
         let currentKunjunganId = null;
 
         document.addEventListener('DOMContentLoaded', function () {
-            setTimeout(function() {
+            setTimeout(function () {
                 initRiwayatTable();
             }, 100);
         });
@@ -296,7 +299,7 @@
             if ($.fn.DataTable.isDataTable('#riwayatTable')) {
                 $('#riwayatTable').DataTable().destroy();
             }
-            
+
             table = new DataTable('#riwayatTable', {
                 ajax: {
                     url: '{{ route("resepsionis.riwayat.data") }}',
@@ -304,7 +307,7 @@
                     error: function (xhr, error, thrown) {
                         console.error('DataTables AJAX error:', error, thrown);
                         if (xhr.status === 0) {
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 table.ajax.reload();
                             }, 500);
                         }
@@ -378,37 +381,37 @@
                     let actions = '';
                     if (kunjungan.status === 'pending') {
                         actions = `
-                                <div class="flex gap-3 mt-6">
-                                    <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
-                                    <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
-                                </div>
-                            `;
+                                    <div class="flex gap-3 mt-6">
+                                        <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
+                                        <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
+                                    </div>
+                                `;
                     }
 
                     let cancelReason = '';
                     if (kunjungan.status === 'canceled' && kunjungan.alasan_batal) {
                         cancelReason = `
-                                <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                    <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
-                                    <p class="text-red-700">${kunjungan.alasan_batal}</p>
-                                </div>
-                            `;
+                                    <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                        <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
+                                        <p class="text-red-700">${kunjungan.alasan_batal}</p>
+                                    </div>
+                                `;
                     }
 
                     document.getElementById('detailContent').innerHTML = `
-                            <div class="space-y-3">
-                                <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
-                                <div><strong>Jam:</strong> ${kunjungan.jam}</div>
-                                <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
-                                <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
-                                <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
-                                <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
-                                <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
-                                <div><strong>Status:</strong> ${kunjungan.status}</div>
-                                ${cancelReason}
-                                ${actions}
-                            </div>
-                        `;
+                                <div class="space-y-3">
+                                    <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
+                                    <div><strong>Jam:</strong> ${kunjungan.jam}</div>
+                                    <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
+                                    <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
+                                    <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
+                                    <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
+                                    <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
+                                    <div><strong>Status:</strong> ${kunjungan.status}</div>
+                                    ${cancelReason}
+                                    ${actions}
+                                </div>
+                            `;
 
                     document.getElementById('detailModal').classList.add('show');
                 });
@@ -484,7 +487,7 @@
             const modal = document.getElementById('ktpModal');
             const content = document.getElementById('ktpContent');
 
-            content.innerHTML = '<div class="flex flex-col items-center gap-3"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div><p class="text-gray-600">Memuat KTP...</p></div>';
+            content.innerHTML = createInlineSpinner('Memuat KTP...');
             modal.classList.add('show');
 
             const streamUrl = `/resepsionis/ktp/${ktpToken}/stream`;
@@ -515,10 +518,19 @@
             }
         });
 
+        // Debounce untuk loading navigation agar tidak ngelag
+        let navigationTimeout = null;
         document.querySelectorAll('.sidebar-item').forEach(link => {
-            link.addEventListener('click', function(e) {
+            link.addEventListener('click', function (e) {
                 if (this.href && !this.classList.contains('active')) {
-                    showLoading();
+                    // Clear previous timeout jika ada
+                    if (navigationTimeout) {
+                        clearTimeout(navigationTimeout);
+                    }
+                    // Tampilkan loading dengan slight delay agar tidak ngelag
+                    navigationTimeout = setTimeout(() => {
+                        showLoading();
+                    }, 50);
                 }
             });
         });

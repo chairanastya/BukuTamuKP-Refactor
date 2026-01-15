@@ -15,28 +15,24 @@
 </div>
 
 <script>
-    // Global loading functions with 1 second delay
+    // Global loading functions - tampilkan segera tanpa delay untuk menghindari "ngelag"
     let loadingTimer = null;
     let loadingStartTime = null;
 
     window.showLoading = function () {
         loadingStartTime = Date.now();
 
-        // Set timer untuk menampilkan loading setelah 1 detik
-        loadingTimer = setTimeout(() => {
-            document.getElementById('loading-overlay').classList.add('active');
-        }, 1000);
+        // Tampilkan loading segera tanpa delay
+        // Ini mencegah efek "ngelag" dimana proses sudah dimulai tapi loading belum muncul
+        document.getElementById('loading-overlay').classList.add('active');
     }
 
     window.hideLoading = function () {
-        // Jika loading belum muncul (belum 1 detik), cancel timer
-        if (loadingTimer) {
-            clearTimeout(loadingTimer);
-            loadingTimer = null;
+        // Sembunyikan loading overlay
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.classList.remove('active');
         }
-
-        // Jika loading sudah muncul, sembunyikan
-        document.getElementById('loading-overlay').classList.remove('active');
         loadingStartTime = null;
     }
 
