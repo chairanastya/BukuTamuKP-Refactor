@@ -38,6 +38,12 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .stats-card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
         }
 
         .stats-icon {
@@ -183,7 +189,7 @@
 
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="stats-card">
+                <div class="stats-card" data-filter="all" onclick="filterByStatus('all')">
                     <div>
                         <p class="text-gray-600 text-sm mb-1">Total Kunjungan</p>
                         <p class="text-3xl font-bold text-blue-900">{{ $allTimeStats['total'] }}</p>
@@ -193,7 +199,7 @@
                     </div>
                 </div>
 
-                <div class="stats-card">
+                <div class="stats-card" data-filter="pending" onclick="filterByStatus('pending')">
                     <div>
                         <p class="text-gray-600 text-sm mb-1">Pending</p>
                         <p class="text-3xl font-bold text-yellow-600">{{ $allTimeStats['pending'] }}</p>
@@ -203,7 +209,7 @@
                     </div>
                 </div>
 
-                <div class="stats-card">
+                <div class="stats-card" data-filter="done" onclick="filterByStatus('done')">
                     <div>
                         <p class="text-gray-600 text-sm mb-1">Done</p>
                         <p class="text-3xl font-bold text-green-600">{{ $allTimeStats['done'] }}</p>
@@ -213,7 +219,7 @@
                     </div>
                 </div>
 
-                <div class="stats-card">
+                <div class="stats-card" data-filter="canceled" onclick="filterByStatus('canceled')">
                     <div>
                         <p class="text-gray-600 text-sm mb-1">Canceled</p>
                         <p class="text-3xl font-bold text-red-600">{{ $allTimeStats['canceled'] }}</p>
@@ -288,12 +294,31 @@
     <script>
         let table;
         let currentKunjunganId = null;
+        let currentFilter = 'all';
 
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function () {
                 initRiwayatTable();
             }, 100);
         });
+
+        function filterByStatus(status) {
+            currentFilter = status;
+
+            // Update visual indicator pada card
+            document.querySelectorAll('.stats-card').forEach(card => {
+                card.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
+            });
+            document.querySelector(`[data-filter="${status}"]`).classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
+
+            // Apply filter ke DataTable
+            if (status === 'all') {
+                table.column(7).search('').draw();
+            } else {
+                // Column 7 adalah kolom status
+                table.column(7).search(status).draw();
+            }
+        }
 
         function initRiwayatTable() {
             if ($.fn.DataTable.isDataTable('#riwayatTable')) {
@@ -341,7 +366,12 @@
                     },
                     {
                         data: 'status',
-                        render: function (data) {
+                        render: function (data, type, row) {
+                            // Untuk filter dan sorting, kembalikan raw data
+                            if (type === 'filter' || type === 'sort') {
+                                return data;
+                            }
+                            // Untuk display, kembalikan badge HTML
                             const badges = {
                                 pending: '<span class="badge badge-pending">Pending</span>',
                                 accepted: '<span class="badge badge-accepted">Accepted</span>',
@@ -381,37 +411,37 @@
                     let actions = '';
                     if (kunjungan.status === 'pending') {
                         actions = `
-                                    <div class="flex gap-3 mt-6">
-                                        <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
-                                        <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
-                                    </div>
-                                `;
+                                        <div class="flex gap-3 mt-6">
+                                            <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
+                                            <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
+                                        </div>
+                                    `;
                     }
 
                     let cancelReason = '';
                     if (kunjungan.status === 'canceled' && kunjungan.alasan_batal) {
                         cancelReason = `
-                                    <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                        <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
-                                        <p class="text-red-700">${kunjungan.alasan_batal}</p>
-                                    </div>
-                                `;
+                                        <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                            <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
+                                            <p class="text-red-700">${kunjungan.alasan_batal}</p>
+                                        </div>
+                                    `;
                     }
 
                     document.getElementById('detailContent').innerHTML = `
-                                <div class="space-y-3">
-                                    <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
-                                    <div><strong>Jam:</strong> ${kunjungan.jam}</div>
-                                    <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
-                                    <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
-                                    <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
-                                    <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
-                                    <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
-                                    <div><strong>Status:</strong> ${kunjungan.status}</div>
-                                    ${cancelReason}
-                                    ${actions}
-                                </div>
-                            `;
+                                    <div class="space-y-3">
+                                        <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
+                                        <div><strong>Jam:</strong> ${kunjungan.jam}</div>
+                                        <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
+                                        <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
+                                        <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
+                                        <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
+                                        <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
+                                        <div><strong>Status:</strong> ${kunjungan.status}</div>
+                                        ${cancelReason}
+                                        ${actions}
+                                    </div>
+                                `;
 
                     document.getElementById('detailModal').classList.add('show');
                 });
