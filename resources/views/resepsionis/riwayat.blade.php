@@ -1354,11 +1354,15 @@
         }
 
         function viewDetail(id) {
+            showLoading();
             fetch(`{{ route('resepsionis.riwayat.data') }}`)
                 .then(res => res.json())
                 .then(result => {
                     const kunjungan = result.data.find(k => k.id_kunjungan === id);
-                    if (!kunjungan) return;
+                    if (!kunjungan) {
+                        hideLoading();
+                        return;
+                    }
 
                     let karyawanList = kunjungan.karyawan.map(k =>
                         `<li>${k.nama} - ${k.jabatan} (${k.departemen})</li>`
@@ -1400,6 +1404,11 @@
                                 `;
 
                     document.getElementById('detailModal').classList.add('show');
+                    hideLoading();
+                })
+                .catch(error => {
+                    console.error('Error fetching detail:', error);
+                    hideLoading();
                 });
         }
 
