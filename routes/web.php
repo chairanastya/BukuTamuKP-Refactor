@@ -55,6 +55,7 @@ Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
         Route::get('/ktp/{token}/stream', [ResepsionisController::class, 'streamKtp'])->name('ktp.stream');
         Route::get('/riwayat', [ResepsionisController::class, 'riwayat'])->name('riwayat');
         Route::get('/karyawan', [ResepsionisController::class, 'daftarKaryawan'])->name('karyawan');
+        Route::get('/karyawan/create', [App\Http\Controllers\KaryawanController::class, 'createKaryawan'])->name('karyawan.create');
     });
 });
 

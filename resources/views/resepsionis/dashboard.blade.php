@@ -89,7 +89,7 @@
         }
 
         .btn-primary:hover {
-            background: #083558;
+            background: #F59E0B;
         }
 
         .btn-success {

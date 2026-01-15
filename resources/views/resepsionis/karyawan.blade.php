@@ -67,6 +67,21 @@
             color: #374151;
         }
 
+        .btn-primary {
+            background: #0C4777;
+            color: white;
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #F59E0B;
+        }
+
         .btn-success {
             background: #10B981;
             color: white;
@@ -160,6 +175,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-blue-900">Daftar Karyawan</h2>
+                <a href="{{ route('resepsionis.karyawan.create') }}" class="btn-primary flex items-center gap-2">
+                    @svg('heroicon-o-plus', 'w-5 h-5')
+                    Tambah Karyawan Baru
+                </a>
             </div>
 
             <!-- Stats Cards -->
