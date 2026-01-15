@@ -98,6 +98,36 @@
             background: #083558;
         }
 
+        .btn-export {
+            background: #059669;
+            color: white;
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-export:hover {
+            background: #047857;
+        }
+
+        .btn-export-pdf {
+            background: #DC2626;
+            color: white;
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-export-pdf:hover {
+            background: #B91C1C;
+        }
+
         .btn-success {
             background: #10B981;
             color: white;
@@ -205,10 +235,20 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-blue-900">Kunjungan Hari Ini</h2>
-                <a href="{{ route('resepsionis.kunjungan.create') }}" class="btn-primary flex items-center gap-2">
-                    @svg('heroicon-o-plus', 'w-5 h-5')
-                    Buat Kunjungan Baru
-                </a>
+                <div class="flex items-center gap-3">
+                    <button onclick="exportToExcel()" class="btn-export flex items-center gap-2">
+                        @svg('heroicon-o-arrow-down-tray', 'w-5 h-5')
+                        Export to Excel
+                    </button>
+                    <button onclick="exportToPDF()" class="btn-export-pdf flex items-center gap-2">
+                        @svg('heroicon-o-document-text', 'w-5 h-5')
+                        Export to PDF
+                    </button>
+                    <a href="{{ route('resepsionis.kunjungan.create') }}" class="btn-primary flex items-center gap-2">
+                        @svg('heroicon-o-plus', 'w-5 h-5')
+                        Buat Kunjungan Baru
+                    </a>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -317,10 +357,19 @@
 @push('scripts')
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script>
         let table;
         let currentKunjunganId = null;
         let currentFilter = 'all';
+        let activeFilters = {
+            status: 'all',
+            instansi: null,
+            karyawan: null,
+            tanggal: null
+        };
 
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function() {
@@ -330,6 +379,7 @@
 
         function filterByStatus(status) {
             currentFilter = status;
+            activeFilters.status = status;
             
             // Update visual indicator pada card
             document.querySelectorAll('.stats-card').forEach(card => {
@@ -344,6 +394,321 @@
                 // Column 7 adalah kolom status
                 table.column(7).search(status).draw();
             }
+        }
+
+        function exportToExcel() {
+            // Ambil data yang sedang ditampilkan (setelah filter)
+            const filteredData = table.rows({ search: 'applied' }).data().toArray();
+            
+            if (filteredData.length === 0) {
+                alert('Tidak ada data untuk diekspor');
+                return;
+            }
+
+            // Generate tanggal untuk header dan filename
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0];
+            const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            const monthYear = `${monthNames[today.getMonth()]} ${today.getFullYear()}`;
+            
+            // Build filter description
+            let filterParts = [];
+            
+            // Status filter
+            if (activeFilters.status !== 'all') {
+                filterParts.push(`Status: ${activeFilters.status.charAt(0).toUpperCase() + activeFilters.status.slice(1)}`);
+            }
+            
+            // Instansi filter
+            if (activeFilters.instansi) {
+                filterParts.push(`Instansi: ${activeFilters.instansi}`);
+            }
+            
+            // Karyawan filter
+            if (activeFilters.karyawan) {
+                filterParts.push(`Karyawan: ${activeFilters.karyawan}`);
+            }
+            
+            // Tanggal filter
+            if (activeFilters.tanggal) {
+                filterParts.push(`Tanggal: ${activeFilters.tanggal}`);
+            }
+            
+            const filterDescription = filterParts.length > 0 
+                ? filterParts.join(' | ') 
+                : 'Semua Data';
+            
+            const periodeText = `Periode: ${dateStr} | Filter: ${filterDescription}`;
+
+            // Siapkan data untuk Excel
+            const excelData = filteredData.map((row, index) => {
+                let karyawanNama = '-';
+                let karyawanJabatan = '-';
+                let karyawanDepartemen = '-';
+                
+                if (row.karyawan && row.karyawan.length > 0) {
+                    karyawanNama = row.karyawan[0].nama;
+                    karyawanJabatan = row.karyawan[0].jabatan;
+                    karyawanDepartemen = row.karyawan[0].departemen;
+                }
+
+                return [
+                    index + 1,
+                    row.tanggal,
+                    row.jam,
+                    row.nama_tamu,
+                    row.email_tamu,
+                    row.instansi,
+                    row.tujuan_kunjungan,
+                    karyawanNama,
+                    karyawanJabatan,
+                    karyawanDepartemen,
+                    row.status.toUpperCase(),
+                    row.alasan_batal || '-'
+                ];
+            });
+
+            // Buat workbook baru
+            const wb = XLSX.utils.book_new();
+            const ws = {};
+
+            // Title dan Periode
+            ws['A1'] = { v: 'LAPORAN KUNJUNGAN HARI INI', t: 's' };
+            ws['A2'] = { v: periodeText, t: 's' };
+
+            // Header kolom
+            const headers = ['No', 'Tanggal', 'Jam', 'Nama Tamu', 'Email Tamu', 'Instansi', 'Tujuan Kunjungan', 'PIC Karyawan', 'Jabatan PIC', 'Departemen PIC', 'Status', 'Alasan Batal'];
+            headers.forEach((header, idx) => {
+                const cellRef = XLSX.utils.encode_cell({ r: 3, c: idx });
+                ws[cellRef] = { v: header, t: 's' };
+            });
+
+            // Data rows
+            excelData.forEach((row, rowIdx) => {
+                row.forEach((cell, colIdx) => {
+                    const cellRef = XLSX.utils.encode_cell({ r: rowIdx + 4, c: colIdx });
+                    ws[cellRef] = { v: cell, t: typeof cell === 'number' ? 'n' : 's' };
+                });
+            });
+
+            // Total row
+            const totalRow = excelData.length + 4;
+            ws[XLSX.utils.encode_cell({ r: totalRow, c: 0 })] = { v: 'TOTAL', t: 's' };
+            ws[XLSX.utils.encode_cell({ r: totalRow, c: 1 })] = { v: `${excelData.length} Kunjungan`, t: 's' };
+
+            // Set range
+            const range = { s: { r: 0, c: 0 }, e: { r: totalRow, c: 11 } };
+            ws['!ref'] = XLSX.utils.encode_range(range);
+
+            // Column widths
+            ws['!cols'] = [
+                { wch: 5 },  { wch: 12 }, { wch: 10 }, { wch: 20 }, { wch: 25 }, { wch: 20 },
+                { wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 12 }, { wch: 30 }
+            ];
+
+            // Styling
+            const headerFill = { patternType: 'solid', fgColor: { rgb: '4472C4' } };
+            const headerFont = { bold: true, color: { rgb: 'FFFFFF' } };
+            const totalFill = { patternType: 'solid', fgColor: { rgb: 'FFEB9C' } };
+            const totalFont = { bold: true };
+            const border = {
+                top: { style: 'thin', color: { rgb: '000000' } },
+                bottom: { style: 'thin', color: { rgb: '000000' } },
+                left: { style: 'thin', color: { rgb: '000000' } },
+                right: { style: 'thin', color: { rgb: '000000' } }
+            };
+
+            // Apply styles to title
+            ws['A1'].s = { font: { bold: true, sz: 16 }, alignment: { horizontal: 'center', vertical: 'center' } };
+            ws['A2'].s = { font: { italic: true, sz: 11 }, alignment: { horizontal: 'center' } };
+
+            // Merge title cells
+            ws['!merges'] = [
+                { s: { r: 0, c: 0 }, e: { r: 0, c: 11 } },
+                { s: { r: 1, c: 0 }, e: { r: 1, c: 11 } },
+                { s: { r: totalRow, c: 1 }, e: { r: totalRow, c: 11 } }
+            ];
+
+            // Apply styles to headers
+            headers.forEach((_, idx) => {
+                const cellRef = XLSX.utils.encode_cell({ r: 3, c: idx });
+                ws[cellRef].s = {
+                    fill: headerFill,
+                    font: headerFont,
+                    alignment: { horizontal: 'center', vertical: 'center' },
+                    border: border
+                };
+            });
+
+            // Apply borders to data cells
+            excelData.forEach((row, rowIdx) => {
+                row.forEach((_, colIdx) => {
+                    const cellRef = XLSX.utils.encode_cell({ r: rowIdx + 4, c: colIdx });
+                    if (ws[cellRef]) {
+                        ws[cellRef].s = {
+                            border: border,
+                            alignment: { vertical: 'center', wrapText: colIdx >= 6 }
+                        };
+                    }
+                });
+            });
+
+            // Apply styles to total row
+            ws[XLSX.utils.encode_cell({ r: totalRow, c: 0 })].s = {
+                fill: totalFill,
+                font: totalFont,
+                alignment: { horizontal: 'center', vertical: 'center' },
+                border: border
+            };
+            ws[XLSX.utils.encode_cell({ r: totalRow, c: 1 })].s = {
+                fill: totalFill,
+                font: totalFont,
+                alignment: { horizontal: 'left', vertical: 'center' },
+                border: border
+            };
+
+            // Row heights
+            ws['!rows'] = [
+                { hpt: 24 }, // Title
+                { hpt: 18 }, // Periode
+                { hpt: 6 },  // Empty row
+                { hpt: 30 }  // Header
+            ];
+
+            XLSX.utils.book_append_sheet(wb, ws, 'Kunjungan Hari Ini');
+            
+            // Download file dengan nama yang deskriptif
+            const filenameParts = ['Laporan_Kunjungan', dateStr];
+            if (activeFilters.status !== 'all') filenameParts.push(activeFilters.status);
+            if (activeFilters.instansi) filenameParts.push(activeFilters.instansi.replace(/\s+/g, '_'));
+            if (activeFilters.karyawan) filenameParts.push(activeFilters.karyawan.replace(/\s+/g, '_'));
+            const filename = filenameParts.join('_') + '.xlsx';
+            XLSX.writeFile(wb, filename);
+        }
+
+        function exportToPDF() {
+            // Ambil data yang sedang ditampilkan (setelah filter)
+            const filteredData = table.rows({ search: 'applied' }).data().toArray();
+            
+            if (filteredData.length === 0) {
+                alert('Tidak ada data untuk diekspor');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4'); // landscape
+
+            // Generate tanggal dan filter info
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0];
+            
+            // Build filter description
+            let filterParts = [];
+            if (activeFilters.status !== 'all') {
+                filterParts.push(`Status: ${activeFilters.status.charAt(0).toUpperCase() + activeFilters.status.slice(1)}`);
+            }
+            if (activeFilters.instansi) filterParts.push(`Instansi: ${activeFilters.instansi}`);
+            if (activeFilters.karyawan) filterParts.push(`Karyawan: ${activeFilters.karyawan}`);
+            if (activeFilters.tanggal) filterParts.push(`Tanggal: ${activeFilters.tanggal}`);
+            
+            const filterDescription = filterParts.length > 0 ? filterParts.join(' | ') : 'Semua Data';
+
+            // Title
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('LAPORAN KUNJUNGAN HARI INI', doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
+            
+            // Subtitle
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'italic');
+            doc.text(`Periode: ${dateStr} | Filter: ${filterDescription}`, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
+
+            // Prepare data for table
+            const tableData = filteredData.map((row, index) => {
+                let karyawanInfo = '-';
+                if (row.karyawan && row.karyawan.length > 0) {
+                    const k = row.karyawan[0];
+                    karyawanInfo = `${k.nama}\n${k.jabatan} - ${k.departemen}`;
+                }
+
+                return [
+                    index + 1,
+                    row.tanggal,
+                    row.jam,
+                    row.nama_tamu,
+                    row.instansi,
+                    row.tujuan_kunjungan,
+                    karyawanInfo,
+                    row.status.toUpperCase()
+                ];
+            });
+
+            // Generate table
+            doc.autoTable({
+                startY: 28,
+                head: [['No', 'Tanggal', 'Jam', 'Nama Tamu', 'Instansi', 'Tujuan', 'PIC Karyawan', 'Status']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [68, 114, 196],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold',
+                    halign: 'center',
+                    valign: 'middle',
+                    fontSize: 9,
+                    cellPadding: 3
+                },
+                bodyStyles: {
+                    fontSize: 8,
+                    valign: 'middle',
+                    cellPadding: 3,
+                    minCellHeight: 10
+                },
+                columnStyles: {
+                    0: { cellWidth: 10, halign: 'center' },   // No
+                    1: { cellWidth: 25, halign: 'center' },   // Tanggal
+                    2: { cellWidth: 20, halign: 'center' },   // Jam
+                    3: { cellWidth: 40 },                      // Nama Tamu
+                    4: { cellWidth: 38 },                      // Instansi
+                    5: { cellWidth: 60 },                      // Tujuan
+                    6: { cellWidth: 58 },                      // PIC Karyawan
+                    7: { cellWidth: 26, halign: 'center' }    // Status
+                },
+                styles: {
+                    lineColor: [0, 0, 0],
+                    lineWidth: 0.1,
+                    overflow: 'linebreak',
+                    cellWidth: 'wrap'
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 245, 245]
+                },
+                margin: { top: 28, left: 10, right: 10, bottom: 15 },
+                tableWidth: 'auto'
+            });
+
+            // Footer with total
+            const finalY = doc.lastAutoTable.finalY || 28;
+            const tableWidth = 277; // Total column widths
+            const startX = (doc.internal.pageSize.getWidth() - tableWidth) / 2;
+            
+            doc.setFillColor(255, 235, 156);
+            doc.rect(startX, finalY + 2, tableWidth, 10, 'F');
+            doc.setDrawColor(0, 0, 0);
+            doc.rect(startX, finalY + 2, tableWidth, 10, 'S');
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 0, 0);
+            doc.text(`TOTAL: ${filteredData.length} Kunjungan`, startX + 4, finalY + 8);
+
+            // Download PDF
+            const filenameParts = ['Laporan_Kunjungan', dateStr];
+            if (activeFilters.status !== 'all') filenameParts.push(activeFilters.status);
+            if (activeFilters.instansi) filenameParts.push(activeFilters.instansi.replace(/\s+/g, '_'));
+            if (activeFilters.karyawan) filenameParts.push(activeFilters.karyawan.replace(/\s+/g, '_'));
+            const filename = filenameParts.join('_') + '.pdf';
+            
+            doc.save(filename);
         }
 
         function initDataTable() {
