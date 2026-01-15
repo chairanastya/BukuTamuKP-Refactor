@@ -622,6 +622,17 @@
             </div>
         </div>
     </div>
+
+    <!-- Karyawan List Modal -->
+    <div id="karyawanListModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold">Daftar Karyawan Tertuju</h3>
+                <button onclick="closeKaryawanListModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div id="karyawanListContent"></div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -717,9 +728,10 @@
                 let karyawanDepartemen = '-';
                 
                 if (row.karyawan && row.karyawan.length > 0) {
-                    karyawanNama = row.karyawan[0].nama;
-                    karyawanJabatan = row.karyawan[0].jabatan;
-                    karyawanDepartemen = row.karyawan[0].departemen;
+                    // Gabungkan semua karyawan
+                    karyawanNama = row.karyawan.map(k => k.nama).join(', ');
+                    karyawanJabatan = row.karyawan.map(k => k.jabatan).join(', ');
+                    karyawanDepartemen = row.karyawan.map(k => k.departemen).join(', ');
                 }
 
                 return [
@@ -899,8 +911,8 @@
             const tableData = filteredData.map((row, index) => {
                 let karyawanInfo = '-';
                 if (row.karyawan && row.karyawan.length > 0) {
-                    const k = row.karyawan[0];
-                    karyawanInfo = `${k.nama}\n${k.jabatan} - ${k.departemen}`;
+                    // Gabungkan semua karyawan dengan newline
+                    karyawanInfo = row.karyawan.map(k => `${k.nama}\n${k.jabatan} - ${k.departemen}`).join('\n---\n');
                 }
 
                 return [
@@ -1023,8 +1035,18 @@
                         data: 'karyawan',
                         render: function (data) {
                             if (!data || data.length === 0) return '-';
-                            const first = data[0];
-                            return `${first.nama}<br><span class="text-xs text-gray-500">${first.jabatan} - ${first.departemen}</span>`;
+                            
+                            // Jika 3 atau kurang, tampilkan semua
+                            if (data.length <= 3) {
+                                return data.map(k => 
+                                    `${k.nama}<br><span class="text-xs text-gray-500">${k.jabatan} - ${k.departemen}</span>`
+                                ).join('<br><div class="border-t border-gray-200 my-1"></div>');
+                            }
+                            
+                            // Jika lebih dari 3, tampilkan button
+                            return `<button onclick="showKaryawanList(${JSON.stringify(data).replace(/"/g, '&quot;')})" class="text-blue-600 hover:underline font-semibold flex items-center gap-1">
+                                        Lihat Detail (${data.length} Karyawan)
+                                    </button>`;
                         }
                     },
                     {
@@ -1492,6 +1514,42 @@
 
         function closeKtpModal() {
             document.getElementById('ktpModal').classList.remove('show');
+        }
+
+        function showKaryawanList(karyawanData) {
+            const modal = document.getElementById('karyawanListModal');
+            const content = document.getElementById('karyawanListContent');
+            
+            let html = `<p class="text-gray-600 mb-4">Total ${karyawanData.length} karyawan yang terlibat:</p>`;
+            html += '<div class="space-y-3">';
+            
+            karyawanData.forEach((karyawan, index) => {
+                html += `
+                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="flex-shrink-0 w-8 h-8 bg-[#084E8F] text-white rounded-full flex items-center justify-center font-bold">
+                            ${index + 1}
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-semibold text-gray-800">${karyawan.nama}</p>
+                            <p class="text-sm text-gray-600">${karyawan.jabatan}</p>
+                            <p class="text-sm text-gray-500">${karyawan.departemen}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            html += '<div class="mt-6"><button onclick="closeKaryawanListModal()" class="w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-4 rounded-lg transition">Tutup</button></div>';
+            
+            content.innerHTML = html;
+            modal.classList.add('show');
+        }
+
+        function closeKaryawanListModal() {
+            const modal = document.getElementById('karyawanListModal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
         }
 
         function toggleDropdown() {
