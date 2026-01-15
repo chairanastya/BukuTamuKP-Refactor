@@ -1029,10 +1029,14 @@
                             }
                             return '<button onclick="viewDetail(' + data.id_kunjungan + ')" class="text-blue-600 hover:underline">👁 Detail</button>';
                         }
+                    },
+                    {
+                        data: 'id_kunjungan',
+                        visible: false
                     }
                 ],
                 pageLength: 10,
-                order: [[1, 'desc']],
+                order: [[9, 'desc']],
                 initComplete: function() {
                     console.log('DataTable initialized, calling addCustomFilters');
                     console.log('Table wrapper HTML:', $('#myTable_wrapper').html());
@@ -1569,5 +1573,52 @@
                 }
             });
         }
+
+        // Supabase Realtime - Auto reload hanya ketika ada perubahan
+        (function() {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+            script.onload = function() {
+                fetch('/api/supabase-config')
+                    .then(res => res.json())
+                    .then(config => {
+                        const { createClient } = supabase;
+                        const supabaseClient = createClient(config.url, config.key);
+
+                        // Subscribe ke perubahan tabel kunjungan
+                        const channel = supabaseClient
+                            .channel('kunjungan-realtime')
+                            .on('postgres_changes', 
+                                { event: '*', schema: 'public', table: 'kunjungan' },
+                                (payload) => {
+                                    console.log('✨ Perubahan terdeteksi:', payload.eventType);
+                                    table.ajax.reload(null, false);
+                                    
+                                    // Update stats
+                                    fetch('{{ route("resepsionis.kunjungan.data") }}')
+                                        .then(res => res.json())
+                                        .then(result => {
+                                            if (result.data) {
+                                                const d = result.data;
+                                                document.querySelector('[data-filter="all"] .stats-value').textContent = d.length;
+                                                document.querySelector('[data-filter="pending"] .stats-value').textContent = d.filter(r => r.status === 'pending').length;
+                                                document.querySelector('[data-filter="accepted"] .stats-value').textContent = d.filter(r => r.status === 'accepted').length;
+                                                document.querySelector('[data-filter="done"] .stats-value').textContent = d.filter(r => r.status === 'done').length;
+                                                document.querySelector('[data-filter="canceled"] .stats-value').textContent = d.filter(r => r.status === 'canceled').length;
+                                            }
+                                        });
+                                }
+                            )
+                            .subscribe((status) => {
+                                if (status === 'SUBSCRIBED') {
+                                    console.log('🟢 Realtime active - akan auto-reload saat ada perubahan');
+                                }
+                            });
+
+                        window.addEventListener('beforeunload', () => channel.unsubscribe());
+                    });
+            };
+            document.head.appendChild(script);
+        })();
     </script>
 @endpush

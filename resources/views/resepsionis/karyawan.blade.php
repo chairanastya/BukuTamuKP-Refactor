@@ -269,14 +269,19 @@
                 <p class="text-sm text-red-600 mt-2">Tindakan ini tidak dapat dibatalkan.</p>
             </div>
             <div class="flex gap-3">
-                <button onclick="closeDeleteModal()" class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">
+                <button onclick="closeDeleteModal()"
+                    class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">
                     Batalkan
                 </button>
-                <button id="deleteButton" onclick="confirmDelete()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
+                <button id="deleteButton" onclick="confirmDelete()"
+                    class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
                     <span id="deleteButtonText">Hapus</span>
-                    <svg id="deleteSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg id="deleteSpinner" class="hidden animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
                     </svg>
                 </button>
             </div>
@@ -296,7 +301,8 @@
                 </div>
             </div>
             <div class="flex justify-end">
-                <button onclick="closeSuccessModal()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                <button onclick="closeSuccessModal()"
+                    class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition">
                     Tutup
                 </button>
             </div>
@@ -415,27 +421,27 @@
                     'Accept': 'application/json'
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeDeleteModal();
-                    table.ajax.reload();
-                    showSuccessModal(data.message);
-                } else {
-                    alert(data.message || 'Gagal menghapus karyawan');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan saat menghapus karyawan');
-            })
-            .finally(() => {
-                // Re-enable button and hide spinner
-                deleteButton.disabled = false;
-                deleteButton.classList.remove('opacity-70', 'cursor-not-allowed');
-                deleteButtonText.textContent = 'Hapus';
-                deleteSpinner.classList.add('hidden');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closeDeleteModal();
+                        table.ajax.reload();
+                        showSuccessModal(data.message);
+                    } else {
+                        alert(data.message || 'Gagal menghapus karyawan');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat menghapus karyawan');
+                })
+                .finally(() => {
+                    // Re-enable button and hide spinner
+                    deleteButton.disabled = false;
+                    deleteButton.classList.remove('opacity-70', 'cursor-not-allowed');
+                    deleteButtonText.textContent = 'Hapus';
+                    deleteSpinner.classList.add('hidden');
+                });
         }
 
         function toggleDropdown() {
@@ -448,16 +454,16 @@
             }
         });
 
-        
+
         let navigationTimeout = null;
         document.querySelectorAll('.sidebar-item').forEach(link => {
             link.addEventListener('click', function (e) {
                 if (this.href && !this.classList.contains('active')) {
-                    
+
                     if (navigationTimeout) {
                         clearTimeout(navigationTimeout);
                     }
-                    
+
                     navigationTimeout = setTimeout(() => {
                         showLoading();
                     }, 50);
@@ -481,5 +487,37 @@
         @if(session('success'))
             showSuccessModal('{{ session('success') }}');
         @endif
+
+        // Supabase Realtime - Auto reload hanya ketika ada perubahan
+        (function () {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+            script.onload = function () {
+                fetch('/api/supabase-config')
+                    .then(res => res.json())
+                    .then(config => {
+                        const { createClient } = supabase;
+                        const supabaseClient = createClient(config.url, config.key);
+
+                        const channel = supabaseClient
+                            .channel('karyawan-realtime')
+                            .on('postgres_changes',
+                                { event: '*', schema: 'public', table: 'karyawan' },
+                                (payload) => {
+                                    console.log('✨ Perubahan terdeteksi:', payload.eventType);
+                                    table.ajax.reload(null, false);
+                                }
+                            )
+                            .subscribe((status) => {
+                                if (status === 'SUBSCRIBED') {
+                                    console.log('🟢 Realtime active - akan auto-reload saat ada perubahan');
+                                }
+                            });
+
+                        window.addEventListener('beforeunload', () => channel.unsubscribe());
+                    });
+            };
+            document.head.appendChild(script);
+        })();
     </script>
 @endpush
