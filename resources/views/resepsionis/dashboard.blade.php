@@ -1440,6 +1440,15 @@
                                             `;
                     }
 
+                    const statusBadges = {
+                        pending: '<span class="badge badge-pending">Pending</span>',
+                        accepted: '<span class="badge badge-accepted">Accepted</span>',
+                        approved: '<span class="badge badge-accepted">Accepted</span>',
+                        done: '<span class="badge badge-done">Done</span>',
+                        canceled: '<span class="badge badge-canceled">Canceled</span>'
+                    };
+                    const statusBadge = statusBadges[kunjungan.status] || kunjungan.status;
+
                     document.getElementById('detailContent').innerHTML = `
                                             <div class="space-y-3">
                                                 <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
@@ -1449,7 +1458,7 @@
                                                 <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
                                                 <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
                                                 <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
-                                                <div><strong>Status:</strong> ${kunjungan.status}</div>
+                                                <div><strong>Status:</strong> ${statusBadge}</div>
                                                 ${cancelReason}
                                                 ${actions}
                                             </div>
