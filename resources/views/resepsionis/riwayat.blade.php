@@ -184,6 +184,16 @@
             width: 100% !important;
         }
 
+        table.dataTable tbody td {
+            text-align: left !important;
+        }
+
+        table.dataTable tbody td button,
+        table.dataTable tbody td a {
+            text-align: left !important;
+            display: inline-block;
+        }
+
         .dt-length select.dt-input {
             padding-right: 28px !important;
         }
