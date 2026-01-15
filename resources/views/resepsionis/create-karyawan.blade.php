@@ -196,8 +196,51 @@ Buku Tamu Digital
     </div>
 </div>
 
+<div id="successModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-green-600">Berhasil</h3>
+            <button onclick="closeSuccessModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        </div>
+        <div id="successContent" class="mb-6">
+            <div class="flex items-center gap-3">
+                @svg('heroicon-o-check-circle', 'w-12 h-12 text-green-500')
+                <p class="text-gray-700" id="successMessage"></p>
+            </div>
+        </div>
+        <div class="flex justify-end">
+            <button onclick="closeSuccessModal()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
     let debounceTimeout;
+
+    function showSuccessModal(message) {
+        document.getElementById('successMessage').textContent = message;
+        document.getElementById('successModal').classList.add('show');
+    }
+
+    function closeSuccessModal() {
+        document.getElementById('successModal').classList.remove('show');
+    }
+
+    // Check for session success message
+    @if(session('success'))
+        document.addEventListener('DOMContentLoaded', function() {
+            showSuccessModal('{{ session('success') }}');
+        });
+    @endif
+
+    document.addEventListener('click', function(e) {
+        const successModal = document.getElementById('successModal');
+        if (e.target === successModal) {
+            closeSuccessModal();
+        }
+    });
 
     function toggleDropdown() {
         document.getElementById('dropdown').classList.toggle('hidden');

@@ -261,6 +261,26 @@
             </div>
         </div>
     </div>
+
+    <div id="successModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-green-600">Sukses!</h3>
+                <button onclick="closeSuccessModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div id="successContent" class="mb-6">
+                <div class="flex items-center gap-3">
+                    @svg('heroicon-o-check-circle', 'w-12 h-12 text-green-500')
+                    <p class="text-gray-700" id="successMessage"></p>
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button onclick="closeSuccessModal()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -344,6 +364,15 @@
             document.getElementById('deleteModal').classList.remove('show');
         }
 
+        function showSuccessModal(message) {
+            document.getElementById('successMessage').textContent = message;
+            document.getElementById('successModal').classList.add('show');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('show');
+        }
+
         function confirmDelete() {
             if (!deleteKaryawanId) return;
 
@@ -370,7 +399,7 @@
                 if (data.success) {
                     closeDeleteModal();
                     table.ajax.reload();
-                    alert(data.message);
+                    showSuccessModal(data.message);
                 } else {
                     alert(data.message || 'Gagal menghapus karyawan');
                 }
@@ -420,5 +449,16 @@
                 closeDeleteModal();
             }
         });
+
+        document.getElementById('successModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeSuccessModal();
+            }
+        });
+
+        // Check for session success message
+        @if(session('success'))
+            showSuccessModal('{{ session('success') }}');
+        @endif
     </script>
 @endpush
