@@ -302,7 +302,7 @@
                 <button onclick="closeKtpModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
             </div>
             <div id="ktpContent" class="flex justify-center items-center" style="min-height: 400px;">
-                <div class="text-gray-500">Memuat...</div>
+                <!-- Content akan di-replace dengan createInlineSpinner saat viewKtp dipanggil -->
             </div>
         </div>
     </div>
@@ -577,10 +577,19 @@
             }
         });
 
+        // Debounce untuk loading navigation agar tidak ngelag
+        let navigationTimeout = null;
         document.querySelectorAll('.sidebar-item').forEach(link => {
             link.addEventListener('click', function(e) {
                 if (this.href && !this.classList.contains('active')) {
-                    showLoading();
+                    // Clear previous timeout jika ada
+                    if (navigationTimeout) {
+                        clearTimeout(navigationTimeout);
+                    }
+                    // Tampilkan loading dengan slight delay agar tidak ngelag
+                    navigationTimeout = setTimeout(() => {
+                        showLoading();
+                    }, 50);
                 }
             });
         });

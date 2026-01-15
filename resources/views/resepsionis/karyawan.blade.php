@@ -141,15 +141,18 @@
 @endpush
 
 @section('sidebar')
-    <a href="{{ route('resepsionis.dashboard') }}" class="sidebar-item {{ request()->routeIs('resepsionis.dashboard') ? 'active' : '' }}">
+    <a href="{{ route('resepsionis.dashboard') }}"
+        class="sidebar-item {{ request()->routeIs('resepsionis.dashboard') ? 'active' : '' }}">
         @svg('fluentui-home-24', 'w-8 h-8')
         <span>Beranda</span>
     </a>
-    <a href="{{ route('resepsionis.riwayat') }}" class="sidebar-item {{ request()->routeIs('resepsionis.riwayat') ? 'active' : '' }}">
+    <a href="{{ route('resepsionis.riwayat') }}"
+        class="sidebar-item {{ request()->routeIs('resepsionis.riwayat') ? 'active' : '' }}">
         @svg('gmdi-history', 'w-8 h-8')
         <span>Riwayat</span>
     </a>
-    <a href="{{ route('resepsionis.karyawan') }}" class="sidebar-item {{ request()->routeIs('resepsionis.karyawan') ? 'active' : '' }}">
+    <a href="{{ route('resepsionis.karyawan') }}"
+        class="sidebar-item {{ request()->routeIs('resepsionis.karyawan') ? 'active' : '' }}">
         @svg('gmdi-people-r', 'w-8 h-8')
         <span>Daftar Karyawan</span>
     </a>
@@ -233,7 +236,7 @@
         let table;
 
         document.addEventListener('DOMContentLoaded', function () {
-            setTimeout(function() {
+            setTimeout(function () {
                 initDataTable();
             }, 100);
         });
@@ -242,7 +245,7 @@
             if ($.fn.DataTable.isDataTable('#karyawanTable')) {
                 $('#karyawanTable').DataTable().destroy();
             }
-            
+
             table = new DataTable('#karyawanTable', {
                 ajax: {
                     url: '{{ route("resepsionis.karyawan.data") }}',
@@ -250,7 +253,7 @@
                     error: function (xhr, error, thrown) {
                         console.error('DataTables AJAX error:', error, thrown);
                         if (xhr.status === 0) {
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 table.ajax.reload();
                             }, 500);
                         }
@@ -294,39 +297,39 @@
                 .then(result => {
                     const karyawan = result.data.find(k => k.id_karyawan === id);
                     if (!karyawan) return;
-                    let roleInfo = karyawan.is_resepsionis 
+                    let roleInfo = karyawan.is_resepsionis
                         ? '<span class="badge badge-resepsionis">Resepsionis</span>'
                         : '<span class="badge badge-karyawan">Karyawan</span>';
                     document.getElementById('detailContent').innerHTML = `
-                        <div class="space-y-4">
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <p class="text-sm text-gray-600 mb-1">Nama Lengkap</p>
-                                <p class="text-lg font-semibold text-gray-900">${karyawan.nama_karyawan}</p>
-                            </div>
-                            
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <p class="text-sm text-gray-600 mb-1">Email</p>
-                                <p class="text-lg font-semibold text-gray-900">${karyawan.email_karyawan}</p>
-                            </div>
-                            
-                            <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-4">
                                 <div class="bg-gray-50 p-4 rounded-lg">
-                                    <p class="text-sm text-gray-600 mb-1">Departemen</p>
-                                    <p class="text-lg font-semibold text-gray-900">${karyawan.departemen}</p>
+                                    <p class="text-sm text-gray-600 mb-1">Nama Lengkap</p>
+                                    <p class="text-lg font-semibold text-gray-900">${karyawan.nama_karyawan}</p>
                                 </div>
-                                
+
                                 <div class="bg-gray-50 p-4 rounded-lg">
-                                    <p class="text-sm text-gray-600 mb-1">Jabatan</p>
-                                    <p class="text-lg font-semibold text-gray-900">${karyawan.jabatan}</p>
+                                    <p class="text-sm text-gray-600 mb-1">Email</p>
+                                    <p class="text-lg font-semibold text-gray-900">${karyawan.email_karyawan}</p>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <p class="text-sm text-gray-600 mb-1">Departemen</p>
+                                        <p class="text-lg font-semibold text-gray-900">${karyawan.departemen}</p>
+                                    </div>
+
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <p class="text-sm text-gray-600 mb-1">Jabatan</p>
+                                        <p class="text-lg font-semibold text-gray-900">${karyawan.jabatan}</p>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600 mb-2">Role</p>
+                                    ${roleInfo}
                                 </div>
                             </div>
-                            
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <p class="text-sm text-gray-600 mb-2">Role</p>
-                                ${roleInfo}
-                            </div>
-                        </div>
-                    `;
+                        `;
                     document.getElementById('detailModal').classList.add('show');
                 });
         }
@@ -345,10 +348,19 @@
             }
         });
 
+        // Debounce untuk loading navigation agar tidak ngelag
+        let navigationTimeout = null;
         document.querySelectorAll('.sidebar-item').forEach(link => {
-            link.addEventListener('click', function(e) {
+            link.addEventListener('click', function (e) {
                 if (this.href && !this.classList.contains('active')) {
-                    showLoading();
+                    // Clear previous timeout jika ada
+                    if (navigationTimeout) {
+                        clearTimeout(navigationTimeout);
+                    }
+                    // Tampilkan loading dengan slight delay agar tidak ngelag
+                    navigationTimeout = setTimeout(() => {
+                        showLoading();
+                    }, 50);
                 }
             });
         });
