@@ -179,7 +179,7 @@ class ResepsionisController extends Controller
 
     public function getKaryawanData(Request $request)
     {
-        $karyawans = Karyawan::orderBy('nama_karyawan')
+        $karyawans = Karyawan::orderBy('created_at', 'desc')
             ->get()
             ->map(function ($karyawan) {
                 return [
@@ -189,6 +189,7 @@ class ResepsionisController extends Controller
                     'departemen' => $karyawan->departemen ?? '-',
                     'jabatan' => $karyawan->jabatan ?? '-',
                     'is_resepsionis' => strtolower($karyawan->jabatan ?? '') === 'resepsionis',
+                    'created_at' => $karyawan->created_at?->format('Y-m-d H:i:s'),
                 ];
             });
 
