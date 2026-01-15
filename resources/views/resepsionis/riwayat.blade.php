@@ -184,6 +184,16 @@
             width: 100% !important;
         }
 
+        table.dataTable tbody td {
+            text-align: left !important;
+        }
+
+        table.dataTable tbody td button,
+        table.dataTable tbody td a {
+            text-align: left !important;
+            display: inline-block;
+        }
+
         .dt-length select.dt-input {
             padding-right: 28px !important;
         }
@@ -719,6 +729,8 @@
         let table;
         let currentKunjunganId = null;
         let currentFilter = 'all';
+        const eyeIcon = `{!! svg('heroicon-c-eye', 'w-5 h-5 inline')->toHtml() !!}`;
+        const filterIcon = `{!! svg('akar-settings-horizontal', 'w-5 h-5 inline')->toHtml() !!}`;
         let activeFilters = {
             status: 'all',
             instansi: null,
@@ -1120,7 +1132,7 @@
                         data: null,
                         render: function (data) {
                             if (!data.has_ktp || !data.ktp_token) return '-';
-                            return `<button onclick="viewKtp('${data.ktp_token}')" class="text-blue-600 hover:underline font-regular">👁 Lihat KTP</button>`;
+                            return `<button onclick="viewKtp('${data.ktp_token}')" class="text-blue-600 hover:underline font-regular inline-flex items-center gap-1">${eyeIcon} Lihat KTP</button>`;
                         }
                     },
                     { data: 'instansi' },
@@ -1166,7 +1178,7 @@
                             if (data.status === 'done') {
                                 return '<button onclick="viewHasil(' + data.id_kunjungan + ')" class="btn-view">Lihat Hasil</button>';
                             }
-                            return '<button onclick="viewDetail(' + data.id_kunjungan + ')" class="text-blue-600 hover:underline">👁 Detail</button>';
+                            return '<button onclick="viewDetail(' + data.id_kunjungan + ')" class="text-blue-600 hover:underline inline-flex items-center gap-1">' + eyeIcon + ' Detail</button>';
                         }
                     },
                     {
@@ -1214,7 +1226,7 @@
             
             const filterBtn = $(`
                 <div class="filter-btn" id="filterByBtn">
-                    <span>🔍 Filter By</span>
+                    <span class="inline-flex items-center gap-1">${filterIcon} Filter By</span>
                     <span id="filterBadge"></span>
                     <span style="font-size: 10px;">▼</span>
                 </div>
