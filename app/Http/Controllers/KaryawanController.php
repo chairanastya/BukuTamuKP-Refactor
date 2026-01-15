@@ -32,7 +32,7 @@ class KaryawanController extends Controller
         try {
             Karyawan::create($validated);
 
-            return redirect()->route('resepsionis.dashboard')
+            return redirect()->route('resepsionis.karyawan')
                 ->with('success', 'Karyawan berhasil ditambahkan');
         } catch (\Exception $e) {
             return back()
