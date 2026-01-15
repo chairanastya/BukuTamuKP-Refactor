@@ -453,11 +453,11 @@
                             const div = document.createElement('div');
                             div.className = 'relative';
                             div.innerHTML = `
-                                                                                                    <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-[#084E8F]">
-                                                                                                    <button type="button" onclick="removeImage(${index})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
-                                                                                                        ×
-                                                                                                    </button>
-                                                                                                `;
+                                                                                                            <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-[#084E8F]">
+                                                                                                            <button type="button" onclick="removeImage(${index})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                                                                                                                ×
+                                                                                                            </button>
+                                                                                                        `;
                             previewContainer.appendChild(div);
                         };
                         reader.readAsDataURL(file);
@@ -674,6 +674,7 @@
                 updateFilledState(element);
                 element.addEventListener('input', function () {
                     updateFilledState(this);
+
                 });
             });
         </script>
