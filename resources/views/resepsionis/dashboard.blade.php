@@ -564,7 +564,39 @@
                 placeholder="Alasan pembatalan..."></textarea>
             <div class="flex gap-3 justify-end">
                 <button onclick="closeRejectModal()" class="px-4 py-2 bg-gray-300 rounded-lg">Batal</button>
-                <button onclick="confirmReject()" class="btn-danger">Tolak Kunjungan</button>
+                <button id="rejectButton" onclick="confirmReject()" class="btn-danger flex items-center justify-center gap-2">
+                    <span id="rejectButtonText">Tolak Kunjungan</span>
+                    <svg id="rejectSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accept Confirmation Modal -->
+    <div id="acceptModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-green-600">Konfirmasi Terima Kunjungan</h3>
+                <button onclick="closeAcceptModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div class="mb-6">
+                <p class="text-gray-700">Apakah Anda yakin ingin menerima kunjungan ini?</p>
+                <p class="text-sm text-green-600 mt-2">Email notifikasi akan dikirim ke karyawan tujuan untuk mengisi notulensi.</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeAcceptModal()" class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">
+                    Batalkan
+                </button>
+                <button id="acceptButton" onclick="confirmAccept()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
+                    <span id="acceptButtonText">Terima</span>
+                    <svg id="acceptSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
@@ -590,6 +622,48 @@
                 <button onclick="closeKaryawanListModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
             </div>
             <div id="karyawanListContent"></div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-green-600">Sukses!</h3>
+                <button onclick="closeSuccessModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div id="successContent" class="mb-6">
+                <div class="flex items-center gap-3">
+                    @svg('heroicon-o-check-circle', 'w-12 h-12 text-green-500')
+                    <p class="text-gray-700" id="successMessage"></p>
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button onclick="closeSuccessModal()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-red-600">Terjadi Kesalahan</h3>
+                <button onclick="closeErrorModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div id="errorContent" class="mb-6">
+                <div class="flex items-center gap-3">
+                    @svg('heroicon-o-exclamation-triangle', 'w-12 h-12 text-red-500')
+                    <p class="text-gray-700" id="errorMessage"></p>
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button onclick="closeErrorModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                    Tutup
+                </button>
+            </div>
         </div>
     </div>
 @endsection
@@ -618,6 +692,25 @@
                 initDataTable();
             }, 100);
         });
+
+        function showSuccessModal(message) {
+            document.getElementById('successMessage').textContent = message;
+            document.getElementById('successModal').classList.add('show');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('show');
+            location.reload();
+        }
+
+        function showErrorModal(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorModal').classList.add('show');
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').classList.remove('show');
+        }
 
         function filterByStatus(status) {
             currentFilter = status;
@@ -1319,7 +1412,7 @@
                 .then(result => {
                     const kunjungan = result.data.find(k => k.id_kunjungan === id);
                     if (!kunjungan) {
-                        content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">❌ Detail tidak ditemukan</p><p class="text-sm">Kunjungan tidak ditemukan dalam sistem</p></div>';
+                        content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">Detail tidak ditemukan</p><p class="text-sm">Kunjungan tidak ditemukan dalam sistem</p></div>';
                         return;
                     }
 
@@ -1364,17 +1457,31 @@
                 })
                 .catch(error => {
                     console.error('Error fetching detail:', error);
-                    content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">❌ Gagal memuat detail</p><p class="text-sm">Terjadi kesalahan saat memuat data</p></div>';
+                    content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">Gagal memuat detail</p><p class="text-sm">Terjadi kesalahan saat memuat data</p></div>';
                 });
         }
 
         function acceptKunjungan(id) {
-            if (!confirm('Terima kunjungan ini? Email notifikasi akan dikirim ke karyawan tujuan untuk mengisi notulensi.')) return;
+            currentKunjunganId = id;
+            closeModal();
+            document.getElementById('acceptModal').classList.add('show');
+        }
 
-            // Show loading overlay
-            showLoading();
+        function closeAcceptModal() {
+            document.getElementById('acceptModal').classList.remove('show');
+        }
 
-            fetch(`/resepsionis/kunjungan/${id}/accept`, {
+        function confirmAccept() {
+            const button = document.getElementById('acceptButton');
+            const buttonText = document.getElementById('acceptButtonText');
+            const spinner = document.getElementById('acceptSpinner');
+
+            // Disable button and show spinner
+            button.disabled = true;
+            buttonText.textContent = 'Memproses...';
+            spinner.classList.remove('hidden');
+
+            fetch(`/resepsionis/kunjungan/${currentKunjunganId}/accept`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -1384,15 +1491,17 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Kunjungan berhasil diterima. Email telah dikirim ke karyawan tujuan untuk mengisi notulensi.');
-                        closeModal();
-                        table.ajax.reload();
-                        location.reload();
+                        closeAcceptModal();
+                        showSuccessModal('Kunjungan berhasil diterima. Email telah dikirim ke karyawan tujuan untuk mengisi notulensi.');
                     }
                 })
                 .catch(error => {
-                    hideLoading();
-                    alert('Terjadi kesalahan: ' + error);
+                    // Re-enable button on error
+                    button.disabled = false;
+                    buttonText.textContent = 'Terima';
+                    spinner.classList.add('hidden');
+                    closeAcceptModal();
+                    showErrorModal('Terjadi kesalahan saat menerima kunjungan');
                 });
         }
 
@@ -1405,12 +1514,18 @@
         function confirmReject() {
             const alasan = document.getElementById('alasanBatal').value.trim();
             if (!alasan) {
-                alert('Alasan pembatalan harus diisi');
+                showErrorModal('Alasan pembatalan harus diisi');
                 return;
             }
 
-            // Show loading overlay
-            showLoading();
+            const button = document.getElementById('rejectButton');
+            const buttonText = document.getElementById('rejectButtonText');
+            const spinner = document.getElementById('rejectSpinner');
+
+            // Disable button and show spinner
+            button.disabled = true;
+            buttonText.textContent = 'Memproses...';
+            spinner.classList.remove('hidden');
 
             fetch(`/resepsionis/kunjungan/${currentKunjunganId}/reject`, {
                 method: 'POST',
@@ -1423,15 +1538,17 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Kunjungan berhasil ditolak');
                         closeRejectModal();
-                        table.ajax.reload();
-                        location.reload();
+                        showSuccessModal('Kunjungan berhasil ditolak.');
                     }
                 })
                 .catch(error => {
-                    hideLoading();
-                    alert('Terjadi kesalahan: ' + error);
+                    // Re-enable button on error
+                    button.disabled = false;
+                    buttonText.textContent = 'Tolak Kunjungan';
+                    spinner.classList.add('hidden');
+                    closeRejectModal();
+                    showErrorModal('Terjadi kesalahan saat menolak kunjungan');
                 });
         }
 
@@ -1515,7 +1632,7 @@
             };
 
             img.onerror = function () {
-                content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">❌ Gagal memuat KTP</p><p class="text-sm">Terjadi kesalahan saat memuat gambar</p></div>';
+                content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">Gagal memuat KTP</p><p class="text-sm">Terjadi kesalahan saat memuat gambar</p></div>';
             };
 
             img.src = streamUrl;
