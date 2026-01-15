@@ -38,6 +38,12 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .stats-card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
         }
 
         .stats-icon {
@@ -206,7 +212,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="stats-card">
+                    <div class="stats-card cursor-pointer hover:shadow-lg transition-shadow" data-filter="all" onclick="filterByStatus('all')">
                         <div>
                             <p class="text-gray-600 text-sm mb-1">Total Kunjungan</p>
                             <p class="text-3xl font-bold text-blue-900">{{ $stats['total'] }}</p>
@@ -216,7 +222,7 @@
                         </div>
                     </div>
 
-                    <div class="stats-card">
+                    <div class="stats-card cursor-pointer hover:shadow-lg transition-shadow" data-filter="pending" onclick="filterByStatus('pending')">
                         <div>
                             <p class="text-gray-600 text-sm mb-1">Pending</p>
                             <p class="text-3xl font-bold text-yellow-600">{{ $stats['pending'] }}</p>
@@ -226,7 +232,7 @@
                         </div>
                     </div>
 
-                    <div class="stats-card">
+                    <div class="stats-card cursor-pointer hover:shadow-lg transition-shadow" data-filter="done" onclick="filterByStatus('done')">
                         <div>
                             <p class="text-gray-600 text-sm mb-1">Done</p>
                             <p class="text-3xl font-bold text-green-600">{{ $stats['done'] }}</p>
@@ -236,7 +242,7 @@
                         </div>
                     </div>
 
-                    <div class="stats-card">
+                    <div class="stats-card cursor-pointer hover:shadow-lg transition-shadow" data-filter="canceled" onclick="filterByStatus('canceled')">
                         <div>
                             <p class="text-gray-600 text-sm mb-1">Canceled</p>
                             <p class="text-3xl font-bold text-red-600">{{ $stats['canceled'] }}</p>
@@ -314,12 +320,31 @@
     <script>
         let table;
         let currentKunjunganId = null;
+        let currentFilter = 'all';
 
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function() {
                 initDataTable();
             }, 100);
         });
+
+        function filterByStatus(status) {
+            currentFilter = status;
+            
+            // Update visual indicator pada card
+            document.querySelectorAll('.stats-card').forEach(card => {
+                card.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
+            });
+            document.querySelector(`[data-filter="${status}"]`).classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
+            
+            // Apply filter ke DataTable
+            if (status === 'all') {
+                table.column(7).search('').draw();
+            } else {
+                // Column 7 adalah kolom status
+                table.column(7).search(status).draw();
+            }
+        }
 
         function initDataTable() {
             if ($.fn.DataTable.isDataTable('#myTable')) {
@@ -367,7 +392,12 @@
                     },
                     {
                         data: 'status',
-                        render: function (data) {
+                        render: function (data, type, row) {
+                            // Untuk filter dan sorting, kembalikan raw data
+                            if (type === 'filter' || type === 'sort') {
+                                return data;
+                            }
+                            // Untuk display, kembalikan badge HTML
                             const badges = {
                                 pending: '<span class="badge badge-pending">Pending</span>',
                                 accepted: '<span class="badge badge-accepted">Accepted</span>',
