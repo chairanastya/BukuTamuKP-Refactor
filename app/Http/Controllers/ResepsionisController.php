@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use App\Mail\KunjunganNotification;
 use App\Mail\NotulensiRequest;
 use Cloudinary\Cloudinary;
@@ -259,11 +260,30 @@ class ResepsionisController extends Controller
                 abort(404, 'KTP tidak ditemukan');
             }
 
-            $cloudName = config('cloudinary.cloud_name');
-            $apiSecret = config('cloudinary.api_secret');
             $publicId = $tamu->ktp_public_id;
+            
+            // Generate cache filename from public_id (sanitize for filesystem)
+            $cacheFilename = 'ktp-cache/' . md5($publicId) . '.jpg';
+            
+            // Check if cached version exists
+            if (Storage::disk('local')->exists($cacheFilename)) {
+                Log::info('Serving KTP from cache', [
+                    'tamu_id' => $tamu->id_tamu,
+                    'cache_file' => $cacheFilename
+                ]);
+                
+                $imageContent = Storage::disk('local')->get($cacheFilename);
+                
+                return response($imageContent)
+                    ->header('Content-Type', 'image/jpeg')
+                    ->header('Cache-Control', 'private, max-age=600')
+                    ->header('X-Content-Type-Options', 'nosniff');
+            }
 
-            Log::info('Streaming KTP from Cloudinary', [
+            // Not cached, download from Cloudinary
+            $cloudName = config('cloudinary.cloud_name');
+
+            Log::info('Downloading KTP from Cloudinary to cache', [
                 'tamu_id' => $tamu->id_tamu,
                 'public_id' => $publicId,
                 'access_via' => 'token'
@@ -275,21 +295,18 @@ class ResepsionisController extends Controller
                 $publicId
             );
 
-            Log::info('Downloading from URL', [
-                'tamu_id' => $tamu->id_tamu,
-                'public_id' => $publicId,
-                'url' => $imageUrl
-            ]);
-
             $ch = curl_init($imageUrl);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
 
             $imageContent = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $error = curl_error($ch);
+            curl_close($ch);
 
             if ($httpCode !== 200 || !$imageContent) {
                 Log::error('Failed to download KTP', [
@@ -302,13 +319,17 @@ class ResepsionisController extends Controller
 
                 $errorMsg = $httpCode === 401 ? 'KTP tidak dapat diakses' :
                     ($httpCode === 404 ? 'KTP tidak ditemukan' :
-                        'Gagal memuat KTP (HTTP ' . $httpCode . ')');
+                        'Gagal memuat KTP - pastikan terhubung ke jaringan yang dapat mengakses Cloudinary');
                 abort(500, $errorMsg);
             }
 
-            Log::info('Successfully streamed KTP', [
+            // Save to cache for future requests
+            Storage::disk('local')->put($cacheFilename, $imageContent);
+
+            Log::info('Successfully downloaded and cached KTP', [
                 'tamu_id' => $tamu->id_tamu,
-                'size' => strlen($imageContent)
+                'size' => strlen($imageContent),
+                'cache_file' => $cacheFilename
             ]);
 
             return response($imageContent)
@@ -336,10 +357,30 @@ class ResepsionisController extends Controller
                 abort(404, 'Dokumentasi tidak ditemukan');
             }
 
-            $cloudName = config('cloudinary.cloud_name');
             $publicId = $dokumentasi->dokumentasi_public_id;
+            
+            // Generate cache filename from public_id (sanitize for filesystem)
+            $cacheFilename = 'dokumentasi-cache/' . md5($publicId) . '.jpg';
+            
+            // Check if cached version exists
+            if (Storage::disk('local')->exists($cacheFilename)) {
+                Log::info('Serving dokumentasi from cache', [
+                    'dokumentasi_id' => $dokumentasi->id_dokumentasi,
+                    'cache_file' => $cacheFilename
+                ]);
+                
+                $imageContent = Storage::disk('local')->get($cacheFilename);
+                
+                return response($imageContent)
+                    ->header('Content-Type', 'image/jpeg')
+                    ->header('Cache-Control', 'private, max-age=3600')
+                    ->header('X-Content-Type-Options', 'nosniff');
+            }
 
-            Log::info('Streaming dokumentasi from Cloudinary', [
+            // Not cached, download from Cloudinary
+            $cloudName = config('cloudinary.cloud_name');
+
+            Log::info('Downloading dokumentasi from Cloudinary to cache', [
                 'dokumentasi_id' => $dokumentasi->id_dokumentasi,
                 'public_id' => $publicId,
                 'access_via' => 'token'
@@ -351,22 +392,19 @@ class ResepsionisController extends Controller
                 $publicId
             );
 
-            Log::info('Downloading dokumentasi from URL', [
-                'dokumentasi_id' => $dokumentasi->id_dokumentasi,
-                'public_id' => $publicId,
-                'url' => $imageUrl
-            ]);
-
             $ch = curl_init($imageUrl);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
 
             $imageContent = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
             $error = curl_error($ch);
+            curl_close($ch);
 
             if ($httpCode !== 200 || !$imageContent) {
                 Log::error('Failed to download dokumentasi', [
@@ -379,14 +417,18 @@ class ResepsionisController extends Controller
 
                 $errorMsg = $httpCode === 401 ? 'Dokumentasi tidak dapat diakses' :
                     ($httpCode === 404 ? 'Dokumentasi tidak ditemukan' :
-                        'Gagal memuat dokumentasi (HTTP ' . $httpCode . ')');
+                        'Gagal memuat dokumentasi - pastikan terhubung ke jaringan yang dapat mengakses Cloudinary');
                 abort(500, $errorMsg);
             }
 
-            Log::info('Successfully streamed dokumentasi', [
+            // Save to cache for future requests
+            Storage::disk('local')->put($cacheFilename, $imageContent);
+
+            Log::info('Successfully downloaded and cached dokumentasi', [
                 'dokumentasi_id' => $dokumentasi->id_dokumentasi,
                 'size' => strlen($imageContent),
-                'content_type' => $contentType
+                'content_type' => $contentType,
+                'cache_file' => $cacheFilename
             ]);
 
             return response($imageContent)
