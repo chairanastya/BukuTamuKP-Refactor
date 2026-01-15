@@ -1090,8 +1090,8 @@
 
         let currentDateFilterStart = null;
         let currentDateFilterEnd = null;
-        let currentInstansiFilter = null;
-        let currentKaryawanFilter = null;
+        let currentInstansiFilter = [];
+        let currentKaryawanFilter = [];
 
         function addCustomFilters() {
             console.log('Adding custom filters...');
@@ -1256,8 +1256,8 @@
         function updateFilterBadge() {
             let count = 0;
             if (currentDateFilterStart || currentDateFilterEnd) count++;
-            if (currentInstansiFilter) count++;
-            if (currentKaryawanFilter) count++;
+            count += currentInstansiFilter.length;
+            count += currentKaryawanFilter.length;
             
             const badge = $('#filterBadge');
             if (count > 0) {
@@ -1300,30 +1300,46 @@
         }
 
         function applyInstansiFilter(instansi) {
-            currentInstansiFilter = instansi;
-            $('#instansiSubDropdown .filter-dropdown-item').removeClass('active');
-            $(`#instansiSubDropdown .filter-dropdown-item[data-value="${instansi}"]`).addClass('active');
+            const index = currentInstansiFilter.indexOf(instansi);
+            const item = $(`#instansiSubDropdown .filter-dropdown-item[data-value="${instansi}"]`);
+            
+            if (index > -1) {
+                currentInstansiFilter.splice(index, 1);
+                item.removeClass('active');
+            } else {
+                currentInstansiFilter.push(instansi);
+                item.addClass('active');
+            }
+            
             updateFilterBadge();
             applyAllFilters();
         }
 
         function clearInstansiFilter() {
-            currentInstansiFilter = null;
+            currentInstansiFilter = [];
             $('#instansiSubDropdown .filter-dropdown-item').removeClass('active');
             updateFilterBadge();
             applyAllFilters();
         }
 
         function applyKaryawanFilter(uniqueKey, nama, departemen, jabatan) {
-            currentKaryawanFilter = uniqueKey;
-            $('#karyawanSubDropdown .karyawan-item').removeClass('active');
-            $(`#karyawanSubDropdown .karyawan-item[data-value="${uniqueKey}"]`).addClass('active');
+            const index = currentKaryawanFilter.indexOf(uniqueKey);
+            const item = $(`#karyawanSubDropdown .karyawan-item[data-value="${uniqueKey}"]`);
+            
+            if (index > -1) {
+                currentKaryawanFilter.splice(index, 1);
+                item.removeClass('active');
+            } else {
+                currentKaryawanFilter.push(uniqueKey);
+                item.addClass('active');
+            }
+            
             updateFilterBadge();
             applyAllFilters();
         }
 
         function clearKaryawanFilter() {
-            currentKaryawanFilter = null;
+            currentKaryawanFilter = [];
             $('#karyawanSubDropdown .karyawan-item').removeClass('active');
             updateFilterBadge();
             applyAllFilters();
@@ -1337,8 +1353,9 @@
             $.fn.dataTable.ext.search.push(
                 function(settings, data, dataIndex) {
                     const tanggalStr = data[1]; 
-                    const instansi = data[5]; 
-                    const karyawan = data[6]; 
+                    const instansi = data[5];
+                    const rowData = table.row(dataIndex).data();
+                    const karyawanArray = rowData.karyawan;
                     
                     if (currentDateFilterStart || currentDateFilterEnd) {
                         const parts = tanggalStr.split('/');
@@ -1354,15 +1371,19 @@
                         }
                     }
                     
-                    if (currentInstansiFilter && instansi !== currentInstansiFilter) {
+                    if (currentInstansiFilter.length > 0 && !currentInstansiFilter.includes(instansi)) {
                         return false;
                     }
                     
-                    if (currentKaryawanFilter) {
-                        const [filterNama, filterDepartemen, filterJabatan] = currentKaryawanFilter.split('|');
-                        const hasMatch = karyawan.includes(filterNama) && 
-                                       karyawan.includes(filterDepartemen) && 
-                                       karyawan.includes(filterJabatan);
+                    if (currentKaryawanFilter.length > 0 && karyawanArray && karyawanArray.length > 0) {
+                        const hasMatch = currentKaryawanFilter.some(filterKey => {
+                            const [filterNama, filterDepartemen, filterJabatan] = filterKey.split('|');
+                            return karyawanArray.some(k => 
+                                k.nama === filterNama && 
+                                k.departemen === filterDepartemen && 
+                                k.jabatan === filterJabatan
+                            );
+                        });
                         if (!hasMatch) {
                             return false;
                         }
