@@ -1,15 +1,16 @@
 <div class="container mx-auto px-4 py-8">
-    <form action="{{ route('tamu.submit') }}" method="POST" enctype="multipart/form-data" class="max-w-6xl mx-auto"
-        novalidate>
-        @csrf
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-2xl font-bold text-[#084E8F] mb-6">Buat Kunjungan Baru</h1>
+        
+        <form action="{{ route('tamu.submit') }}" method="POST" enctype="multipart/form-data" novalidate>
+            @csrf
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 space-y-6">
-                <div>
-                    <h1 class="text-2xl font-bold text-[#084E8F] mb-6">Buat Kunjungan Baru</h1>
-                    <label for="nama_lengkap" class="block text-[#084E8F] font-bold mb-2">
-                        Nama Lengkap
-                    </label>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-6">
+                    <div>
+                        <label for="nama_lengkap" class="block text-[#084E8F] font-bold mb-2">
+                            Nama Lengkap
+                        </label>
                     <div class="input-wrapper {{ $errors->has('nama_lengkap') ? 'border-red-500 bg-red-50' : '' }}">
                         <input type="text" id="nama_lengkap" name="nama_lengkap"
                             placeholder="Tuliskan nama lengkap anda" 
@@ -176,7 +177,8 @@
                 </button>
             </div>
         </div>
-    </form>
+        </form>
+    </div>
 </div>
 
 <div id="webcam_modal" class="modal-overlay">
