@@ -24,8 +24,8 @@
             left: 0;
             top: 0;
             height: 100vh;
-            width: 170px;
-            background: linear-gradient(#47B9AE 0%, #0C4777 100%);
+            width: 100px;
+            background: linear-gradient(#46B8AD 20%, #0C4777 100%);
             z-index: 30;
             display: flex;
             flex-direction: column;
@@ -59,9 +59,13 @@
             margin-bottom: 0.5rem;
         }
 
+        .sidebar-item span {
+            text-align: center;
+        }
+
         .main-content {
-            margin-left: 170px;
-            padding-top: 116px;
+            margin-left: 100px;
+            padding-top: 80px;
             min-height: 100vh;
         }
     </style>
@@ -76,32 +80,38 @@
             <!-- Background Pattern -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <!-- Circles -->
-                <div class="absolute w-96 h-96 rounded-full opacity-70"
-                    style="background: linear-gradient(180deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%); top: -100px; left: -50px;">
-                </div>
-
-                <div class="absolute w-[500px] h-[500px] rounded-full"
-                    style="background: linear-gradient(180deg, rgba(247, 178, 24, 0.00) 0%, rgba(247, 178, 24, 0.70) 100%); top: 10px; right: 100px;">
+                <div class="absolute w-96 h-96 rounded-full opacity-80"
+                    style="background: linear-gradient(180deg, rgba(247, 178, 24, 0.00) 0%, rgba(247, 178, 24, 0.70) 100%); top: -100px; left: 35vw;">
                 </div>
 
                 <!-- Donuts -->
-                <div class="absolute w-72 h-72 rounded-full opacity-70" style="background: linear-gradient(180deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%); 
-                                    -webkit-mask: radial-gradient(transparent 0, transparent 110px, black 110px); 
-                                    mask: radial-gradient(transparent 0, transparent 110px, black 110px); 
-                                    top: 10%; left: 5%;"></div>
+                <div class="absolute w-44 h-44 rounded-full opacity-90" style="background: linear-gradient(-45deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%); 
+                                    -webkit-mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
+                                    mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
+                                    top: -45%; left: 1%;"></div>
+                
+                <div class="absolute w-40 h-40 rounded-full opacity-90" style="background: linear-gradient(-45deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%); 
+                                    -webkit-mask: radial-gradient(transparent 0, transparent 40px, black 40px); 
+                                    mask: radial-gradient(transparent 0, transparent 40px, black 40px); 
+                                    bottom: 1%; right: 8%;"></div>
+
+                <div class="absolute w-44 h-44 rounded-full opacity-100" style="background: linear-gradient(-45deg, rgba(247, 178, 24, 0.70) 0%, rgba(145, 104, 14, 0.70) 100%); 
+                                    -webkit-mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
+                                    mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
+                                    top: -25%; right: -2%;"></div>
 
                 <!-- Dots Pattern -->
-                <div class="absolute grid grid-cols-8 gap-5 opacity-20" style="top: 20%; left: 10%;">
-                    @for ($i = 0; $i < 16; $i++)
-                        <div class="w-2 h-2 bg-white rounded-full"></div>
+                <div class="absolute grid grid-cols-8 gap-4 opacity-20" style="top: 30%; right: 28vw;">
+                    @for ($i = 0; $i < 24; $i++)
+                        <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
                     @endfor
                 </div>
 
                 <!-- Arrows -->
-                <div class="absolute right-[5%] top-[40%] opacity-15">
-                    @for ($j = 0; $j < 3; $j++)
+                <div class="absolute left-[30%] top-[-5%] opacity-15">
+                    @for ($j = 0; $j < 4; $j++)
                         <div
-                            class="inline-block my-2.5 border-l-[40px] border-l-white border-t-[30px] border-t-transparent border-b-[30px] border-b-transparent">
+                            class="inline-block my-2.5 border-r-[35px] border-r-white border-t-[20px] border-t-transparent border-b-[20px] border-b-transparent">
                         </div>
                     @endfor
                 </div>

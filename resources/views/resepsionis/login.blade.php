@@ -30,58 +30,61 @@
         }
 
         .circle-1 {
-            width: 400px;
-            height: 400px;
-            background: linear-gradient(180deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%);
-            top: -200px;
-            left: -100px;
+            width: 275px;
+            height: 275px;
+            background: linear-gradient(180deg, rgba(255, 227, 102, 0.00) 0%, rgba(255, 227, 102, 0.70) 100%);
+            -webkit-mask: conic-gradient(from 90deg, transparent 0deg 45deg, black 45deg 360deg);
+            mask: conic-gradient(from 90deg, transparent 0deg 45deg, black 45deg 360deg);
+            border-radius: 50%;
+            bottom: -40px;
+            left: -80px;
         }
 
         .circle-2 {
-            width: 500px;
-            height: 500px;
+            width: 450px;
+            height: 450px;
             background: linear-gradient(180deg, rgba(247, 178, 24, 0.00) 0%, rgba(247, 178, 24, 0.70) 100%);
-            top: 10px;
+            top: 2px;
             right: 100px;
         }
 
         .donut-1 {
             width: 300px;
             height: 300px;
-            background: linear-gradient(180deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%);
-            top: 10%;
-            left: 5%;
+            background: linear-gradient(-50deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%);
+            top: -5%;
+            left: 15%;
         }
 
         .donut-2 {
-            width: 250px;
-            height: 250px;
-            background: linear-gradient(-45deg, rgba(255, 227, 102, 0.38) 0%, rgba(95, 129, 161, 0.38) 52.4%, rgba(71, 185, 174, 0.38) 100%);
-            bottom: 5%;
-            right: 15%;
+            width: 275px;
+            height: 275px;
+            background: linear-gradient(75deg, rgba(247, 178, 24, 0.70) 0%, rgba(145, 104, 14, 0.70) 100%);
+            bottom: -15%;
+            right: -5%;
         }
 
         .dots-pattern {
             position: absolute;
             display: grid;
             grid-template-columns: repeat(8, 1fr);
-            gap: 20px;
+            gap: 40px;
             opacity: 0.2;
         }
 
         .dots-pattern-top {
             top: 20%;
-            left: 10%;
+            left: 2.5%;
         }
 
         .dots-pattern-bottom {
-            bottom: 25%;
-            right: 10%;
+            bottom: 5%;
+            left: 15%;
         }
 
         .dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             background: white;
             border-radius: 50%;
         }
@@ -150,7 +153,7 @@
         <div class="donut donut-2"></div>
 
         <div class="dots-pattern dots-pattern-top">
-            @for ($i = 0; $i < 16; $i++)
+            @for ($i = 0; $i < 40; $i++)
                 <div class="dot"></div>
             @endfor
         </div>
@@ -161,7 +164,8 @@
             @endfor
         </div>
 
-        <div class="arrows">
+        <div class="arrows inline-flex">
+            <div class="arrow"></div>
             <div class="arrow"></div>
             <div class="arrow"></div>
             <div class="arrow"></div>
