@@ -22,13 +22,6 @@
             border-radius: 50%;
         }
 
-        .donut {
-            position: absolute;
-            border-radius: 50%;
-            -webkit-mask: radial-gradient(transparent 0, transparent 110px, black 110px);
-            mask: radial-gradient(transparent 0, transparent 110px, black 110px);
-        }
-
         .circle-1 {
             width: 275px;
             height: 275px;
@@ -47,6 +40,13 @@
             top: 2px;
             right: 100px;
         }
+        
+        .donut {
+            position: absolute;
+            border-radius: 50%;
+            -webkit-mask: radial-gradient(transparent 0, transparent 110px, black 110px);
+            mask: radial-gradient(transparent 0, transparent 110px, black 110px);
+        }
 
         .donut-1 {
             width: 300px;
@@ -62,6 +62,16 @@
             background: linear-gradient(75deg, rgba(247, 178, 24, 0.70) 0%, rgba(145, 104, 14, 0.70) 100%);
             bottom: -15%;
             right: -5%;
+        }
+
+        .donut-3 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(-45deg, rgba(255, 227, 102, 0.38) 0%, rgba(95, 129, 161, 0.38) 52.4%, rgba(71, 185, 174, 0.38) 100%);
+            -webkit-mask: radial-gradient(transparent 0, transparent 60px, black 60px); 
+            mask: radial-gradient(transparent 0, transparent 60px, black 60px); 
+            bottom: 1%;
+            right: 15%;
         }
 
         .dots-pattern {
@@ -91,7 +101,7 @@
 
         .arrows {
             position: absolute;
-            right: 5%;
+            right: 1%;
             top: 40%;
             opacity: 0.15;
         }
@@ -101,7 +111,7 @@
             height: 0;
             border-top: 30px solid transparent;
             border-bottom: 30px solid transparent;
-            border-left: 40px solid white;
+            border-right: 40px solid white;
             margin: 10px;
         }
 
@@ -147,6 +157,7 @@
 @endpush
 @section('content')
     <div class="bg-pattern">
+        <div class="donut donut-3"></div>
         <div class="circle circle-1"></div>
         <div class="circle circle-2"></div>
         <div class="donut donut-1"></div>
