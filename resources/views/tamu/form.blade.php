@@ -11,6 +11,14 @@
 
 @include('partials.kunjungan-form-styles')
 
+@push('styles')
+    <style>
+        .container {
+            padding-top: 110px;            
+        }
+    </style>
+@endpush
+
 @section('content')
     @include('partials.kunjungan-form')
 @endsection
