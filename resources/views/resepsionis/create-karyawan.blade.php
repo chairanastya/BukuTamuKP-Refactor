@@ -43,30 +43,15 @@ Buku Tamu Digital
     <style>
         /* Adjust container for fixed header and sidebar */
         .container {
-            margin-left: 180px;
+            margin-left: 90px;
             padding-top: 110px;            
-            max-width: calc(100vw - 120px - 4rem);
-            padding-left: 2rem;
-            padding-right: 2rem;
         }
-    
-        .form-card {
-            padding: 1.5rem;
-        }
-        
-        .upload-area {
-            padding: 24px 16px;
-        }
-        
-        .upload-icon {
-            width: 60px;
-            height: 60px;        }
     </style>
 @endpush
 
 @section('content')
 <div class="container mx-auto py-8">
-    <div class="max-w-5xl mx-auto">
+    <div class="max-w-6xl mx-auto">
         <h1 class="text-2xl font-bold text-[#084E8F] mb-6">Tambah Karyawan Baru</h1>
         
         <form id="karyawan_form" action="{{ route('resepsionis.karyawan.store') }}" method="POST" class="space-y-6">

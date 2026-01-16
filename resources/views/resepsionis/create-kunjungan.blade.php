@@ -27,11 +27,11 @@ Buku Tamu Digital
         @svg('fluentui-home-24', 'w-8 h-8')
         <span>Beranda</span>
     </a>
-    <a href="{{ route('resepsionis.dashboard') }}#riwayat" class="sidebar-item">
+    <a href="{{ route('resepsionis.riwayat') }}#riwayat" class="sidebar-item">
         @svg('gmdi-history', 'w-8 h-8')
         <span>Riwayat</span>
     </a>
-    <a href="{{ route('resepsionis.dashboard') }}#karyawan" class="sidebar-item">
+    <a href="{{ route('resepsionis.karyawan') }}#karyawan" class="sidebar-item">
         @svg('gmdi-people-r', 'w-8 h-8')
         <span>Daftar Karyawan</span>
     </a>
