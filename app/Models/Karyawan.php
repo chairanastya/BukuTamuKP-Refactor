@@ -14,7 +14,19 @@ class Karyawan extends Model
         'email_karyawan',
         'departemen',
         'jabatan',
+        'status',
     ];
+
+    // Scopes
+    public function scopeAktif($query)
+    {
+        return $query->where('status', 'aktif');
+    }
+
+    public function scopeNonaktif($query)
+    {
+        return $query->where('status', 'nonaktif');
+    }
 
     // Relationships
     public function resepsionis()

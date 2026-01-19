@@ -171,6 +171,8 @@ class ResepsionisController extends Controller
     {
         $stats = [
             'total' => Karyawan::count(),
+            'aktif' => Karyawan::where('status', 'aktif')->count(),
+            'nonaktif' => Karyawan::where('status', 'nonaktif')->count(),
             'departemen' => Karyawan::distinct('departemen')->count('departemen'),
         ];
 
@@ -188,12 +190,13 @@ class ResepsionisController extends Controller
                     'email_karyawan' => $karyawan->email_karyawan,
                     'departemen' => $karyawan->departemen ?? '-',
                     'jabatan' => $karyawan->jabatan ?? '-',
+                    'status' => $karyawan->status,
                     'is_resepsionis' => strtolower($karyawan->jabatan ?? '') === 'resepsionis',
                     'created_at' => $karyawan->created_at?->format('Y-m-d H:i:s'),
                 ];
             });
 
-        return response()->json(['data' => $karyawans]);    
+        return response()->json(['data' => $karyawans]);
     }
 
     public function getKtpSignedUrl($tamuId)
@@ -213,7 +216,7 @@ class ResepsionisController extends Controller
             $apiSecret = config('cloudinary.api_secret');
             $publicId = $tamu->ktp_public_id;
 
-            $timestamp = time() + 3600; 
+            $timestamp = time() + 3600;
 
             $toSign = "public_id={$publicId}&timestamp={$timestamp}{$apiSecret}";
             $signature = hash('sha1', $toSign);
@@ -265,19 +268,19 @@ class ResepsionisController extends Controller
             }
 
             $publicId = $tamu->ktp_public_id;
-            
+
             // Generate cache filename from public_id (sanitize for filesystem)
             $cacheFilename = 'ktp-cache/' . md5($publicId) . '.jpg';
-            
+
             // Check if cached version exists
             if (Storage::disk('local')->exists($cacheFilename)) {
                 Log::info('Serving KTP from cache', [
                     'tamu_id' => $tamu->id_tamu,
                     'cache_file' => $cacheFilename
                 ]);
-                
+
                 $imageContent = Storage::disk('local')->get($cacheFilename);
-                
+
                 return response($imageContent)
                     ->header('Content-Type', 'image/jpeg')
                     ->header('Cache-Control', 'private, max-age=600')
@@ -361,19 +364,19 @@ class ResepsionisController extends Controller
             }
 
             $publicId = $dokumentasi->dokumentasi_public_id;
-            
+
             // Generate cache filename from public_id (sanitize for filesystem)
             $cacheFilename = 'dokumentasi-cache/' . md5($publicId) . '.jpg';
-            
+
             // Check if cached version exists
             if (Storage::disk('local')->exists($cacheFilename)) {
                 Log::info('Serving dokumentasi from cache', [
                     'dokumentasi_id' => $dokumentasi->id_dokumentasi,
                     'cache_file' => $cacheFilename
                 ]);
-                
+
                 $imageContent = Storage::disk('local')->get($cacheFilename);
-                
+
                 return response($imageContent)
                     ->header('Content-Type', 'image/jpeg')
                     ->header('Cache-Control', 'private, max-age=3600')

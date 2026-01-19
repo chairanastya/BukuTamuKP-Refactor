@@ -71,7 +71,7 @@ Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
         Route::get('/karyawan', [ResepsionisController::class, 'daftarKaryawan'])->name('karyawan');
         Route::get('/karyawan/create', [App\Http\Controllers\KaryawanController::class, 'createKaryawan'])->name('karyawan.create');
         Route::post('/karyawan/store', [App\Http\Controllers\KaryawanController::class, 'store'])->name('karyawan.store')->middleware('throttle:submissions');
-        Route::delete('/karyawan/{id}', [App\Http\Controllers\KaryawanController::class, 'destroy'])->name('karyawan.destroy')->middleware('throttle:submissions');
+        Route::patch('/karyawan/{id}/toggle-status', [App\Http\Controllers\KaryawanController::class, 'toggleStatus'])->name('karyawan.toggle-status')->middleware('throttle:submissions');
         Route::get('/karyawan/search-departemen', [App\Http\Controllers\KaryawanController::class, 'searchDepartemen'])->name('karyawan.search-departemen')->middleware('throttle:api');
         Route::get('/karyawan/search-jabatan', [App\Http\Controllers\KaryawanController::class, 'searchJabatan'])->name('karyawan.search-jabatan')->middleware('throttle:api');
     });

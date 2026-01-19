@@ -77,31 +77,28 @@ class KaryawanController extends Controller
         return response()->json($jabatans);
     }
 
-    public function destroy($id)
+    public function toggleStatus($id)
     {
         try {
             $karyawan = Karyawan::findOrFail($id);
-            
-            // Check if karyawan is linked to any kunjungan
-            $hasKunjungan = $karyawan->kunjungan()->exists();
-            
-            if ($hasKunjungan) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Tidak dapat menghapus karyawan yang memiliki riwayat kunjungan'
-                ], 400);
-            }
-            
-            $karyawan->delete();
-            
+
+            // Toggle status
+            $newStatus = $karyawan->status === 'aktif' ? 'nonaktif' : 'aktif';
+            $karyawan->update(['status' => $newStatus]);
+
+            $message = $newStatus === 'nonaktif'
+                ? 'Karyawan berhasil dinonaktifkan'
+                : 'Karyawan berhasil diaktifkan';
+
             return response()->json([
                 'success' => true,
-                'message' => 'Karyawan berhasil dihapus'
+                'message' => $message,
+                'status' => $newStatus
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus karyawan: ' . $e->getMessage()
+                'message' => 'Gagal mengubah status karyawan: ' . $e->getMessage()
             ], 500);
         }
     }
