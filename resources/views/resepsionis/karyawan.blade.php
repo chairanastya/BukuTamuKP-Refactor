@@ -511,6 +511,10 @@
         let toggleKaryawanData = null;
 
         document.addEventListener('DOMContentLoaded', function () {
+            @if(session('success'))
+                showSuccessModal('{{ session('success') }}');
+            @endif
+
             setTimeout(function () {
                 initDataTable();
             }, 100);
@@ -839,10 +843,6 @@
                 closeSuccessModal();
             }
         });
-
-        @if(session('success'))
-            showSuccessModal('{{ session('success') }}');
-        @endif
 
         // Supabase Realtime - Auto reload hanya ketika ada perubahan
         (function () {

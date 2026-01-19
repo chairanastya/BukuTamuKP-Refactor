@@ -14,10 +14,6 @@ Route::get('/', function () {
     return view('tamu.form');
 });
 
-Route::get('/resepsionis/login', function () {
-    return redirect('/login');
-});
-
 Route::prefix('tamu')->name('tamu.')->group(function () {
     Route::get('/form', [TamuController::class, 'showForm'])->name('form');
     Route::get('/search-karyawan', [TamuController::class, 'searchKaryawan'])->name('search-karyawan')->middleware('throttle:api');
@@ -50,7 +46,7 @@ Route::prefix('notulensi')->name('notulensi.')->group(function () {
 
 Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
     Route::get('/login', [SessionController::class, 'create'])->name('login');
-    Route::post('/login', [SessionController::class, 'store'])->middleware('throttle:login');
+    Route::post('/login', [SessionController::class, 'store'])->name('login')->middleware('throttle:login');
 
     Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
     Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email')->middleware('throttle:submissions');
@@ -82,4 +78,5 @@ Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
     });
 });
 
-require __DIR__ . '/auth.php';
+// Commented out - using custom SessionController instead
+// require __DIR__ . '/auth.php';

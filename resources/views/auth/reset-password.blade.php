@@ -1,20 +1,21 @@
 @extends('layouts.guest')
-@section('title', 'Reset Password - Resepsionis')
+@section('title', 'Reset Password - Buku Tamu Digital')
 @push('styles')
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
-            background: linear-gradient(#0C4777 17.8%, #47B9AE 100%);
+            background: #0C4777;
             min-height: 100vh;
             position: relative;
-            overflow: hidden;
+            overflow-y: auto;
         }
 
         .bg-pattern {
-            position: absolute;
+            position: fixed;
             width: 100%;
             height: 100%;
             overflow: hidden;
+            background: linear-gradient(#0C4777 17.8%, #47B9AE 100%);
         }
 
         .circle {
@@ -22,6 +23,25 @@
             border-radius: 50%;
         }
 
+        .circle-1 {
+            width: 275px;
+            height: 275px;
+            background: linear-gradient(180deg, rgba(255, 227, 102, 0.00) 0%, rgba(255, 227, 102, 0.70) 100%);
+            -webkit-mask: conic-gradient(from 90deg, transparent 0deg 45deg, black 45deg 360deg);
+            mask: conic-gradient(from 90deg, transparent 0deg 45deg, black 45deg 360deg);
+            border-radius: 50%;
+            bottom: -40px;
+            left: -80px;
+        }
+
+        .circle-2 {
+            width: 450px;
+            height: 450px;
+            background: linear-gradient(180deg, rgba(247, 178, 24, 0.00) 0%, rgba(247, 178, 24, 0.70) 100%);
+            top: 2px;
+            right: 100px;
+        }
+        
         .donut {
             position: absolute;
             border-radius: 50%;
@@ -29,35 +49,29 @@
             mask: radial-gradient(transparent 0, transparent 110px, black 110px);
         }
 
-        .circle-1 {
-            width: 400px;
-            height: 400px;
-            background: linear-gradient(180deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%);
-            top: -200px;
-            left: -100px;
-        }
-
-        .circle-2 {
-            width: 500px;
-            height: 500px;
-            background: linear-gradient(180deg, rgba(247, 178, 24, 0.00) 0%, rgba(247, 178, 24, 0.70) 100%);
-            top: 10px;
-            right: 100px;
-        }
-
         .donut-1 {
             width: 300px;
             height: 300px;
-            background: linear-gradient(180deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%);
-            top: 10%;
-            left: 5%;
+            background: linear-gradient(-50deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%);
+            top: -5%;
+            left: 15%;
         }
 
         .donut-2 {
-            width: 250px;
-            height: 250px;
+            width: 275px;
+            height: 275px;
+            background: linear-gradient(75deg, rgba(247, 178, 24, 0.70) 0%, rgba(145, 104, 14, 0.70) 100%);
+            bottom: -15%;
+            right: -5%;
+        }
+
+        .donut-3 {
+            width: 300px;
+            height: 300px;
             background: linear-gradient(-45deg, rgba(255, 227, 102, 0.38) 0%, rgba(95, 129, 161, 0.38) 52.4%, rgba(71, 185, 174, 0.38) 100%);
-            bottom: 5%;
+            -webkit-mask: radial-gradient(transparent 0, transparent 60px, black 60px); 
+            mask: radial-gradient(transparent 0, transparent 60px, black 60px); 
+            bottom: 1%;
             right: 15%;
         }
 
@@ -65,23 +79,23 @@
             position: absolute;
             display: grid;
             grid-template-columns: repeat(8, 1fr);
-            gap: 20px;
+            gap: 40px;
             opacity: 0.2;
         }
 
         .dots-pattern-top {
             top: 20%;
-            left: 10%;
+            left: 2.5%;
         }
 
         .dots-pattern-bottom {
-            bottom: 25%;
-            right: 10%;
+            bottom: 5%;
+            left: 15%;
         }
 
         .dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             background: white;
             border-radius: 50%;
         }
@@ -98,20 +112,70 @@
             height: 0;
             border-top: 30px solid transparent;
             border-bottom: 30px solid transparent;
-            border-left: 40px solid white;
+            border-right: 40px solid white;
             margin: 10px;
+        }
+
+        .input-wrapper-setup {
+            border: 2px solid #084E8F;
+            border-radius: 8px;
+            padding: 12px 16px;
+            transition: all 0.2s ease;
+            background-color: #F9FCFF;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper-setup.filled {
+            background-color: white;
+        }
+
+        .input-wrapper-setup.readonly {
+            border-color: #d1d5db;
+            background-color: #f3f4f6;
+            cursor: not-allowed;
+        }
+
+        .input-wrapper-setup:focus-within {
+            box-shadow: 0 0 0 3px rgba(8, 78, 143, 0.1);
+        }
+
+        .input-wrapper-setup.readonly:focus-within {
+            box-shadow: none;
+        }
+
+        .input-wrapper-setup.error {
+            border-color: #dc2626 !important;
+            background-color: #fef2f2;
+        }
+
+        .input-wrapper-setup input {
+            background-color: transparent;
+            flex: 1;
+        }
+
+        .error-message-setup {
+            color: #dc2626;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .error-message-setup.show {
+            display: block;
         }
     </style>
 @endpush
 @section('content')
     <div class="bg-pattern">
+        <div class="donut donut-3"></div>
         <div class="circle circle-1"></div>
         <div class="circle circle-2"></div>
         <div class="donut donut-1"></div>
         <div class="donut donut-2"></div>
 
         <div class="dots-pattern dots-pattern-top">
-            @for ($i = 0; $i < 16; $i++)
+            @for ($i = 0; $i < 40; $i++)
                 <div class="dot"></div>
             @endfor
         </div>
@@ -122,16 +186,16 @@
             @endfor
         </div>
 
-        <div class="arrows">
+        <div class="arrows inline-flex">
+            <div class="arrow"></div>
             <div class="arrow"></div>
             <div class="arrow"></div>
             <div class="arrow"></div>
         </div>
     </div>
 
-    <div class="relative flex items-center justify-center min-h-screen px-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
-            <!-- Title -->
+    <div class="relative flex items-center justify-center min-h-screen px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md my-8">
             <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-2">
                 Reset Password
             </h1>
@@ -139,82 +203,79 @@
                 Masukkan password baru Anda
             </p>
 
-            <!-- Error Messages -->
             @if ($errors->any())
-                <div class="mb-4 bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg">
-                    <ul class="list-disc list-inside text-sm">
+                <div class="mb-4 bg-red-50 border-2 border-red-600 text-red-700 px-4 py-3 rounded-lg">
+                    <ul class="list-none text-sm space-y-1">
                         @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
+                            <li class="flex items-start">
+                                @svg('heroicon-o-x-circle', 'w-4 h-4 mr-2 flex-shrink-0 mt-0.5')
+                                <span>{{ $error }}</span>
+                            </li>
                         @endforeach
                     </ul>
                 </div>
             @endif
 
-            <!-- Reset Password Form -->
+            <div class="mb-6 bg-blue-50 border-2 border-blue-300 text-blue-800 px-4 py-3 rounded-lg">
+                <p class="text-sm flex items-start">
+                    @svg('heroicon-o-information-circle', 'w-4 h-4 mr-2 flex-shrink-0 mt-0.5')
+                    <span>Buat password yang kuat untuk melindungi akun Anda. Gunakan kombinasi huruf besar, huruf kecil, angka, dan simbol.</span>
+                </p>
+            </div>
+
             <form method="POST" action="{{ route('resepsionis.password.update') }}">
                 @csrf
 
-                <!-- Token Hidden Field -->
                 <input type="hidden" name="token" value="{{ $token }}">
-
-                <!-- Email Display (Read-only) -->
-                <div class="mb-6">
-                    <div class="bg-gray-100 border-2 border-gray-300 rounded-lg px-4 py-3">
-                        <div class="flex items-center">
-                            <svg class="w-6 h-6 text-gray-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
-                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
-                            </svg>
-                            <span class="text-gray-700 font-medium">{{ $email }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Password Input -->
-                <div class="mb-6">
-                    <div
-                        class="flex items-center border-2 border-blue-300 rounded-lg px-4 py-3 focus-within:border-blue-600 transition">
-                        <svg class="w-6 h-6 text-blue-900 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                        <input type="password" name="password" id="password" placeholder="Password Baru"
-                            class="flex-1 border-0 outline-none text-gray-700 placeholder-gray-400" required autofocus>
-                    </div>
-                </div>
-
-                <!-- Password Confirmation Input -->
                 <div class="mb-4">
-                    <div
-                        class="flex items-center border-2 border-blue-300 rounded-lg px-4 py-3 focus-within:border-blue-600 transition">
-                        <svg class="w-6 h-6 text-blue-900 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                        <input type="password" name="password_confirmation" id="password_confirmation"
-                            placeholder="Konfirmasi Password Baru"
-                            class="flex-1 border-0 outline-none text-gray-700 placeholder-gray-400" required>
+                    <label for="email" class="block text-gray-700 font-semibold mb-2">Email</label>
+                    <div class="input-wrapper-setup readonly">
+                        @svg('heroicon-s-envelope', 'w-6 h-6 text-gray-500 mr-3')
+                        <input type="email" id="email" value="{{ $email }}" 
+                            class="flex-1 border-0 outline-none text-gray-600 cursor-not-allowed" readonly>
                     </div>
                 </div>
 
-                <!-- Show Password Checkbox -->
+                <div class="mb-4">
+                    <label for="password" class="block text-gray-700 font-semibold mb-2">Password Baru</label>
+                    <div class="input-wrapper-setup" id="password-wrapper">
+                        @svg('fas-key', 'w-6 h-6 text-[#084E8F] mr-3')
+                        <input type="password" name="password" id="password" placeholder="Masukkan password baru"
+                            class="flex-1 border-0 outline-none text-gray-700" required>
+                    </div>
+                    <div id="password_error" class="error-message-setup">
+                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                        Password minimal 8 karakter
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="password_confirmation" class="block text-gray-700 font-semibold mb-2">Konfirmasi Password</label>
+                    <div class="input-wrapper-setup" id="password-confirmation-wrapper">
+                        @svg('fas-key', 'w-6 h-6 text-[#084E8F] mr-3')
+                        <input type="password" name="password_confirmation" id="password_confirmation" 
+                            placeholder="Masukkan ulang password"
+                            class="flex-1 border-0 outline-none text-gray-700" required>
+                    </div>
+                    <div id="password_confirmation_error" class="error-message-setup">
+                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+                        Konfirmasi password tidak cocok
+                    </div>
+                </div>
+
                 <div class="mb-6 flex items-center justify-end">
                     <label class="flex items-center cursor-pointer text-sm text-gray-600 hover:text-gray-800">
                         <input type="checkbox" id="showPassword"
                             class="mr-2 w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
-                        Show Password
+                        Tampilkan Password
                     </label>
                 </div>
 
-                <!-- Submit Button -->
                 <button type="submit"
                     class="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
                     Reset Password
                 </button>
 
-                <!-- Back to Login Link -->
                 <div class="mt-6 text-center">
                     <a href="{{ route('resepsionis.login') }}"
                         class="text-sm text-gray-600 hover:text-blue-700 hover:underline inline-flex items-center">
@@ -232,12 +293,87 @@
 
     @push('scripts')
         <script>
-            document.getElementById('showPassword').addEventListener('change', function() {
+            document.getElementById('showPassword').addEventListener('change', function () {
                 const passwordInput = document.getElementById('password');
-                const confirmPasswordInput = document.getElementById('password_confirmation');
+                const confirmInput = document.getElementById('password_confirmation');
                 const type = this.checked ? 'text' : 'password';
                 passwordInput.type = type;
-                confirmPasswordInput.type = type;
+                confirmInput.type = type;
+            });
+
+            function updateInputBackground(input) {
+                const wrapper = input.closest('.input-wrapper-setup');
+                if (wrapper && !input.readOnly) {
+                    wrapper.classList.toggle('filled', input.value.trim() !== '');
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const form = document.querySelector('form');
+                const passwordInput = document.getElementById('password');
+                const confirmInput = document.getElementById('password_confirmation');
+                const passwordWrapper = document.getElementById('password-wrapper');
+                const confirmWrapper = document.getElementById('password-confirmation-wrapper');
+                const passwordError = document.getElementById('password_error');
+                const confirmError = document.getElementById('password_confirmation_error');
+
+                passwordInput.addEventListener('input', function() {
+                    updateInputBackground(this);
+                    updatePasswordStrength();
+                });
+
+                confirmInput.addEventListener('input', function() {
+                    updateInputBackground(this);
+                });
+
+                form.addEventListener('submit', function (e) {
+                    let hasError = false;
+                    let firstErrorElement = null;
+
+                    passwordWrapper.classList.remove('error');
+                    confirmWrapper.classList.remove('error');
+                    passwordError.classList.remove('show');
+                    confirmError.classList.remove('show');
+
+                    if (!passwordInput.value?.trim() || passwordInput.value.length < 8) {
+                        e.preventDefault();
+                        hasError = true;
+                        passwordWrapper.classList.add('error');
+                        passwordError.classList.add('show');
+                        if (!firstErrorElement) firstErrorElement = passwordInput;
+
+                        setTimeout(() => {
+                            passwordError.classList.remove('show');
+                            passwordWrapper.classList.remove('error');
+                        }, 5000);
+                    }
+
+                    if (passwordInput.value !== confirmInput.value) {
+                        e.preventDefault();
+                        hasError = true;
+                        confirmWrapper.classList.add('error');
+                        confirmError.classList.add('show');
+                        if (!firstErrorElement) firstErrorElement = confirmInput;
+
+                        setTimeout(() => {
+                            confirmError.classList.remove('show');
+                            confirmWrapper.classList.remove('error');
+                        }, 5000);
+                    }
+
+                    if (hasError && firstErrorElement) {
+                        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstErrorElement.focus();
+                        return false;
+                    }
+
+                    return true;
+                });
+
+                const inputs = document.querySelectorAll('.input-wrapper-setup input');
+                inputs.forEach(input => {
+                    updateInputBackground(input);
+                });
             });
         </script>
     @endpush

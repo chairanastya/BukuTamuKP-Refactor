@@ -218,7 +218,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('login') }}" novalidate>
+            <form method="POST" action="{{ route('resepsionis.login') }}" novalidate>
                 @csrf
 
                 <div class="mb-6">
