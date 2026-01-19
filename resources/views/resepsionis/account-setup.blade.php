@@ -130,8 +130,18 @@
             background-color: white;
         }
 
+        .input-wrapper-setup.readonly {
+            border-color: #d1d5db;
+            background-color: #f3f4f6;
+            cursor: not-allowed;
+        }
+
         .input-wrapper-setup:focus-within {
             box-shadow: 0 0 0 3px rgba(8, 78, 143, 0.1);
+        }
+
+        .input-wrapper-setup.readonly:focus-within {
+            box-shadow: none;
         }
 
         .input-wrapper-setup.error {
@@ -154,29 +164,6 @@
         .error-message-setup.show {
             display: block;
         }
-
-        .password-strength {
-            margin-top: 8px;
-            font-size: 14px;
-        }
-
-        .strength-bar {
-            height: 4px;
-            border-radius: 2px;
-            background-color: #e5e7eb;
-            margin-top: 4px;
-            overflow: hidden;
-        }
-
-        .strength-bar-fill {
-            height: 100%;
-            transition: width 0.3s, background-color 0.3s;
-            width: 0%;
-        }
-
-        .strength-weak { background-color: #ef4444; }
-        .strength-medium { background-color: #f59e0b; }
-        .strength-strong { background-color: #10b981; }
     </style>
 @endpush
 @section('content')
@@ -210,7 +197,7 @@
     <div class="relative flex items-center justify-center min-h-screen px-4 py-8">
         <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md my-8">
             <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-2">
-                Buat Password Akun Baru
+                Buat Password Akun Baru Resepsionis
             </h1>
             <p class="text-center text-gray-600 mb-8">
                 Selamat datang, <strong class="text-blue-900">{{ $nama }}</strong>!
@@ -241,10 +228,10 @@
 
                 <div class="mb-4">
                     <label for="email" class="block text-gray-700 font-semibold mb-2">Email</label>
-                    <div class="input-wrapper-setup filled">
-                        @svg('bi-person-fill', 'w-6 h-6 text-[#084E8F] mr-3')
+                    <div class="input-wrapper-setup readonly">
+                        @svg('heroicon-s-envelope', 'w-6 h-6 text-gray-500 mr-3')
                         <input type="email" id="email" value="{{ $email }}" 
-                            class="flex-1 border-0 outline-none text-gray-700 bg-gray-100" readonly>
+                            class="flex-1 border-0 outline-none text-gray-600 cursor-not-allowed" readonly>
                     </div>
                 </div>
 
@@ -255,22 +242,13 @@
                         <input type="password" name="password" id="password" placeholder="Masukkan password baru"
                             class="flex-1 border-0 outline-none text-gray-700" required>
                     </div>
-                    <div class="password-strength" id="password-strength" style="display: none;">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-xs text-gray-600">Kekuatan Password:</span>
-                            <span class="text-xs font-semibold" id="strength-text"></span>
-                        </div>
-                        <div class="strength-bar">
-                            <div class="strength-bar-fill" id="strength-bar-fill"></div>
-                        </div>
-                    </div>
                     <div id="password_error" class="error-message-setup">
                         @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
                         Password minimal 8 karakter
                     </div>
                 </div>
 
-                <div class="mb-6">
+                <div class="mb-4">
                     <label for="password_confirmation" class="block text-gray-700 font-semibold mb-2">Konfirmasi Password</label>
                     <div class="input-wrapper-setup" id="password-confirmation-wrapper">
                         @svg('fas-key', 'w-6 h-6 text-[#084E8F] mr-3')
@@ -314,53 +292,6 @@
                 const wrapper = input.closest('.input-wrapper-setup');
                 if (wrapper && !input.readOnly) {
                     wrapper.classList.toggle('filled', input.value.trim() !== '');
-                }
-            }
-
-            function calculatePasswordStrength(password) {
-                let strength = 0;
-                
-                if (password.length >= 8) strength += 1;
-                if (password.length >= 12) strength += 1;
-                if (/[a-z]/.test(password)) strength += 1;
-                if (/[A-Z]/.test(password)) strength += 1;
-                if (/[0-9]/.test(password)) strength += 1;
-                if (/[^a-zA-Z0-9]/.test(password)) strength += 1;
-                
-                return strength;
-            }
-
-            function updatePasswordStrength() {
-                const password = document.getElementById('password').value;
-                const strengthContainer = document.getElementById('password-strength');
-                const strengthText = document.getElementById('strength-text');
-                const strengthBar = document.getElementById('strength-bar-fill');
-                
-                if (password.length === 0) {
-                    strengthContainer.style.display = 'none';
-                    return;
-                }
-                
-                strengthContainer.style.display = 'block';
-                const strength = calculatePasswordStrength(password);
-                
-                strengthBar.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
-                
-                if (strength <= 2) {
-                    strengthBar.style.width = '33%';
-                    strengthBar.classList.add('strength-weak');
-                    strengthText.textContent = 'Lemah';
-                    strengthText.className = 'text-xs font-semibold text-red-600';
-                } else if (strength <= 4) {
-                    strengthBar.style.width = '66%';
-                    strengthBar.classList.add('strength-medium');
-                    strengthText.textContent = 'Sedang';
-                    strengthText.className = 'text-xs font-semibold text-yellow-600';
-                } else {
-                    strengthBar.style.width = '100%';
-                    strengthBar.classList.add('strength-strong');
-                    strengthText.textContent = 'Kuat';
-                    strengthText.className = 'text-xs font-semibold text-green-600';
                 }
             }
 
@@ -418,6 +349,10 @@
                     }
 
                     if (hasError && firstErrorElement) {
+                        // Hide loading spinner if validation fails
+                        if (typeof window.hideLoading === 'function') {
+                            window.hideLoading();
+                        }
                         firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         firstErrorElement.focus();
                         return false;

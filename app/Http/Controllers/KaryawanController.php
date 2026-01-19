@@ -38,13 +38,10 @@ class KaryawanController extends Controller
 
             $karyawan = Karyawan::create($validated);
 
-            // Check if jabatan is "resepsionis"
             if (strtolower($validated['jabatan']) === 'resepsionis') {
-                // Generate token for account creation
                 $token = Str::random(64);
-                $expiredAt = now()->addHours(48); // Token valid for 48 hours
+                $expiredAt = now()->addHours(48); 
 
-                // Create resepsionis record without password (will be set via email link)
                 Resepsionis::create([
                     'id_karyawan' => $karyawan->id_karyawan,
                     'nama_resepsionis' => $karyawan->nama_karyawan,
@@ -53,7 +50,6 @@ class KaryawanController extends Controller
                     'token_setup_expired_at' => $expiredAt,
                 ]);
 
-                // Send invitation email
                 Mail::to($karyawan->email_karyawan)->send(
                     new ResepsionisInvitation($karyawan, $token)
                 );
@@ -61,13 +57,15 @@ class KaryawanController extends Controller
                 DB::commit();
 
                 return redirect()->route('resepsionis.karyawan')
-                    ->with('success', 'Karyawan berhasil ditambahkan dan undangan pembuatan akun telah dikirim ke email');
+                    ->with('success', 'Karyawan berhasil ditambahkan dan undangan pembuatan akun telah dikirim ke email')
+                    ->withFragment('karyawan');
             }
 
             DB::commit();
 
             return redirect()->route('resepsionis.karyawan')
-                ->with('success', 'Karyawan berhasil ditambahkan');
+                ->with('success', 'Karyawan berhasil ditambahkan')
+                ->withFragment('karyawan');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()
@@ -117,7 +115,6 @@ class KaryawanController extends Controller
         try {
             $karyawan = Karyawan::findOrFail($id);
 
-            // Toggle status
             $newStatus = $karyawan->status === 'aktif' ? 'nonaktif' : 'aktif';
             $karyawan->update(['status' => $newStatus]);
 
