@@ -23,13 +23,14 @@
             position: fixed;
             left: 0;
             top: 0;
-            height: 100vh;
+            height: 100%;
             width: 100px;
             background: linear-gradient(#46B8AD 20%, #0C4777 100%);
             z-index: 30;
             display: flex;
             flex-direction: column;
             padding-top: 116px;
+            transition: transform 0.3s ease-in-out;
         }
 
         .sidebar-item {
@@ -67,6 +68,53 @@
             margin-left: 100px;
             padding-top: 80px;
             min-height: 100vh;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0.5rem;
+            margin-right: 1rem;
+        }
+
+        .menu-toggle svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 25;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
         }
     </style>
 
@@ -119,9 +167,16 @@
 
             <div class="relative max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between">
-                    <h1 class="text-3xl font-extrabold text-white">
-                        @yield('header')
-                    </h1>
+                    <div class="flex items-center">
+                        @auth('resepsionis')
+                            <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+                                @svg('heroicon-o-bars-3', 'w-7 h-7')
+                            </button>
+                        @endauth
+                        <h1 class="text-3xl font-extrabold text-white">
+                            @yield('header')
+                        </h1>
+                    </div>
                     @if(View::hasSection('header-action'))
                         <div
                             class="text-white hover:bg-blue-50 hover:bg-opacity-20 px-4 py-2 rounded-lg font-semibold transition duration-200">
@@ -135,7 +190,10 @@
 
     <!-- Sidebar (only for authenticated resepsionis) -->
     @auth('resepsionis')
-        <div class="sidebar">
+        <!-- Sidebar Overlay (for mobile) -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+        
+        <div class="sidebar" id="sidebar">
             @yield('sidebar')
         </div>
     @endauth
@@ -147,6 +205,37 @@
     <x-loading-spinner />
 
     @stack('scripts')
+
+    <!-- Sidebar Toggle Script -->
+    @auth('resepsionis')
+        <script>
+            function toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('show');
+            }
+
+            function closeSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                sidebar.classList.remove('open');
+                overlay.classList.remove('show');
+            }
+
+            // Close sidebar when clicking on a sidebar item on mobile
+            document.addEventListener('DOMContentLoaded', function() {
+                const sidebarItems = document.querySelectorAll('.sidebar-item');
+                sidebarItems.forEach(item => {
+                    item.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            closeSidebar();
+                        }
+                    });
+                });
+            });
+        </script>
+    @endauth
 </body>
 
 </html>
