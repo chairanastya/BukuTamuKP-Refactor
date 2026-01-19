@@ -21,18 +21,31 @@ class ResepsionisController extends Controller
     {
         $today = now()->toDateString();
 
+        $todayStats = Kunjungan::whereDate('tanggal_kunjungan', $today)
+            ->selectRaw('COUNT(*) as total')
+            ->selectRaw("COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending")
+            ->selectRaw("COUNT(CASE WHEN status = 'done' THEN 1 END) as done")
+            ->selectRaw("COUNT(CASE WHEN status = 'canceled' THEN 1 END) as canceled")
+            ->first();
+
         $stats = [
-            'total' => Kunjungan::whereDate('tanggal_kunjungan', $today)->count(),
-            'pending' => Kunjungan::whereDate('tanggal_kunjungan', $today)->where('status', 'pending')->count(),
-            'done' => Kunjungan::whereDate('tanggal_kunjungan', $today)->where('status', 'done')->count(),
-            'canceled' => Kunjungan::whereDate('tanggal_kunjungan', $today)->where('status', 'canceled')->count(),
+            'total' => $todayStats->total ?? 0,
+            'pending' => $todayStats->pending ?? 0,
+            'done' => $todayStats->done ?? 0,
+            'canceled' => $todayStats->canceled ?? 0,
         ];
 
+        $allTime = Kunjungan::selectRaw('COUNT(*) as total')
+            ->selectRaw("COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending")
+            ->selectRaw("COUNT(CASE WHEN status = 'done' THEN 1 END) as done")
+            ->selectRaw("COUNT(CASE WHEN status = 'canceled' THEN 1 END) as canceled")
+            ->first();
+
         $allTimeStats = [
-            'total' => Kunjungan::count(),
-            'pending' => Kunjungan::where('status', 'pending')->count(),
-            'done' => Kunjungan::where('status', 'done')->count(),
-            'canceled' => Kunjungan::where('status', 'canceled')->count(),
+            'total' => $allTime->total ?? 0,
+            'pending' => $allTime->pending ?? 0,
+            'done' => $allTime->done ?? 0,
+            'canceled' => $allTime->canceled ?? 0,
         ];
 
         return view('resepsionis.dashboard', compact('stats', 'allTimeStats'));
@@ -40,7 +53,9 @@ class ResepsionisController extends Controller
 
     public function getKunjunganData(Request $request)
     {
-        $query = Kunjungan::with(['tamu', 'karyawan'])
+        $query = Kunjungan::with(['tamu:id_tamu,nama_tamu,email_tamu,instansi_tamu,ktp_public_id,ktp_access_token', 
+                                   'karyawan:id_karyawan,nama_karyawan,jabatan,departemen'])
+            ->select('id_kunjungan', 'id_tamu', 'tujuan_kunjungan', 'tanggal_kunjungan', 'jam_mulai', 'jam_selesai', 'status', 'alasan_batal')
             ->whereDate('tanggal_kunjungan', now()->toDateString())
             ->orderBy('tanggal_kunjungan', 'desc')
             ->orderBy('jam_mulai', 'desc');
@@ -74,9 +89,16 @@ class ResepsionisController extends Controller
 
     public function getRiwayatData(Request $request)
     {
-        $query = Kunjungan::with(['tamu', 'karyawan'])
+        $perPage = $request->input('per_page', 100); 
+        $page = $request->input('page', 1);
+        
+        $query = Kunjungan::with(['tamu:id_tamu,nama_tamu,email_tamu,instansi_tamu,ktp_public_id,ktp_access_token', 
+                                   'karyawan:id_karyawan,nama_karyawan,jabatan,departemen'])
+            ->select('id_kunjungan', 'id_tamu', 'tujuan_kunjungan', 'tanggal_kunjungan', 'jam_mulai', 'jam_selesai', 'status', 'alasan_batal')
             ->orderBy('tanggal_kunjungan', 'desc')
-            ->orderBy('jam_mulai', 'desc');
+            ->orderBy('jam_mulai', 'desc')
+            ->limit($perPage)
+            ->offset(($page - 1) * $perPage);
 
         $kunjungans = $query->get()->map(function ($kunjungan) {
             return [
@@ -117,10 +139,8 @@ class ResepsionisController extends Controller
 
         Log::info('Kunjungan diterima (approved), ID: ' . $kunjungan->id_kunjungan);
 
-        // Send notification to guest (tamu)
         $this->sendNotificationToTamu($kunjungan, 'diterima');
 
-        // Send notulensi request to all karyawan involved in the visit
         $this->sendNotulensiRequestToKaryawan($kunjungan);
 
         return response()->json(['success' => true, 'message' => 'Kunjungan berhasil diterima']);
@@ -258,10 +278,19 @@ class ResepsionisController extends Controller
     public function streamKtp($token)
     {
         try {
+            // Validasi token dan pastikan tamu ada
             $tamu = Tamu::where('ktp_access_token', $token)->firstOrFail();
-
-            // Token KTP hanya untuk identifikasi, tidak ada expiry
-            // karena endpoint ini sudah protected dengan middleware auth:resepsionis
+            
+            // Authorization: Pastikan tamu ini memiliki kunjungan yang tercatat
+            // Ini mencegah akses ke KTP tamu yang tidak pernah berkunjung/data invalid
+            $hasKunjungan = $tamu->kunjungan()->exists();
+            if (!$hasKunjungan) {
+                Log::warning('Unauthorized KTP access attempt - no kunjungan record', [
+                    'tamu_id' => $tamu->id_tamu,
+                    'resepsionis_id' => auth('resepsionis')->id(),
+                ]);
+                abort(403, 'Tidak memiliki akses ke KTP ini');
+            }
             
             if (!$tamu->ktp_public_id) {
                 abort(404, 'KTP tidak ditemukan');
@@ -269,10 +298,8 @@ class ResepsionisController extends Controller
 
             $publicId = $tamu->ktp_public_id;
 
-            // Generate cache filename from public_id (sanitize for filesystem)
             $cacheFilename = 'ktp-cache/' . md5($publicId) . '.jpg';
 
-            // Check if cached version exists
             if (Storage::disk('local')->exists($cacheFilename)) {
                 Log::info('Serving KTP from cache', [
                     'tamu_id' => $tamu->id_tamu,
@@ -287,7 +314,6 @@ class ResepsionisController extends Controller
                     ->header('X-Content-Type-Options', 'nosniff');
             }
 
-            // Not cached, download from Cloudinary
             $cloudName = config('cloudinary.cloud_name');
 
             Log::info('Downloading KTP from Cloudinary to cache', [
@@ -329,7 +355,6 @@ class ResepsionisController extends Controller
                 abort(500, $errorMsg);
             }
 
-            // Save to cache for future requests
             Storage::disk('local')->put($cacheFilename, $imageContent);
 
             Log::info('Successfully downloaded and cached KTP', [
@@ -357,7 +382,27 @@ class ResepsionisController extends Controller
     public function streamDokumentasi($token)
     {
         try {
-            $dokumentasi = Dokumentasi::where('access_token', $token)->firstOrFail();
+            // Validasi token dan load relasi kunjungan untuk authorization
+            $dokumentasi = Dokumentasi::with('kunjungan')->where('access_token', $token)->firstOrFail();
+
+            // Authorization: Pastikan dokumentasi terkait dengan kunjungan yang valid
+            if (!$dokumentasi->kunjungan) {
+                Log::warning('Unauthorized dokumentasi access attempt - no kunjungan', [
+                    'dokumentasi_id' => $dokumentasi->id_dokumentasi,
+                    'resepsionis_id' => auth('resepsionis')->id(),
+                ]);
+                abort(403, 'Tidak memiliki akses ke dokumentasi ini');
+            }
+
+            // Pastikan kunjungan dalam status yang valid (approved atau done)
+            if (!in_array($dokumentasi->kunjungan->status, ['approved', 'done'])) {
+                Log::warning('Unauthorized dokumentasi access - invalid kunjungan status', [
+                    'dokumentasi_id' => $dokumentasi->id_dokumentasi,
+                    'kunjungan_status' => $dokumentasi->kunjungan->status,
+                    'resepsionis_id' => auth('resepsionis')->id(),
+                ]);
+                abort(403, 'Dokumentasi hanya dapat diakses untuk kunjungan yang sudah disetujui');
+            }
 
             if (!$dokumentasi->dokumentasi_public_id) {
                 abort(404, 'Dokumentasi tidak ditemukan');
@@ -365,10 +410,8 @@ class ResepsionisController extends Controller
 
             $publicId = $dokumentasi->dokumentasi_public_id;
 
-            // Generate cache filename from public_id (sanitize for filesystem)
             $cacheFilename = 'dokumentasi-cache/' . md5($publicId) . '.jpg';
 
-            // Check if cached version exists
             if (Storage::disk('local')->exists($cacheFilename)) {
                 Log::info('Serving dokumentasi from cache', [
                     'dokumentasi_id' => $dokumentasi->id_dokumentasi,
@@ -383,7 +426,6 @@ class ResepsionisController extends Controller
                     ->header('X-Content-Type-Options', 'nosniff');
             }
 
-            // Not cached, download from Cloudinary
             $cloudName = config('cloudinary.cloud_name');
 
             Log::info('Downloading dokumentasi from Cloudinary to cache', [
@@ -426,7 +468,6 @@ class ResepsionisController extends Controller
                 abort(500, $errorMsg);
             }
 
-            // Save to cache for future requests
             Storage::disk('local')->put($cacheFilename, $imageContent);
 
             Log::info('Successfully downloaded and cached dokumentasi', [
@@ -488,10 +529,8 @@ class ResepsionisController extends Controller
     private function sendNotulensiRequestToKaryawan(Kunjungan $kunjungan)
     {
         try {
-            // Load relationships
             $kunjungan->load(['tamu', 'karyawan']);
 
-            // Get token for notulensi form
             $token = $kunjungan->token_approval;
 
             if (!$token) {
@@ -499,7 +538,6 @@ class ResepsionisController extends Controller
                 return;
             }
 
-            // Send email to each karyawan involved in the visit
             foreach ($kunjungan->karyawan as $karyawan) {
                 if (!$karyawan->email_karyawan) {
                     Log::warning('Karyawan has no email, ID: ' . $karyawan->id_karyawan);
