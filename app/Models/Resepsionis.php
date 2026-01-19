@@ -18,6 +18,8 @@ class Resepsionis extends Authenticatable
         'nama_resepsionis',
         'email_resepsionis',
         'password_resepsionis',
+        'token_setup',
+        'token_setup_expired_at',
     ];
 
     protected $hidden = [

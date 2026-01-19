@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Karyawan;
+use App\Models\Resepsionis;
+use App\Mail\ResepsionisInvitation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class KaryawanController extends Controller
 {
@@ -30,11 +34,42 @@ class KaryawanController extends Controller
         ]);
 
         try {
-            Karyawan::create($validated);
+            DB::beginTransaction();
+
+            $karyawan = Karyawan::create($validated);
+
+            // Check if jabatan is "resepsionis"
+            if (strtolower($validated['jabatan']) === 'resepsionis') {
+                // Generate token for account creation
+                $token = Str::random(64);
+                $expiredAt = now()->addHours(48); // Token valid for 48 hours
+
+                // Create resepsionis record without password (will be set via email link)
+                Resepsionis::create([
+                    'id_karyawan' => $karyawan->id_karyawan,
+                    'nama_resepsionis' => $karyawan->nama_karyawan,
+                    'email_resepsionis' => $karyawan->email_karyawan,
+                    'token_setup' => $token,
+                    'token_setup_expired_at' => $expiredAt,
+                ]);
+
+                // Send invitation email
+                Mail::to($karyawan->email_karyawan)->send(
+                    new ResepsionisInvitation($karyawan, $token)
+                );
+
+                DB::commit();
+
+                return redirect()->route('resepsionis.karyawan')
+                    ->with('success', 'Karyawan berhasil ditambahkan dan undangan pembuatan akun telah dikirim ke email');
+            }
+
+            DB::commit();
 
             return redirect()->route('resepsionis.karyawan')
                 ->with('success', 'Karyawan berhasil ditambahkan');
         } catch (\Exception $e) {
+            DB::rollBack();
             return back()
                 ->withInput()
                 ->withErrors(['error' => 'Gagal menambahkan karyawan: ' . $e->getMessage()]);

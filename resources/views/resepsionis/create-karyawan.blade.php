@@ -171,10 +171,10 @@ Buku Tamu Digital
                     @svg('heroicon-o-x-mark', 'w-5 h-5')
                     Batalkan
                 </a>
-                <button type="submit"
+                <button type="submit" id="submitButton"
                     class="flex-1 bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
-                    @svg('phosphor-paper-plane-tilt-fill', 'w-5 h-5')
-                    Kirim Data
+                    @svg('fas-save', 'w-5 h-5')
+                    <span id="submitButtonText">Simpan</span>
                 </button>
             </div>
         </form>
@@ -520,6 +520,30 @@ Buku Tamu Digital
         };
         return text.replace(/[&<>"']/g, m => map[m]);
     }
+
+    // Update button text when jabatan changes
+    function updateSubmitButton() {
+        const jabatanValue = jabatanInput.value.trim().toLowerCase();
+        const submitButtonText = document.getElementById('submitButtonText');
+        
+        if (jabatanValue === 'resepsionis') {
+            submitButtonText.textContent = 'Simpan & Kirim Undangan';
+        } else {
+            submitButtonText.textContent = 'Simpan';
+        }
+    }
+
+    // Listen for jabatan changes
+    jabatanInput.addEventListener('input', updateSubmitButton);
+    jabatanInput.addEventListener('change', updateSubmitButton);
+
+    // Also update when selecting from dropdown
+    const originalSelectJabatan = window.selectJabatan;
+    window.selectJabatan = function(value) {
+        originalSelectJabatan(value);
+        updateSubmitButton();
+    };
+
 </script>
 @endsection
 

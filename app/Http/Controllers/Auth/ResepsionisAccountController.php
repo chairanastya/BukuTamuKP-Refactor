@@ -1,0 +1,80 @@
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Models\Resepsionis;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+
+class ResepsionisAccountController extends Controller
+{
+    /**
+     * Display the account creation form.
+     */
+    public function create(string $token): View
+    {
+        $resepsionis = Resepsionis::where('token_setup', $token)
+            ->where('token_setup_expired_at', '>', now())
+            ->first();
+
+        if (!$resepsionis) {
+            return view('resepsionis.account-setup-error', [
+                'message' => 'Link tidak valid atau sudah kedaluwarsa. Silakan hubungi administrator untuk mendapatkan link baru.'
+            ]);
+        }
+
+        // Check if password already set
+        if ($resepsionis->password_resepsionis) {
+            return view('resepsionis.account-setup-error', [
+                'message' => 'Akun Anda sudah aktif. Silakan login menggunakan email dan password yang telah Anda buat.'
+            ]);
+        }
+
+        return view('resepsionis.account-setup', [
+            'token' => $token,
+            'email' => $resepsionis->email_resepsionis,
+            'nama' => $resepsionis->nama_resepsionis,
+        ]);
+    }
+
+    /**
+     * Handle the account creation form submission.
+     */
+    public function store(Request $request, string $token): RedirectResponse
+    {
+        $request->validate([
+            'password' => 'required|min:8|confirmed',
+        ], [
+            'password.required' => 'Password wajib diisi',
+            'password.min' => 'Password minimal 8 karakter',
+            'password.confirmed' => 'Konfirmasi password tidak cocok',
+        ]);
+
+        $resepsionis = Resepsionis::where('token_setup', $token)
+            ->where('token_setup_expired_at', '>', now())
+            ->first();
+
+        if (!$resepsionis) {
+            return back()->withErrors([
+                'error' => 'Link tidak valid atau sudah kedaluwarsa'
+            ]);
+        }
+
+        if ($resepsionis->password_resepsionis) {
+            return redirect()->route('resepsionis.login')
+                ->withErrors(['error' => 'Akun sudah aktif, silakan login']);
+        }
+
+        // Set password and clear token
+        $resepsionis->password_resepsionis = Hash::make($request->password);
+        $resepsionis->token_setup = null;
+        $resepsionis->token_setup_expired_at = null;
+        $resepsionis->save();
+
+        return redirect()->route('resepsionis.login')
+            ->with('status', 'Akun berhasil dibuat! Silakan login dengan email dan password yang telah Anda buat.');
+    }
+}
