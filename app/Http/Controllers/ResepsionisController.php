@@ -257,6 +257,9 @@ class ResepsionisController extends Controller
         try {
             $tamu = Tamu::where('ktp_access_token', $token)->firstOrFail();
 
+            // Token KTP hanya untuk identifikasi, tidak ada expiry
+            // karena endpoint ini sudah protected dengan middleware auth:resepsionis
+            
             if (!$tamu->ktp_public_id) {
                 abort(404, 'KTP tidak ditemukan');
             }

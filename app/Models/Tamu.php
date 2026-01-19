@@ -15,10 +15,16 @@ class Tamu extends Model
         'instansi_tamu',
         'ktp_public_id',
         'ktp_access_token',
+        'ktp_token_expired_at',
+    ];
+
+    protected $casts = [
+        'ktp_token_expired_at' => 'datetime',
     ];
 
     /**
      * Boot the model and auto-generate access token
+     * Token tidak expired karena hanya digunakan oleh resepsionis authenticated
      */
     protected static function boot()
     {
@@ -27,6 +33,7 @@ class Tamu extends Model
         static::creating(function ($tamu) {
             if (empty($tamu->ktp_access_token)) {
                 $tamu->ktp_access_token = Str::random(64);
+                // Tidak set expiry - token permanent untuk resepsionis authenticated
             }
         });
     }
