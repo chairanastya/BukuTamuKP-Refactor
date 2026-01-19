@@ -23,12 +23,14 @@ Route::prefix('tamu')->name('tamu.')->group(function () {
     Route::post('/submit', [TamuController::class, 'submitForm'])->name('submit')->middleware('throttle:submissions');
 });
 
-// API untuk Supabase Realtime
-Route::get('/api/supabase-config', function () {
-    return response()->json([
-        'url' => env('SUPABASE_URL'),
-        'key' => env('SUPABASE_ANON_KEY')
-    ]);
+// API untuk Supabase Realtime - HANYA untuk authenticated users
+Route::middleware('auth:resepsionis')->group(function () {
+    Route::get('/api/supabase-config', function () {
+        return response()->json([
+            'url' => env('SUPABASE_URL'),
+            'key' => env('SUPABASE_ANON_KEY')
+        ]);
+    });
 });
 
 Route::get('/kunjungan/confirm/{token}', [KunjunganConfirmController::class, 'confirm'])->name('kunjungan.confirm');
@@ -38,7 +40,11 @@ Route::prefix('notulensi')->name('notulensi.')->group(function () {
     Route::get('/create/{token}', [NotulensiController::class, 'create'])->name('create');
     Route::post('/store/{token}', [NotulensiController::class, 'store'])->name('store')->middleware('throttle:submissions');
     Route::get('/view/{token}', [NotulensiController::class, 'view'])->name('view');
-    Route::get('/dokumentasi/{token}/stream', [ResepsionisController::class, 'streamDokumentasi'])->name('dokumentasi.stream');
+    
+    // Stream dokumentasi - memerlukan autentikasi
+    Route::get('/dokumentasi/{token}/stream', [ResepsionisController::class, 'streamDokumentasi'])
+        ->name('dokumentasi.stream')
+        ->middleware('auth:resepsionis');
 });
 
 Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
