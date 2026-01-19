@@ -362,6 +362,10 @@
                     }
 
                     if (hasError && firstErrorElement) {
+                        // Hide loading spinner if validation fails
+                        if (typeof window.hideLoading === 'function') {
+                            window.hideLoading();
+                        }
                         firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         firstErrorElement.focus();
                         return false;
