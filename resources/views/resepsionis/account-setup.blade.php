@@ -4,17 +4,18 @@
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
-            background: linear-gradient(#0C4777 17.8%, #47B9AE 100%);
+            background: #0C4777;
             min-height: 100vh;
             position: relative;
-            overflow: hidden;
+            overflow-y: auto;
         }
 
         .bg-pattern {
-            position: absolute;
+            position: fixed;
             width: 100%;
             height: 100%;
             overflow: hidden;
+            background: linear-gradient(#0C4777 17.8%, #47B9AE 100%);
         }
 
         .circle {
@@ -206,8 +207,8 @@
         </div>
     </div>
 
-    <div class="relative flex items-center justify-center min-h-screen px-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
+    <div class="relative flex items-center justify-center min-h-screen px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md my-8">
             <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-2">
                 Buat Password Akun Baru
             </h1>
