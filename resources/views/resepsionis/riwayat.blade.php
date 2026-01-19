@@ -730,6 +730,14 @@
             </div>
         </div>
     </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="modal-overlay" style="display: none;">
+        <div class="flex flex-col items-center justify-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-white mb-4"></div>
+            <p class="text-white text-lg font-semibold">Memuat Notulensi...</p>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -1163,8 +1171,8 @@
 
                             // Jika lebih dari 3, tampilkan button
                             return `<button onclick="showKaryawanList(${JSON.stringify(data).replace(/"/g, '&quot;')})" class="text-blue-600 hover:underline font-semibold flex items-center gap-1">
-                                            Lihat Detail (${data.length} Karyawan)
-                                        </button>`;
+                                                Lihat Detail (${data.length} Karyawan)
+                                            </button>`;
                         }
                     },
                     {
@@ -1238,46 +1246,46 @@
             const filterContainer = $('<div class="filter-container"></div>');
 
             const filterBtn = $(`
-                    <div class="filter-btn" id="filterByBtn">
-                        <span class="inline-flex items-center gap-1">${filterIcon} Filter By</span>
-                        <span id="filterBadge"></span>
-                        <span style="font-size: 10px;">▼</span>
-                    </div>
-                `);
+                        <div class="filter-btn" id="filterByBtn">
+                            <span class="inline-flex items-center gap-1">${filterIcon} Filter By</span>
+                            <span id="filterBadge"></span>
+                            <span style="font-size: 10px;">▼</span>
+                        </div>
+                    `);
 
             const mainDropdown = $(`
-                    <div class="filter-main-dropdown" id="mainFilterDropdown">
-                        <div class="filter-category-item" data-category="tanggal">
-                            <span>Tanggal</span>
-                            <span style="font-size: 10px;">▶</span>
+                        <div class="filter-main-dropdown" id="mainFilterDropdown">
+                            <div class="filter-category-item" data-category="tanggal">
+                                <span>Tanggal</span>
+                                <span style="font-size: 10px;">▶</span>
+                            </div>
+                            <div class="filter-category-item" data-category="instansi">
+                                <span>Instansi</span>
+                                <span style="font-size: 10px;">▶</span>
+                            </div>
+                            <div class="filter-category-item" data-category="karyawan">
+                                <span>Karyawan</span>
+                                <span style="font-size: 10px;">▶</span>
+                            </div>
                         </div>
-                        <div class="filter-category-item" data-category="instansi">
-                            <span>Instansi</span>
-                            <span style="font-size: 10px;">▶</span>
-                        </div>
-                        <div class="filter-category-item" data-category="karyawan">
-                            <span>Karyawan</span>
-                            <span style="font-size: 10px;">▶</span>
-                        </div>
-                    </div>
-                `);
+                    `);
 
             const dateSubDropdown = $(`
-                    <div class="filter-sub-dropdown date-range-filter" id="dateSubDropdown">
-                        <div class="date-input-group">
-                            <label class="date-input-label">Dari Tanggal:</label>
-                            <input type="date" id="dateFilterStart" class="date-input">
+                        <div class="filter-sub-dropdown date-range-filter" id="dateSubDropdown">
+                            <div class="date-input-group">
+                                <label class="date-input-label">Dari Tanggal:</label>
+                                <input type="date" id="dateFilterStart" class="date-input">
+                            </div>
+                            <div class="date-input-group">
+                                <label class="date-input-label">Sampai Tanggal:</label>
+                                <input type="date" id="dateFilterEnd" class="date-input">
+                            </div>
+                            <div class="date-filter-actions">
+                                <button class="date-filter-btn date-filter-btn-apply" onclick="applyDateFilter()">Terapkan</button>
+                                <button class="date-filter-btn date-filter-btn-clear" onclick="clearDateFilter()">Hapus</button>
+                            </div>
                         </div>
-                        <div class="date-input-group">
-                            <label class="date-input-label">Sampai Tanggal:</label>
-                            <input type="date" id="dateFilterEnd" class="date-input">
-                        </div>
-                        <div class="date-filter-actions">
-                            <button class="date-filter-btn date-filter-btn-apply" onclick="applyDateFilter()">Terapkan</button>
-                            <button class="date-filter-btn date-filter-btn-clear" onclick="clearDateFilter()">Hapus</button>
-                        </div>
-                    </div>
-                `);
+                    `);
             const instansiSubDropdown = $('<div class="filter-sub-dropdown" id="instansiSubDropdown"></div>');
             const karyawanSubDropdown = $('<div class="filter-sub-dropdown" id="karyawanSubDropdown"></div>');
 
@@ -1360,11 +1368,11 @@
                     karyawan.forEach(kary => {
                         const uniqueKey = `${kary.nama}|${kary.departemen}|${kary.jabatan}`;
                         const item = $(`
-                                <div class="karyawan-item" data-value="${uniqueKey}">
-                                    <div class="karyawan-name">${kary.nama}</div>
-                                    <div class="karyawan-detail">${kary.departemen} • ${kary.jabatan}</div>
-                                </div>
-                            `);
+                                    <div class="karyawan-item" data-value="${uniqueKey}">
+                                        <div class="karyawan-name">${kary.nama}</div>
+                                        <div class="karyawan-detail">${kary.departemen} • ${kary.jabatan}</div>
+                                    </div>
+                                `);
                         item.on('click', function (e) {
                             e.stopPropagation();
                             applyKaryawanFilter(uniqueKey, kary.nama, kary.departemen, kary.jabatan);
@@ -1546,21 +1554,21 @@
                     let actions = '';
                     if (kunjungan.status === 'pending') {
                         actions = `
-                                            <div class="flex gap-3 mt-6">
-                                                <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
-                                                <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
-                                            </div>
-                                        `;
+                                                <div class="flex gap-3 mt-6">
+                                                    <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
+                                                    <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
+                                                </div>
+                                            `;
                     }
 
                     let cancelReason = '';
                     if (kunjungan.status === 'canceled' && kunjungan.alasan_batal) {
                         cancelReason = `
-                                            <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                                <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
-                                                <p class="text-red-700">${kunjungan.alasan_batal}</p>
-                                            </div>
-                                        `;
+                                                <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                                    <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
+                                                    <p class="text-red-700">${kunjungan.alasan_batal}</p>
+                                                </div>
+                                            `;
                     }
 
                     const statusBadges = {
@@ -1573,19 +1581,19 @@
                     const statusBadge = statusBadges[kunjungan.status] || kunjungan.status;
 
                     document.getElementById('detailContent').innerHTML = `
-                                        <div class="space-y-3">
-                                            <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
-                                            <div><strong>Jam:</strong> ${kunjungan.jam}</div>
-                                            <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
-                                            <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
-                                            <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
-                                            <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
-                                            <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
-                                            <div><strong>Status:</strong> ${statusBadge}</div>
-                                            ${cancelReason}
-                                            ${actions}
-                                        </div>
-                                    `;
+                                            <div class="space-y-3">
+                                                <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
+                                                <div><strong>Jam:</strong> ${kunjungan.jam}</div>
+                                                <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
+                                                <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
+                                                <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
+                                                <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
+                                                <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
+                                                <div><strong>Status:</strong> ${statusBadge}</div>
+                                                ${cancelReason}
+                                                ${actions}
+                                            </div>
+                                        `;
                 })
                 .catch(error => {
                     console.error('Error fetching detail:', error);
@@ -1684,11 +1692,24 @@
                 });
         }
 
+        let isLoadingNotulensi = false;
+
         function viewHasil(kunjunganId) {
+            // Prevent rapid clicks
+            if (isLoadingNotulensi) {
+                return;
+            }
+
+            isLoadingNotulensi = true;
+            showLoadingOverlay();
+
             // Fetch token notulensi berdasarkan kunjungan ID
             fetch(`/resepsionis/notulensi/${kunjunganId}/token`)
                 .then(response => response.json())
                 .then(data => {
+                    hideLoadingOverlay();
+                    isLoadingNotulensi = false;
+
                     if (data.success && data.token) {
                         // Buka halaman notulensi view dengan token yang didapat
                         window.open(`/notulensi/view/${data.token}`, '_blank');
@@ -1698,8 +1719,24 @@
                 })
                 .catch(error => {
                     console.error('Error fetching notulensi token:', error);
+                    hideLoadingOverlay();
+                    isLoadingNotulensi = false;
                     showErrorModal('Terjadi kesalahan saat mengambil data notulensi');
                 });
+        }
+
+        function showLoadingOverlay() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.style.display = 'flex';
+            }
+        }
+
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
         }
 
         function closeModal() {
@@ -1745,17 +1782,17 @@
 
             karyawanData.forEach((karyawan, index) => {
                 html += `
-                        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                            <div class="flex-shrink-0 w-8 h-8 bg-[#084E8F] text-white rounded-full flex items-center justify-center font-bold">
-                                ${index + 1}
+                            <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <div class="flex-shrink-0 w-8 h-8 bg-[#084E8F] text-white rounded-full flex items-center justify-center font-bold">
+                                    ${index + 1}
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-semibold text-gray-800">${karyawan.nama}</p>
+                                    <p class="text-sm text-gray-600">${karyawan.jabatan}</p>
+                                    <p class="text-sm text-gray-500">${karyawan.departemen}</p>
+                                </div>
                             </div>
-                            <div class="flex-1">
-                                <p class="font-semibold text-gray-800">${karyawan.nama}</p>
-                                <p class="text-sm text-gray-600">${karyawan.jabatan}</p>
-                                <p class="text-sm text-gray-500">${karyawan.departemen}</p>
-                            </div>
-                        </div>
-                    `;
+                        `;
             });
 
             html += '</div>';
