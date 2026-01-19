@@ -79,6 +79,7 @@ Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
         Route::patch('/karyawan/{id}/toggle-status', [App\Http\Controllers\KaryawanController::class, 'toggleStatus'])->name('karyawan.toggle-status')->middleware('throttle:submissions');
         Route::get('/karyawan/search-departemen', [App\Http\Controllers\KaryawanController::class, 'searchDepartemen'])->name('karyawan.search-departemen')->middleware('throttle:api');
         Route::get('/karyawan/search-jabatan', [App\Http\Controllers\KaryawanController::class, 'searchJabatan'])->name('karyawan.search-jabatan')->middleware('throttle:api');
+        Route::get('/notulensi/{kunjunganId}/token', [ResepsionisController::class, 'getNotulensiToken'])->name('notulensi.token');
     });
 });
 
