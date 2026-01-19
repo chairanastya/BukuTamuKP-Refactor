@@ -7,6 +7,7 @@ use App\Http\Controllers\ResepsionisController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\ResepsionisAccountController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -49,6 +50,10 @@ Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
     Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email')->middleware('throttle:submissions');
     Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
     Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.update')->middleware('throttle:submissions');
+
+    // Account setup routes (for new receptionists)
+    Route::get('/account/create/{token}', [ResepsionisAccountController::class, 'create'])->name('account.create');
+    Route::post('/account/create/{token}', [ResepsionisAccountController::class, 'store'])->name('account.store')->middleware('throttle:submissions');
 
     Route::middleware('auth:resepsionis')->group(function () {
         Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
