@@ -53,8 +53,10 @@ class ResepsionisController extends Controller
 
     public function getKunjunganData(Request $request)
     {
-        $query = Kunjungan::with(['tamu:id_tamu,nama_tamu,email_tamu,instansi_tamu,ktp_public_id,ktp_access_token', 
-                                   'karyawan:id_karyawan,nama_karyawan,jabatan,departemen'])
+        $query = Kunjungan::with([
+            'tamu:id_tamu,nama_tamu,email_tamu,instansi_tamu,ktp_public_id,ktp_access_token',
+            'karyawan:id_karyawan,nama_karyawan,jabatan,departemen'
+        ])
             ->select('id_kunjungan', 'id_tamu', 'tujuan_kunjungan', 'tanggal_kunjungan', 'jam_mulai', 'jam_selesai', 'status', 'alasan_batal')
             ->whereDate('tanggal_kunjungan', now()->toDateString())
             ->orderBy('tanggal_kunjungan', 'desc')
@@ -89,11 +91,13 @@ class ResepsionisController extends Controller
 
     public function getRiwayatData(Request $request)
     {
-        $perPage = $request->input('per_page', 100); 
+        $perPage = $request->input('per_page', 100);
         $page = $request->input('page', 1);
-        
-        $query = Kunjungan::with(['tamu:id_tamu,nama_tamu,email_tamu,instansi_tamu,ktp_public_id,ktp_access_token', 
-                                   'karyawan:id_karyawan,nama_karyawan,jabatan,departemen'])
+
+        $query = Kunjungan::with([
+            'tamu:id_tamu,nama_tamu,email_tamu,instansi_tamu,ktp_public_id,ktp_access_token',
+            'karyawan:id_karyawan,nama_karyawan,jabatan,departemen'
+        ])
             ->select('id_kunjungan', 'id_tamu', 'tujuan_kunjungan', 'tanggal_kunjungan', 'jam_mulai', 'jam_selesai', 'status', 'alasan_batal')
             ->orderBy('tanggal_kunjungan', 'desc')
             ->orderBy('jam_mulai', 'desc')
@@ -280,7 +284,7 @@ class ResepsionisController extends Controller
         try {
             // Validasi token dan pastikan tamu ada
             $tamu = Tamu::where('ktp_access_token', $token)->firstOrFail();
-            
+
             // Authorization: Pastikan tamu ini memiliki kunjungan yang tercatat
             // Ini mencegah akses ke KTP tamu yang tidak pernah berkunjung/data invalid
             $hasKunjungan = $tamu->kunjungan()->exists();
@@ -291,7 +295,7 @@ class ResepsionisController extends Controller
                 ]);
                 abort(403, 'Tidak memiliki akses ke KTP ini');
             }
-            
+
             if (!$tamu->ktp_public_id) {
                 abort(404, 'KTP tidak ditemukan');
             }
@@ -562,6 +566,31 @@ class ResepsionisController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
+        }
+    }
+
+    public function getNotulensiToken($kunjunganId)
+    {
+        try {
+            $notulensi = \App\Models\Notulensi::where('id_kunjungan', $kunjunganId)->first();
+
+            if (!$notulensi) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Notulensi tidak ditemukan'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'token' => $notulensi->token_tamu
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to get notulensi token: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengambil data notulensi'
+            ], 500);
         }
     }
 }

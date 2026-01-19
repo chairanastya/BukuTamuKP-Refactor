@@ -155,15 +155,17 @@
                     <!-- Baris 5: Anggota Kunjungan/Rapat -->
                     <div class="lg:col-span-2">
                         <label for="anggota_rapat" class="block text-[#084E8F] font-semibold mb-2">
-                            Anggota Kunjungan/Rapat <span class="text-gray-500 text-sm font-normal">(Opsional)</span>
+                            Anggota Kunjungan/Rapat <span class="text-red-500">*</span>
                         </label>
                         <div class="input-wrapper">
-                            <textarea name="anggota_rapat" id="anggota_rapat" rows="4"
-                                placeholder="Sebutkan anggota lain yang hadir jika ada...">{{ old('anggota_rapat') }}</textarea>
+                            <textarea name="anggota_rapat" id="anggota_rapat" rows="4" required
+                                placeholder="Sebutkan anggota yang hadir dalam kunjungan/rapat...">{{ old('anggota_rapat') }}</textarea>
                         </div>
                         @error('anggota_rapat')
                             <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
                         @enderror
+                        <p class="text-gray-500 text-sm mt-2">Wajib diisi. Sebutkan nama anggota yang hadir dalam
+                            kunjungan/rapat ini.</p>
                     </div>
 
                     <!-- Baris 6: Notulensi Rapat -->
@@ -453,11 +455,11 @@
                             const div = document.createElement('div');
                             div.className = 'relative';
                             div.innerHTML = `
-                                                                                                            <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-[#084E8F]">
-                                                                                                            <button type="button" onclick="removeImage(${index})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
-                                                                                                                ×
-                                                                                                            </button>
-                                                                                                        `;
+                                                                                                                    <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-[#084E8F]">
+                                                                                                                    <button type="button" onclick="removeImage(${index})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                                                                                                                        ×
+                                                                                                                    </button>
+                                                                                                                `;
                             previewContainer.appendChild(div);
                         };
                         reader.readAsDataURL(file);

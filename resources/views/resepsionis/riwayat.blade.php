@@ -461,18 +461,18 @@
             gap: 24px !important;
             margin-bottom: 16px !important;
         }
-        
+
         .dataTables_wrapper .dt-layout-start {
             flex: 0 0 auto !important;
         }
-        
+
         .dataTables_wrapper .dt-layout-end {
             display: flex !important;
             align-items: center !important;
             gap: 50px !important;
             flex: 0 0 auto !important;
         }
-        
+
         .dataTables_wrapper .dt-search {
             display: flex !important;
             align-items: center !important;
@@ -485,11 +485,11 @@
             margin: 0 !important;
             flex-shrink: 0 !important;
         }
-        
+
         .dataTables_wrapper .dt-search input.dt-input {
             flex-shrink: 0 !important;
         }
-        
+
         .filter-container {
             flex: 0 0 auto !important;
             flex-shrink: 0 !important;
@@ -616,11 +616,15 @@
                 placeholder="Alasan pembatalan..."></textarea>
             <div class="flex gap-3 justify-end">
                 <button onclick="closeRejectModal()" class="px-4 py-2 bg-gray-300 rounded-lg">Batal</button>
-                <button id="rejectButton" onclick="confirmReject()" class="btn-danger flex items-center justify-center gap-2">
+                <button id="rejectButton" onclick="confirmReject()"
+                    class="btn-danger flex items-center justify-center gap-2">
                     <span id="rejectButtonText">Tolak Kunjungan</span>
-                    <svg id="rejectSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg id="rejectSpinner" class="hidden animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
                     </svg>
                 </button>
             </div>
@@ -636,17 +640,23 @@
             </div>
             <div class="mb-6">
                 <p class="text-gray-700">Apakah Anda yakin ingin menerima kunjungan ini?</p>
-                <p class="text-sm text-green-600 mt-2">Email notifikasi akan dikirim ke karyawan tujuan untuk mengisi notulensi.</p>
+                <p class="text-sm text-green-600 mt-2">Email notifikasi akan dikirim ke karyawan tujuan untuk mengisi
+                    notulensi.</p>
             </div>
             <div class="flex gap-3">
-                <button onclick="closeAcceptModal()" class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">
+                <button onclick="closeAcceptModal()"
+                    class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">
                     Batalkan
                 </button>
-                <button id="acceptButton" onclick="confirmAccept()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
+                <button id="acceptButton" onclick="confirmAccept()"
+                    class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
                     <span id="acceptButtonText">Terima</span>
-                    <svg id="acceptSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg id="acceptSpinner" class="hidden animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
                     </svg>
                 </button>
             </div>
@@ -670,7 +680,8 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-bold">Daftar Karyawan Tertuju</h3>
-                <button onclick="closeKaryawanListModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                <button onclick="closeKaryawanListModal()"
+                    class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
             </div>
             <div id="karyawanListContent"></div>
         </div>
@@ -690,7 +701,8 @@
                 </div>
             </div>
             <div class="flex justify-end">
-                <button onclick="closeSuccessModal()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                <button onclick="closeSuccessModal()"
+                    class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition">
                     Tutup
                 </button>
             </div>
@@ -711,7 +723,8 @@
                 </div>
             </div>
             <div class="flex justify-end">
-                <button onclick="closeErrorModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                <button onclick="closeErrorModal()"
+                    class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition">
                     Tutup
                 </button>
             </div>
@@ -767,17 +780,17 @@
             currentFilter = status;
             activeFilters.status = status;
 
-            
+
             document.querySelectorAll('.stats-card').forEach(card => {
                 card.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
             });
             document.querySelector(`[data-filter="${status}"]`).classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
 
-            
+
             if (status === 'all') {
                 table.column(7).search('').draw();
             } else {
-                
+
                 table.column(7).search(status).draw();
             }
         }
@@ -785,7 +798,7 @@
         function exportToExcel() {
             // Ambil data yang sedang ditampilkan (setelah filter)
             const filteredData = table.rows({ search: 'applied' }).data().toArray();
-            
+
             if (filteredData.length === 0) {
                 alert('Tidak ada data untuk diekspor');
                 return;
@@ -796,34 +809,34 @@
             const dateStr = today.toISOString().split('T')[0];
             const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
             const monthYear = `${monthNames[today.getMonth()]} ${today.getFullYear()}`;
-            
+
             // Build filter description
             let filterParts = [];
-            
+
             // Status filter
             if (activeFilters.status !== 'all') {
                 filterParts.push(`Status: ${activeFilters.status.charAt(0).toUpperCase() + activeFilters.status.slice(1)}`);
             }
-            
+
             // Instansi filter
             if (activeFilters.instansi) {
                 filterParts.push(`Instansi: ${activeFilters.instansi}`);
             }
-            
+
             // Karyawan filter
             if (activeFilters.karyawan) {
                 filterParts.push(`Karyawan: ${activeFilters.karyawan}`);
             }
-            
+
             // Tanggal filter
             if (activeFilters.tanggal) {
                 filterParts.push(`Tanggal: ${activeFilters.tanggal}`);
             }
-            
-            const filterDescription = filterParts.length > 0 
-                ? filterParts.join(' | ') 
+
+            const filterDescription = filterParts.length > 0
+                ? filterParts.join(' | ')
                 : 'Semua Data';
-            
+
             const periodeText = `Periode: ${monthYear} | Filter: ${filterDescription}`;
 
             // Siapkan data untuk Excel
@@ -831,7 +844,7 @@
                 let karyawanNama = '-';
                 let karyawanJabatan = '-';
                 let karyawanDepartemen = '-';
-                
+
                 if (row.karyawan && row.karyawan.length > 0) {
                     // Gabungkan semua karyawan
                     karyawanNama = row.karyawan.map(k => k.nama).join(', ');
@@ -889,7 +902,7 @@
 
             // Column widths
             ws['!cols'] = [
-                { wch: 5 },  { wch: 12 }, { wch: 10 }, { wch: 20 }, { wch: 25 }, { wch: 20 },
+                { wch: 5 }, { wch: 12 }, { wch: 10 }, { wch: 20 }, { wch: 25 }, { wch: 20 },
                 { wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 12 }, { wch: 30 }
             ];
 
@@ -963,7 +976,7 @@
             ];
 
             XLSX.utils.book_append_sheet(wb, ws, 'Riwayat Kunjungan');
-            
+
             // Download file dengan nama yang deskriptif
             const filenameParts = ['Laporan_Riwayat', dateStr];
             if (activeFilters.status !== 'all') filenameParts.push(activeFilters.status);
@@ -976,7 +989,7 @@
         function exportToPDF() {
             // Ambil data yang sedang ditampilkan (setelah filter)
             const filteredData = table.rows({ search: 'applied' }).data().toArray();
-            
+
             if (filteredData.length === 0) {
                 alert('Tidak ada data untuk diekspor');
                 return;
@@ -990,7 +1003,7 @@
             const dateStr = today.toISOString().split('T')[0];
             const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
             const monthYear = `${monthNames[today.getMonth()]} ${today.getFullYear()}`;
-            
+
             // Build filter description
             let filterParts = [];
             if (activeFilters.status !== 'all') {
@@ -999,14 +1012,14 @@
             if (activeFilters.instansi) filterParts.push(`Instansi: ${activeFilters.instansi}`);
             if (activeFilters.karyawan) filterParts.push(`Karyawan: ${activeFilters.karyawan}`);
             if (activeFilters.tanggal) filterParts.push(`Tanggal: ${activeFilters.tanggal}`);
-            
+
             const filterDescription = filterParts.length > 0 ? filterParts.join(' | ') : 'Semua Data';
 
             // Title
             doc.setFontSize(18);
             doc.setFont('helvetica', 'bold');
             doc.text('LAPORAN RIWAYAT KUNJUNGAN', doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
-            
+
             // Subtitle
             doc.setFontSize(10);
             doc.setFont('helvetica', 'italic');
@@ -1080,7 +1093,7 @@
             const finalY = doc.lastAutoTable.finalY || 28;
             const tableWidth = 277; // Total column widths
             const startX = (doc.internal.pageSize.getWidth() - tableWidth) / 2;
-            
+
             doc.setFillColor(255, 235, 156);
             doc.rect(startX, finalY + 2, tableWidth, 10, 'F');
             doc.setDrawColor(0, 0, 0);
@@ -1096,7 +1109,7 @@
             if (activeFilters.instansi) filenameParts.push(activeFilters.instansi.replace(/\s+/g, '_'));
             if (activeFilters.karyawan) filenameParts.push(activeFilters.karyawan.replace(/\s+/g, '_'));
             const filename = filenameParts.join('_') + '.pdf';
-            
+
             doc.save(filename);
         }
 
@@ -1140,28 +1153,28 @@
                         data: 'karyawan',
                         render: function (data) {
                             if (!data || data.length === 0) return '-';
-                            
+
                             // Jika 3 atau kurang, tampilkan semua
                             if (data.length <= 3) {
-                                return data.map(k => 
+                                return data.map(k =>
                                     `${k.nama}<br><span class="text-xs text-gray-500">${k.jabatan} - ${k.departemen}</span>`
                                 ).join('<br><div class="border-t border-gray-200 my-1"></div>');
                             }
-                            
+
                             // Jika lebih dari 3, tampilkan button
                             return `<button onclick="showKaryawanList(${JSON.stringify(data).replace(/"/g, '&quot;')})" class="text-blue-600 hover:underline font-semibold flex items-center gap-1">
-                                        Lihat Detail (${data.length} Karyawan)
-                                    </button>`;
+                                            Lihat Detail (${data.length} Karyawan)
+                                        </button>`;
                         }
                     },
                     {
                         data: 'status',
                         render: function (data, type, row) {
-                            
+
                             if (type === 'filter' || type === 'sort') {
                                 return data;
                             }
-                            
+
                             const badges = {
                                 pending: '<span class="badge badge-pending">Pending</span>',
                                 accepted: '<span class="badge badge-accepted">Accepted</span>',
@@ -1188,9 +1201,9 @@
                 ],
                 pageLength: 10,
                 order: [[9, 'desc']],
-                initComplete: function() {
+                initComplete: function () {
                     console.log('DataTable initialized, calling addCustomFilters');
-                    setTimeout(function() {
+                    setTimeout(function () {
                         addCustomFilters();
                     }, 200);
                 }
@@ -1204,7 +1217,7 @@
 
         function addCustomFilters() {
             console.log('Adding custom filters...');
-            
+
             let filterWrapper = $('.dataTables_filter');
             if (filterWrapper.length === 0) {
                 filterWrapper = $('.dt-search');
@@ -1212,98 +1225,98 @@
             if (filterWrapper.length === 0) {
                 filterWrapper = $('#myTable_wrapper').find('.dataTables_filter, .dt-search');
             }
-            
+
             console.log('Filter wrapper found:', filterWrapper.length);
-            
+
             if (filterWrapper.length === 0) {
                 console.error('Filter wrapper not found!');
                 return;
             }
-            
+
             $('.filter-container').remove();
-            
+
             const filterContainer = $('<div class="filter-container"></div>');
-            
+
             const filterBtn = $(`
-                <div class="filter-btn" id="filterByBtn">
-                    <span class="inline-flex items-center gap-1">${filterIcon} Filter By</span>
-                    <span id="filterBadge"></span>
-                    <span style="font-size: 10px;">▼</span>
-                </div>
-            `);
-            
+                    <div class="filter-btn" id="filterByBtn">
+                        <span class="inline-flex items-center gap-1">${filterIcon} Filter By</span>
+                        <span id="filterBadge"></span>
+                        <span style="font-size: 10px;">▼</span>
+                    </div>
+                `);
+
             const mainDropdown = $(`
-                <div class="filter-main-dropdown" id="mainFilterDropdown">
-                    <div class="filter-category-item" data-category="tanggal">
-                        <span>Tanggal</span>
-                        <span style="font-size: 10px;">▶</span>
+                    <div class="filter-main-dropdown" id="mainFilterDropdown">
+                        <div class="filter-category-item" data-category="tanggal">
+                            <span>Tanggal</span>
+                            <span style="font-size: 10px;">▶</span>
+                        </div>
+                        <div class="filter-category-item" data-category="instansi">
+                            <span>Instansi</span>
+                            <span style="font-size: 10px;">▶</span>
+                        </div>
+                        <div class="filter-category-item" data-category="karyawan">
+                            <span>Karyawan</span>
+                            <span style="font-size: 10px;">▶</span>
+                        </div>
                     </div>
-                    <div class="filter-category-item" data-category="instansi">
-                        <span>Instansi</span>
-                        <span style="font-size: 10px;">▶</span>
-                    </div>
-                    <div class="filter-category-item" data-category="karyawan">
-                        <span>Karyawan</span>
-                        <span style="font-size: 10px;">▶</span>
-                    </div>
-                </div>
-            `);
-            
+                `);
+
             const dateSubDropdown = $(`
-                <div class="filter-sub-dropdown date-range-filter" id="dateSubDropdown">
-                    <div class="date-input-group">
-                        <label class="date-input-label">Dari Tanggal:</label>
-                        <input type="date" id="dateFilterStart" class="date-input">
+                    <div class="filter-sub-dropdown date-range-filter" id="dateSubDropdown">
+                        <div class="date-input-group">
+                            <label class="date-input-label">Dari Tanggal:</label>
+                            <input type="date" id="dateFilterStart" class="date-input">
+                        </div>
+                        <div class="date-input-group">
+                            <label class="date-input-label">Sampai Tanggal:</label>
+                            <input type="date" id="dateFilterEnd" class="date-input">
+                        </div>
+                        <div class="date-filter-actions">
+                            <button class="date-filter-btn date-filter-btn-apply" onclick="applyDateFilter()">Terapkan</button>
+                            <button class="date-filter-btn date-filter-btn-clear" onclick="clearDateFilter()">Hapus</button>
+                        </div>
                     </div>
-                    <div class="date-input-group">
-                        <label class="date-input-label">Sampai Tanggal:</label>
-                        <input type="date" id="dateFilterEnd" class="date-input">
-                    </div>
-                    <div class="date-filter-actions">
-                        <button class="date-filter-btn date-filter-btn-apply" onclick="applyDateFilter()">Terapkan</button>
-                        <button class="date-filter-btn date-filter-btn-clear" onclick="clearDateFilter()">Hapus</button>
-                    </div>
-                </div>
-            `);
+                `);
             const instansiSubDropdown = $('<div class="filter-sub-dropdown" id="instansiSubDropdown"></div>');
             const karyawanSubDropdown = $('<div class="filter-sub-dropdown" id="karyawanSubDropdown"></div>');
-            
+
             mainDropdown.find('[data-category="tanggal"]').append(dateSubDropdown);
             mainDropdown.find('[data-category="instansi"]').append(instansiSubDropdown);
             mainDropdown.find('[data-category="karyawan"]').append(karyawanSubDropdown);
-            
+
             filterContainer.append(filterBtn, mainDropdown);
-            
+
             filterWrapper.parent().append(filterContainer);
-            
+
             console.log('Filter button added to layout');
-            
+
             populateFilterDropdowns();
-            
-            filterBtn.on('click', function(e) {
+
+            filterBtn.on('click', function (e) {
                 e.stopPropagation();
                 mainDropdown.toggleClass('show');
             });
-            
-            $('.filter-category-item').on('mouseenter', function() {
+
+            $('.filter-category-item').on('mouseenter', function () {
                 $('.filter-sub-dropdown').removeClass('show');
                 const subDropdown = $(this).find('.filter-sub-dropdown');
                 subDropdown.addClass('show');
             });
-            
-            mainDropdown.on('mouseleave', function() {
+
+            mainDropdown.on('mouseleave', function () {
                 $('.filter-sub-dropdown').removeClass('show');
             });
-            
-            $(document).on('click', function() {
+
+            $(document).on('click', function () {
                 mainDropdown.removeClass('show');
                 $('.filter-sub-dropdown').removeClass('show');
             });
-            
-            mainDropdown.on('click', function(e) {
+
+            mainDropdown.on('click', function (e) {
                 e.stopPropagation();
             });
-            
+
             console.log('Custom filters added successfully');
         }
 
@@ -1312,20 +1325,20 @@
                 .then(res => res.json())
                 .then(result => {
                     const data = result.data;
-                    
+
                     const instansi = [...new Set(data.map(item => item.instansi))].sort();
                     const instansiDropdown = $('#instansiSubDropdown');
                     instansiDropdown.empty();
                     instansi.forEach(inst => {
                         const item = $(`<div class="filter-dropdown-item" data-value="${inst}">${inst}</div>`);
-                        item.on('click', function(e) {
+                        item.on('click', function (e) {
                             e.stopPropagation();
                             applyInstansiFilter(inst);
                         });
                         instansiDropdown.append(item);
                     });
                     instansiDropdown.append(`<div class="filter-clear" onclick="clearInstansiFilter()">✕ Hapus Filter</div>`);
-                    
+
                     const karyawanMap = new Map();
                     data.forEach(item => {
                         if (item.karyawan && item.karyawan.length > 0) {
@@ -1347,12 +1360,12 @@
                     karyawan.forEach(kary => {
                         const uniqueKey = `${kary.nama}|${kary.departemen}|${kary.jabatan}`;
                         const item = $(`
-                            <div class="karyawan-item" data-value="${uniqueKey}">
-                                <div class="karyawan-name">${kary.nama}</div>
-                                <div class="karyawan-detail">${kary.departemen} • ${kary.jabatan}</div>
-                            </div>
-                        `);
-                        item.on('click', function(e) {
+                                <div class="karyawan-item" data-value="${uniqueKey}">
+                                    <div class="karyawan-name">${kary.nama}</div>
+                                    <div class="karyawan-detail">${kary.departemen} • ${kary.jabatan}</div>
+                                </div>
+                            `);
+                        item.on('click', function (e) {
                             e.stopPropagation();
                             applyKaryawanFilter(uniqueKey, kary.nama, kary.departemen, kary.jabatan);
                         });
@@ -1367,7 +1380,7 @@
             if (currentDateFilterStart || currentDateFilterEnd) count++;
             count += currentInstansiFilter.length;
             count += currentKaryawanFilter.length;
-            
+
             const badge = $('#filterBadge');
             if (count > 0) {
                 badge.html(`<span class="active-filter-badge">${count}</span>`);
@@ -1381,20 +1394,20 @@
         function applyDateFilter() {
             const startDate = $('#dateFilterStart').val();
             const endDate = $('#dateFilterEnd').val();
-            
+
             if (!startDate && !endDate) {
                 alert('Silakan pilih minimal satu tanggal (dari atau sampai)');
                 return;
             }
-            
+
             if (startDate && endDate && startDate > endDate) {
                 alert('Tanggal awal tidak boleh lebih besar dari tanggal akhir');
                 return;
             }
-            
+
             currentDateFilterStart = startDate || null;
             currentDateFilterEnd = endDate || null;
-            
+
             updateFilterBadge();
             applyAllFilters();
         }
@@ -1411,7 +1424,7 @@
         function applyInstansiFilter(instansi) {
             const index = currentInstansiFilter.indexOf(instansi);
             const item = $(`#instansiSubDropdown .filter-dropdown-item[data-value="${instansi}"]`);
-            
+
             if (index > -1) {
                 currentInstansiFilter.splice(index, 1);
                 item.removeClass('active');
@@ -1419,7 +1432,7 @@
                 currentInstansiFilter.push(instansi);
                 item.addClass('active');
             }
-            
+
             updateFilterBadge();
             applyAllFilters();
         }
@@ -1434,7 +1447,7 @@
         function applyKaryawanFilter(uniqueKey, nama, departemen, jabatan) {
             const index = currentKaryawanFilter.indexOf(uniqueKey);
             const item = $(`#karyawanSubDropdown .karyawan-item[data-value="${uniqueKey}"]`);
-            
+
             if (index > -1) {
                 currentKaryawanFilter.splice(index, 1);
                 item.removeClass('active');
@@ -1442,7 +1455,7 @@
                 currentKaryawanFilter.push(uniqueKey);
                 item.addClass('active');
             }
-            
+
             updateFilterBadge();
             applyAllFilters();
         }
@@ -1458,19 +1471,19 @@
             if ($.fn.dataTable.ext.search.length > 0) {
                 $.fn.dataTable.ext.search.pop();
             }
-            
+
             $.fn.dataTable.ext.search.push(
-                function(settings, data, dataIndex) {
-                    const tanggalStr = data[1]; 
+                function (settings, data, dataIndex) {
+                    const tanggalStr = data[1];
                     const instansi = data[5];
                     const rowData = table.row(dataIndex).data();
                     const karyawanArray = rowData.karyawan;
-                    
+
                     if (currentDateFilterStart || currentDateFilterEnd) {
                         const parts = tanggalStr.split('/');
                         if (parts.length === 3) {
                             const tanggalFormatted = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-                            
+
                             if (currentDateFilterStart && tanggalFormatted < currentDateFilterStart) {
                                 return false;
                             }
@@ -1479,17 +1492,17 @@
                             }
                         }
                     }
-                    
+
                     if (currentInstansiFilter.length > 0 && !currentInstansiFilter.includes(instansi)) {
                         return false;
                     }
-                    
+
                     if (currentKaryawanFilter.length > 0 && karyawanArray && karyawanArray.length > 0) {
                         const hasMatch = currentKaryawanFilter.some(filterKey => {
                             const [filterNama, filterDepartemen, filterJabatan] = filterKey.split('|');
-                            return karyawanArray.some(k => 
-                                k.nama === filterNama && 
-                                k.departemen === filterDepartemen && 
+                            return karyawanArray.some(k =>
+                                k.nama === filterNama &&
+                                k.departemen === filterDepartemen &&
                                 k.jabatan === filterJabatan
                             );
                         });
@@ -1497,11 +1510,11 @@
                             return false;
                         }
                     }
-                    
+
                     return true;
                 }
             );
-            
+
             table.draw();
         }
 
@@ -1533,21 +1546,21 @@
                     let actions = '';
                     if (kunjungan.status === 'pending') {
                         actions = `
-                                        <div class="flex gap-3 mt-6">
-                                            <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
-                                            <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
-                                        </div>
-                                    `;
+                                            <div class="flex gap-3 mt-6">
+                                                <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
+                                                <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
+                                            </div>
+                                        `;
                     }
 
                     let cancelReason = '';
                     if (kunjungan.status === 'canceled' && kunjungan.alasan_batal) {
                         cancelReason = `
-                                        <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                            <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
-                                            <p class="text-red-700">${kunjungan.alasan_batal}</p>
-                                        </div>
-                                    `;
+                                            <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                                <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
+                                                <p class="text-red-700">${kunjungan.alasan_batal}</p>
+                                            </div>
+                                        `;
                     }
 
                     const statusBadges = {
@@ -1560,19 +1573,19 @@
                     const statusBadge = statusBadges[kunjungan.status] || kunjungan.status;
 
                     document.getElementById('detailContent').innerHTML = `
-                                    <div class="space-y-3">
-                                        <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
-                                        <div><strong>Jam:</strong> ${kunjungan.jam}</div>
-                                        <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
-                                        <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
-                                        <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
-                                        <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
-                                        <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
-                                        <div><strong>Status:</strong> ${statusBadge}</div>
-                                        ${cancelReason}
-                                        ${actions}
-                                    </div>
-                                `;
+                                        <div class="space-y-3">
+                                            <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
+                                            <div><strong>Jam:</strong> ${kunjungan.jam}</div>
+                                            <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
+                                            <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
+                                            <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
+                                            <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
+                                            <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
+                                            <div><strong>Status:</strong> ${statusBadge}</div>
+                                            ${cancelReason}
+                                            ${actions}
+                                        </div>
+                                    `;
                 })
                 .catch(error => {
                     console.error('Error fetching detail:', error);
@@ -1671,8 +1684,22 @@
                 });
         }
 
-        function viewHasil(id) {
-            alert('Fitur notulensi & dokumentasi dalam pengembangan');
+        function viewHasil(kunjunganId) {
+            // Fetch token notulensi berdasarkan kunjungan ID
+            fetch(`/resepsionis/notulensi/${kunjunganId}/token`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.token) {
+                        // Buka halaman notulensi view dengan token yang didapat
+                        window.open(`/notulensi/view/${data.token}`, '_blank');
+                    } else {
+                        showErrorModal(data.message || 'Notulensi tidak ditemukan');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching notulensi token:', error);
+                    showErrorModal('Terjadi kesalahan saat mengambil data notulensi');
+                });
         }
 
         function closeModal() {
@@ -1712,28 +1739,28 @@
         function showKaryawanList(karyawanData) {
             const modal = document.getElementById('karyawanListModal');
             const content = document.getElementById('karyawanListContent');
-            
+
             let html = `<p class="text-gray-600 mb-4">Total ${karyawanData.length} karyawan yang terlibat:</p>`;
             html += '<div class="space-y-3">';
-            
+
             karyawanData.forEach((karyawan, index) => {
                 html += `
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <div class="flex-shrink-0 w-8 h-8 bg-[#084E8F] text-white rounded-full flex items-center justify-center font-bold">
-                            ${index + 1}
+                        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <div class="flex-shrink-0 w-8 h-8 bg-[#084E8F] text-white rounded-full flex items-center justify-center font-bold">
+                                ${index + 1}
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-semibold text-gray-800">${karyawan.nama}</p>
+                                <p class="text-sm text-gray-600">${karyawan.jabatan}</p>
+                                <p class="text-sm text-gray-500">${karyawan.departemen}</p>
+                            </div>
                         </div>
-                        <div class="flex-1">
-                            <p class="font-semibold text-gray-800">${karyawan.nama}</p>
-                            <p class="text-sm text-gray-600">${karyawan.jabatan}</p>
-                            <p class="text-sm text-gray-500">${karyawan.departemen}</p>
-                        </div>
-                    </div>
-                `;
+                    `;
             });
-            
+
             html += '</div>';
             html += '<div class="mt-6"><button onclick="closeKaryawanListModal()" class="w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-4 rounded-lg transition">Tutup</button></div>';
-            
+
             content.innerHTML = html;
             modal.classList.add('show');
         }
@@ -1755,16 +1782,16 @@
             }
         });
 
-        
+
         let navigationTimeout = null;
         document.querySelectorAll('.sidebar-item').forEach(link => {
             link.addEventListener('click', function (e) {
                 if (this.href && !this.classList.contains('active')) {
-                    
+
                     if (navigationTimeout) {
                         clearTimeout(navigationTimeout);
                     }
-                    
+
                     navigationTimeout = setTimeout(() => {
                         showLoading();
                     }, 50);
@@ -1791,10 +1818,10 @@
         });
 
         // Supabase Realtime - Auto reload hanya ketika ada perubahan
-        (function() {
+        (function () {
             const script = document.createElement('script');
             script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-            script.onload = function() {
+            script.onload = function () {
                 fetch('/api/supabase-config')
                     .then(res => res.json())
                     .then(config => {
@@ -1803,7 +1830,7 @@
 
                         const channel = supabaseClient
                             .channel('riwayat-realtime')
-                            .on('postgres_changes', 
+                            .on('postgres_changes',
                                 { event: '*', schema: 'public', table: 'kunjungan' },
                                 (payload) => {
                                     console.log('✨ Perubahan terdeteksi:', payload.eventType);
