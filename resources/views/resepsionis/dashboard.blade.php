@@ -1150,7 +1150,13 @@
                         data: null,
                         render: function (data) {
                             if (data.status === 'done') {
-                                return '<button onclick="viewHasil(' + data.id_kunjungan + ')" class="btn-view">Lihat Hasil</button>';
+                                return '<button onclick="viewHasil(' + data.id_kunjungan + ')" id="viewHasilBtn_' + data.id_kunjungan + '" class="btn-view flex items-center justify-center gap-2">' +
+                                    '<span id="viewHasilText_' + data.id_kunjungan + '">Lihat Hasil</span>' +
+                                    '<svg id="viewHasilSpinner_' + data.id_kunjungan + '" class="hidden animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">' +
+                                    '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>' +
+                                    '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>' +
+                                    '</svg>' +
+                                    '</button>';
                             }
                             return '<button onclick="viewDetail(' + data.id_kunjungan + ')" class="text-blue-600 hover:underline inline-flex items-center gap-1">' + eyeIcon + ' Detail</button>';
                         }
@@ -1606,13 +1612,24 @@
             }
 
             isLoadingNotulensi = true;
-            showLoadingOverlay();
+            
+            // Get button elements
+            const button = document.getElementById('viewHasilBtn_' + kunjunganId);
+            const buttonText = document.getElementById('viewHasilText_' + kunjunganId);
+            const spinner = document.getElementById('viewHasilSpinner_' + kunjunganId);
+            
+            // Show spinner
+            if (button && buttonText && spinner) {
+                button.disabled = true;
+                button.classList.add('opacity-70', 'cursor-not-allowed');
+                buttonText.textContent = 'Memuat...';
+                spinner.classList.remove('hidden');
+            }
 
             // Fetch token notulensi berdasarkan kunjungan ID
             fetch(`/resepsionis/notulensi/${kunjunganId}/token`)
                 .then(response => response.json())
                 .then(data => {
-                    hideLoadingOverlay();
                     isLoadingNotulensi = false;
 
                     if (data.success && data.token) {
@@ -1624,9 +1641,17 @@
                 })
                 .catch(error => {
                     console.error('Error fetching notulensi token:', error);
-                    hideLoadingOverlay();
                     isLoadingNotulensi = false;
                     showErrorModal('Terjadi kesalahan saat mengambil data notulensi');
+                })
+                .finally(() => {
+                    // Hide spinner
+                    if (button && buttonText && spinner) {
+                        button.disabled = false;
+                        button.classList.remove('opacity-70', 'cursor-not-allowed');
+                        buttonText.textContent = 'Lihat Hasil';
+                        spinner.classList.add('hidden');
+                    }
                 });
         }
 
