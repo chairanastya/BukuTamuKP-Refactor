@@ -21,7 +21,7 @@
                 {{ $message }}
             </p>
 
-            <a href="{{ url('/') }}" class="inline-block bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-8 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
+            <a href="{{ route('resepsionis.dashboard') }}" class="inline-block bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-8 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
                 Kembali ke Beranda
             </a>
         </div>

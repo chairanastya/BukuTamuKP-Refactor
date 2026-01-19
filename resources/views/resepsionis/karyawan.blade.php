@@ -335,6 +335,51 @@
             flex-shrink: 0 !important;
             position: relative !important;
         }
+
+        @media (max-width: 768px) {
+            .filter-container {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .main-content {
+                padding-top: 120px;
+            }
+
+            .stats-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .stats-card > div:first-child {
+                width: 100%;
+            }
+
+            .stats-card .text-3xl {
+                font-size: 1.875rem;
+            }
+
+            .stats-card .text-sm {
+                font-size: 0.75rem;
+            }
+
+            .header-container {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 1rem;
+            }
+
+            .header-buttons-container {
+                width: 100%;
+            }
+
+            .header-buttons-container .btn-primary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     </style>
 @endpush
 
@@ -359,16 +404,18 @@
 @section('content')
     <div class="main-content">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center justify-between mb-6 header-container">
                 <h2 class="text-2xl font-bold text-[#084E8F]">Daftar Karyawan</h2>
-                <a href="{{ route('resepsionis.karyawan.create') }}" class="btn-primary flex items-center gap-2">
-                    @svg('heroicon-o-plus', 'w-5 h-5')
-                    Tambah Karyawan Baru
-                </a>
+                <div class="header-buttons-container">
+                    <a href="{{ route('resepsionis.karyawan.create') }}" class="btn-primary flex items-center gap-2">
+                        @svg('heroicon-o-plus', 'w-5 h-5')
+                        Tambah Karyawan Baru
+                    </a>
+                </div>
             </div>
 
             <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                 <div class="stats-card" data-filter="all" onclick="filterByStatus('all')">
                     <div>
                         <p class="text-gray-600 text-sm mb-1">Total Karyawan</p>
