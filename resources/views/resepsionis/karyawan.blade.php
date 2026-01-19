@@ -38,6 +38,12 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .stats-card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
         }
 
         .stats-icon {
@@ -363,7 +369,7 @@
 
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="stats-card">
+                <div class="stats-card" data-filter="all" onclick="filterByStatus('all')">
                     <div>
                         <p class="text-gray-600 text-sm mb-1">Total Karyawan</p>
                         <p class="text-3xl font-bold text-[#084E8F]">{{ $stats['total'] }}</p>
@@ -373,7 +379,7 @@
                     </div>
                 </div>
 
-                <div class="stats-card">
+                <div class="stats-card" data-filter="aktif" onclick="filterByStatus('aktif')">
                     <div>
                         <p class="text-gray-600 text-sm mb-1">Karyawan Aktif</p>
                         <p class="text-3xl font-bold text-green-600">{{ $stats['aktif'] }}</p>
@@ -383,7 +389,7 @@
                     </div>
                 </div>
 
-                <div class="stats-card">
+                <div class="stats-card" data-filter="nonaktif" onclick="filterByStatus('nonaktif')">
                     <div>
                         <p class="text-gray-600 text-sm mb-1">Karyawan Nonaktif</p>
                         <p class="text-3xl font-bold text-red-600">{{ $stats['nonaktif'] }}</p>
@@ -393,7 +399,7 @@
                     </div>
                 </div>
 
-                <div class="stats-card">
+                <div class="stats-card" data-filter="all" onclick="filterByStatus('all')">
                     <div>
                         <p class="text-gray-600 text-sm mb-1">Total Departemen</p>
                         <p class="text-3xl font-bold text-blue-600">{{ $stats['departemen'] }}</p>
@@ -508,6 +514,7 @@
         const toggleIcon = `{!! svg('heroicon-o-x-circle', 'w-5 h-5')->toHtml() !!}`;
         const activateIcon = `{!! svg('heroicon-o-check-circle', 'w-5 h-5')->toHtml() !!}`;
         let currentDepartemenFilter = [];
+        let currentFilter = 'all';
         let toggleKaryawanData = null;
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -591,6 +598,29 @@
             }, 200);
         }
 
+        function filterByStatus(status) {
+            currentFilter = status;
+
+            // Remove ring from all cards
+            document.querySelectorAll('.stats-card').forEach(card => {
+                card.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
+            });
+
+            // Add ring to selected card(s) with matching filter
+            document.querySelectorAll(`[data-filter="${status}"]`).forEach(card => {
+                card.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
+            });
+
+            // Apply filter to table - Column 6 is status
+            if (status === 'all') {
+                table.column(6).search('').draw();
+            } else if (status === 'aktif') {
+                table.column(6).search('^Aktif$', true, false).draw();
+            } else if (status === 'nonaktif') {
+                table.column(6).search('^Nonaktif$', true, false).draw();
+            }
+        }
+
         function addDepartemenFilter() {
             let filterWrapper = $('.dataTables_filter');
             if (filterWrapper.length === 0) {
@@ -607,12 +637,12 @@
             const filterContainer = $('<div class="filter-container"></div>');
 
             const filterBtn = $(`
-                        <div class="filter-btn" id="departemenFilterBtn">
-                            <span>Departemen</span>
-                            <span id="departemenBadge"></span>
-                            <span style="font-size: 10px;">▼</span>
-                        </div>
-                    `);
+                                    <div class="filter-btn" id="departemenFilterBtn">
+                                        <span>Departemen</span>
+                                        <span id="departemenBadge"></span>
+                                        <span style="font-size: 10px;">▼</span>
+                                    </div>
+                                `);
 
             const dropdown = $('<div class="filter-dropdown" id="departemenDropdown"></div>');
 
