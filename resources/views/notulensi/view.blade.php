@@ -168,7 +168,7 @@
                         @svg('heroicon-o-document-text', 'w-5 h-5')
                         <span id="exportBtnText">Export to PDF</span>
                     </button>
-                    <a href="{{ url('/') }}"
+                    <a href="{{ route('resepsionis.dashboard') }}"
                         class="flex-1 text-center bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
                         Kembali ke Beranda
                     </a>
