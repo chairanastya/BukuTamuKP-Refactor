@@ -67,6 +67,16 @@
             color: #374151;
         }
 
+        .badge-aktif {
+            background: #D1FAE5;
+            color: #059669;
+        }
+
+        .badge-nonaktif {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
         .btn-primary {
             background: #0C4777;
             color: white;
@@ -285,18 +295,18 @@
             gap: 24px !important;
             margin-bottom: 16px !important;
         }
-        
+
         .dataTables_wrapper .dt-layout-start {
             flex: 0 0 auto !important;
         }
-        
+
         .dataTables_wrapper .dt-layout-end {
             display: flex !important;
             align-items: center !important;
             gap: 16px !important;
             flex: 0 0 auto !important;
         }
-        
+
         .dataTables_wrapper .dt-search {
             display: flex !important;
             align-items: center !important;
@@ -309,11 +319,11 @@
             margin: 0 !important;
             flex-shrink: 0 !important;
         }
-        
+
         .dataTables_wrapper .dt-search input.dt-input {
             flex-shrink: 0 !important;
         }
-        
+
         .filter-container {
             flex: 0 0 auto !important;
             flex-shrink: 0 !important;
@@ -365,21 +375,31 @@
 
                 <div class="stats-card">
                     <div>
-                        <p class="text-gray-600 text-sm mb-1">Total Departemen</p>
-                        <p class="text-3xl font-bold text-blue-600">{{ $stats['departemen'] }}</p>
+                        <p class="text-gray-600 text-sm mb-1">Karyawan Aktif</p>
+                        <p class="text-3xl font-bold text-green-600">{{ $stats['aktif'] }}</p>
                     </div>
-                    <div class="stats-icon" style="background: #DBEAFE;">
-                        @svg('heroicon-o-building-office', 'w-6 h-6 text-blue-600')
+                    <div class="stats-icon" style="background: #D1FAE5;">
+                        @svg('heroicon-o-check-circle', 'w-6 h-6 text-green-600')
                     </div>
                 </div>
 
                 <div class="stats-card">
                     <div>
-                        <p class="text-gray-600 text-sm mb-1">Status</p>
-                        <p class="text-lg font-semibold text-green-600">Aktif</p>
+                        <p class="text-gray-600 text-sm mb-1">Karyawan Nonaktif</p>
+                        <p class="text-3xl font-bold text-red-600">{{ $stats['nonaktif'] }}</p>
                     </div>
-                    <div class="stats-icon" style="background: #D1FAE5;">
-                        @svg('heroicon-o-check-circle', 'w-7 h-7 text-green-600')
+                    <div class="stats-icon" style="background: #FEE2E2;">
+                        @svg('heroicon-o-x-circle', 'w-6 h-6 text-red-600')
+                    </div>
+                </div>
+
+                <div class="stats-card">
+                    <div>
+                        <p class="text-gray-600 text-sm mb-1">Total Departemen</p>
+                        <p class="text-3xl font-bold text-blue-600">{{ $stats['departemen'] }}</p>
+                    </div>
+                    <div class="stats-icon" style="background: #DBEAFE;">
+                        @svg('heroicon-o-building-office', 'w-6 h-6 text-blue-600')
                     </div>
                 </div>
             </div>
@@ -395,6 +415,7 @@
                             <th>Departemen</th>
                             <th>Jabatan</th>
                             <th>Role</th>
+                            <th>Status</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -404,25 +425,25 @@
         </div>
     </div>
 
-    <div id="deleteModal" class="modal-overlay">
+    <div id="toggleStatusModal" class="modal-overlay">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-red-600">Konfirmasi Hapus Karyawan</h3>
-                <button onclick="closeDeleteModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                <h3 class="text-2xl font-bold" id="modalTitle">Konfirmasi Ubah Status</h3>
+                <button onclick="closeToggleStatusModal()"
+                    class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
             </div>
-            <div id="deleteContent" class="mb-6">
-                <p class="text-gray-700">Apakah Anda yakin ingin menghapus karyawan <strong id="karyawanName"></strong>?</p>
-                <p class="text-sm text-red-600 mt-2">Tindakan ini tidak dapat dibatalkan.</p>
+            <div id="toggleContent" class="mb-6">
+                <p class="text-gray-700" id="toggleMessage"></p>
             </div>
             <div class="flex gap-3">
-                <button onclick="closeDeleteModal()"
+                <button onclick="closeToggleStatusModal()"
                     class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">
                     Batalkan
                 </button>
-                <button id="deleteButton" onclick="confirmDelete()"
-                    class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
-                    <span id="deleteButtonText">Hapus</span>
-                    <svg id="deleteSpinner" class="hidden animate-spin h-5 w-5 text-white"
+                <button id="toggleButton" onclick="confirmToggleStatus()"
+                    class="flex-1 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
+                    <span id="toggleButtonText">Konfirmasi</span>
+                    <svg id="toggleSpinner" class="hidden animate-spin h-5 w-5 text-white"
                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor"
@@ -469,7 +490,8 @@
                 </div>
             </div>
             <div class="flex justify-end">
-                <button onclick="closeErrorModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                <button onclick="closeErrorModal()"
+                    class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition">
                     Tutup
                 </button>
             </div>
@@ -483,7 +505,10 @@
     <script>
         let table;
         const trashIcon = `{!! svg('heroicon-s-trash', 'w-5 h-5')->toHtml() !!}`;
+        const toggleIcon = `{!! svg('heroicon-o-x-circle', 'w-5 h-5')->toHtml() !!}`;
+        const activateIcon = `{!! svg('heroicon-o-check-circle', 'w-5 h-5')->toHtml() !!}`;
         let currentDepartemenFilter = [];
+        let toggleKaryawanData = null;
 
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function () {
@@ -530,10 +555,22 @@
                         }
                     },
                     {
+                        data: 'status',
+                        render: function (data) {
+                            if (data === 'aktif') {
+                                return '<span class="badge badge-aktif">Aktif</span>';
+                            }
+                            return '<span class="badge badge-nonaktif">Nonaktif</span>';
+                        }
+                    },
+                    {
                         data: null,
                         render: function (data) {
                             const escapedName = data.nama_karyawan.replace(/'/g, "\\'");
-                            return `<button onclick="openDeleteModal(${data.id_karyawan}, '${escapedName}')" class="text-red-600 hover:text-red-800 transition">${trashIcon}</button>`;
+                            const status = data.status;
+                            const icon = status === 'aktif' ? toggleIcon : activateIcon;
+                            const colorClass = status === 'aktif' ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800';
+                            return `<button onclick="openToggleStatusModal(${data.id_karyawan}, '${escapedName}', '${status}')" class="${colorClass} transition">${icon}</button>`;
                         }
                     },
                     {
@@ -542,10 +579,10 @@
                     }
                 ],
                 pageLength: 10,
-                order: [[7, 'desc']]
+                order: [[8, 'desc']]
             });
 
-            setTimeout(function() {
+            setTimeout(function () {
                 addDepartemenFilter();
             }, 200);
         }
@@ -555,41 +592,41 @@
             if (filterWrapper.length === 0) {
                 filterWrapper = $('.dt-search');
             }
-            
+
             if (filterWrapper.length === 0) {
                 console.error('Filter wrapper not found!');
                 return;
             }
-            
+
             $('.filter-container').remove();
-            
+
             const filterContainer = $('<div class="filter-container"></div>');
-            
+
             const filterBtn = $(`
-                <div class="filter-btn" id="departemenFilterBtn">
-                    <span>Departemen</span>
-                    <span id="departemenBadge"></span>
-                    <span style="font-size: 10px;">▼</span>
-                </div>
-            `);
-            
+                        <div class="filter-btn" id="departemenFilterBtn">
+                            <span>Departemen</span>
+                            <span id="departemenBadge"></span>
+                            <span style="font-size: 10px;">▼</span>
+                        </div>
+                    `);
+
             const dropdown = $('<div class="filter-dropdown" id="departemenDropdown"></div>');
-            
+
             filterContainer.append(filterBtn, dropdown);
             filterWrapper.parent().append(filterContainer);
-            
+
             populateDepartemenFilter();
-            
-            filterBtn.on('click', function(e) {
+
+            filterBtn.on('click', function (e) {
                 e.stopPropagation();
                 dropdown.toggleClass('show');
             });
-            
-            $(document).on('click', function() {
+
+            $(document).on('click', function () {
                 dropdown.removeClass('show');
             });
-            
-            dropdown.on('click', function(e) {
+
+            dropdown.on('click', function (e) {
                 e.stopPropagation();
             });
         }
@@ -602,16 +639,16 @@
                     const departemen = [...new Set(data.map(item => item.departemen).filter(d => d && d !== '-'))].sort();
                     const dropdown = $('#departemenDropdown');
                     dropdown.empty();
-                    
+
                     departemen.forEach(dept => {
                         const item = $(`<div class="filter-dropdown-item" data-value="${dept}">${dept}</div>`);
-                        item.on('click', function(e) {
+                        item.on('click', function (e) {
                             e.stopPropagation();
                             applyDepartemenFilter(dept);
                         });
                         dropdown.append(item);
                     });
-                    
+
                     dropdown.append(`<div class="filter-clear" onclick="clearDepartemenFilter()">✕ Hapus Filter</div>`);
                 });
         }
@@ -619,7 +656,7 @@
         function applyDepartemenFilter(departemen) {
             const index = currentDepartemenFilter.indexOf(departemen);
             const item = $(`#departemenDropdown .filter-dropdown-item[data-value="${departemen}"]`);
-            
+
             if (index > -1) {
                 currentDepartemenFilter.splice(index, 1);
                 item.removeClass('active');
@@ -627,7 +664,7 @@
                 currentDepartemenFilter.push(departemen);
                 item.addClass('active');
             }
-            
+
             updateDepartemenBadge();
             applyDepartemenTableFilter();
         }
@@ -642,7 +679,7 @@
         function updateDepartemenBadge() {
             const badge = $('#departemenBadge');
             const btn = $('#departemenFilterBtn');
-            
+
             if (currentDepartemenFilter.length > 0) {
                 badge.html(`<span class="active-filter-badge">${currentDepartemenFilter.length}</span>`);
                 btn.addClass('active');
@@ -656,30 +693,45 @@
             if ($.fn.dataTable.ext.search.length > 0) {
                 $.fn.dataTable.ext.search.pop();
             }
-            
+
             if (currentDepartemenFilter.length > 0) {
                 $.fn.dataTable.ext.search.push(
-                    function(settings, data, dataIndex) {
+                    function (settings, data, dataIndex) {
                         const departemen = data[3];
                         return currentDepartemenFilter.includes(departemen);
                     }
                 );
             }
-            
+
             table.draw();
         }
 
-        let deleteKaryawanId = null;
+        function openToggleStatusModal(id, nama, currentStatus) {
+            toggleKaryawanData = { id, nama, currentStatus };
 
-        function openDeleteModal(id, nama) {
-            deleteKaryawanId = id;
-            document.getElementById('karyawanName').textContent = nama;
-            document.getElementById('deleteModal').classList.add('show');
+            const modal = document.getElementById('toggleStatusModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const toggleMessage = document.getElementById('toggleMessage');
+            const toggleButton = document.getElementById('toggleButton');
+
+            if (currentStatus === 'aktif') {
+                modalTitle.textContent = 'Nonaktifkan Karyawan';
+                modalTitle.className = 'text-2xl font-bold text-red-600';
+                toggleMessage.innerHTML = `Apakah Anda yakin ingin menonaktifkan karyawan <strong>${nama}</strong>?`;
+                toggleButton.className = 'flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2';
+            } else {
+                modalTitle.textContent = 'Aktifkan Karyawan';
+                modalTitle.className = 'text-2xl font-bold text-green-600';
+                toggleMessage.innerHTML = `Apakah Anda yakin ingin mengaktifkan kembali karyawan <strong>${nama}</strong>?`;
+                toggleButton.className = 'flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2';
+            }
+
+            modal.classList.add('show');
         }
 
-        function closeDeleteModal() {
-            deleteKaryawanId = null;
-            document.getElementById('deleteModal').classList.remove('show');
+        function closeToggleStatusModal() {
+            toggleKaryawanData = null;
+            document.getElementById('toggleStatusModal').classList.remove('show');
         }
 
         function showSuccessModal(message) {
@@ -700,48 +752,53 @@
             document.getElementById('errorModal').classList.remove('show');
         }
 
-        function confirmDelete() {
-            if (!deleteKaryawanId) return;
+        function confirmToggleStatus() {
+            if (!toggleKaryawanData) return;
 
-            const deleteButton = document.getElementById('deleteButton');
-            const deleteButtonText = document.getElementById('deleteButtonText');
-            const deleteSpinner = document.getElementById('deleteSpinner');
+            const toggleButton = document.getElementById('toggleButton');
+            const toggleButtonText = document.getElementById('toggleButtonText');
+            const toggleSpinner = document.getElementById('toggleSpinner');
 
-            deleteButton.disabled = true;
-            deleteButton.classList.add('opacity-70', 'cursor-not-allowed');
-            deleteButtonText.textContent = 'Menghapus...';
-            deleteSpinner.classList.remove('hidden');
+            toggleButton.disabled = true;
+            toggleButton.classList.add('opacity-70', 'cursor-not-allowed');
+            toggleButtonText.textContent = 'Memproses...';
+            toggleSpinner.classList.remove('hidden');
 
-            fetch(`/resepsionis/karyawan/${deleteKaryawanId}`, {
-                method: 'DELETE',
+            fetch(`/resepsionis/karyawan/${toggleKaryawanData.id}/toggle-status`, {
+                method: 'PATCH',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeDeleteModal();
-                    table.ajax.reload();
-                    showSuccessModal(data.message);
-                } else {
-                    closeDeleteModal();
-                    showErrorModal(data.message || 'Gagal menghapus karyawan');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                closeDeleteModal();
-                showErrorModal('Terjadi kesalahan saat menghapus karyawan');
-            })
-            .finally(() => {
-                deleteButton.disabled = false;
-                deleteButton.classList.remove('opacity-70', 'cursor-not-allowed');
-                deleteButtonText.textContent = 'Hapus';
-                deleteSpinner.classList.add('hidden');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closeToggleStatusModal();
+                        table.ajax.reload();
+                        showSuccessModal(data.message);
+
+                        // Update stats
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        closeToggleStatusModal();
+                        showErrorModal(data.message || 'Gagal mengubah status karyawan');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    closeToggleStatusModal();
+                    showErrorModal('Terjadi kesalahan saat mengubah status karyawan');
+                })
+                .finally(() => {
+                    toggleButton.disabled = false;
+                    toggleButton.classList.remove('opacity-70', 'cursor-not-allowed');
+                    toggleButtonText.textContent = 'Konfirmasi';
+                    toggleSpinner.classList.add('hidden');
+                });
         }
 
         function toggleDropdown() {

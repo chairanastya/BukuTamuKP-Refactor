@@ -28,7 +28,8 @@ class TamuController extends Controller
             return response()->json([]);
         }
 
-        $karyawans = Karyawan::where('nama_karyawan', 'ILIKE', '%' . $keyword . '%')
+        $karyawans = Karyawan::where('status', 'aktif')
+            ->where('nama_karyawan', 'ILIKE', '%' . $keyword . '%')
             ->orderBy('nama_karyawan', 'asc')
             ->get(['id_karyawan', 'nama_karyawan', 'jabatan', 'departemen']);
 
