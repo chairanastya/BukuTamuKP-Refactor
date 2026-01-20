@@ -42,16 +42,155 @@ Buku Tamu Digital
 @push('styles')
     <style>
         .container {
-            margin-left: 50px;
-            padding-top: 110px;            
+            margin-left: 90px;
+            padding-top: 110px;
+            padding-left: 4rem;
+            padding-right: 4rem;
+            max-width: 100%;
+            width: calc(100vw - 90px);
+            box-sizing: border-box;
+        }
+        
+        /* Form improvements untuk zoom */
+        .max-w-6xl {
+            max-width: 100%;
+            width: 100%;
+            padding-left: 0;
+            padding-right: 0;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        /* Input sizing yang lebih besar untuk zoom normal */
+        .input-wrapper {
+            min-width: 0;
+            width: 100%;
+            padding: 14px 18px;
+            font-size: 17.6px;
+        }
+
+        .input-wrapper input,
+        .input-wrapper textarea {
+            min-width: 0;
+            max-width: 100%;
+            font-size: 17.6px;
+            padding: 4px 0;
+        }
+
+        /* Label styling */
+        label {
+            font-size: 17.6px;
+            margin-bottom: 11px;
+        }
+
+        /* Button group responsive */
+        .flex.gap-4 {
+            flex-wrap: wrap;
+            gap: 1.1rem;
+        }
+
+        .flex.gap-4 > * {
+            min-width: 0;
+            flex: 1 1 auto;
+            min-width: 220px;
+            font-size: 17.6px;
+            padding: 15px 26px;
+        }
+
+        /* Dropdown autocomplete responsive */
+        .autocomplete-dropdown {
+            max-width: 100%;
+            left: 0;
+            right: 0;
+            font-size: 16.5px;
+        }
+
+        /* Prevent overflow */
+        input, textarea, select {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Title sizing */
+        h1 {
+            font-size: 30.8px;
+        }
+
+        /* Responsive untuk zoom dan viewport kecil */
+        @media (max-width: 1400px) {
+            .container {
+                width: calc(100vw - 90px);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                margin-left: 80px;
+                width: calc(100vw - 80px);
+                padding-left: 3rem;
+                padding-right: 3rem;
+            }
+
+            .input-wrapper {
+                padding: 10px 14px;
+                font-size: 15px;
+            }
+
+            .input-wrapper input,
+            .input-wrapper textarea {
+                font-size: 15px;
+            }
+
+            label {
+                font-size: 15px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
         }
         
         @media (max-width: 768px) {
             .container {
                 margin-left: 0;
                 padding-top: 160px;
-                padding-left: 1rem;
-                padding-right: 1rem;
+                width: 100vw;
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+
+            .flex.gap-4 {
+                flex-direction: column;
+            }
+            
+            .flex.gap-4 > * {
+                width: 100%;
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .input-wrapper {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+
+            .input-wrapper input,
+            .input-wrapper textarea {
+                font-size: 14px;
+            }
+
+            label {
+                font-size: 14px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .flex.gap-4 > * {
+                font-size: 15px;
+                padding: 12px 20px;
             }
         }
     </style>

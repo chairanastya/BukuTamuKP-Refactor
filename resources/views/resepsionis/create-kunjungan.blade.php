@@ -62,7 +62,7 @@
         @media (max-width: 768px) {
             .container {
                 margin-left: 0;
-                padding: 160px 1rem 80px 1rem;
+                padding: 160px 2rem 80px 2rem;
                 width: 100%;
             }
         }
