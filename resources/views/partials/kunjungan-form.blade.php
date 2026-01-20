@@ -1,12 +1,12 @@
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-6xl mx-auto">
+<div class="container">
+    <div class="form-container">
         <h1 class="text-2xl font-bold text-[#084E8F] mb-6">Buat Kunjungan Baru</h1>
         
         <form action="{{ route('tamu.submit') }}" method="POST" enctype="multipart/form-data" novalidate>
             @csrf
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 space-y-6">
+            <div class="form-layout">
+                <div class="form-left">
                     <div>
                         <label for="nama_lengkap" class="block text-[#084E8F] font-bold mb-2">
                             Nama Lengkap
@@ -31,7 +31,7 @@
                 </div>
 
                 <div>
-                    <label for="email" class="block text-[#084E8F] font-bold mb-2">
+                    <label for="email" class="block text-[#084E8F] font-bold mb-2 mt-4">
                         Alamat Email
                     </label>
                     <div class="input-wrapper {{ $errors->has('email') ? 'border-red-500 bg-red-50' : '' }}">
@@ -54,7 +54,7 @@
                 </div>
 
                 <div>
-                    <label for="instansi" class="block text-[#084E8F] font-bold mb-2">
+                    <label for="instansi" class="block text-[#084E8F] font-bold mb-2 mt-4">
                         Instansi Asal
                     </label>
                     <div class="input-wrapper {{ $errors->has('instansi') ? 'border-red-500 bg-red-50' : '' }}">
@@ -77,7 +77,7 @@
                 </div>
 
                 <div>
-                    <label for="tujuan" class="block text-[#084E8F] font-bold mb-2">
+                    <label for="tujuan" class="block text-[#084E8F] font-bold mb-2 mt-4">
                         Tujuan Kedatangan
                     </label>
                     <div class="input-wrapper {{ $errors->has('tujuan') ? 'border-red-500 bg-red-50' : '' }}">
@@ -100,7 +100,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-[#084E8F] font-bold mb-2">
+                    <label class="block text-[#084E8F] font-bold mb-2 mt-4">
                         Karyawan yang Anda Tuju
                     </label>
 
@@ -120,9 +120,9 @@
                         </div>
                     @enderror
                 </div>
-            </div>
+                </div>
 
-            <div class="lg:col-span-1 space-y-6">
+                <div class="form-right">
                 <div>
                     <label class="block text-[#084E8F] font-bold mb-2">
                         Foto Identitas (KTP)
@@ -170,13 +170,15 @@
                     @endif
                 </div>
 
-                <button type="submit"
-                    class="w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
-                    @svg('phosphor-paper-plane-tilt-fill', 'w-5 h-5')
-                    Kirim Data
-                </button>
+                <div class="mt-6">
+                    <button type="submit"
+                        class="w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                        @svg('phosphor-paper-plane-tilt-fill', 'w-5 h-5')
+                        Kirim Data
+                    </button>
+                </div>
             </div>
-        </div>
+            </div>
         </form>
     </div>
 </div>

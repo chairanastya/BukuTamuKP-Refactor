@@ -118,12 +118,16 @@
             display: flex;
             gap: 8px;
             align-items: center;
+            flex-wrap: wrap;
+            width: 100%;
         }
 
         .karyawan-search-container {
-            flex: 1;
+            flex: 1 1 auto;
             position: relative;
             height: 50px;
+            min-width: 200px;
+            max-width: 100%;
         }
 
         .karyawan-action-buttons {
@@ -144,6 +148,7 @@
             box-sizing: border-box;
             cursor: pointer;
             transition: all 0.2s;
+            max-width: 100%;
         }
 
         .karyawan-card:hover {
@@ -315,8 +320,10 @@
             border-radius: 8px;
             padding: 8px;
             width: 100%;
+            max-width: 100%;
             transition: all 0.2s ease;
             background-color: #F9FCFF;
+            box-sizing: border-box;
         }
 
         .input-wrapper.filled {
@@ -331,8 +338,10 @@
         .input-wrapper textarea {
             background-color: transparent;
             width: 100%;
+            max-width: 100%;
             border: none;
             outline: none;
+            box-sizing: border-box;
         }
 
         /* Error States */
@@ -350,10 +359,104 @@
             font-size: 14px;
             margin-top: 8px;
             display: none;
+            word-wrap: break-word;
         }
 
         .error-message.show {
             display: block;
+        }
+
+        /* Form Container Layout */
+        .form-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .form-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .form-left {
+            flex: 1;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .form-right {
+            width: 100%;
+        }
+
+        /* iPad Landscape (min 1024px) - Layout 2 kolom */
+        @media (min-width: 1024px) and (orientation: landscape) {
+            .form-layout {
+                flex-direction: row;
+                gap: 2rem;
+            }
+
+            .form-left {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .form-right {
+                width: 320px;
+                flex-shrink: 0;
+                position: sticky;
+                top: 1rem;
+                align-self: flex-start;
+            }
+
+            .form-container {
+                padding: 0 1.5rem;
+            }
+        }
+
+        /* Desktop besar - lebar form right lebih besar */
+        @media (min-width: 1025px) {
+            .form-layout {
+                flex-direction: row;
+                gap: 2rem;
+            }
+
+            .form-left {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .form-right {
+                width: 384px;
+                flex-shrink: 0;
+                position: sticky;
+                top: 1rem;
+                align-self: flex-start;
+            }
+        }
+
+        /* Responsive untuk Zoom 110%-150% */
+        @media (min-width: 1024px) and (max-width: 1600px) {
+            .form-container {
+                max-width: calc(100vw - 150px);
+                padding: 0 1.5rem;
+            }
+        }
+
+        /* Mobile Portrait, Mobile Landscape, iPad Portrait - vertikal layout */
+        @media (max-width: 1023px) {
+            .form-container {
+                max-width: 100%;
+                padding: 0 1rem;
+            }
+
+            .form-layout {
+                flex-direction: column;
+            }
+
+            .form-right {
+                width: 100%;
+            }
         }
     </style>
 @endpush
