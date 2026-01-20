@@ -42,7 +42,7 @@ Buku Tamu Digital
 @push('styles')
     <style>
         .container {
-            margin-left: 90px;
+            margin-left: 50px;
             padding-top: 110px;            
         }
         

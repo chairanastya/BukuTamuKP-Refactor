@@ -24,6 +24,7 @@
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.7/css/responsive.dataTables.min.css">
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
@@ -497,6 +498,72 @@
         }
 
         @media (max-width: 768px) {
+            .dataTables_wrapper .dt-layout-row:first-child,
+            div.dt-container div.dt-layout-row:first-child {
+                display: grid !important;
+                grid-template-columns: auto auto !important;
+                grid-template-rows: auto auto !important;
+                gap: 12px !important;
+                margin-bottom: 16px !important;
+                flex-direction: unset !important;
+                align-items: start !important;
+            }
+
+            .dataTables_wrapper .dt-layout-start,
+            div.dt-container div.dt-layout-start {
+                grid-column: 1 !important;
+                grid-row: 1 !important;
+                justify-self: start !important;
+                align-self: start !important;
+                margin-right: 0 !important;
+            }
+
+            .dataTables_wrapper .dt-layout-end,
+            div.dt-container div.dt-layout-end {
+                display: contents !important;
+            }
+
+            .dataTables_wrapper .filter-container,
+            div.dt-container .filter-container {
+                grid-column: 2 !important;
+                grid-row: 1 !important;
+                justify-self: end !important;
+                display: block !important;
+                text-align: right !important;
+            }
+
+            .dataTables_wrapper .dt-search,
+            div.dt-container div.dt-search {
+                grid-column: 1 / -1 !important;
+                grid-row: 2 !important;
+                width: 100% !important;
+                display: flex !important;
+                margin-top: 8px !important;
+            }
+
+            .dataTables_wrapper .dt-search label,
+            div.dt-container div.dt-search label {
+                width: 100% !important;
+                display: flex !important;
+                gap: 8px !important;
+                align-items: center !important;
+                font-size: 14px !important;
+            }
+
+            .dataTables_wrapper .dt-search input.dt-input,
+            div.dt-container div.dt-search input.dt-input {
+                flex: 1 !important;
+                min-width: 85% !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .filter-container {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px !important;
+            }
+
             .main-content {
                 padding-top: 120px;
             }
@@ -534,6 +601,45 @@
             .header-buttons-container .btn-export-pdf {
                 flex: 1 1 calc(50% - 0.375rem);
                 justify-content: center;
+            }
+
+            table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before,
+            table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control:before {
+                margin-right: 0.5em;
+            }
+
+            table.dataTable > tbody > tr.child {
+                padding: 0.5em 1em;
+            }
+
+            table.dataTable > tbody > tr.child ul.dtr-details {
+                display: block;
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+            }
+
+            table.dataTable > tbody > tr.child ul.dtr-details > li {
+                border-bottom: 1px solid #efefef;
+                padding: 0.75em 0;
+                display: flex;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            table.dataTable > tbody > tr.child span.dtr-title {
+                display: inline-block;
+                min-width: 130px;
+                max-width: 130px;
+                flex-shrink: 0;
+                font-weight: bold;
+                padding-top: 2px;
+            }
+
+            table.dataTable > tbody > tr.child span.dtr-data {
+                flex: 1;
+                word-break: break-word;
             }
         }
     </style>
@@ -784,6 +890,7 @@
 @push('scripts')
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.7/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -1168,6 +1275,19 @@
             }
 
             table = new DataTable('#riwayatTable', {
+                responsive: {
+                    details: {
+                        type: 'column',
+                        target: 0
+                    }
+                },
+                columnDefs: [
+                    {
+                        className: 'dtr-control',
+                        orderable: false,
+                        targets: 0
+                    }
+                ],
                 ajax: {
                     url: '{{ route("resepsionis.riwayat.data") }}',
                     dataSrc: 'data',
@@ -1183,23 +1303,26 @@
                 columns: [
                     {
                         data: null,
+                        responsivePriority: 1,
                         render: function (data, type, row, meta) {
                             return meta.row + 1;
                         }
                     },
-                    { data: 'tanggal' },
-                    { data: 'jam' },
-                    { data: 'nama_tamu' },
+                    { data: 'tanggal', responsivePriority: 4 },
+                    { data: 'jam', responsivePriority: 5 },
+                    { data: 'nama_tamu', responsivePriority: 2 },
                     {
                         data: null,
+                        responsivePriority: 3,
                         render: function (data) {
                             if (!data.has_ktp || !data.ktp_token) return '-';
                             return `<button onclick="viewKtp('${data.ktp_token}')" class="text-blue-600 hover:underline font-regular inline-flex items-center gap-1">${eyeIcon} Lihat KTP</button>`;
                         }
                     },
-                    { data: 'instansi' },
+                    { data: 'instansi', responsivePriority: 6 },
                     {
                         data: 'karyawan',
+                        responsivePriority: 7,
                         render: function (data) {
                             if (!data || data.length === 0) return '-';
 
@@ -1218,6 +1341,7 @@
                     },
                     {
                         data: 'status',
+                        responsivePriority: 8,
                         render: function (data, type, row) {
 
                             if (type === 'filter' || type === 'sort') {
@@ -1236,6 +1360,7 @@
                     },
                     {
                         data: null,
+                        responsivePriority: 9,
                         render: function (data) {
                             if (data.status === 'done') {
                                 return '<button onclick="viewHasil(' + data.id_kunjungan + ')" id="viewHasilBtn_' + data.id_kunjungan + '" class="btn-view flex items-center justify-center gap-2">' +
@@ -1936,13 +2061,13 @@
                             .on('postgres_changes',
                                 { event: '*', schema: 'public', table: 'kunjungan' },
                                 (payload) => {
-                                    console.log('✨ Perubahan terdeteksi:', payload.eventType);
+                                    console.log('Perubahan terdeteksi:', payload.eventType);
                                     table.ajax.reload(null, false);
                                 }
                             )
                             .subscribe((status) => {
                                 if (status === 'SUBSCRIBED') {
-                                    console.log('🟢 Realtime active - akan auto-reload saat ada perubahan');
+                                    console.log('Realtime active - akan auto-reload saat ada perubahan');
                                 }
                             });
 
