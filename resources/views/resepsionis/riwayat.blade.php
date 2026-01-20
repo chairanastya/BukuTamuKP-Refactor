@@ -498,7 +498,6 @@
         }
 
         @media (max-width: 768px) {
-            /* Reorganize DataTables controls for mobile */
             .dataTables_wrapper .dt-layout-row:first-child,
             div.dt-container div.dt-layout-row:first-child {
                 display: grid !important;
@@ -510,7 +509,6 @@
                 align-items: start !important;
             }
 
-            /* Entries per page - top left */
             .dataTables_wrapper .dt-layout-start,
             div.dt-container div.dt-layout-start {
                 grid-column: 1 !important;
@@ -520,13 +518,11 @@
                 margin-right: 0 !important;
             }
 
-            /* Layout end container - use display: contents to make children direct grid children */
             .dataTables_wrapper .dt-layout-end,
             div.dt-container div.dt-layout-end {
                 display: contents !important;
             }
 
-            /* Filter stays at top right */
             .dataTables_wrapper .filter-container,
             div.dt-container .filter-container {
                 grid-column: 2 !important;
@@ -536,7 +532,6 @@
                 text-align: right !important;
             }
 
-            /* Search goes to bottom full width */
             .dataTables_wrapper .dt-search,
             div.dt-container div.dt-search {
                 grid-column: 1 / -1 !important;
@@ -608,7 +603,6 @@
                 justify-content: center;
             }
 
-            /* Responsive DataTables styles */
             table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before,
             table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control:before {
                 margin-right: 0.5em;
@@ -674,7 +668,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex items-center justify-between mb-6 header-container">
                 <h2 class="text-2xl font-bold text-[#084E8F]">Riwayat Kunjungan</h2>
-                <div class="flex items-center gap-3 header-buttons-container">
+                <div class="flex items-center gap-2 header-buttons-container">
                     <button onclick="exportToExcel()" class="btn-export flex items-center gap-2">
                         @svg('heroicon-o-arrow-down-tray', 'w-5 h-5')
                         Export to Excel
@@ -2067,13 +2061,13 @@
                             .on('postgres_changes',
                                 { event: '*', schema: 'public', table: 'kunjungan' },
                                 (payload) => {
-                                    console.log('✨ Perubahan terdeteksi:', payload.eventType);
+                                    console.log('Perubahan terdeteksi:', payload.eventType);
                                     table.ajax.reload(null, false);
                                 }
                             )
                             .subscribe((status) => {
                                 if (status === 'SUBSCRIBED') {
-                                    console.log('🟢 Realtime active - akan auto-reload saat ada perubahan');
+                                    console.log('Realtime active - akan auto-reload saat ada perubahan');
                                 }
                             });
 

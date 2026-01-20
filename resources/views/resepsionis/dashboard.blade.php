@@ -635,7 +635,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex items-center justify-between mb-6 header-container">
                 <h2 class="text-2xl font-bold text-[#084E8F]">Kunjungan Hari Ini</h2>
-                <div class="flex items-center gap-3 header-buttons-container">
+                <div class="flex items-center gap-2 header-buttons-container">
                     <button onclick="exportToExcel()" class="btn-export flex items-center gap-2">
                         @svg('heroicon-o-arrow-down-tray', 'w-5 h-5')
                         Export to Excel
