@@ -454,6 +454,71 @@
         }
 
         @media (max-width: 768px) {
+            /* Reorganize DataTables controls for mobile */
+            .dataTables_wrapper .dt-layout-row:first-child,
+            div.dt-container div.dt-layout-row:first-child {
+                display: grid !important;
+                grid-template-columns: auto auto !important;
+                grid-template-rows: auto auto !important;
+                gap: 12px !important;
+                margin-bottom: 16px !important;
+                flex-direction: unset !important;
+                align-items: start !important;
+            }
+
+            /* Entries per page - top left */
+            .dataTables_wrapper .dt-layout-start,
+            div.dt-container div.dt-layout-start {
+                grid-column: 1 !important;
+                grid-row: 1 !important;
+                justify-self: start !important;
+                align-self: start !important;
+                margin-right: 0 !important;
+            }
+
+            /* Layout end container - use display: contents to make children direct grid children */
+            .dataTables_wrapper .dt-layout-end,
+            div.dt-container div.dt-layout-end {
+                display: contents !important;
+            }
+
+            /* Filter stays at top right */
+            .dataTables_wrapper .filter-container,
+            div.dt-container .filter-container {
+                grid-column: 2 !important;
+                grid-row: 1 !important;
+                justify-self: end !important;
+                display: block !important;
+                text-align: right !important;
+            }
+
+            /* Search goes to bottom full width */
+            .dataTables_wrapper .dt-search,
+            div.dt-container div.dt-search {
+                grid-column: 1 / -1 !important;
+                grid-row: 2 !important;
+                width: 100% !important;
+                display: flex !important;
+                margin-top: 8px !important;
+            }
+
+            .dataTables_wrapper .dt-search label,
+            div.dt-container div.dt-search label {
+                width: 100% !important;
+                display: flex !important;
+                gap: 8px !important;
+                align-items: center !important;
+                font-size: 14px !important;
+            }
+
+            .dataTables_wrapper .dt-search input.dt-input,
+            div.dt-container div.dt-search input.dt-input {
+                flex: 1 !important;
+                min-width: 250px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
             .filter-container {
                 display: grid !important;
                 grid-template-columns: repeat(2, 1fr) !important;
