@@ -498,6 +498,72 @@
         }
 
         @media (max-width: 768px) {
+            .dataTables_wrapper .dt-layout-row:first-child,
+            div.dt-container div.dt-layout-row:first-child {
+                display: grid !important;
+                grid-template-columns: auto auto !important;
+                grid-template-rows: auto auto !important;
+                gap: 12px !important;
+                margin-bottom: 16px !important;
+                flex-direction: unset !important;
+                align-items: start !important;
+            }
+
+            .dataTables_wrapper .dt-layout-start,
+            div.dt-container div.dt-layout-start {
+                grid-column: 1 !important;
+                grid-row: 1 !important;
+                justify-self: start !important;
+                align-self: start !important;
+                margin-right: 0 !important;
+            }
+
+            .dataTables_wrapper .dt-layout-end,
+            div.dt-container div.dt-layout-end {
+                display: contents !important;
+            }
+
+            .dataTables_wrapper .filter-container,
+            div.dt-container .filter-container {
+                grid-column: 2 !important;
+                grid-row: 1 !important;
+                justify-self: end !important;
+                display: block !important;
+                text-align: right !important;
+            }
+
+            .dataTables_wrapper .dt-search,
+            div.dt-container div.dt-search {
+                grid-column: 1 / -1 !important;
+                grid-row: 2 !important;
+                width: 100% !important;
+                display: flex !important;
+                margin-top: 8px !important;
+            }
+
+            .dataTables_wrapper .dt-search label,
+            div.dt-container div.dt-search label {
+                width: 100% !important;
+                display: flex !important;
+                gap: 8px !important;
+                align-items: center !important;
+                font-size: 14px !important;
+            }
+
+            .dataTables_wrapper .dt-search input.dt-input,
+            div.dt-container div.dt-search input.dt-input {
+                flex: 1 !important;
+                min-width: 250px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .filter-container {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px !important;
+            }
+
             .main-content {
                 padding-top: 120px;
             }
@@ -537,7 +603,6 @@
                 justify-content: center;
             }
 
-            /* Responsive DataTables styles */
             table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before,
             table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control:before {
                 margin-right: 0.5em;
@@ -1996,13 +2061,13 @@
                             .on('postgres_changes',
                                 { event: '*', schema: 'public', table: 'kunjungan' },
                                 (payload) => {
-                                    console.log('✨ Perubahan terdeteksi:', payload.eventType);
+                                    console.log('Perubahan terdeteksi:', payload.eventType);
                                     table.ajax.reload(null, false);
                                 }
                             )
                             .subscribe((status) => {
                                 if (status === 'SUBSCRIBED') {
-                                    console.log('🟢 Realtime active - akan auto-reload saat ada perubahan');
+                                    console.log('Realtime active - akan auto-reload saat ada perubahan');
                                 }
                             });
 
