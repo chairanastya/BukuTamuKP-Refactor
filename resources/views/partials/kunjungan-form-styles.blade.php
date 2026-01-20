@@ -389,8 +389,33 @@
             width: 100%;
         }
 
-        /* Desktop Layout */
-        @media (min-width: 1280px) {
+        /* iPad Landscape (min 1024px) - Layout 2 kolom */
+        @media (min-width: 1024px) and (orientation: landscape) {
+            .form-layout {
+                flex-direction: row;
+                gap: 2rem;
+            }
+
+            .form-left {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .form-right {
+                width: 320px;
+                flex-shrink: 0;
+                position: sticky;
+                top: 1rem;
+                align-self: flex-start;
+            }
+
+            .form-container {
+                padding: 0 1.5rem;
+            }
+        }
+
+        /* Desktop besar - lebar form right lebih besar */
+        @media (min-width: 1025px) {
             .form-layout {
                 flex-direction: row;
                 gap: 2rem;
@@ -418,11 +443,19 @@
             }
         }
 
-        /* Tablet dan Mobile */
-        @media (max-width: 1279px) {
+        /* Mobile Portrait, Mobile Landscape, iPad Portrait - vertikal layout */
+        @media (max-width: 1023px) {
             .form-container {
                 max-width: 100%;
                 padding: 0 1rem;
+            }
+
+            .form-layout {
+                flex-direction: column;
+            }
+
+            .form-right {
+                width: 100%;
             }
         }
     </style>
