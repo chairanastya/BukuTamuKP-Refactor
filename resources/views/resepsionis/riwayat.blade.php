@@ -24,6 +24,7 @@
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.7/css/responsive.dataTables.min.css">
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
@@ -541,6 +542,46 @@
                 flex: 1 1 calc(50% - 0.375rem);
                 justify-content: center;
             }
+
+            /* Responsive DataTables styles */
+            table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before,
+            table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control:before {
+                margin-right: 0.5em;
+            }
+
+            table.dataTable > tbody > tr.child {
+                padding: 0.5em 1em;
+            }
+
+            table.dataTable > tbody > tr.child ul.dtr-details {
+                display: block;
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+            }
+
+            table.dataTable > tbody > tr.child ul.dtr-details > li {
+                border-bottom: 1px solid #efefef;
+                padding: 0.75em 0;
+                display: flex;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            table.dataTable > tbody > tr.child span.dtr-title {
+                display: inline-block;
+                min-width: 130px;
+                max-width: 130px;
+                flex-shrink: 0;
+                font-weight: bold;
+                padding-top: 2px;
+            }
+
+            table.dataTable > tbody > tr.child span.dtr-data {
+                flex: 1;
+                word-break: break-word;
+            }
         }
     </style>
 @endpush
@@ -790,6 +831,7 @@
 @push('scripts')
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.7/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -1174,6 +1216,19 @@
             }
 
             table = new DataTable('#riwayatTable', {
+                responsive: {
+                    details: {
+                        type: 'column',
+                        target: 0
+                    }
+                },
+                columnDefs: [
+                    {
+                        className: 'dtr-control',
+                        orderable: false,
+                        targets: 0
+                    }
+                ],
                 ajax: {
                     url: '{{ route("resepsionis.riwayat.data") }}',
                     dataSrc: 'data',
@@ -1189,23 +1244,26 @@
                 columns: [
                     {
                         data: null,
+                        responsivePriority: 1,
                         render: function (data, type, row, meta) {
                             return meta.row + 1;
                         }
                     },
-                    { data: 'tanggal' },
-                    { data: 'jam' },
-                    { data: 'nama_tamu' },
+                    { data: 'tanggal', responsivePriority: 4 },
+                    { data: 'jam', responsivePriority: 5 },
+                    { data: 'nama_tamu', responsivePriority: 2 },
                     {
                         data: null,
+                        responsivePriority: 3,
                         render: function (data) {
                             if (!data.has_ktp || !data.ktp_token) return '-';
                             return `<button onclick="viewKtp('${data.ktp_token}')" class="text-blue-600 hover:underline font-regular inline-flex items-center gap-1">${eyeIcon} Lihat KTP</button>`;
                         }
                     },
-                    { data: 'instansi' },
+                    { data: 'instansi', responsivePriority: 6 },
                     {
                         data: 'karyawan',
+                        responsivePriority: 7,
                         render: function (data) {
                             if (!data || data.length === 0) return '-';
 
@@ -1224,6 +1282,7 @@
                     },
                     {
                         data: 'status',
+                        responsivePriority: 8,
                         render: function (data, type, row) {
 
                             if (type === 'filter' || type === 'sort') {
@@ -1242,6 +1301,7 @@
                     },
                     {
                         data: null,
+                        responsivePriority: 9,
                         render: function (data) {
                             if (data.status === 'done') {
                                 return '<button onclick="viewHasil(' + data.id_kunjungan + ')" id="viewHasilBtn_' + data.id_kunjungan + '" class="btn-view flex items-center justify-center gap-2">' +

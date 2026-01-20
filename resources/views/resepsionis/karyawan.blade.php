@@ -24,6 +24,7 @@
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.7/css/responsive.dataTables.min.css">
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
@@ -379,6 +380,46 @@
                 width: 100%;
                 justify-content: center;
             }
+
+            /* Responsive DataTables styles */
+            table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before,
+            table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control:before {
+                margin-right: 0.5em;
+            }
+
+            table.dataTable > tbody > tr.child {
+                padding: 0.5em 1em;
+            }
+
+            table.dataTable > tbody > tr.child ul.dtr-details {
+                display: block;
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+            }
+
+            table.dataTable > tbody > tr.child ul.dtr-details > li {
+                border-bottom: 1px solid #efefef;
+                padding: 0.75em 0;
+                display: flex;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            table.dataTable > tbody > tr.child span.dtr-title {
+                display: inline-block;
+                min-width: 130px;
+                max-width: 130px;
+                flex-shrink: 0;
+                font-weight: bold;
+                padding-top: 2px;
+            }
+
+            table.dataTable > tbody > tr.child span.dtr-data {
+                flex: 1;
+                word-break: break-word;
+            }
         }
     </style>
 @endpush
@@ -555,6 +596,7 @@
 @push('scripts')
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.7/js/dataTables.responsive.min.js"></script>
     <script>
         let table;
         const trashIcon = `{!! svg('heroicon-s-trash', 'w-5 h-5')->toHtml() !!}`;
@@ -580,6 +622,19 @@
             }
 
             table = new DataTable('#karyawanTable', {
+                responsive: {
+                    details: {
+                        type: 'column',
+                        target: 0
+                    }
+                },
+                columnDefs: [
+                    {
+                        className: 'dtr-control',
+                        orderable: false,
+                        targets: 0
+                    }
+                ],
                 ajax: {
                     url: '{{ route("resepsionis.karyawan.data") }}',
                     dataSrc: 'data',
@@ -595,16 +650,18 @@
                 columns: [
                     {
                         data: null,
+                        responsivePriority: 1,
                         render: function (data, type, row, meta) {
                             return meta.row + 1;
                         }
                     },
-                    { data: 'nama_karyawan' },
-                    { data: 'email_karyawan' },
-                    { data: 'departemen' },
-                    { data: 'jabatan' },
+                    { data: 'nama_karyawan', responsivePriority: 2 },
+                    { data: 'email_karyawan', responsivePriority: 4 },
+                    { data: 'departemen', responsivePriority: 3 },
+                    { data: 'jabatan', responsivePriority: 5 },
                     {
                         data: 'is_resepsionis',
+                        responsivePriority: 6,
                         render: function (data) {
                             if (data) {
                                 return '<span class="badge badge-resepsionis">Resepsionis</span>';
@@ -614,6 +671,7 @@
                     },
                     {
                         data: 'status',
+                        responsivePriority: 7,
                         render: function (data) {
                             if (data === 'aktif') {
                                 return '<span class="badge badge-aktif">Aktif</span>';
@@ -623,6 +681,7 @@
                     },
                     {
                         data: null,
+                        responsivePriority: 8,
                         render: function (data) {
                             const escapedName = data.nama_karyawan.replace(/'/g, "\\'");
                             const status = data.status;
