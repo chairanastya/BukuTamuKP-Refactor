@@ -118,12 +118,16 @@
             display: flex;
             gap: 8px;
             align-items: center;
+            flex-wrap: wrap;
+            width: 100%;
         }
 
         .karyawan-search-container {
-            flex: 1;
+            flex: 1 1 auto;
             position: relative;
             height: 50px;
+            min-width: 200px;
+            max-width: 100%;
         }
 
         .karyawan-action-buttons {
@@ -144,6 +148,7 @@
             box-sizing: border-box;
             cursor: pointer;
             transition: all 0.2s;
+            max-width: 100%;
         }
 
         .karyawan-card:hover {
@@ -315,8 +320,10 @@
             border-radius: 8px;
             padding: 8px;
             width: 100%;
+            max-width: 100%;
             transition: all 0.2s ease;
             background-color: #F9FCFF;
+            box-sizing: border-box;
         }
 
         .input-wrapper.filled {
@@ -331,8 +338,10 @@
         .input-wrapper textarea {
             background-color: transparent;
             width: 100%;
+            max-width: 100%;
             border: none;
             outline: none;
+            box-sizing: border-box;
         }
 
         /* Error States */
@@ -350,10 +359,41 @@
             font-size: 14px;
             margin-top: 8px;
             display: none;
+            word-wrap: break-word;
         }
 
         .error-message.show {
             display: block;
+        }
+
+        /* Responsive zoom adjustments */
+        @media (max-width: 1200px) {
+            .karyawan-search-row {
+                gap: 6px;
+            }
+            
+            .karyawan-add-btn,
+            .karyawan-minus-btn {
+                width: 45px;
+                height: 45px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .karyawan-search-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .karyawan-search-container {
+                width: 100%;
+                min-width: 100%;
+            }
+            
+            .karyawan-action-buttons {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 @endpush
