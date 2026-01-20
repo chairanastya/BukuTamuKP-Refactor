@@ -514,7 +514,7 @@
             .dataTables_wrapper .dt-search input.dt-input,
             div.dt-container div.dt-search input.dt-input {
                 flex: 1 !important;
-                min-width: 250px !important;
+                min-width: 85% !important;
                 width: 100% !important;
                 max-width: 100% !important;
             }
