@@ -44,8 +44,8 @@ Buku Tamu Digital
         .container {
             margin-left: 90px;
             padding-top: 110px;
-            padding-left: 2rem;
-            padding-right: 2rem;
+            padding-left: 4rem;
+            padding-right: 4rem;
             max-width: 100%;
             width: calc(100vw - 90px);
             box-sizing: border-box;
@@ -127,8 +127,8 @@ Buku Tamu Digital
             .container {
                 margin-left: 80px;
                 width: calc(100vw - 80px);
-                padding-left: 1.5rem;
-                padding-right: 1.5rem;
+                padding-left: 3rem;
+                padding-right: 3rem;
             }
 
             .input-wrapper {
@@ -155,8 +155,8 @@ Buku Tamu Digital
                 margin-left: 0;
                 padding-top: 160px;
                 width: 100vw;
-                padding-left: 1rem;
-                padding-right: 1rem;
+                padding-left: 2rem;
+                padding-right: 2rem;
             }
 
             .flex.gap-4 {

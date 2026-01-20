@@ -50,8 +50,8 @@ Buku Tamu Digital
             .container {
                 margin-left: 0;
                 padding-top: 160px;
-                padding-left: 1rem;
-                padding-right: 1rem;
+                padding-left: 2rem;
+                padding-right: 2rem;
             }
         }
     </style>
