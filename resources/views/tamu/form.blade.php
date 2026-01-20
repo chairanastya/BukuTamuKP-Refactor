@@ -19,6 +19,7 @@
 
         .container {
             padding-top: 110px;
+            padding-bottom: 80px;
             margin: 0 auto;
             max-width: 100%;
             box-sizing: border-box;
