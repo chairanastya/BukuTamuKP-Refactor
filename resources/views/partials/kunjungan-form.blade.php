@@ -31,7 +31,7 @@
                 </div>
 
                 <div>
-                    <label for="email" class="block text-[#084E8F] font-bold mb-2">
+                    <label for="email" class="block text-[#084E8F] font-bold mb-2 mt-4">
                         Alamat Email
                     </label>
                     <div class="input-wrapper {{ $errors->has('email') ? 'border-red-500 bg-red-50' : '' }}">
@@ -54,7 +54,7 @@
                 </div>
 
                 <div>
-                    <label for="instansi" class="block text-[#084E8F] font-bold mb-2">
+                    <label for="instansi" class="block text-[#084E8F] font-bold mb-2 mt-4">
                         Instansi Asal
                     </label>
                     <div class="input-wrapper {{ $errors->has('instansi') ? 'border-red-500 bg-red-50' : '' }}">
@@ -77,7 +77,7 @@
                 </div>
 
                 <div>
-                    <label for="tujuan" class="block text-[#084E8F] font-bold mb-2">
+                    <label for="tujuan" class="block text-[#084E8F] font-bold mb-2 mt-4">
                         Tujuan Kedatangan
                     </label>
                     <div class="input-wrapper {{ $errors->has('tujuan') ? 'border-red-500 bg-red-50' : '' }}">
@@ -100,7 +100,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-[#084E8F] font-bold mb-2">
+                    <label class="block text-[#084E8F] font-bold mb-2 mt-4">
                         Karyawan yang Anda Tuju
                     </label>
 
