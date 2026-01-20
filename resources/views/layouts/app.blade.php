@@ -115,6 +115,15 @@
             .menu-toggle {
                 display: block;
             }
+            
+            header {
+                max-height: 120px;
+            }
+            
+            header h1 {
+                font-size: 1.5rem !important;
+                line-height: 1.2 !important;
+            }
         }
     </style>
 

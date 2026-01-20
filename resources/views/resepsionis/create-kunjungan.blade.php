@@ -41,10 +41,18 @@ Buku Tamu Digital
 
 @push('styles')
     <style>
-        /* Adjust container for fixed header and sidebar */
         .container {
             margin-left: 90px;
             padding-top: 110px;            
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin-left: 0;
+                padding-top: 160px;
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
         }
     </style>
 @endpush
