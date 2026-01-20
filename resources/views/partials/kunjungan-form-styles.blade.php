@@ -355,5 +355,65 @@
         .error-message.show {
             display: block;
         }
+
+        /* Form Container Layout */
+        .form-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .form-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .form-left {
+            flex: 1;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .form-right {
+            width: 100%;
+        }
+
+        /* Desktop Layout */
+        @media (min-width: 1280px) {
+            .form-layout {
+                flex-direction: row;
+                gap: 2rem;
+            }
+
+            .form-left {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .form-right {
+                width: 384px;
+                flex-shrink: 0;
+                position: sticky;
+                top: 1rem;
+                align-self: flex-start;
+            }
+        }
+
+        /* Responsive untuk Zoom 110%-150% */
+        @media (min-width: 1024px) and (max-width: 1600px) {
+            .form-container {
+                max-width: calc(100vw - 150px);
+                padding: 0 1.5rem;
+            }
+        }
+
+        /* Tablet dan Mobile */
+        @media (max-width: 1279px) {
+            .form-container {
+                max-width: 100%;
+                padding: 0 1rem;
+            }
+        }
     </style>
 @endpush

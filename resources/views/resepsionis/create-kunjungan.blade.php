@@ -2,24 +2,24 @@
 @section('title', 'Buat Kunjungan Baru - Buku Tamu Digital')
 
 @section('header')
-Buku Tamu Digital
+    Buku Tamu Digital
 @endsection
 
 @section('header-action')
-<div class="relative">
-    <button onclick="toggleDropdown()" class="flex items-center gap-2">
-        <span>{{ Auth::user()->nama_resepsionis }}</span>
-        @svg('uiw-down', 'w-5 h-5')
-    </button>
-    <div id="dropdown" class="hidden absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg overflow-hidden z-50">
-        <form method="POST" action="{{ route('resepsionis.logout') }}">
-            @csrf
-            <button type="submit" class="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700">
-                Log Out
-            </button>
-        </form>
+    <div class="relative">
+        <button onclick="toggleDropdown()" class="flex items-center gap-2">
+            <span>{{ Auth::user()->nama_resepsionis }}</span>
+            @svg('uiw-down', 'w-5 h-5')
+        </button>
+        <div id="dropdown" class="hidden absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg overflow-hidden z-50">
+            <form method="POST" action="{{ route('resepsionis.logout') }}">
+                @csrf
+                <button type="submit" class="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700">
+                    Log Out
+                </button>
+            </form>
+        </div>
     </div>
-</div>
 @endsection
 
 @section('sidebar')
@@ -41,17 +41,30 @@ Buku Tamu Digital
 
 @push('styles')
     <style>
-        .container {
-            margin-left: 50px;
-            padding-top: 110px;      
+        body {
+            overflow-x: hidden;
         }
-        
+
+        .container {
+            margin-left: 96px;
+            padding-top: 110px;
+            padding-right: 1rem;
+            width: calc(100% - 96px);
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .form-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
         @media (max-width: 768px) {
             .container {
                 margin-left: 0;
                 padding-top: 160px;
-                padding-left: 1rem;
-                padding-right: 1rem;
+                width: 100%;
             }
         }
     </style>
@@ -70,10 +83,10 @@ Buku Tamu Digital
             dropdown.classList.toggle('hidden');
         }
 
-        document.addEventListener('click', function(event) {
+        document.addEventListener('click', function (event) {
             const dropdown = document.getElementById('dropdown');
             const button = event.target.closest('button');
-            
+
             if (!button || button.getAttribute('onclick') !== 'toggleDropdown()') {
                 dropdown.classList.add('hidden');
             }

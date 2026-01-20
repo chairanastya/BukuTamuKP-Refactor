@@ -13,8 +13,27 @@
 
 @push('styles')
     <style>
+        body {
+            overflow-x: hidden;
+        }
+
         .container {
-            padding-top: 110px;            
+            padding-top: 110px;
+            margin: 0 auto;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .form-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding-top: 120px;
+            }
         }
     </style>
 @endpush

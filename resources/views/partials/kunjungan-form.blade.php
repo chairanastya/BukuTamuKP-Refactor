@@ -1,12 +1,12 @@
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-6xl mx-auto">
+<div class="container">
+    <div class="form-container">
         <h1 class="text-2xl font-bold text-[#084E8F] mb-6">Buat Kunjungan Baru</h1>
         
         <form action="{{ route('tamu.submit') }}" method="POST" enctype="multipart/form-data" novalidate>
             @csrf
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 space-y-6">
+            <div class="form-layout">
+                <div class="form-left">
                     <div>
                         <label for="nama_lengkap" class="block text-[#084E8F] font-bold mb-2">
                             Nama Lengkap
@@ -120,9 +120,9 @@
                         </div>
                     @enderror
                 </div>
-            </div>
+                </div>
 
-            <div class="lg:col-span-1 space-y-6">
+                <div class="form-right">
                 <div>
                     <label class="block text-[#084E8F] font-bold mb-2">
                         Foto Identitas (KTP)
@@ -170,13 +170,15 @@
                     @endif
                 </div>
 
-                <button type="submit"
-                    class="w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
-                    @svg('phosphor-paper-plane-tilt-fill', 'w-5 h-5')
-                    Kirim Data
-                </button>
+                <div class="mt-6">
+                    <button type="submit"
+                        class="w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                        @svg('phosphor-paper-plane-tilt-fill', 'w-5 h-5')
+                        Kirim Data
+                    </button>
+                </div>
             </div>
-        </div>
+            </div>
         </form>
     </div>
 </div>
