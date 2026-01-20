@@ -47,9 +47,7 @@
 
         .container {
             margin-left: 96px;
-            padding-top: 110px;
-            padding-bottom: 80px;
-            padding-right: 1rem;
+            padding: 110px 1rem 80px 1rem;
             width: calc(100% - 96px);
             max-width: 100%;
             box-sizing: border-box;
@@ -64,8 +62,15 @@
         @media (max-width: 768px) {
             .container {
                 margin-left: 0;
-                padding-top: 160px;
+                padding: 160px 1rem 80px 1rem;
                 width: 100%;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .container {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
             }
         }
     </style>
