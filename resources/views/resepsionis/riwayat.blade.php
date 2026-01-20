@@ -497,12 +497,6 @@
         }
 
         @media (max-width: 768px) {
-            .filter-container {
-                display: grid !important;
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 8px !important;
-            }
-
             .main-content {
                 padding-top: 120px;
             }
