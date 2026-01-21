@@ -14,6 +14,10 @@ Route::get('/', function () {
     return view('tamu.form');
 });
 
+Route::get('/test-datatable-filter', function () {
+    return view('test-datatable-filter');
+})->name('test.datatable-filter');
+
 Route::prefix('tamu')->name('tamu.')->group(function () {
     Route::get('/form', [TamuController::class, 'showForm'])->name('form');
     Route::get('/search-karyawan', [TamuController::class, 'searchKaryawan'])->name('search-karyawan')->middleware('throttle:api');
@@ -37,7 +41,7 @@ Route::prefix('notulensi')->name('notulensi.')->group(function () {
     Route::get('/create/{token}', [NotulensiController::class, 'create'])->name('create');
     Route::post('/store/{token}', [NotulensiController::class, 'store'])->name('store')->middleware('throttle:submissions');
     Route::get('/view/{token}', [NotulensiController::class, 'view'])->name('view');
-    
+
     // Stream dokumentasi - memerlukan autentikasi
     Route::get('/dokumentasi/{token}/stream', [ResepsionisController::class, 'streamDokumentasi'])
         ->name('dokumentasi.stream')
