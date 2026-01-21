@@ -115,11 +115,11 @@
             .menu-toggle {
                 display: block;
             }
-            
+
             header {
                 max-height: 120px;
             }
-            
+
             header h1 {
                 font-size: 1.5rem !important;
                 line-height: 1.2 !important;
@@ -143,19 +143,19 @@
 
                 <!-- Donuts -->
                 <div class="absolute w-44 h-44 rounded-full opacity-90" style="background: linear-gradient(-45deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%); 
-                                    -webkit-mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
-                                    mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
-                                    top: -45%; left: 1%;"></div>
-                
+                            -webkit-mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
+                            mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
+                            top: -45%; left: 1%;"></div>
+
                 <div class="absolute w-40 h-40 rounded-full opacity-90" style="background: linear-gradient(-45deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%); 
-                                    -webkit-mask: radial-gradient(transparent 0, transparent 40px, black 40px); 
-                                    mask: radial-gradient(transparent 0, transparent 40px, black 40px); 
-                                    bottom: 1%; right: 8%;"></div>
+                            -webkit-mask: radial-gradient(transparent 0, transparent 40px, black 40px); 
+                            mask: radial-gradient(transparent 0, transparent 40px, black 40px); 
+                            bottom: 1%; right: 8%;"></div>
 
                 <div class="absolute w-44 h-44 rounded-full opacity-100" style="background: linear-gradient(-45deg, rgba(247, 178, 24, 0.70) 0%, rgba(145, 104, 14, 0.70) 100%); 
-                                    -webkit-mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
-                                    mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
-                                    top: -25%; right: -2%;"></div>
+                            -webkit-mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
+                            mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
+                            top: -25%; right: -2%;"></div>
 
                 <!-- Dots Pattern -->
                 <div class="absolute grid grid-cols-8 gap-4 opacity-20" style="top: 30%; right: 28vw;">
@@ -201,7 +201,7 @@
     @auth('resepsionis')
         <!-- Sidebar Overlay (for mobile) -->
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-        
+
         <div class="sidebar" id="sidebar">
             @yield('sidebar')
         </div>
@@ -233,10 +233,10 @@
             }
 
             // Close sidebar when clicking on a sidebar item on mobile
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 const sidebarItems = document.querySelectorAll('.sidebar-item');
                 sidebarItems.forEach(item => {
-                    item.addEventListener('click', function() {
+                    item.addEventListener('click', function () {
                         if (window.innerWidth <= 768) {
                             closeSidebar();
                         }
