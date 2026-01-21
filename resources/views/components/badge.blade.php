@@ -15,12 +15,11 @@
         'default' => 'bg-gray-200 text-gray-700',
     ];
 
-    // Default labels untuk setiap type
     $labels = [
-        'pending' => 'Menunggu',
-        'accepted' => 'Diterima',
-        'done' => 'Selesai',
-        'canceled' => 'Ditolak',
+        'pending' => 'Pending',
+        'accepted' => 'Accepted',
+        'done' => 'Done',
+        'canceled' => 'Canceled',
         'resepsionis' => 'Resepsionis',
         'karyawan' => 'Karyawan',
         'aktif' => 'Aktif',
