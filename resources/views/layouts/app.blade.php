@@ -15,55 +15,10 @@
         rel="stylesheet">
 
     <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/css/datatables-custom.css', 'resources/js/app.js'])
 
     <!-- Sidebar Styles -->
     <style>
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 100px;
-            background: linear-gradient(#46B8AD 20%, #0C4777 100%);
-            z-index: 30;
-            display: flex;
-            flex-direction: column;
-            padding-top: 116px;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .sidebar-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1.25rem 1rem;
-            color: white;
-            text-decoration: none;
-            transition: background 0.2s;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            width: 100%;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-
-        .sidebar-item:hover,
-        .sidebar-item.active {
-            background: #F7B218;
-        }
-
-        .sidebar-item svg {
-            width: 32px;
-            height: 32px;
-            margin-bottom: 0.5rem;
-        }
-
-        .sidebar-item span {
-            text-align: center;
-        }
-
         .main-content {
             margin-left: 100px;
             padding-top: 80px;
@@ -86,28 +41,7 @@
             height: 28px;
         }
 
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 25;
-        }
-
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .sidebar-overlay.show {
-                display: block;
-            }
-
             .main-content {
                 margin-left: 0;
             }
@@ -202,9 +136,9 @@
         <!-- Sidebar Overlay (for mobile) -->
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-        <div class="sidebar" id="sidebar">
+        <x-sidebar>
             @yield('sidebar')
-        </div>
+        </x-sidebar>
     @endauth
 
     <!-- Page Content -->
