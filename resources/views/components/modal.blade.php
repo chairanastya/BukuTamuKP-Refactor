@@ -90,10 +90,6 @@ $modalId = $id ?? $name;
         color: #374151;
     }
 </style>
-    .modal-close:hover {
-        color: #374151;
-    }
-</style>
 
 @if($useAlpine)
     <div
@@ -169,7 +165,6 @@ $modalId = $id ?? $name;
         </div>
     </div>
 @else
-    {{-- Legacy Modal (Vanilla JS) --}}
     <div id="{{ $modalId }}" class="modal-overlay" {{ $attributes }}>
         <div class="modal-content {{ $maxWidth === 'sm:max-w-3xl' || $maxWidth === 'sm:max-w-4xl' ? 'large' : '' }}">
             @if($showHeader)
@@ -193,34 +188,4 @@ $modalId = $id ?? $name;
             </div>
         </div>
     </div>
-
-    <script>
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.add('show');
-            document.body.classList.add('overflow-y-hidden');
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('show');
-            document.body.classList.remove('overflow-y-hidden');
-        }
-
-        // Close on overlay click
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('modal-overlay')) {
-                e.target.classList.remove('show');
-                document.body.classList.remove('overflow-y-hidden');
-            }
-        });
-
-        // Close on ESC key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal-overlay.show').forEach(modal => {
-                    modal.classList.remove('show');
-                    document.body.classList.remove('overflow-y-hidden');
-                });
-            }
-        });
-    </script>
 @endif
