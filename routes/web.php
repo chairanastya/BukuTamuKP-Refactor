@@ -14,10 +14,6 @@ Route::get('/', function () {
     return view('tamu.form');
 });
 
-Route::get('/test-datatable-filter', function () {
-    return view('test-datatable-filter');
-})->name('test.datatable-filter');
-
 Route::prefix('tamu')->name('tamu.')->group(function () {
     Route::get('/form', [TamuController::class, 'showForm'])->name('form');
     Route::get('/search-karyawan', [TamuController::class, 'searchKaryawan'])->name('search-karyawan')->middleware('throttle:api');
