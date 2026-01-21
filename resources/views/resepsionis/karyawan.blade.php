@@ -84,54 +84,6 @@
             color: #DC2626;
         }
 
-        .btn-primary {
-            background: #0C4777;
-            color: white;
-            padding: 0.625rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-primary:hover {
-            background: #F59E0B;
-        }
-
-        .btn-success {
-            background: #10B981;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-danger {
-            background: #EF4444;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-view {
-            background: #F59E0B;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-        }
-
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -441,7 +393,7 @@
                 width: 100%;
             }
 
-            .header-buttons-container .btn-primary {
+            .header-buttons-container > * {
                 width: 100%;
                 justify-content: center;
             }
@@ -513,10 +465,9 @@
             <div class="flex items-center justify-between mb-6 header-container">
                 <h2 class="text-2xl font-bold text-[#084E8F]">Daftar Karyawan</h2>
                 <div class="header-buttons-container">
-                    <a href="{{ route('resepsionis.karyawan.create') }}" class="btn-primary flex items-center gap-2">
-                        @svg('heroicon-o-plus', 'w-5 h-5')
+                    <x-button variant="primary" href="{{ route('resepsionis.karyawan.create') }}" icon="heroicon-o-plus">
                         Tambah Karyawan Baru
-                    </a>
+                    </x-button>
                 </div>
             </div>
 

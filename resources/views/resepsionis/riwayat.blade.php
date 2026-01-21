@@ -84,69 +84,6 @@
             color: #C10007;
         }
 
-        .btn-export {
-            background: #059669;
-            color: white;
-            padding: 0.625rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-export:hover {
-            background: #047857;
-        }
-
-        .btn-export-pdf {
-            background: #DC2626;
-            color: white;
-            padding: 0.625rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-export-pdf:hover {
-            background: #B91C1C;
-        }
-
-        .btn-success {
-            background: #10B981;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-danger {
-            background: #EF4444;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-view {
-            background: #F59E0B;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-        }
-
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -597,8 +534,7 @@
                 flex-wrap: wrap;
             }
 
-            .header-buttons-container .btn-export,
-            .header-buttons-container .btn-export-pdf {
+            .header-buttons-container > * {
                 flex: 1 1 calc(50% - 0.375rem);
                 justify-content: center;
             }
@@ -669,14 +605,12 @@
             <div class="flex items-center justify-between mb-6 header-container">
                 <h2 class="text-2xl font-bold text-[#084E8F]">Riwayat Kunjungan</h2>
                 <div class="flex items-center gap-2 header-buttons-container">
-                    <button onclick="exportToExcel()" class="btn-export flex items-center gap-2">
-                        @svg('heroicon-o-arrow-down-tray', 'w-5 h-5')
+                    <x-button variant="export" onclick="exportToExcel()" icon="heroicon-o-arrow-down-tray">
                         Export to Excel
-                    </button>
-                    <button onclick="exportToPDF()" class="btn-export-pdf flex items-center gap-2">
-                        @svg('heroicon-o-document-text', 'w-5 h-5')
+                    </x-button>
+                    <x-button variant="export-pdf" onclick="exportToPDF()" icon="heroicon-o-document-text">
                         Export to PDF
-                    </button>
+                    </x-button>
                 </div>
             </div>
 
