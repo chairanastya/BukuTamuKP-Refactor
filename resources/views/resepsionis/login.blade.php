@@ -252,10 +252,9 @@
                     </label>
                 </div>
 
-                <button type="submit"
-                    class="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
+                <x-button type="submit" variant="primary" class="w-full">
                     Login
-                </button>
+                </x-button>
 
                 <div class="mt-6 text-center">
                     <a href="{{ route('resepsionis.password.request') }}"

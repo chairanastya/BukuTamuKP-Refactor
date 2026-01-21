@@ -84,84 +84,6 @@
             color: #C10007;
         }
 
-        .btn-primary {
-            background: #0C4777;
-            color: white;
-            padding: 0.625rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-primary:hover {
-            background: #F59E0B;
-        }
-
-        .btn-export {
-            background: #059669;
-            color: white;
-            padding: 0.625rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-export:hover {
-            background: #047857;
-        }
-
-        .btn-export-pdf {
-            background: #DC2626;
-            color: white;
-            padding: 0.625rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-export-pdf:hover {
-            background: #B91C1C;
-        }
-
-        .btn-success {
-            background: #10B981;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-danger {
-            background: #EF4444;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-view {
-            background: #F59E0B;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-        }
-
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -558,15 +480,14 @@
                 flex-wrap: wrap;
             }
 
-            .header-buttons-container .btn-export,
-            .header-buttons-container .btn-export-pdf {
+            .header-buttons-container > * {
                 flex: 1 1 calc(50% - 0.375rem);
                 justify-content: center;
             }
 
-            .header-buttons-container .btn-primary {
+            .header-buttons-container > *:last-child {
                 width: 100%;
-                justify-content: center;
+                flex: 1 1 100%;
             }
 
             /* Responsive DataTables styles */
@@ -636,18 +557,15 @@
             <div class="flex items-center justify-between mb-6 header-container">
                 <h2 class="text-2xl font-bold text-[#084E8F]">Kunjungan Hari Ini</h2>
                 <div class="flex items-center gap-2 header-buttons-container">
-                    <button onclick="exportToExcel()" class="btn-export flex items-center gap-2">
-                        @svg('heroicon-o-arrow-down-tray', 'w-5 h-5')
+                    <x-button variant="export" onclick="exportToExcel()">
                         Export to Excel
-                    </button>
-                    <button onclick="exportToPDF()" class="btn-export-pdf flex items-center gap-2">
-                        @svg('heroicon-o-document-text', 'w-5 h-5')
+                    </x-button>
+                    <x-button variant="export-pdf" onclick="exportToPDF()">
                         Export to PDF
-                    </button>
-                    <a href="{{ route('resepsionis.kunjungan.create') }}" class="btn-primary flex items-center gap-2">
-                        @svg('heroicon-o-plus', 'w-5 h-5')
+                    </x-button>
+                    <x-button variant="primary" href="{{ route('resepsionis.kunjungan.create') }}">
                         Buat Kunjungan Baru
-                    </a>
+                    </x-button>
                 </div>
             </div>
 
@@ -739,10 +657,10 @@
                 placeholder="Alasan pembatalan..."></textarea>
             <div class="flex gap-3 justify-end">
                 <button onclick="closeRejectModal()" class="px-4 py-2 bg-gray-300 rounded-lg">Batal</button>
-                <button id="rejectButton" onclick="confirmReject()"
-                    class="btn-danger flex items-center justify-center gap-2">
-                    <span id="rejectButtonText">Tolak Kunjungan</span>
-                    <svg id="rejectSpinner" class="hidden animate-spin h-5 w-5 text-white"
+                <x-button type="button" variant="danger" onclick="confirmReject()" loading="true" loadingId="reject">
+                    Tolak Kunjungan
+                </x-button>
+                <svg id="rejectSpinner" class="hidden animate-spin h-5 w-5 text-white"
                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor"
