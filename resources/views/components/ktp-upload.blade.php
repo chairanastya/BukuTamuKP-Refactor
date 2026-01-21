@@ -19,7 +19,6 @@
 
 @push('styles')
 <style>
-    /* Video Wrapper & KTP Overlay */
     .video-wrapper {
         position: relative;
         width: 100%;
@@ -28,8 +27,7 @@
         overflow: hidden;
     }
 
-    /* Mirror video untuk UX lebih baik */
-    #{{ $videoId }} {
+    #webcam_video {
         transform: scaleX(-1);
         width: 100%;
         display: block;
@@ -59,7 +57,6 @@
         box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.65);
     }
 
-    /* Guide Text */
     .ktp-guide-text {
         position: absolute;
         top: -45px;
@@ -75,17 +72,25 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
 
-    /* Responsive adjustments */
-    @media (max-width: 640px) {
-        .ktp-frame {
-            width: 90%;
-        }
-        
-        .ktp-guide-text {
-            font-size: 12px;
-            padding: 8px 16px;
-            top: -40px;
-        }
+    .upload-area {
+        border: 2px dashed #084E8F;
+        border-radius: 12px;
+        padding: 48px 32px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        background-color: #F9FCFF;
+    }
+
+    .upload-area:hover {
+        background-color: white;
+    }
+
+    .upload-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 16px;
+        color: #084E8F;
     }
 </style>
 @endpush
