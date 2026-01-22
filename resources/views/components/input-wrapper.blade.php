@@ -10,6 +10,7 @@
     'errorMessage' => null,
     'showLabel' => true,
     'rows' => 4,
+    'appendSlot' => false,
 ])
 
 <style>
@@ -73,7 +74,7 @@
         </label>
     @endif
     
-    <div class="input-wrapper {{ $error ? 'error' : '' }}">
+    <div class="input-wrapper {{ $error ? 'error' : '' }} {{ $appendSlot ? 'flex items-center' : '' }}">
         @if($type === 'textarea')
             <textarea 
                 id="{{ $id }}" 
@@ -89,8 +90,13 @@
                 name="{{ $name }}"
                 placeholder="{{ $placeholder }}"
                 value="{{ $value }}"
+                class="{{ $appendSlot ? 'flex-1' : '' }}"
                 {{ $required ? 'required' : '' }}
             />
+        @endif
+        
+        @if($appendSlot)
+            {{ $slot }}
         @endif
     </div>
 
