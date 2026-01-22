@@ -15,6 +15,7 @@
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.7/css/responsive.dataTables.min.css">
+    @vite(['resources/css/datatables-custom.css'])
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
@@ -101,47 +102,6 @@
             width: 100%;
             max-height: 70vh;
             object-fit: contain;
-        }
-
-        table.dataTable {
-            width: 100% !important;
-        }
-
-        table.dataTable tbody td {
-            text-align: left !important;
-        }
-
-        table.dataTable tbody td button,
-        table.dataTable tbody td a {
-            text-align: left !important;
-            display: inline-block;
-        }
-
-        .dt-length select.dt-input {
-            padding-right: 28px !important;
-        }
-
-        .dataTables_wrapper .dataTables_filter input,
-        .dt-search input.dt-input {
-            border: 1px solid #d1d5db !important;
-            border-radius: 4px !important;
-            padding: 4px 12px !important;
-            font-size: 14px !important;
-            background-color: white !important;
-            transition: all 0.2s !important;
-            min-width: 200px;
-        }
-
-        .dataTables_wrapper .dataTables_filter input::placeholder,
-        .dt-search input.dt-input::placeholder {
-            color: #9CA3AF;
-        }
-
-        .dataTables_wrapper .dataTables_filter input:focus,
-        .dt-search input.dt-input:focus {
-            outline: none !important;
-            border-color: #47B9AE !important;
-            box-shadow: 0 0 0 3px rgba(71, 185, 174, 0.1) !important;
         }
 
         .tab-content {
@@ -318,42 +278,6 @@
             margin-left: 4px;
         }
 
-        .dataTables_wrapper .dt-layout-row:first-child {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            gap: 24px !important;
-            margin-bottom: 16px !important;
-        }
-
-        .dataTables_wrapper .dt-layout-start {
-            flex: 0 0 auto !important;
-        }
-
-        .dataTables_wrapper .dt-layout-end {
-            display: flex !important;
-            align-items: center !important;
-            gap: 50px !important;
-            flex: 0 0 auto !important;
-        }
-
-        .dataTables_wrapper .dt-search {
-            display: flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-            flex-wrap: nowrap !important;
-        }
-
-        .dataTables_wrapper .dataTables_filter label,
-        .dataTables_wrapper .dt-search label {
-            margin: 0 !important;
-            flex-shrink: 0 !important;
-        }
-
-        .dataTables_wrapper .dt-search input.dt-input {
-            flex-shrink: 0 !important;
-        }
-
         .filter-container {
             flex: 0 0 auto !important;
             flex-shrink: 0 !important;
@@ -361,77 +285,11 @@
         }
 
         @media (max-width: 768px) {
-            /* Reorganize DataTables controls for mobile */
-            .dataTables_wrapper .dt-layout-row:first-child,
-            div.dt-container div.dt-layout-row:first-child {
-                display: grid !important;
-                grid-template-columns: auto auto !important;
-                grid-template-rows: auto auto !important;
-                gap: 12px !important;
-                margin-bottom: 16px !important;
-                flex-direction: unset !important;
-                align-items: start !important;
-            }
-
-            /* Entries per page - top left */
-            .dataTables_wrapper .dt-layout-start,
-            div.dt-container div.dt-layout-start {
-                grid-column: 1 !important;
-                grid-row: 1 !important;
-                justify-self: start !important;
-                align-self: start !important;
-                margin-right: 0 !important;
-            }
-
-            /* Layout end container - use display: contents to make children direct grid children */
-            .dataTables_wrapper .dt-layout-end,
-            div.dt-container div.dt-layout-end {
-                display: contents !important;
-            }
-
-            /* Filter stays at top right */
-            .dataTables_wrapper .filter-container,
-            div.dt-container .filter-container {
-                grid-column: 2 !important;
-                grid-row: 1 !important;
-                justify-self: end !important;
-                display: block !important;
-                text-align: right !important;
-            }
-
-            /* Search goes to bottom full width */
-            .dataTables_wrapper .dt-search,
-            div.dt-container div.dt-search {
-                grid-column: 1 / -1 !important;
-                grid-row: 2 !important;
-                width: 100% !important;
-                display: flex !important;
-                margin-top: 8px !important;
-            }
-
-            .dataTables_wrapper .dt-search label,
-            div.dt-container div.dt-search label {
-                width: 100% !important;
-                display: flex !important;
-                gap: 8px !important;
-                align-items: center !important;
-                font-size: 14px !important;
-            }
-
-            .dataTables_wrapper .dt-search input.dt-input,
-            div.dt-container div.dt-search input.dt-input {
-                flex: 1 !important;
-                min-width: 85% !important;
-                width: 100% !important;
-                max-width: 100% !important;
-            }
-
             .filter-container {
                 display: grid !important;
                 grid-template-columns: repeat(2, 1fr) !important;
                 gap: 8px !important;
             }
-
             .main-content {
                 padding-top: 120px;
             }
@@ -456,46 +314,6 @@
             .header-buttons-container .btn-primary {
                 width: 100%;
                 justify-content: center;
-            }
-
-            /* Responsive DataTables styles */
-            table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before,
-            table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control:before {
-                margin-right: 0.5em;
-            }
-
-            table.dataTable > tbody > tr.child {
-                padding: 0.5em 1em;
-            }
-
-            table.dataTable > tbody > tr.child ul.dtr-details {
-                display: block;
-                list-style-type: none;
-                margin: 0;
-                padding: 0;
-                width: 100%;
-            }
-
-            table.dataTable > tbody > tr.child ul.dtr-details > li {
-                border-bottom: 1px solid #efefef;
-                padding: 0.75em 0;
-                display: flex;
-                gap: 1rem;
-                align-items: flex-start;
-            }
-
-            table.dataTable > tbody > tr.child span.dtr-title {
-                display: inline-block;
-                min-width: 130px;
-                max-width: 130px;
-                flex-shrink: 0;
-                font-weight: bold;
-                padding-top: 2px;
-            }
-
-            table.dataTable > tbody > tr.child span.dtr-data {
-                flex: 1;
-                word-break: break-word;
             }
         }
     </style>
@@ -1780,7 +1598,6 @@
             }
         });
 
-        // Debounce untuk loading navigation agar tidak ngelag
         let navigationTimeout = null;
         document.querySelectorAll('.sidebar-item').forEach(link => {
             link.addEventListener('click', function (e) {
