@@ -22,34 +22,6 @@
             background-color: #f9fafb;
         }
 
-        .badge {
-            padding: 0.375rem 0.75rem;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .badge-pending {
-            background: #FEF9C2;
-            color: #D08700;
-        }
-
-        .badge-accepted {
-            background: #DBEAFE;
-            color: #193CB8;
-        }
-
-        .badge-done {
-            background: #DCFCE7;
-            color: #008236;
-        }
-
-        .badge-canceled {
-            background: #FFE2E2;
-            color: #C10007;
-        }
-
         .btn-success {
             background: #10B981;
             color: white;
@@ -965,20 +937,14 @@
                         }
                     },
                     {
-                        data: 'status',
+                        data: 'status_badge',
                         responsivePriority: 8,
                         render: function (data, type, row) {
                             if (type === 'filter' || type === 'sort') {
-                                return data;
+                                return row.status;;
                             }
-                            const badges = {
-                                pending: '<span class="badge badge-pending">Pending</span>',
-                                accepted: '<span class="badge badge-accepted">Accepted</span>',
-                                approved: '<span class="badge badge-accepted">Accepted</span>',
-                                done: '<span class="badge badge-done">Done</span>',
-                                canceled: '<span class="badge badge-canceled">Canceled</span>'
-                            };
-                            return badges[data] || data;
+                            
+                            return data;
                         }
                     },
                     {
@@ -1318,14 +1284,7 @@
                                                     `;
                     }
 
-                    const statusBadges = {
-                        pending: '<span class="badge badge-pending">Pending</span>',
-                        accepted: '<span class="badge badge-accepted">Accepted</span>',
-                        approved: '<span class="badge badge-accepted">Accepted</span>',
-                        done: '<span class="badge badge-done">Done</span>',
-                        canceled: '<span class="badge badge-canceled">Canceled</span>'
-                    };
-                    const statusBadge = statusBadges[kunjungan.status] || kunjungan.status;
+                    const statusBadge = kunjungan.status_badge || kunjungan.status;
 
                     document.getElementById('detailContent').innerHTML = `
                                                     <div class="space-y-3">
