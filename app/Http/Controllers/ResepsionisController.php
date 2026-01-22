@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Mail\KunjunganNotification;
 use App\Mail\NotulensiRequest;
+use App\Helpers\BadgeHelper;
 use Cloudinary\Cloudinary;
 
 class ResepsionisController extends Controller
@@ -124,6 +125,7 @@ class ResepsionisController extends Controller
                 }),
                 'tujuan_kunjungan' => $kunjungan->tujuan_kunjungan ?? '-',
                 'status' => $kunjungan->status,
+                'status_badge' => BadgeHelper::getStatusBadge($kunjungan->status), // Helper yang mereplikasi logic badge.blade.php tanpa rendering
                 'alasan_batal' => $kunjungan->alasan_batal,
             ];
         });
