@@ -19,6 +19,54 @@
             background-color: #f9fafb;
         }
 
+        .btn-success {
+            background: #10B981;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .btn-danger {
+            background: #EF4444;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-danger:hover {
+            background-color: #DC2626;
+        }
+
+        .btn-view {
+            background: #F59E0B;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s;
+        }
+
+        .btn-view:hover {
+            background-color: #D97706;
+        }
+
         .ktp-preview {
             width: 100%;
             max-height: 70vh;
@@ -1055,11 +1103,11 @@
                     let actions = '';
                     if (kunjungan.status === 'pending') {
                         actions = `
-                                                                                                                <div class="flex gap-3 mt-6">
-                                                                                                                    <button onclick="acceptKunjungan(${id})" class="flex-1 flex items-center gap-2 justify-center font-semibold border-none cursor-pointer transition-all duration-200 bg-[#10B981] hover:bg-[#059669] text-white px-4 py-2 rounded-md text-sm">Terima</button>
-                                                                                                                    <button onclick="openRejectModal(${id})" class="flex-1 flex items-center gap-2 justify-center font-semibold border-none cursor-pointer transition-all duration-200 bg-[#EF4444] hover:bg-[#DC2626] text-white px-4 py-2 rounded-md text-sm">Tolak</button>
-                                                                                                                </div>
-                                                                                                            `;
+                            <div class="flex gap-3 mt-6">
+                                <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
+                                <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
+                            </div>
+                        `;
                     }
 
                     let cancelReason = '';
