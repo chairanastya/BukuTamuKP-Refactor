@@ -74,6 +74,12 @@
     @endif
     
     <div class="input-wrapper {{ $error ? 'error' : '' }}">
+        @if(isset($prepend))
+            <div class="flex-shrink-0">
+                {{ $prepend }}
+            </div>
+        @endif
+        
         @if($type === 'textarea')
             <textarea 
                 id="{{ $id }}" 
