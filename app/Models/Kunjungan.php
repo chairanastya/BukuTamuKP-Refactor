@@ -45,7 +45,7 @@ class Kunjungan extends Model
             'id_karyawan'
         )->withPivot('id_kunjungan_karyawan');
     }
-    
+
     public function dokumentasi()
     {
         return $this->hasMany(Dokumentasi::class, 'id_kunjungan', 'id_kunjungan');
