@@ -21,31 +21,6 @@
             background-color: #f9fafb;
         }
 
-        .stats-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .stats-card:hover {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-        }
-
-        .stats-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
         .badge {
             padding: 0.375rem 0.75rem;
             border-radius: 8px;
@@ -519,24 +494,6 @@
                 padding-top: 120px;
             }
 
-            .stats-card {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.75rem;
-            }
-
-            .stats-card > div:first-child {
-                width: 100%;
-            }
-
-            .stats-card .text-3xl {
-                font-size: 1.875rem;
-            }
-
-            .stats-card .text-sm {
-                font-size: 0.75rem;
-            }
-
             .header-container {
                 flex-direction: column;
                 align-items: flex-start !important;
@@ -628,49 +585,50 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                <div class="stats-card cursor-pointer hover:shadow-lg transition-shadow" data-filter="all"
-                    onclick="filterByStatus('all')">
-                    <div>
-                        <p class="text-gray-600 text-sm mb-1">Total Kunjungan</p>
-                        <p class="text-3xl font-bold text-[#084E8F]">{{ $stats['total'] }}</p>
-                    </div>
-                    <div class="stats-icon" style="background: #E5E7EB;">
-                        @svg('akar-people-group', 'w-6 h-6 text-gray-600')
-                    </div>
-                </div>
+                <x-stats-card
+                    title="Total Kunjungan"
+                    :value="$stats['total']"
+                    valueColor="text-[#084E8F]"
+                    icon="akar-people-group"
+                    iconColor="text-gray-600"
+                    bgColor="#E5E7EB"
+                    filter="all"
+                    onclick="filterByStatus('all')"
+                />
 
-                <div class="stats-card cursor-pointer hover:shadow-lg transition-shadow" data-filter="pending"
-                    onclick="filterByStatus('pending')">
-                    <div>
-                        <p class="text-gray-600 text-sm mb-1">Pending</p>
-                        <p class="text-3xl font-bold text-yellow-600">{{ $stats['pending'] }}</p>
-                    </div>
-                    <div class="stats-icon" style="background: #FEF3C7;">
-                        @svg('far-clock', 'w-6 h-6 text-yellow-600')
-                    </div>
-                </div>
+                <x-stats-card
+                    title="Pending"
+                    :value="$stats['pending']"
+                    valueColor="text-yellow-600"
+                    icon="far-clock"
+                    iconColor="text-yellow-600"
+                    bgColor="#FEF3C7"
+                    filter="pending"
+                    onclick="filterByStatus('pending')"
+                />
 
-                <div class="stats-card cursor-pointer hover:shadow-lg transition-shadow" data-filter="done"
-                    onclick="filterByStatus('done')">
-                    <div>
-                        <p class="text-gray-600 text-sm mb-1">Done</p>
-                        <p class="text-3xl font-bold text-green-600">{{ $stats['done'] }}</p>
-                    </div>
-                    <div class="stats-icon" style="background: #D1FAE5;">
-                        @svg('heroicon-o-check-circle', 'w-7 h-7 text-green-600')
-                    </div>
-                </div>
-
-                <div class="stats-card cursor-pointer hover:shadow-lg transition-shadow" data-filter="canceled"
-                    onclick="filterByStatus('canceled')">
-                    <div>
-                        <p class="text-gray-600 text-sm mb-1">Canceled</p>
-                        <p class="text-3xl font-bold text-red-600">{{ $stats['canceled'] }}</p>
-                    </div>
-                    <div class="stats-icon" style="background: #FEE2E2;">
-                        @svg('heroicon-o-x-circle', 'w-7 h-7 text-red-600')
-                    </div>
-                </div>
+                <x-stats-card
+                    title="Done"
+                    :value="$stats['done']"
+                    valueColor="text-green-600"
+                    icon="heroicon-o-check-circle"
+                    iconColor="text-green-600"
+                    bgColor="#D1FAE5"
+                    filter="done"
+                    onclick="filterByStatus('done')"
+                />
+                
+                <x-stats-card
+                    title="Canceled"
+                    :value="$stats['canceled']"
+                    valueColor="text-red-600"
+                    icon="heroicon-o-x-circle"
+                    iconColor="text-red-600"
+                    bgColor="#FEE2E2"
+                    filter="canceled"
+                    onclick="filterByStatus('canceled')"
+                />
+                
             </div>
 
             <!-- DataTable -->
