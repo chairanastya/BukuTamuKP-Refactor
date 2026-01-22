@@ -603,21 +603,7 @@
 @endpush
 
 @section('sidebar')
-    <a href="{{ route('resepsionis.dashboard') }}"
-        class="sidebar-item {{ request()->routeIs('resepsionis.dashboard') ? 'active' : '' }}">
-        @svg('fluentui-home-24', 'w-8 h-8')
-        <span>Beranda</span>
-    </a>
-    <a href="{{ route('resepsionis.riwayat') }}"
-        class="sidebar-item {{ request()->routeIs('resepsionis.riwayat') ? 'active' : '' }}">
-        @svg('gmdi-history', 'w-8 h-8')
-        <span>Riwayat</span>
-    </a>
-    <a href="{{ route('resepsionis.karyawan') }}"
-        class="sidebar-item {{ request()->routeIs('resepsionis.karyawan') ? 'active' : '' }}">
-        @svg('gmdi-people-r', 'w-8 h-8')
-        <span>Daftar Karyawan</span>
-    </a>
+    @include('partials.resepsionis-sidebar')
 @endsection
 
 @section('content')
