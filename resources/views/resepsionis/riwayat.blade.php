@@ -745,7 +745,6 @@
                         responsivePriority: 9,
                         render: function (data) {
                             if (data.status === 'done') {
-                                // Gunakan class Tailwind yang sama dengan component button variant='view'
                                 return '<button onclick="viewHasil(' + data.id_kunjungan + ')" id="viewHasilBtn_' + data.id_kunjungan + '" class="btn-view flex items-center justify-center gap-2">' +
                                     '<span id="viewHasilText_' + data.id_kunjungan + '">Lihat Hasil</span>' +
                                     '<svg id="viewHasilSpinner_' + data.id_kunjungan + '" class="hidden animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">' +
