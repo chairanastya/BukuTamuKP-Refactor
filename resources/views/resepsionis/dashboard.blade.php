@@ -6,20 +6,10 @@
 @endsection
 
 @section('header-action')
-    <div class="relative">
-        <button onclick="toggleDropdown()" class="flex items-center gap-2">
-            <span>{{ Auth::user()->nama_resepsionis }}</span>
-            @svg('uiw-down', 'w-5 h-5')
-        </button>
-        <div id="dropdown" class="hidden absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg overflow-hidden z-0">
-            <form method="POST" action="{{ route('resepsionis.logout') }}">
-                @csrf
-                <button type="submit" class="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700">
-                    Log Out
-                </button>
-            </form>
-        </div>
-    </div>
+    <x-user-dropdown 
+        :userName="Auth::user()->nama_resepsionis" 
+        :logoutRoute="route('resepsionis.logout')" 
+    />
 @endsection
 
 @push('styles')
