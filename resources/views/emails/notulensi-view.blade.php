@@ -30,7 +30,7 @@
                     <tr>
                         <td style="padding: 40px 30px;">
                             <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333; line-height: 1.6;">
-                                Halo <strong style="color: #084E8F;">{{ $tamu->nama_tamu }}</strong>,
+                                Halo <strong style="color: #084E8F;">{{ $namaPenerima }}</strong>,
                             </p>
 
                             <p style="margin: 0 0 25px 0; font-size: 15px; color: #555555; line-height: 1.6;">
