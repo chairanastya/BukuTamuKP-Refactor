@@ -38,10 +38,9 @@ Route::prefix('notulensi')->name('notulensi.')->group(function () {
     Route::post('/store/{token}', [NotulensiController::class, 'store'])->name('store')->middleware('throttle:submissions');
     Route::get('/view/{token}', [NotulensiController::class, 'view'])->name('view');
     
-    // Stream dokumentasi - memerlukan autentikasi
-    Route::get('/dokumentasi/{token}/stream', [ResepsionisController::class, 'streamDokumentasi'])
-        ->name('dokumentasi.stream')
-        ->middleware('auth:resepsionis');
+    // Stream dokumentasi - public access dengan token validation
+    Route::get('/dokumentasi/{token}/stream', [NotulensiController::class, 'streamDokumentasi'])
+        ->name('dokumentasi.stream');
 });
 
 Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
