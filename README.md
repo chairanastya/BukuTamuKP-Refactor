@@ -2,6 +2,9 @@
 
 Buku Tamu Digital merupakan sebuah aplikasi web untuk manajemen kunjungan tamu yang memudahkan proses pencatatan, persetujuan, dan dokumentasi kunjungan di perusahaan.
 
+## Entity Relationship Diagram (ERD) 
+![KP Desnet-ERD](https://github.com/user-attachments/assets/4b380dff-768a-4d7f-abfa-814d30d43c33)
+
 ## Fitur Utama
 
 ### Untuk Tamu
@@ -33,6 +36,17 @@ Buku Tamu Digital merupakan sebuah aplikasi web untuk manajemen kunjungan tamu y
 7. **Tamu** dan **Karyawan** dapat mengakses dan mengunduh notulensi kunjungan/rapat yang telah diikuti kapan saja
 8. **Resepsionis** dapat melihat riwayat kunjungan secara keseluruhan
 
+## Teknologi yang Digunakan
+- **PHP Framework**: Laravel 12
+- **Database**: Supabase
+- **Frontend**: Blade, TailwindCSS
+- **Icons**: Blade Icons
+- **Cloud Storage**: Cloudinary
+- **Email**: SMTP Gmail
+- **Export**: jsPDF, SheetJS (Library via CDN)
+
 ## Catatan
 
 Aplikasi ini dikembangkan untuk keperluan kerja praktik
+
+2026
