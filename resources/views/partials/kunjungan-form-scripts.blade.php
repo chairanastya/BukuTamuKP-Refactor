@@ -55,20 +55,12 @@
         }
 
         function setupFormValidation() {
-            console.log('setupFormValidation called');
-
-            const allForms = document.querySelectorAll('form');
-            console.log('Total forms in page:', allForms.length);
-
             const form = document.querySelector('form[action*="tamu/submit"]');
             if (!form) {
-                console.error('Form with tamu/submit action not found!');
                 return;
             }
-            console.log('Form found:', form);
 
             const submitButton = form.querySelector('button[type="submit"]');
-            console.log('Submit button found:', submitButton);
 
             let isSubmitting = false;
 
@@ -89,32 +81,14 @@
                 foto: document.getElementById('foto_error')
             };
 
-            // Debug: Log error elements
-            console.log('Error elements:', {
-                nama: errors.nama ? 'found' : 'NOT FOUND',
-                email: errors.email ? 'found' : 'NOT FOUND',
-                instansi: errors.instansi ? 'found' : 'NOT FOUND',
-                tujuan: errors.tujuan ? 'found' : 'NOT FOUND',
-                karyawan: errors.karyawan ? 'found' : 'NOT FOUND',
-                foto: errors.foto ? 'found' : 'NOT FOUND'
-            });
-
             const webcamArea = document.getElementById('webcam_area');
             const karyawanContainer = document.getElementById('karyawan_rows_container');
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            // Add capture phase listener untuk testing
             form.addEventListener('submit', function (e) {
-                console.log('CAPTURE PHASE: Form submit detected!');
-            }, true);
-
-            console.log('Adding submit event listener to form');
-            form.addEventListener('submit', function (e) {
-                console.log('Form submit event triggered!');
-                e.preventDefault(); // Prevent default submission first
+                e.preventDefault();
 
                 if (isSubmitting) {
-                    console.log('Form sedang diproses, harap tunggu...');
                     return false;
                 }
 
@@ -191,12 +165,10 @@
                 }
 
                 if (hasError && firstErrorElement) {
-                    console.log('Validation failed, preventing submit');
                     firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     return false;
                 }
 
-                console.log('Validation passed, submitting form');
                 isSubmitting = true;
                 if (submitButton) {
                     submitButton.disabled = true;
@@ -212,28 +184,18 @@
                     }, 10000);
                 }
 
-                // Allow form to submit
                 e.target.submit();
             });
-
-            console.log('Form validation setup completed');
         }
 
         function showError(input, errorElement) {
-            console.log('showError called:', { input: input?.id, errorElement: errorElement?.id });
-
             if (errorElement) {
                 errorElement.classList.add('show');
-                console.log('Error message shown for:', errorElement.id);
-            } else {
-                console.error('Error element not found!');
             }
 
             const wrapper = input.closest('.input-wrapper');
             if (wrapper) {
                 wrapper.classList.add('error');
-            } else {
-                console.warn('Input wrapper not found for:', input?.id);
             }
 
             setTimeout(() => {
