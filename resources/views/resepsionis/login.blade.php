@@ -163,11 +163,15 @@
     <div class="relative flex items-center justify-center min-h-screen px-4">
         <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
             <div class="mb-4 flex items-center justify-between">
-                <a href="{{ route('tamu.form') }}"
-                    class="inline-flex items-center text-blue-600 hover:text-blue-900 font-normal transition duration-200">
-                    @svg('heroicon-o-arrow-left', 'w-4 h-4 mr-1')
+                <x-button 
+                    href="{{ route('tamu.form') }}"
+                    variant="primary"
+                    icon="heroicon-o-arrow-left"
+                    iconClass="w-4 h-4"
+                    class="!bg-transparent !text-blue-600 hover:!text-blue-900 !font-normal !px-0 !py-0"
+                >
                     Kembali ke Form Tamu
-                </a>
+                </x-button>
             </div>
             <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-8">
                 Buku Tamu Digital
@@ -241,10 +245,13 @@
                     </label>
                 </div>
 
-                <button type="submit"
-                    class="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
+                <x-button 
+                    type="submit"
+                    variant="primary"
+                    class="w-full !bg-blue-900 hover:!bg-blue-800 shadow-lg hover:shadow-xl !py-3"
+                >
                     Login
-                </button>
+                </x-button>
 
                 <div class="mt-6 text-center">
                     <a href="{{ route('resepsionis.password.request') }}"
