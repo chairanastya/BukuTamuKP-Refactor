@@ -179,18 +179,10 @@
     </div>
 </div>
 
-<div id="success_modal" class="modal-overlay" aria-hidden="true">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title">Sukses</h2>
-            <button type="button" class="modal-close" onclick="closeSuccessModal()">&times;</button>
-        </div>
-        <div class="px-1">
-            <p class="text-gray-700" id="success_message">{{ session('success') }}</p>
-            <div class="mt-6 flex justify-end">
-                <button type="button" onclick="closeSuccessModal()"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Tutup</button>
-            </div>
-        </div>
+<x-modal name="success_modal" id="success_modal" title="Sukses" :useAlpine="false">
+    <p class="text-gray-700" id="success_message">{{ session('success') }}</p>
+    <div class="mt-6 flex justify-end">
+        <button type="button" onclick="closeModal('success_modal')"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Tutup</button>
     </div>
-</div>
+</x-modal>
