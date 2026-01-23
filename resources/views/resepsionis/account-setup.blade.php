@@ -97,7 +97,7 @@
                     type="submit" 
                     variant="primary" 
                     class="w-full py-3 shadow-lg hover:shadow-xl"
-                    :icon="null"
+                    icon=""
                 >
                     Buat Akun
                 </x-button>
