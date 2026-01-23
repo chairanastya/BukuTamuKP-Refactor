@@ -98,7 +98,7 @@ class NotulensiController extends Controller
         $this->sendNotulensiToTamu($kunjungan, $tokenTamu);
 
         return view('notulensi.success', [
-            'message' => 'Notulensi berhasil disimpan. Tamu akan diberitahu via email.',
+            'message' => 'Notulensi berhasil disimpan. Email berisi link untuk melihat notulensi telah dikirim ke tamu.',
             'kunjungan' => $kunjungan->load('tamu'),
         ]);
     }
