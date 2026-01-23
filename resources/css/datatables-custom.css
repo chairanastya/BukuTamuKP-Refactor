@@ -136,6 +136,27 @@ table.dataTable tbody td a {
     display: block;
 }
 
+.filter-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    min-width: 200px;
+    max-width: 300px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+}
+
+.filter-dropdown.show {
+    display: block;
+}
+
 .filter-dropdown-item {
     padding: 10px 16px;
     cursor: pointer;

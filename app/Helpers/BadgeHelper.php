@@ -55,6 +55,10 @@ class BadgeHelper
             'approved' => 'accepted',
             'done' => 'done',
             'canceled' => 'canceled',
+            'resepsionis' => 'resepsionis',
+            'karyawan' => 'karyawan',
+            'aktif' => 'aktif',
+            'nonaktif' => 'nonaktif',
         ];
 
         $badgeType = $statusMap[$status] ?? 'default';

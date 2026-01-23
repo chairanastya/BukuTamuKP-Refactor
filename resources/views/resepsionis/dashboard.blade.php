@@ -1375,16 +1375,6 @@
             }
         }
 
-        function toggleDropdown() {
-            document.getElementById('dropdown').classList.toggle('hidden');
-        }
-
-        document.addEventListener('click', function (e) {
-            if (!e.target.closest('button[onclick="toggleDropdown()"]')) {
-                document.getElementById('dropdown').classList.add('hidden');
-            }
-        });
-
         let navigationTimeout = null;
         document.querySelectorAll('.sidebar-item').forEach(link => {
             link.addEventListener('click', function (e) {
@@ -1454,7 +1444,7 @@
                             .on('postgres_changes',
                                 { event: '*', schema: 'public', table: 'kunjungan' },
                                 (payload) => {
-                                    console.log('✨ Perubahan terdeteksi:', payload.eventType);
+                                    console.log('Perubahan terdeteksi:', payload.eventType);
                                     table.ajax.reload(null, false);
 
                                     // Update stats
@@ -1474,7 +1464,7 @@
                             )
                             .subscribe((status) => {
                                 if (status === 'SUBSCRIBED') {
-                                    console.log('🟢 Realtime active - akan auto-reload saat ada perubahan');
+                                    console.log('Realtime active - akan auto-reload saat ada perubahan');
                                 }
                             });
 

@@ -19,6 +19,12 @@ export default {
         'text-[#008236]',
         'bg-[#FFE2E2]',
         'text-[#C10007]',
+        'bg-[#D1FAE5]',
+        'text-[#059669]',
+        'bg-[#FEE2E2]',
+        'text-[#DC2626]',
+        'bg-[#E5E7EB]',
+        'text-[#374151]',
         // Badge sizes
         'px-2',
         'py-1',

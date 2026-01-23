@@ -1370,17 +1370,6 @@
             }
         }
 
-        function toggleDropdown() {
-            document.getElementById('dropdown').classList.toggle('hidden');
-        }
-
-        document.addEventListener('click', function (e) {
-            if (!e.target.closest('button[onclick="toggleDropdown()"]')) {
-                document.getElementById('dropdown').classList.add('hidden');
-            }
-        });
-
-
         let navigationTimeout = null;
         document.querySelectorAll('.sidebar-item').forEach(link => {
             link.addEventListener('click', function (e) {
