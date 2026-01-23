@@ -18,45 +18,45 @@
                     errorMessage="Nama lengkap wajib diisi"
                     :required="true"
                 />
-<x-input-wrapper 
-                id="email"
-                name="email"
-                label="Alamat Email"
-                type="email"
-                placeholder="Tuliskan alamat email anda"
-                :value="old('email')"
-                :error="$errors->first('email')"
-                errorMessage="Email tidak valid"
-                :required="true"
-                class="mt-4"
-            />
+                <x-input-wrapper 
+                    id="email"
+                    name="email"
+                    label="Alamat Email"
+                    type="email"
+                    placeholder="Tuliskan alamat email anda"
+                    :value="old('email')"
+                    :error="$errors->first('email')"
+                    errorMessage="Email tidak valid"
+                    :required="true"
+                    class="mt-4"
+                />
 
-<x-input-wrapper 
-                id="instansi"
-                name="instansi"
-                label="Instansi Asal"
-                type="text"
-                placeholder="Tuliskan instansi asal anda"
-                :value="old('instansi')"
-                :error="$errors->first('instansi')"
-                errorMessage="Instansi asal wajib diisi"
-                :required="true"
-                class="mt-4"
-            />
+                <x-input-wrapper 
+                    id="instansi"
+                    name="instansi"
+                    label="Instansi Asal"
+                    type="text"
+                    placeholder="Tuliskan instansi asal anda"
+                    :value="old('instansi')"
+                    :error="$errors->first('instansi')"
+                    errorMessage="Instansi asal wajib diisi"
+                    :required="true"
+                    class="mt-4"
+                />
 
-<x-input-wrapper 
-                id="tujuan"
-                name="tujuan"
-                label="Tujuan Kedatangan"
-                type="textarea"
-                placeholder="Jelaskan tujuan kedatangan anda"
-                :value="old('tujuan')"
-                :error="$errors->first('tujuan')"
-                errorMessage="Tujuan kedatangan wajib diisi"
-                :required="true"
-                :rows="4"
-                class="mt-4"
-            />
+                <x-input-wrapper 
+                    id="tujuan"
+                    name="tujuan"
+                    label="Tujuan Kedatangan"
+                    type="textarea"
+                    placeholder="Jelaskan tujuan kedatangan anda"
+                    :value="old('tujuan')"
+                    :error="$errors->first('tujuan')"
+                    errorMessage="Tujuan kedatangan wajib diisi"
+                    :required="true"
+                    :rows="4"
+                    class="mt-4"
+                />
 
                 <div>
                     <label class="block text-[#084E8F] font-bold mb-2 mt-4">
