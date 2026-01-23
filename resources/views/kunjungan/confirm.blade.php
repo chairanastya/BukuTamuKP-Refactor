@@ -129,7 +129,7 @@
                                 {{ $message }}
                             </p>
                         @else
-                            <p class="text-gray-500 text-sm mt-2">Alasan ini akan disampaikan kepada tamu via email. Minimal 10 karakter.</p>
+                            <p class="text-gray-500 text-sm mt-2">Alasan ini akan disampaikan kepada tamu via email.</p>
                         @enderror
                     </div>
 
