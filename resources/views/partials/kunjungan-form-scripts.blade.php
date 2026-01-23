@@ -482,11 +482,14 @@
             if (successModal) successModal.classList.add('show');
         }
 
-        function closeSuccessModal() {
-            if (successModal) {
-                successModal.classList.remove('show');
-                const msg = document.getElementById('success_message');
-                if (msg) msg.textContent = '';
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('show');
+                if (modalId === 'success_modal') {
+                    const msg = document.getElementById('success_message');
+                    if (msg) msg.textContent = '';
+                }
             }
         }
 
