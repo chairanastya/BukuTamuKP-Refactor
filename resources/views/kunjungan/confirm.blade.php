@@ -68,6 +68,24 @@
                     </p>
                 </div>
 
+                @if($errors->any())
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mb-6">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <div>
+                                <p class="font-bold text-red-800">Terdapat kesalahan:</p>
+                                <ul class="text-red-700 text-sm mt-1 list-disc list-inside">
+                                    @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg mb-6">
                     <h3 class="font-bold text-red-800 mb-3">Informasi Tamu:</h3>
                     <div class="space-y-2 text-gray-700">
@@ -85,7 +103,7 @@
                     </p>
                 </div>
 
-                <form action="{{ route('kunjungan.process', $kunjungan->token_approval) }}" method="POST">
+                <form action="{{ route('kunjungan.process', $kunjungan->token_approval) }}" method="POST" id="rejectForm">
                     @csrf
                     <input type="hidden" name="action" value="tolak">
                     
@@ -100,9 +118,19 @@
                             rows="4" 
                             required
                             placeholder="Jelaskan alasan Anda menolak kunjungan ini..."
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-red-500 focus:ring-2 focus:ring-red-200 transition duration-200 resize-none"
-                        ></textarea>
-                        <p class="text-gray-500 text-sm mt-2">Alasan ini akan disampaikan kepada tamu via email.</p>
+                            class="w-full px-4 py-3 border-2 rounded-lg focus:border-red-500 focus:ring-2 focus:ring-red-200 transition duration-200 resize-none {{ $errors->has('alasan_penolakan') ? 'border-red-500' : 'border-gray-300' }}"
+                        >{{ old('alasan_penolakan') }}</textarea>
+                        
+                        @error('alasan_penolakan')
+                            <p class="text-red-600 text-sm mt-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                {{ $message }}
+                            </p>
+                        @else
+                            <p class="text-gray-500 text-sm mt-2">Alasan ini akan disampaikan kepada tamu via email.</p>
+                        @enderror
                     </div>
 
                     <div class="flex gap-4">
@@ -118,4 +146,31 @@
         </div>
     </div>
 </div>
+
+@if($errors->any() && $action === 'tolak')
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Scroll to the first error message
+            const errorAlert = document.querySelector('.bg-red-50.border-l-4.border-red-500');
+            if (errorAlert) {
+                errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            // Focus on the textarea if it has an error
+            const textarea = document.getElementById('alasan_penolakan');
+            if (textarea) {
+                // Check if textarea has red border (indicating error)
+                const hasError = textarea.classList.contains('border-red-500');
+                if (hasError) {
+                    textarea.focus();
+                    // Place cursor at the end of text
+                    const len = textarea.value.length;
+                    textarea.setSelectionRange(len, len);
+                }
+            }
+        });
+    </script>
+    @endpush
+@endif
 @endsection

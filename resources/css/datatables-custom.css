@@ -1,0 +1,441 @@
+/* DataTables Custom Styling */
+
+table.dataTable {
+    width: 100% !important;
+}
+
+table.dataTable tbody td {
+    text-align: left !important;
+}
+
+table.dataTable tbody td button,
+table.dataTable tbody td a {
+    text-align: left !important;
+    display: inline-block;
+}
+
+.dt-length select.dt-input {
+    padding-right: 28px !important;
+}
+
+.dataTables_wrapper .dataTables_filter input,
+.dt-search input.dt-input {
+    border: 1px solid #d1d5db !important;
+    border-radius: 4px !important;
+    padding: 4px 12px !important;
+    font-size: 14px !important;
+    background-color: white !important;
+    transition: all 0.2s !important;
+    min-width: 200px;
+}
+
+.dataTables_wrapper .dataTables_filter input::placeholder,
+.dt-search input.dt-input::placeholder {
+    color: #9CA3AF;
+}
+
+.dataTables_wrapper .dataTables_filter input:focus,
+.dt-search input.dt-input:focus {
+    outline: none !important;
+    border-color: #47B9AE !important;
+    box-shadow: 0 0 0 3px rgba(71, 185, 174, 0.1) !important;
+}
+
+/* Filter Styles - Reusable untuk semua DataTable dengan filter */
+.filter-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    position: relative;
+}
+
+.filter-btn {
+    background: white;
+    border: 1px solid #d1d5db;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+}
+
+.filter-btn:hover {
+    background: #f3f4f6;
+    border-color: #47B9AE;
+}
+
+.filter-btn.active {
+    background: #0C4777;
+    color: white;
+    border-color: #0C4777;
+}
+
+.filter-main-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    min-width: 180px;
+    z-index: 100;
+    display: none;
+}
+
+.filter-main-dropdown.show {
+    display: block;
+}
+
+.filter-category-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 500;
+}
+
+.filter-category-item:hover {
+    background: #f3f4f6;
+}
+
+.filter-category-item:first-child {
+    border-radius: 8px 8px 0 0;
+}
+
+.filter-category-item:last-child {
+    border-radius: 0 0 8px 8px;
+}
+
+.filter-sub-dropdown {
+    position: absolute;
+    top: 0;
+    right: 100%;
+    margin-right: 4px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    min-width: 200px;
+    max-width: 300px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 101;
+    display: none;
+}
+
+.filter-sub-dropdown.show {
+    display: block;
+}
+
+.filter-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    min-width: 200px;
+    max-width: 300px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+}
+
+.filter-dropdown.show {
+    display: block;
+}
+
+.filter-dropdown-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-size: 14px;
+}
+
+.filter-dropdown-item:hover {
+    background: #f3f4f6;
+}
+
+.filter-dropdown-item.active {
+    background: #DBEAFE;
+    color: #1E40AF;
+    font-weight: 600;
+}
+
+.karyawan-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.karyawan-item:last-of-type {
+    border-bottom: none;
+}
+
+.karyawan-item:hover {
+    background: #f3f4f6;
+}
+
+.karyawan-item.active {
+    background: #DBEAFE;
+}
+
+.karyawan-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 2px;
+}
+
+.karyawan-detail {
+    font-size: 12px;
+    color: #6B7280;
+}
+
+.filter-clear {
+    padding: 10px 16px;
+    border-top: 1px solid #e5e7eb;
+    cursor: pointer;
+    color: #EF4444;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+}
+
+.filter-clear:hover {
+    background: #FEE2E2;
+}
+
+.active-filter-badge {
+    background: #0C4777;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 4px;
+}
+
+/* DataTables Layout */
+.dataTables_wrapper .dt-layout-row:first-child {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 24px !important;
+    margin-bottom: 16px !important;
+}
+
+.dataTables_wrapper .dt-layout-start {
+    flex: 0 0 auto !important;
+}
+
+.dataTables_wrapper .dt-layout-end {
+    display: flex !important;
+    align-items: center !important;
+    gap: 50px !important;
+    flex: 0 0 auto !important;
+}
+
+.dataTables_wrapper .dt-search {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+}
+
+.dataTables_wrapper .dataTables_filter label,
+.dataTables_wrapper .dt-search label {
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+.dataTables_wrapper .dt-search input.dt-input {
+    flex-shrink: 0 !important;
+}
+
+/* Mobile responsive grid layout */
+@media (max-width: 768px) {
+    .dataTables_wrapper .dt-layout-row:first-child,
+    div.dt-container div.dt-layout-row:first-child {
+        display: grid !important;
+        grid-template-columns: auto auto !important;
+        grid-template-rows: auto auto !important;
+        gap: 12px !important;
+        margin-bottom: 16px !important;
+        flex-direction: unset !important;
+        align-items: start !important;
+    }
+
+    .dataTables_wrapper .dt-layout-start,
+    div.dt-container div.dt-layout-start {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        justify-self: start !important;
+        align-self: start !important;
+        margin-right: 0 !important;
+    }
+
+    .dataTables_wrapper .dt-layout-end,
+    div.dt-container div.dt-layout-end {
+        display: contents !important;
+    }
+
+    .dataTables_wrapper .filter-container,
+    div.dt-container .filter-container {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+        justify-self: end !important;
+        display: block !important;
+        text-align: right !important;
+    }
+
+    .dataTables_wrapper .dt-search,
+    div.dt-container div.dt-search {
+        grid-column: 1 / -1 !important;
+        grid-row: 2 !important;
+        width: 100% !important;
+        display: flex !important;
+        margin-top: 8px !important;
+    }
+
+    .dataTables_wrapper .dt-search label,
+    div.dt-container div.dt-search label {
+        width: 100% !important;
+        display: flex !important;
+        gap: 8px !important;
+        align-items: center !important;
+        font-size: 14px !important;
+    }
+
+    .dataTables_wrapper .dt-search input.dt-input,
+    div.dt-container div.dt-search input.dt-input {
+        flex: 1 !important;
+        min-width: 85% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Responsive DataTables styles */
+    table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before,
+    table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control:before {
+        margin-right: 0.5em;
+    }
+
+    table.dataTable > tbody > tr.child {
+        padding: 0.5em 1em;
+    }
+
+    table.dataTable > tbody > tr.child ul.dtr-details {
+        display: block !important;
+        list-style-type: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    table.dataTable > tbody > tr.child ul.dtr-details > li {
+        border-bottom: 1px solid #efefef !important;
+        padding: 0.75em 0 !important;
+        display: grid !important;
+        grid-template-columns: 130px 1fr !important;
+        gap: 1rem !important;
+        align-items: start !important;
+        float: none !important;
+        clear: both !important;
+    }
+
+    table.dataTable > tbody > tr.child ul.dtr-details > li:before,
+    table.dataTable > tbody > tr.child ul.dtr-details > li:after {
+        display: none !important;
+    }
+
+    table.dataTable > tbody > tr.child span.dtr-title {
+        grid-column: 1 !important;
+        display: block !important;
+        font-weight: bold !important;
+        padding-top: 2px !important;
+        word-wrap: break-word !important;
+        float: none !important;
+        width: auto !important;
+    }
+
+    table.dataTable > tbody > tr.child span.dtr-data {
+        grid-column: 2 !important;
+        display: block !important;
+        word-break: break-word !important;
+        line-height: 1.6 !important;
+        min-width: 0 !important;
+        float: none !important;
+        width: auto !important;
+    }
+    
+    /* Style untuk konten multi-line dalam dtr-data */
+    table.dataTable > tbody > tr.child span.dtr-data br {
+        display: block;
+        content: "";
+        line-height: 0;
+        margin: 0.25rem 0;
+    }
+    
+    /* Container untuk setiap karyawan */
+    table.dataTable > tbody > tr.child span.dtr-data > div {
+        margin-bottom: 0;
+    }
+    
+    /* Styling untuk nama karyawan dan jabatan */
+    table.dataTable > tbody > tr.child span.dtr-data .text-xs,
+    table.dataTable > tbody > tr.child span.dtr-data .text-gray-500 {
+        display: block;
+        margin-top: 0.25rem;
+        margin-bottom: 0;
+        padding-top: 0.125rem;
+        font-size: 0.75rem;
+        line-height: 1.4;
+        color: #6B7280;
+    }
+    
+    /* Divider antar karyawan */
+    table.dataTable > tbody > tr.child span.dtr-data div.border-t {
+        display: block;
+        height: 0;
+        margin: 0.75rem 0;
+        padding: 0;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    /* Styling khusus untuk struktur nama-jabatan dalam dtr-data */
+    table.dataTable > tbody > tr.child span.dtr-data > span.text-xs:last-child,
+    table.dataTable > tbody > tr.child span.dtr-data > span.text-gray-500:last-child {
+        margin-bottom: 0;
+    }
+    
+    /* Memastikan button dalam dtr-data tidak break layout */
+    table.dataTable > tbody > tr.child span.dtr-data button {
+        display: inline-flex;
+        align-items: center;
+        word-break: normal;
+    }
+    
+    /* Styling untuk list karyawan di child row */
+    table.dataTable > tbody > tr.child span.dtr-data ul {
+        margin: 0;
+        padding-left: 1.25rem;
+    }
+    
+    table.dataTable > tbody > tr.child span.dtr-data ul li {
+        padding: 0.25rem 0;
+    }
+}

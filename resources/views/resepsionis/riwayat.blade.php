@@ -6,112 +6,17 @@
 @endsection
 
 @section('header-action')
-    <div class="relative">
-        <button onclick="toggleDropdown()" class="flex items-center gap-2">
-            <span>{{ Auth::user()->nama_resepsionis }}</span>
-            @svg('uiw-down', 'w-5 h-5')
-        </button>
-        <div id="dropdown" class="hidden absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg overflow-hidden z-0">
-            <form method="POST" action="{{ route('resepsionis.logout') }}">
-                @csrf
-                <button type="submit" class="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700">
-                    Log Out
-                </button>
-            </form>
-        </div>
-    </div>
+    <x-user-dropdown :userName="Auth::user()->nama_resepsionis" :logoutRoute="route('resepsionis.logout')" />
 @endsection
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.7/css/responsive.dataTables.min.css">
+    @vite(['resources/css/datatables-custom.css'])
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
             background-color: #f9fafb;
-        }
-
-        .stats-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .stats-card:hover {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-        }
-
-        .stats-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .badge {
-            padding: 0.375rem 0.75rem;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .badge-pending {
-            background: #FEF9C2;
-            color: #D08700;
-        }
-
-        .badge-accepted {
-            background: #DBEAFE;
-            color: #193CB8;
-        }
-
-        .badge-done {
-            background: #DCFCE7;
-            color: #008236;
-        }
-
-        .badge-canceled {
-            background: #FFE2E2;
-            color: #C10007;
-        }
-
-        .btn-export {
-            background: #059669;
-            color: white;
-            padding: 0.625rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-export:hover {
-            background: #047857;
-        }
-
-        .btn-export-pdf {
-            background: #DC2626;
-            color: white;
-            padding: 0.625rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-export-pdf:hover {
-            background: #B91C1C;
         }
 
         .btn-success {
@@ -123,6 +28,11 @@
             font-weight: 600;
             border: none;
             cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
         }
 
         .btn-danger {
@@ -134,6 +44,11 @@
             font-weight: 600;
             border: none;
             cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-danger:hover {
+            background-color: #DC2626;
         }
 
         .btn-view {
@@ -145,34 +60,11 @@
             font-weight: 600;
             text-decoration: none;
             display: inline-block;
+            transition: background-color 0.2s;
         }
 
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
-        }
-
-        .modal-overlay.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 16px;
-            padding: 2rem;
-            max-width: 600px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-content.large {
-            max-width: 900px;
+        .btn-view:hover {
+            background-color: #D97706;
         }
 
         .ktp-preview {
@@ -181,409 +73,9 @@
             object-fit: contain;
         }
 
-        table.dataTable {
-            width: 100% !important;
-        }
-
-        table.dataTable tbody td {
-            text-align: left !important;
-        }
-
-        table.dataTable tbody td button,
-        table.dataTable tbody td a {
-            text-align: left !important;
-            display: inline-block;
-        }
-
-        .dt-length select.dt-input {
-            padding-right: 28px !important;
-        }
-
-        .dataTables_wrapper .dataTables_filter input,
-        .dt-search input.dt-input {
-            border: 1px solid #d1d5db !important;
-            border-radius: 4px !important;
-            padding: 2px 12px !important;
-            font-size: 14px !important;
-            background-color: white !important;
-            transition: all 0.2s !important;
-            min-width: 200px;
-        }
-
-        .dataTables_wrapper .dataTables_filter input::placeholder,
-        .dt-search input.dt-input::placeholder {
-            color: #9CA3AF;
-        }
-
-        .dataTables_wrapper .dataTables_filter input:focus,
-        .dt-search input.dt-input:focus {
-            outline: none !important;
-            border-color: #47B9AE !important;
-            box-shadow: 0 0 0 3px rgba(71, 185, 174, 0.1) !important;
-        }
-
-        .filter-container {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            position: relative;
-        }
-
-        .filter-btn {
-            background: white;
-            border: 1px solid #d1d5db;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 500;
-        }
-
-        .filter-btn:hover {
-            background: #f3f4f6;
-            border-color: #47B9AE;
-        }
-
-        .filter-btn.active {
-            background: #0C4777;
-            color: white;
-            border-color: #0C4777;
-        }
-
-        .filter-main-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            margin-top: 4px;
-            background: white;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            min-width: 180px;
-            z-index: 100;
-            display: none;
-        }
-
-        .filter-main-dropdown.show {
-            display: block;
-        }
-
-        .filter-category-item {
-            padding: 12px 16px;
-            cursor: pointer;
-            transition: background 0.15s;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-weight: 500;
-        }
-
-        .filter-category-item:hover {
-            background: #f3f4f6;
-        }
-
-        .filter-category-item:first-child {
-            border-radius: 8px 8px 0 0;
-        }
-
-        .filter-category-item:last-child {
-            border-radius: 0 0 8px 8px;
-        }
-
-        .filter-sub-dropdown {
-            position: absolute;
-            top: 0;
-            right: 100%;
-            margin-right: 4px;
-            background: white;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            min-width: 200px;
-            max-width: 300px;
-            max-height: 300px;
-            overflow-y: auto;
-            z-index: 101;
-            display: none;
-        }
-
-        .date-range-filter {
-            padding: 16px;
-            min-width: 280px;
-        }
-
-        .date-input-group {
-            margin-bottom: 12px;
-        }
-
-        .date-input-label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 4px;
-        }
-
-        .date-input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .date-input:focus {
-            outline: none;
-            border-color: #47B9AE;
-            box-shadow: 0 0 0 3px rgba(71, 185, 174, 0.1);
-        }
-
-        .date-filter-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .date-filter-btn {
-            flex: 1;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-        }
-
-        .date-filter-btn-apply {
-            background: #0C4777;
-            color: white;
-        }
-
-        .date-filter-btn-apply:hover {
-            background: #084E8F;
-        }
-
-        .date-filter-btn-clear {
-            background: #EF4444;
-            color: white;
-        }
-
-        .date-filter-btn-clear:hover {
-            background: #DC2626;
-        }
-
-        .filter-sub-dropdown.show {
-            display: block;
-        }
-
-        .filter-dropdown-item {
-            padding: 10px 16px;
-            cursor: pointer;
-            transition: background 0.15s;
-            font-size: 14px;
-        }
-
-        .filter-dropdown-item:hover {
-            background: #f3f4f6;
-        }
-
-        .filter-dropdown-item.active {
-            background: #DBEAFE;
-            color: #1E40AF;
-            font-weight: 600;
-        }
-
-        .karyawan-item {
-            padding: 10px 16px;
-            cursor: pointer;
-            transition: background 0.15s;
-            border-bottom: 1px solid #f3f4f6;
-        }
-
-        .karyawan-item:last-of-type {
-            border-bottom: none;
-        }
-
-        .karyawan-item:hover {
-            background: #f3f4f6;
-        }
-
-        .karyawan-item.active {
-            background: #DBEAFE;
-        }
-
-        .karyawan-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: #111827;
-            margin-bottom: 2px;
-        }
-
-        .karyawan-detail {
-            font-size: 12px;
-            color: #6B7280;
-        }
-
-        .filter-clear {
-            padding: 10px 16px;
-            border-top: 1px solid #e5e7eb;
-            cursor: pointer;
-            color: #EF4444;
-            font-weight: 600;
-            font-size: 14px;
-            text-align: center;
-        }
-
-        .filter-clear:hover {
-            background: #FEE2E2;
-        }
-
-        .active-filter-badge {
-            background: #0C4777;
-            color: white;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-left: 4px;
-        }
-
-        .dataTables_wrapper .dt-layout-row:first-child {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            gap: 24px !important;
-            margin-bottom: 16px !important;
-        }
-
-        .dataTables_wrapper .dt-layout-start {
-            flex: 0 0 auto !important;
-        }
-
-        .dataTables_wrapper .dt-layout-end {
-            display: flex !important;
-            align-items: center !important;
-            gap: 50px !important;
-            flex: 0 0 auto !important;
-        }
-
-        .dataTables_wrapper .dt-search {
-            display: flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-            flex-wrap: nowrap !important;
-        }
-
-        .dataTables_wrapper .dataTables_filter label,
-        .dataTables_wrapper .dt-search label {
-            margin: 0 !important;
-            flex-shrink: 0 !important;
-        }
-
-        .dataTables_wrapper .dt-search input.dt-input {
-            flex-shrink: 0 !important;
-        }
-
-        .filter-container {
-            flex: 0 0 auto !important;
-            flex-shrink: 0 !important;
-            position: relative !important;
-        }
-
         @media (max-width: 768px) {
-            .dataTables_wrapper .dt-layout-row:first-child,
-            div.dt-container div.dt-layout-row:first-child {
-                display: grid !important;
-                grid-template-columns: auto auto !important;
-                grid-template-rows: auto auto !important;
-                gap: 12px !important;
-                margin-bottom: 16px !important;
-                flex-direction: unset !important;
-                align-items: start !important;
-            }
-
-            .dataTables_wrapper .dt-layout-start,
-            div.dt-container div.dt-layout-start {
-                grid-column: 1 !important;
-                grid-row: 1 !important;
-                justify-self: start !important;
-                align-self: start !important;
-                margin-right: 0 !important;
-            }
-
-            .dataTables_wrapper .dt-layout-end,
-            div.dt-container div.dt-layout-end {
-                display: contents !important;
-            }
-
-            .dataTables_wrapper .filter-container,
-            div.dt-container .filter-container {
-                grid-column: 2 !important;
-                grid-row: 1 !important;
-                justify-self: end !important;
-                display: block !important;
-                text-align: right !important;
-            }
-
-            .dataTables_wrapper .dt-search,
-            div.dt-container div.dt-search {
-                grid-column: 1 / -1 !important;
-                grid-row: 2 !important;
-                width: 100% !important;
-                display: flex !important;
-                margin-top: 8px !important;
-            }
-
-            .dataTables_wrapper .dt-search label,
-            div.dt-container div.dt-search label {
-                width: 100% !important;
-                display: flex !important;
-                gap: 8px !important;
-                align-items: center !important;
-                font-size: 14px !important;
-            }
-
-            .dataTables_wrapper .dt-search input.dt-input,
-            div.dt-container div.dt-search input.dt-input {
-                flex: 1 !important;
-                min-width: 85% !important;
-                width: 100% !important;
-                max-width: 100% !important;
-            }
-
-            .filter-container {
-                display: grid !important;
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 8px !important;
-            }
-
             .main-content {
                 padding-top: 120px;
-            }
-
-            .stats-card {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.75rem;
-            }
-
-            .stats-card > div:first-child {
-                width: 100%;
-            }
-
-            .stats-card .text-3xl {
-                font-size: 1.875rem;
-            }
-
-            .stats-card .text-sm {
-                font-size: 0.75rem;
             }
 
             .header-container {
@@ -602,65 +94,12 @@
                 flex: 1 1 calc(50% - 0.375rem);
                 justify-content: center;
             }
-
-            table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before,
-            table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control:before {
-                margin-right: 0.5em;
-            }
-
-            table.dataTable > tbody > tr.child {
-                padding: 0.5em 1em;
-            }
-
-            table.dataTable > tbody > tr.child ul.dtr-details {
-                display: block;
-                list-style-type: none;
-                margin: 0;
-                padding: 0;
-                width: 100%;
-            }
-
-            table.dataTable > tbody > tr.child ul.dtr-details > li {
-                border-bottom: 1px solid #efefef;
-                padding: 0.75em 0;
-                display: flex;
-                gap: 1rem;
-                align-items: flex-start;
-            }
-
-            table.dataTable > tbody > tr.child span.dtr-title {
-                display: inline-block;
-                min-width: 130px;
-                max-width: 130px;
-                flex-shrink: 0;
-                font-weight: bold;
-                padding-top: 2px;
-            }
-
-            table.dataTable > tbody > tr.child span.dtr-data {
-                flex: 1;
-                word-break: break-word;
-            }
         }
     </style>
 @endpush
 
 @section('sidebar')
-    <a href="{{ route('resepsionis.dashboard') }}"
-        class="sidebar-item {{ request()->routeIs('resepsionis.dashboard') ? 'active' : '' }}">
-        @svg('fluentui-home-24', 'w-8 h-8')
-        <span>Beranda</span>
-    </a>
-    <a href="{{ route('resepsionis.riwayat') }}"
-        class="sidebar-item {{ request()->routeIs('resepsionis.riwayat') ? 'active' : '' }}">
-        @svg('gmdi-history', 'w-8 h-8')
-        <span>Riwayat</span>
-    </a>
-    <a href="{{ route('resepsionis.karyawan') }}"
-        class="sidebar-item {{ request()->routeIs('resepsionis.karyawan') ? 'active' : '' }}">
-        @svg('gmdi-people-r', 'w-8 h-8')
-        <span>Daftar Karyawan</span>
-    </a>
+    @include('partials.resepsionis-sidebar')
 @endsection
 
 @section('content')
@@ -669,58 +108,31 @@
             <div class="flex items-center justify-between mb-6 header-container">
                 <h2 class="text-2xl font-bold text-[#084E8F]">Riwayat Kunjungan</h2>
                 <div class="flex items-center gap-2 header-buttons-container">
-                    <button onclick="exportToExcel()" class="btn-export flex items-center gap-2">
-                        @svg('heroicon-o-arrow-down-tray', 'w-5 h-5')
+                    <x-button variant="export" onclick="exportToExcel()">
                         Export to Excel
-                    </button>
-                    <button onclick="exportToPDF()" class="btn-export-pdf flex items-center gap-2">
-                        @svg('heroicon-o-document-text', 'w-5 h-5')
+                    </x-button>
+                    <x-button variant="export-pdf" onclick="exportToPDF()">
                         Export to PDF
-                    </button>
+                    </x-button>
                 </div>
             </div>
 
             <!-- Stats Cards -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                <div class="stats-card" data-filter="all" onclick="filterByStatus('all')">
-                    <div>
-                        <p class="text-gray-600 text-sm mb-1">Total Kunjungan</p>
-                        <p class="text-3xl font-bold text-[#084E8F]">{{ $allTimeStats['total'] }}</p>
-                    </div>
-                    <div class="stats-icon" style="background: #E5E7EB;">
-                        @svg('akar-people-group', 'w-6 h-6 text-gray-600')
-                    </div>
-                </div>
+                <x-stats-card title="Total Kunjungan" :value="$allTimeStats['total']" icon="akar-people-group"
+                    iconColor="text-gray-600" valueColor="text-[#084E8F]" bgColor="#E5E7EB" filter="all"
+                    onclick="filterByStatus('all')" />
 
-                <div class="stats-card" data-filter="pending" onclick="filterByStatus('pending')">
-                    <div>
-                        <p class="text-gray-600 text-sm mb-1">Pending</p>
-                        <p class="text-3xl font-bold text-yellow-600">{{ $allTimeStats['pending'] }}</p>
-                    </div>
-                    <div class="stats-icon" style="background: #FEF3C7;">
-                        @svg('far-clock', 'w-6 h-6 text-yellow-600')
-                    </div>
-                </div>
+                <x-stats-card title="Pending" :value="$allTimeStats['pending']" icon="far-clock" iconColor="text-yellow-600"
+                    valueColor="text-yellow-600" bgColor="#FEF3C7" filter="pending" onclick="filterByStatus('pending')" />
 
-                <div class="stats-card" data-filter="done" onclick="filterByStatus('done')">
-                    <div>
-                        <p class="text-gray-600 text-sm mb-1">Done</p>
-                        <p class="text-3xl font-bold text-green-600">{{ $allTimeStats['done'] }}</p>
-                    </div>
-                    <div class="stats-icon" style="background: #D1FAE5;">
-                        @svg('heroicon-o-check-circle', 'w-7 h-7 text-green-600')
-                    </div>
-                </div>
+                <x-stats-card title="Done" :value="$allTimeStats['done']" icon="heroicon-o-check-circle"
+                    iconColor="text-green-600" valueColor="text-green-600" bgColor="#D1FAE5" filter="done"
+                    onclick="filterByStatus('done')" />
 
-                <div class="stats-card" data-filter="canceled" onclick="filterByStatus('canceled')">
-                    <div>
-                        <p class="text-gray-600 text-sm mb-1">Canceled</p>
-                        <p class="text-3xl font-bold text-red-600">{{ $allTimeStats['canceled'] }}</p>
-                    </div>
-                    <div class="stats-icon" style="background: #FEE2E2;">
-                        @svg('heroicon-o-x-circle', 'w-7 h-7 text-red-600')
-                    </div>
-                </div>
+                <x-stats-card title="Canceled" :value="$allTimeStats['canceled']" icon="heroicon-o-x-circle"
+                    iconColor="text-red-600" valueColor="text-red-600" bgColor="#FEE2E2" filter="canceled"
+                    onclick="filterByStatus('canceled')" />
             </div>
 
             <!-- DataTable -->
@@ -745,146 +157,122 @@
         </div>
     </div>
 
-    <div id="detailModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold">Detail Kunjungan</h3>
-                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
-            </div>
-            <div id="detailContent"></div>
-        </div>
-    </div>
+    <x-modal name="detailModal" id="detailModal" :useAlpine="false" title="Detail Kunjungan" :showCloseButton="true">
+        <x-slot name="closeButton">
+            <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
+        </x-slot>
+        <div id="detailContent"></div>
+    </x-modal>
 
-    <div id="rejectModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3 class="text-xl font-bold mb-4">Tolak Kunjungan</h3>
-            <p class="text-gray-600 mb-4">Masukkan alasan penolakan:</p>
-            <textarea id="alasanBatal" class="w-full border border-gray-300 rounded-lg p-3 mb-4" rows="4"
-                placeholder="Alasan pembatalan..."></textarea>
-            <div class="flex gap-3 justify-end">
-                <button onclick="closeRejectModal()" class="px-4 py-2 bg-gray-300 rounded-lg">Batal</button>
-                <button id="rejectButton" onclick="confirmReject()"
-                    class="btn-danger flex items-center justify-center gap-2">
-                    <span id="rejectButtonText">Tolak Kunjungan</span>
-                    <svg id="rejectSpinner" class="hidden animate-spin h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                        </path>
-                    </svg>
-                </button>
-            </div>
+    <x-modal name="rejectModal" id="rejectModal" :useAlpine="false" title="Tolak Kunjungan" :showCloseButton="false">
+        <p class="text-gray-600 mb-4">Masukkan alasan penolakan:</p>
+        <textarea id="alasanBatal" class="w-full border border-gray-300 rounded-lg p-3 mb-4" rows="4"
+            placeholder="Alasan pembatalan..."></textarea>
+        <div class="flex gap-3 justify-end">
+            <x-secondary-button onclick="closeRejectModal()">Batal</x-secondary-button>
+            <x-button variant="danger" id="rejectButton" onclick="confirmReject()">
+                <span id="rejectButtonText">Tolak Kunjungan</span>
+                <svg id="rejectSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+                    fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+            </x-button>
         </div>
-    </div>
+    </x-modal>
 
     <!-- Accept Confirmation Modal -->
-    <div id="acceptModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-green-600">Konfirmasi Terima Kunjungan</h3>
-                <button onclick="closeAcceptModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
-            </div>
-            <div class="mb-6">
-                <p class="text-gray-700">Apakah Anda yakin ingin menerima kunjungan ini?</p>
-                <p class="text-sm text-green-600 mt-2">Email notifikasi akan dikirim ke karyawan tujuan untuk mengisi
-                    notulensi.</p>
-            </div>
-            <div class="flex gap-3">
-                <button onclick="closeAcceptModal()"
-                    class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">
-                    Batalkan
-                </button>
-                <button id="acceptButton" onclick="confirmAccept()"
-                    class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
-                    <span id="acceptButtonText">Terima</span>
-                    <svg id="acceptSpinner" class="hidden animate-spin h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                        </path>
-                    </svg>
-                </button>
-            </div>
+    <x-modal name="acceptModal" id="acceptModal" :useAlpine="false" :showCloseButton="true">
+        <x-slot name="closeButton">
+            <button type="button" class="modal-close" onclick="closeAcceptModal()">&times;</button>
+        </x-slot>
+        <x-slot name="header">
+            <h3 class="text-2xl font-bold text-green-600">Konfirmasi Terima Kunjungan</h3>
+        </x-slot>
+        <div class="mb-6">
+            <p class="text-gray-700">Apakah Anda yakin ingin menerima kunjungan ini?</p>
+            <p class="text-sm text-green-600 mt-2">Email notifikasi akan dikirim ke karyawan tujuan untuk mengisi
+                notulensi.</p>
         </div>
-    </div>
+        <div class="flex gap-3">
+            <x-secondary-button onclick="closeAcceptModal()" class="flex-1">
+                Batalkan
+            </x-secondary-button>
+            <x-button variant="success" id="acceptButton" onclick="confirmAccept()" class="flex-1">
+                <span id="acceptButtonText">Terima</span>
+                <svg id="acceptSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+                    fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+            </x-button>
+        </div>
+    </x-modal>
 
-    <div id="ktpModal" class="modal-overlay">
-        <div class="modal-content large">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-bold">Foto KTP</h3>
-                <button onclick="closeKtpModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
-            </div>
-            <div id="ktpContent" class="flex justify-center items-center" style="min-height: 400px;">
-                <!-- Content akan di-replace dengan createInlineSpinner saat viewKtp dipanggil -->
-            </div>
+    <x-modal name="ktpModal" id="ktpModal" :useAlpine="false" maxWidth="3xl" title="Foto KTP" :showCloseButton="true">
+        <x-slot name="closeButton">
+            <button type="button" class="modal-close" onclick="closeKtpModal()">&times;</button>
+        </x-slot>
+        <div id="ktpContent" class="flex justify-center items-center" style="min-height: 400px;">
+            <!-- Content akan di-replace dengan createInlineSpinner saat viewKtp dipanggil -->
         </div>
-    </div>
+    </x-modal>
 
     <!-- Karyawan List Modal -->
-    <div id="karyawanListModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold">Daftar Karyawan Tertuju</h3>
-                <button onclick="closeKaryawanListModal()"
-                    class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
-            </div>
-            <div id="karyawanListContent"></div>
-        </div>
-    </div>
+    <x-modal name="karyawanListModal" id="karyawanListModal" :useAlpine="false" title="Daftar Karyawan Tertuju"
+        :showCloseButton="true">
+        <x-slot name="closeButton">
+            <button type="button" class="modal-close" onclick="closeKaryawanListModal()">&times;</button>
+        </x-slot>
+        <div id="karyawanListContent"></div>
+    </x-modal>
 
     <!-- Success Modal -->
-    <div id="successModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-green-600">Sukses!</h3>
-                <button onclick="closeSuccessModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
-            </div>
-            <div id="successContent" class="mb-6">
-                <div class="flex items-center gap-3">
-                    @svg('heroicon-o-check-circle', 'w-12 h-12 text-green-500')
-                    <p class="text-gray-700" id="successMessage"></p>
-                </div>
-            </div>
-            <div class="flex justify-end">
-                <button onclick="closeSuccessModal()"
-                    class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition">
-                    Tutup
-                </button>
+    <x-modal name="successModal" id="successModal" :useAlpine="false" :showCloseButton="true">
+        <x-slot name="closeButton">
+            <button type="button" class="modal-close" onclick="closeSuccessModal()">&times;</button>
+        </x-slot>
+        <x-slot name="header">
+            <h3 class="text-2xl font-bold text-green-600">Sukses!</h3>
+        </x-slot>
+        <div id="successContent" class="mb-6">
+            <div class="flex items-center gap-3">
+                @svg('heroicon-o-check-circle', 'w-12 h-12 text-green-500')
+                <p class="text-gray-700" id="successMessage"></p>
             </div>
         </div>
-    </div>
+        <div class="flex justify-end">
+            <x-button variant="success" onclick="closeSuccessModal()">
+                Tutup
+            </x-button>
+        </div>
+    </x-modal>
 
     <!-- Error Modal -->
-    <div id="errorModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-red-600">Terjadi Kesalahan</h3>
-                <button onclick="closeErrorModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
-            </div>
-            <div id="errorContent" class="mb-6">
-                <div class="flex items-center gap-3">
-                    @svg('heroicon-o-exclamation-triangle', 'w-12 h-12 text-red-500')
-                    <p class="text-gray-700" id="errorMessage"></p>
-                </div>
-            </div>
-            <div class="flex justify-end">
-                <button onclick="closeErrorModal()"
-                    class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition">
-                    Tutup
-                </button>
+    <x-modal name="errorModal" id="errorModal" :useAlpine="false" :showCloseButton="true">
+        <x-slot name="closeButton">
+            <button type="button" class="modal-close" onclick="closeErrorModal()">&times;</button>
+        </x-slot>
+        <x-slot name="header">
+            <h3 class="text-2xl font-bold text-red-600">Terjadi Kesalahan</h3>
+        </x-slot>
+        <div id="errorContent" class="mb-6">
+            <div class="flex items-center gap-3">
+                @svg('heroicon-o-exclamation-triangle', 'w-12 h-12 text-red-500')
+                <p class="text-gray-700" id="errorMessage"></p>
             </div>
         </div>
-    </div>
+        <div class="flex justify-end">
+            <x-button variant="danger" onclick="closeErrorModal()">
+                Tutup
+            </x-button>
+        </div>
+    </x-modal>
 
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="modal-overlay" style="display: none;">
-        <div class="flex flex-col items-center justify-center">
-            <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-white mb-4"></div>
-            <p class="text-white text-lg font-semibold">Memuat Notulensi...</p>
-        </div>
-    </div>
 @endsection
 
 @push('scripts')
@@ -1335,27 +723,21 @@
 
                             // Jika lebih dari 3, tampilkan button
                             return `<button onclick="showKaryawanList(${JSON.stringify(data).replace(/"/g, '&quot;')})" class="text-blue-600 hover:underline font-semibold flex items-center gap-1">
-                                                Lihat Detail (${data.length} Karyawan)
-                                            </button>`;
+                                                                                                                Lihat Detail (${data.length} Karyawan)
+                                                                                                            </button>`;
                         }
                     },
                     {
-                        data: 'status',
+                        data: 'status_badge',
                         responsivePriority: 8,
                         render: function (data, type, row) {
 
                             if (type === 'filter' || type === 'sort') {
-                                return data;
+                                return row.status;
                             }
 
-                            const badges = {
-                                pending: '<span class="badge badge-pending">Pending</span>',
-                                accepted: '<span class="badge badge-accepted">Accepted</span>',
-                                approved: '<span class="badge badge-accepted">Accepted</span>',
-                                done: '<span class="badge badge-done">Done</span>',
-                                canceled: '<span class="badge badge-canceled">Canceled</span>'
-                            };
-                            return badges[data] || data;
+                            // Server-rendered badge HTML
+                            return data;
                         }
                     },
                     {
@@ -1418,46 +800,40 @@
             const filterContainer = $('<div class="filter-container"></div>');
 
             const filterBtn = $(`
-                        <div class="filter-btn" id="filterByBtn">
-                            <span class="inline-flex items-center gap-1">${filterIcon} Filter By</span>
-                            <span id="filterBadge"></span>
-                            <span style="font-size: 10px;">▼</span>
-                        </div>
-                    `);
+                    <div class="filter-btn" id="filterByBtn">
+                        <span class="inline-flex items-center gap-1">${filterIcon} Filter By</span>
+                        <span id="filterBadge"></span>
+                        <span style="font-size: 10px;">▼</span>
+                    </div>
+                `);
 
             const mainDropdown = $(`
-                        <div class="filter-main-dropdown" id="mainFilterDropdown">
-                            <div class="filter-category-item" data-category="tanggal">
-                                <span>Tanggal</span>
-                                <span style="font-size: 10px;">▶</span>
-                            </div>
-                            <div class="filter-category-item" data-category="instansi">
-                                <span>Instansi</span>
-                                <span style="font-size: 10px;">▶</span>
-                            </div>
-                            <div class="filter-category-item" data-category="karyawan">
-                                <span>Karyawan</span>
-                                <span style="font-size: 10px;">▶</span>
-                            </div>
-                        </div>
-                    `);
+                <div class="filter-main-dropdown" id="mainFilterDropdown">
+                    <div class="filter-category-item" data-category="tanggal">
+                        <span>Tanggal</span>
+                        <span style="font-size: 10px;">▶</span>
+                    </div>
+                    <div class="filter-category-item" data-category="instansi">
+                        <span>Instansi</span>
+                        <span style="font-size: 10px;">▶</span>
+                    </div>
+                    <div class="filter-category-item" data-category="karyawan">
+                        <span>Karyawan</span>
+                        <span style="font-size: 10px;">▶</span>
+                    </div>
+                </div>
+            `);
 
             const dateSubDropdown = $(`
-                        <div class="filter-sub-dropdown date-range-filter" id="dateSubDropdown">
-                            <div class="date-input-group">
-                                <label class="date-input-label">Dari Tanggal:</label>
-                                <input type="date" id="dateFilterStart" class="date-input">
-                            </div>
-                            <div class="date-input-group">
-                                <label class="date-input-label">Sampai Tanggal:</label>
-                                <input type="date" id="dateFilterEnd" class="date-input">
-                            </div>
-                            <div class="date-filter-actions">
-                                <button class="date-filter-btn date-filter-btn-apply" onclick="applyDateFilter()">Terapkan</button>
-                                <button class="date-filter-btn date-filter-btn-clear" onclick="clearDateFilter()">Hapus</button>
-                            </div>
-                        </div>
-                    `);
+            <div class="filter-sub-dropdown" id="dateSubDropdown">
+                {!! view('components.date-range-filter', [
+        'startInputId' => 'dateFilterStart',
+        'endInputId' => 'dateFilterEnd',
+        'applyFunction' => 'applyDateFilter()',
+        'clearFunction' => 'clearDateFilter()'
+    ])->render() !!}
+                                                                                        </div>
+                                                                                    `);
             const instansiSubDropdown = $('<div class="filter-sub-dropdown" id="instansiSubDropdown"></div>');
             const karyawanSubDropdown = $('<div class="filter-sub-dropdown" id="karyawanSubDropdown"></div>');
 
@@ -1540,11 +916,11 @@
                     karyawan.forEach(kary => {
                         const uniqueKey = `${kary.nama}|${kary.departemen}|${kary.jabatan}`;
                         const item = $(`
-                                    <div class="karyawan-item" data-value="${uniqueKey}">
-                                        <div class="karyawan-name">${kary.nama}</div>
-                                        <div class="karyawan-detail">${kary.departemen} • ${kary.jabatan}</div>
-                                    </div>
-                                `);
+                                                                                                    <div class="karyawan-item" data-value="${uniqueKey}">
+                                                                                                        <div class="karyawan-name">${kary.nama}</div>
+                                                                                                        <div class="karyawan-detail">${kary.departemen} • ${kary.jabatan}</div>
+                                                                                                    </div>
+                                                                                                `);
                         item.on('click', function (e) {
                             e.stopPropagation();
                             applyKaryawanFilter(uniqueKey, kary.nama, kary.departemen, kary.jabatan);
@@ -1726,46 +1102,40 @@
                     let actions = '';
                     if (kunjungan.status === 'pending') {
                         actions = `
-                                                <div class="flex gap-3 mt-6">
-                                                    <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
-                                                    <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
-                                                </div>
-                                            `;
+                            <div class="flex gap-3 mt-6">
+                                <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
+                                <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
+                            </div>
+                        `;
                     }
 
                     let cancelReason = '';
                     if (kunjungan.status === 'canceled' && kunjungan.alasan_batal) {
                         cancelReason = `
-                                                <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                                    <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
-                                                    <p class="text-red-700">${kunjungan.alasan_batal}</p>
-                                                </div>
-                                            `;
+                                                                                                                <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                                                                                                    <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
+                                                                                                                    <p class="text-red-700">${kunjungan.alasan_batal}</p>
+                                                                                                                </div>
+                                                                                                            `;
                     }
 
-                    const statusBadges = {
-                        pending: '<span class="badge badge-pending">Pending</span>',
-                        accepted: '<span class="badge badge-accepted">Accepted</span>',
-                        approved: '<span class="badge badge-accepted">Accepted</span>',
-                        done: '<span class="badge badge-done">Done</span>',
-                        canceled: '<span class="badge badge-canceled">Canceled</span>'
-                    };
-                    const statusBadge = statusBadges[kunjungan.status] || kunjungan.status;
+                    // Gunakan status_badge dari server (sudah di-generate oleh BadgeHelper)
+                    const statusBadge = kunjungan.status_badge || kunjungan.status;
 
                     document.getElementById('detailContent').innerHTML = `
-                                            <div class="space-y-3">
-                                                <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
-                                                <div><strong>Jam:</strong> ${kunjungan.jam}</div>
-                                                <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
-                                                <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
-                                                <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
-                                                <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
-                                                <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
-                                                <div><strong>Status:</strong> ${statusBadge}</div>
-                                                ${cancelReason}
-                                                ${actions}
-                                            </div>
-                                        `;
+                                                                                                            <div class="space-y-3">
+                                                                                                                <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
+                                                                                                                <div><strong>Jam:</strong> ${kunjungan.jam}</div>
+                                                                                                                <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
+                                                                                                                <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
+                                                                                                                <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
+                                                                                                                <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
+                                                                                                                <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
+                                                                                                                <div><strong>Status:</strong> ${statusBadge}</div>
+                                                                                                                ${cancelReason}
+                                                                                                                ${actions}
+                                                                                                            </div>
+                                                                                                        `;
                 })
                 .catch(error => {
                     console.error('Error fetching detail:', error);
@@ -1873,12 +1243,12 @@
             }
 
             isLoadingNotulensi = true;
-            
+
             // Get button elements
             const button = document.getElementById('viewHasilBtn_' + kunjunganId);
             const buttonText = document.getElementById('viewHasilText_' + kunjunganId);
             const spinner = document.getElementById('viewHasilSpinner_' + kunjunganId);
-            
+
             // Show spinner
             if (button && buttonText && spinner) {
                 button.disabled = true;
@@ -1973,17 +1343,17 @@
 
             karyawanData.forEach((karyawan, index) => {
                 html += `
-                            <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                <div class="flex-shrink-0 w-8 h-8 bg-[#084E8F] text-white rounded-full flex items-center justify-center font-bold">
-                                    ${index + 1}
-                                </div>
-                                <div class="flex-1">
-                                    <p class="font-semibold text-gray-800">${karyawan.nama}</p>
-                                    <p class="text-sm text-gray-600">${karyawan.jabatan}</p>
-                                    <p class="text-sm text-gray-500">${karyawan.departemen}</p>
-                                </div>
+                        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <div class="flex-shrink-0 w-8 h-8 bg-[#084E8F] text-white rounded-full flex items-center justify-center font-bold">
+                                ${index + 1}
                             </div>
-                        `;
+                            <div class="flex-1">
+                                <p class="font-semibold text-gray-800">${karyawan.nama}</p>
+                                <p class="text-sm text-gray-600">${karyawan.jabatan}</p>
+                                <p class="text-sm text-gray-500">${karyawan.departemen}</p>
+                            </div>
+                        </div>
+                    `;
             });
 
             html += '</div>';
@@ -1999,17 +1369,6 @@
                 modal.classList.remove('show');
             }
         }
-
-        function toggleDropdown() {
-            document.getElementById('dropdown').classList.toggle('hidden');
-        }
-
-        document.addEventListener('click', function (e) {
-            if (!e.target.closest('button[onclick="toggleDropdown()"]')) {
-                document.getElementById('dropdown').classList.add('hidden');
-            }
-        });
-
 
         let navigationTimeout = null;
         document.querySelectorAll('.sidebar-item').forEach(link => {

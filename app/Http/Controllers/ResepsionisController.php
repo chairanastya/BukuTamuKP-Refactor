@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Mail\KunjunganNotification;
 use App\Mail\NotulensiRequest;
+use App\Helpers\BadgeHelper;
 use Cloudinary\Cloudinary;
 
 class ResepsionisController extends Controller
@@ -82,6 +83,7 @@ class ResepsionisController extends Controller
                 }),
                 'tujuan_kunjungan' => $kunjungan->tujuan_kunjungan ?? '-',
                 'status' => $kunjungan->status,
+                'status_badge' => BadgeHelper::getStatusBadge($kunjungan->status),
                 'alasan_batal' => $kunjungan->alasan_batal,
             ];
         });
@@ -124,6 +126,7 @@ class ResepsionisController extends Controller
                 }),
                 'tujuan_kunjungan' => $kunjungan->tujuan_kunjungan ?? '-',
                 'status' => $kunjungan->status,
+                'status_badge' => BadgeHelper::getStatusBadge($kunjungan->status), // Helper yang mereplikasi logic badge.blade.php tanpa rendering
                 'alasan_batal' => $kunjungan->alasan_batal,
             ];
         });
@@ -215,7 +218,9 @@ class ResepsionisController extends Controller
                     'departemen' => $karyawan->departemen ?? '-',
                     'jabatan' => $karyawan->jabatan ?? '-',
                     'status' => $karyawan->status,
+                    'status_badge' => BadgeHelper::getStatusBadge($karyawan->status),
                     'is_resepsionis' => strtolower($karyawan->jabatan ?? '') === 'resepsionis',
+                    'role_badge' => BadgeHelper::getStatusBadge(strtolower($karyawan->jabatan ?? '') === 'resepsionis' ? 'resepsionis' : 'karyawan'),
                     'created_at' => $karyawan->created_at?->format('Y-m-d H:i:s'),
                 ];
             });

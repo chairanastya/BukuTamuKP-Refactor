@@ -15,55 +15,10 @@
         rel="stylesheet">
 
     <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/css/datatables-custom.css', 'resources/js/app.js'])
 
     <!-- Sidebar Styles -->
     <style>
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 100px;
-            background: linear-gradient(#46B8AD 20%, #0C4777 100%);
-            z-index: 30;
-            display: flex;
-            flex-direction: column;
-            padding-top: 116px;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .sidebar-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1.25rem 1rem;
-            color: white;
-            text-decoration: none;
-            transition: background 0.2s;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            width: 100%;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-
-        .sidebar-item:hover,
-        .sidebar-item.active {
-            background: #F7B218;
-        }
-
-        .sidebar-item svg {
-            width: 32px;
-            height: 32px;
-            margin-bottom: 0.5rem;
-        }
-
-        .sidebar-item span {
-            text-align: center;
-        }
-
         .main-content {
             margin-left: 100px;
             padding-top: 80px;
@@ -86,28 +41,7 @@
             height: 28px;
         }
 
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 25;
-        }
-
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .sidebar-overlay.show {
-                display: block;
-            }
-
             .main-content {
                 margin-left: 0;
             }
@@ -115,11 +49,11 @@
             .menu-toggle {
                 display: block;
             }
-            
+
             header {
                 max-height: 120px;
             }
-            
+
             header h1 {
                 font-size: 1.5rem !important;
                 line-height: 1.2 !important;
@@ -143,19 +77,19 @@
 
                 <!-- Donuts -->
                 <div class="absolute w-44 h-44 rounded-full opacity-90" style="background: linear-gradient(-45deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%); 
-                                    -webkit-mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
-                                    mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
-                                    top: -45%; left: 1%;"></div>
-                
+                            -webkit-mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
+                            mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
+                            top: -45%; left: 1%;"></div>
+
                 <div class="absolute w-40 h-40 rounded-full opacity-90" style="background: linear-gradient(-45deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%); 
-                                    -webkit-mask: radial-gradient(transparent 0, transparent 40px, black 40px); 
-                                    mask: radial-gradient(transparent 0, transparent 40px, black 40px); 
-                                    bottom: 1%; right: 8%;"></div>
+                            -webkit-mask: radial-gradient(transparent 0, transparent 40px, black 40px); 
+                            mask: radial-gradient(transparent 0, transparent 40px, black 40px); 
+                            bottom: 1%; right: 8%;"></div>
 
                 <div class="absolute w-44 h-44 rounded-full opacity-100" style="background: linear-gradient(-45deg, rgba(247, 178, 24, 0.70) 0%, rgba(145, 104, 14, 0.70) 100%); 
-                                    -webkit-mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
-                                    mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
-                                    top: -25%; right: -2%;"></div>
+                            -webkit-mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
+                            mask: radial-gradient(transparent 0, transparent 70px, black 70px); 
+                            top: -25%; right: -2%;"></div>
 
                 <!-- Dots Pattern -->
                 <div class="absolute grid grid-cols-8 gap-4 opacity-20" style="top: 30%; right: 28vw;">
@@ -201,10 +135,10 @@
     @auth('resepsionis')
         <!-- Sidebar Overlay (for mobile) -->
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-        
-        <div class="sidebar" id="sidebar">
+
+        <x-sidebar>
             @yield('sidebar')
-        </div>
+        </x-sidebar>
     @endauth
 
     <!-- Page Content -->
@@ -233,10 +167,10 @@
             }
 
             // Close sidebar when clicking on a sidebar item on mobile
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 const sidebarItems = document.querySelectorAll('.sidebar-item');
                 sidebarItems.forEach(item => {
-                    item.addEventListener('click', function() {
+                    item.addEventListener('click', function () {
                         if (window.innerWidth <= 768) {
                             closeSidebar();
                         }
