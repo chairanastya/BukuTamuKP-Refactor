@@ -2,197 +2,19 @@
 @section('title', 'Buat Password Akun Baru - Buku Tamu Digital')
 @push('styles')
     <style>
-        body {
-            font-family: 'Open Sans', sans-serif;
-            background: #0C4777;
-            min-height: 100vh;
-            position: relative;
-            overflow-y: auto;
-        }
-
-        .bg-pattern {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: linear-gradient(#0C4777 17.8%, #47B9AE 100%);
-        }
-
-        .circle {
-            position: absolute;
-            border-radius: 50%;
-        }
-
-        .circle-1 {
-            width: 275px;
-            height: 275px;
-            background: linear-gradient(180deg, rgba(255, 227, 102, 0.00) 0%, rgba(255, 227, 102, 0.70) 100%);
-            -webkit-mask: conic-gradient(from 90deg, transparent 0deg 45deg, black 45deg 360deg);
-            mask: conic-gradient(from 90deg, transparent 0deg 45deg, black 45deg 360deg);
-            border-radius: 50%;
-            bottom: -40px;
-            left: -80px;
-        }
-
-        .circle-2 {
-            width: 450px;
-            height: 450px;
-            background: linear-gradient(180deg, rgba(247, 178, 24, 0.00) 0%, rgba(247, 178, 24, 0.70) 100%);
-            top: 2px;
-            right: 100px;
-        }
-        
-        .donut {
-            position: absolute;
-            border-radius: 50%;
-            -webkit-mask: radial-gradient(transparent 0, transparent 110px, black 110px);
-            mask: radial-gradient(transparent 0, transparent 110px, black 110px);
-        }
-
-        .donut-1 {
-            width: 300px;
-            height: 300px;
-            background: linear-gradient(-50deg, rgba(255, 227, 102, 0.70) 0%, rgba(95, 129, 161, 0.70) 52.4%, rgba(71, 185, 174, 0.70) 100%);
-            top: -5%;
-            left: 15%;
-        }
-
-        .donut-2 {
-            width: 275px;
-            height: 275px;
-            background: linear-gradient(75deg, rgba(247, 178, 24, 0.70) 0%, rgba(145, 104, 14, 0.70) 100%);
-            bottom: -15%;
-            right: -5%;
-        }
-
-        .donut-3 {
-            width: 300px;
-            height: 300px;
-            background: linear-gradient(-45deg, rgba(255, 227, 102, 0.38) 0%, rgba(95, 129, 161, 0.38) 52.4%, rgba(71, 185, 174, 0.38) 100%);
-            -webkit-mask: radial-gradient(transparent 0, transparent 60px, black 60px); 
-            mask: radial-gradient(transparent 0, transparent 60px, black 60px); 
-            bottom: 1%;
-            right: 15%;
-        }
-
-        .dots-pattern {
-            position: absolute;
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 40px;
-            opacity: 0.2;
-        }
-
-        .dots-pattern-top {
-            top: 20%;
-            left: 2.5%;
-        }
-
-        .dots-pattern-bottom {
-            bottom: 5%;
-            left: 15%;
-        }
-
-        .dot {
-            width: 10px;
-            height: 10px;
-            background: white;
-            border-radius: 50%;
-        }
-
-        .arrows {
-            position: absolute;
-            right: 5%;
-            top: 40%;
-            opacity: 0.15;
-        }
-
-        .arrow {
-            width: 0;
-            height: 0;
-            border-top: 30px solid transparent;
-            border-bottom: 30px solid transparent;
-            border-right: 40px solid white;
-            margin: 10px;
-        }
-
-        .input-wrapper-setup {
-            border: 2px solid #084E8F;
-            border-radius: 8px;
-            padding: 12px 16px;
-            transition: all 0.2s ease;
-            background-color: #F9FCFF;
+        .input-wrapper {
             display: flex;
             align-items: center;
+            gap: 12px;
         }
 
-        .input-wrapper-setup.filled {
-            background-color: white;
-        }
-
-        .input-wrapper-setup.readonly {
-            border-color: #d1d5db;
-            background-color: #f3f4f6;
-            cursor: not-allowed;
-        }
-
-        .input-wrapper-setup:focus-within {
-            box-shadow: 0 0 0 3px rgba(8, 78, 143, 0.1);
-        }
-
-        .input-wrapper-setup.readonly:focus-within {
-            box-shadow: none;
-        }
-
-        .input-wrapper-setup.error {
-            border-color: #dc2626 !important;
-            background-color: #fef2f2;
-        }
-
-        .input-wrapper-setup input {
-            background-color: transparent;
-            flex: 1;
-        }
-
-        .error-message-setup {
-            color: #dc2626;
-            font-size: 14px;
-            margin-top: 8px;
-            display: none;
-        }
-
-        .error-message-setup.show {
-            display: block;
+        .input-wrapper>.flex-shrink-0 {
+            margin-left: 10px;
         }
     </style>
 @endpush
 @section('content')
-    <div class="bg-pattern">
-        <div class="donut donut-3"></div>
-        <div class="circle circle-1"></div>
-        <div class="circle circle-2"></div>
-        <div class="donut donut-1"></div>
-        <div class="donut donut-2"></div>
-
-        <div class="dots-pattern dots-pattern-top">
-            @for ($i = 0; $i < 40; $i++)
-                <div class="dot"></div>
-            @endfor
-        </div>
-
-        <div class="dots-pattern dots-pattern-bottom">
-            @for ($i = 0; $i < 16; $i++)
-                <div class="dot"></div>
-            @endfor
-        </div>
-
-        <div class="arrows inline-flex">
-            <div class="arrow"></div>
-            <div class="arrow"></div>
-            <div class="arrow"></div>
-            <div class="arrow"></div>
-        </div>
-    </div>
+    <x-auth-background />
 
     <div class="relative flex items-center justify-center min-h-screen px-4 py-8">
         <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md my-8">
@@ -219,7 +41,8 @@
             <div class="mb-6 bg-blue-50 border-2 border-blue-300 text-blue-800 px-4 py-3 rounded-lg">
                 <p class="text-sm flex items-start">
                     @svg('heroicon-o-information-circle', 'w-4 h-4 mr-2 flex-shrink-0 mt-0.5')
-                    <span>Buat password yang kuat untuk melindungi akun Anda. Gunakan kombinasi huruf besar, huruf kecil, angka, dan simbol.</span>
+                    <span>Buat password yang kuat untuk melindungi akun Anda. Gunakan kombinasi huruf besar, huruf kecil,
+                        angka, dan simbol.</span>
                 </p>
             </div>
 
@@ -227,39 +50,31 @@
                 @csrf
 
                 <div class="mb-4">
-                    <label for="email" class="block text-gray-700 font-semibold mb-2">Email</label>
-                    <div class="input-wrapper-setup readonly">
-                        @svg('heroicon-s-envelope', 'w-6 h-6 text-gray-500 mr-3')
-                        <input type="email" id="email" value="{{ $email }}" 
-                            class="flex-1 border-0 outline-none text-gray-600 cursor-not-allowed" readonly>
-                    </div>
+                    <x-input-wrapper id="email" name="email" label="Email" type="email" :value="$email" :readonly="true"
+                        class="text-gray-600 cursor-not-allowed">
+                        <x-slot:prepend>
+                            @svg('heroicon-s-envelope', 'w-6 h-6 text-gray-500')
+                        </x-slot:prepend>
+                    </x-input-wrapper>
                 </div>
 
                 <div class="mb-4">
-                    <label for="password" class="block text-gray-700 font-semibold mb-2">Password Baru</label>
-                    <div class="input-wrapper-setup" id="password-wrapper">
-                        @svg('fas-key', 'w-6 h-6 text-[#084E8F] mr-3')
-                        <input type="password" name="password" id="password" placeholder="Masukkan password baru"
-                            class="flex-1 border-0 outline-none text-gray-700" required>
-                    </div>
-                    <div id="password_error" class="error-message-setup">
-                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                        Password minimal 8 karakter
-                    </div>
+                    <x-input-wrapper id="password" name="password" label="Password Baru" type="password"
+                        placeholder="Masukkan password baru" errorMessage="Password minimal 8 karakter" :required="true">
+                        <x-slot:prepend>
+                            @svg('fas-key', 'w-6 h-6 text-[#084E8F]')
+                        </x-slot:prepend>
+                    </x-input-wrapper>
                 </div>
 
                 <div class="mb-4">
-                    <label for="password_confirmation" class="block text-gray-700 font-semibold mb-2">Konfirmasi Password</label>
-                    <div class="input-wrapper-setup" id="password-confirmation-wrapper">
-                        @svg('fas-key', 'w-6 h-6 text-[#084E8F] mr-3')
-                        <input type="password" name="password_confirmation" id="password_confirmation" 
-                            placeholder="Masukkan ulang password"
-                            class="flex-1 border-0 outline-none text-gray-700" required>
-                    </div>
-                    <div id="password_confirmation_error" class="error-message-setup">
-                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                        Konfirmasi password tidak cocok
-                    </div>
+                    <x-input-wrapper id="password_confirmation" name="password_confirmation" label="Konfirmasi Password"
+                        type="password" placeholder="Masukkan ulang password" errorMessage="Konfirmasi password tidak cocok"
+                        :required="true">
+                        <x-slot:prepend>
+                            @svg('fas-key', 'w-6 h-6 text-[#084E8F]')
+                        </x-slot:prepend>
+                    </x-input-wrapper>
                 </div>
 
                 <div class="mb-6 flex items-center justify-end">
@@ -270,10 +85,14 @@
                     </label>
                 </div>
 
-                <button type="submit"
-                    class="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
+                <x-button 
+                    type="submit" 
+                    variant="primary" 
+                    class="w-full py-3 shadow-lg hover:shadow-xl"
+                    icon=""
+                >
                     Buat Akun
-                </button>
+                </x-button>
             </form>
         </div>
     </div>
@@ -289,7 +108,7 @@
             });
 
             function updateInputBackground(input) {
-                const wrapper = input.closest('.input-wrapper-setup');
+                const wrapper = input.closest('.input-wrapper');
                 if (wrapper && !input.readOnly) {
                     wrapper.classList.toggle('filled', input.value.trim() !== '');
                 }
@@ -299,17 +118,17 @@
                 const form = document.querySelector('form');
                 const passwordInput = document.getElementById('password');
                 const confirmInput = document.getElementById('password_confirmation');
-                const passwordWrapper = document.getElementById('password-wrapper');
-                const confirmWrapper = document.getElementById('password-confirmation-wrapper');
+                const passwordWrapper = passwordInput?.closest('.input-wrapper');
+                const confirmWrapper = confirmInput?.closest('.input-wrapper');
                 const passwordError = document.getElementById('password_error');
                 const confirmError = document.getElementById('password_confirmation_error');
 
-                passwordInput.addEventListener('input', function() {
+                passwordInput.addEventListener('input', function () {
                     updateInputBackground(this);
                     updatePasswordStrength();
                 });
 
-                confirmInput.addEventListener('input', function() {
+                confirmInput.addEventListener('input', function () {
                     updateInputBackground(this);
                 });
 
