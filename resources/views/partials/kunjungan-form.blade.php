@@ -7,97 +7,56 @@
 
             <div class="form-layout">
                 <div class="form-left">
-                    <div>
-                        <label for="nama_lengkap" class="block text-[#084E8F] font-bold mb-2">
-                            Nama Lengkap
-                        </label>
-                    <div class="input-wrapper {{ $errors->has('nama_lengkap') ? 'border-red-500 bg-red-50' : '' }}">
-                        <input type="text" id="nama_lengkap" name="nama_lengkap"
-                            placeholder="Tuliskan nama lengkap anda" 
-                            value="{{ old('nama_lengkap') }}"
-                            required>
-                    </div>
-                    @error('nama_lengkap')
-                        <div class="error-message show">
-                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                            {{ $message }}
-                        </div>
-                    @else
-                        <div id="nama_error" class="error-message">
-                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                            Nama lengkap wajib diisi
-                        </div>
-                    @enderror
-                </div>
+                <x-input-wrapper 
+                    id="nama_lengkap"
+                    name="nama_lengkap"
+                    label="Nama Lengkap"
+                    type="text"
+                    placeholder="Tuliskan nama lengkap anda"
+                    :value="old('nama_lengkap')"
+                    :error="$errors->first('nama_lengkap')"
+                    errorMessage="Nama lengkap wajib diisi"
+                    :required="true"
+                />
+                <x-input-wrapper 
+                    id="email"
+                    name="email"
+                    label="Alamat Email"
+                    type="email"
+                    placeholder="Tuliskan alamat email anda"
+                    :value="old('email')"
+                    :error="$errors->first('email')"
+                    errorMessage="Email tidak valid"
+                    :required="true"
+                    class="mt-4"
+                />
 
-                <div>
-                    <label for="email" class="block text-[#084E8F] font-bold mb-2 mt-4">
-                        Alamat Email
-                    </label>
-                    <div class="input-wrapper {{ $errors->has('email') ? 'border-red-500 bg-red-50' : '' }}">
-                        <input type="email" id="email" name="email" 
-                            placeholder="Tuliskan alamat email anda" 
-                            value="{{ old('email') }}"
-                            required>
-                    </div>
-                    @error('email')
-                        <div class="error-message show">
-                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                            {{ $message }}
-                        </div>
-                    @else
-                        <div id="email_error" class="error-message">
-                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                            Email tidak valid
-                        </div>
-                    @enderror
-                </div>
+                <x-input-wrapper 
+                    id="instansi"
+                    name="instansi"
+                    label="Instansi Asal"
+                    type="text"
+                    placeholder="Tuliskan instansi asal anda"
+                    :value="old('instansi')"
+                    :error="$errors->first('instansi')"
+                    errorMessage="Instansi asal wajib diisi"
+                    :required="true"
+                    class="mt-4"
+                />
 
-                <div>
-                    <label for="instansi" class="block text-[#084E8F] font-bold mb-2 mt-4">
-                        Instansi Asal
-                    </label>
-                    <div class="input-wrapper {{ $errors->has('instansi') ? 'border-red-500 bg-red-50' : '' }}">
-                        <input type="text" id="instansi" name="instansi" 
-                            placeholder="Tuliskan instansi asal anda"
-                            value="{{ old('instansi') }}"
-                            required>
-                    </div>
-                    @error('instansi')
-                        <div class="error-message show">
-                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                            {{ $message }}
-                        </div>
-                    @else
-                        <div id="instansi_error" class="error-message">
-                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                            Instansi asal wajib diisi
-                        </div>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="tujuan" class="block text-[#084E8F] font-bold mb-2 mt-4">
-                        Tujuan Kedatangan
-                    </label>
-                    <div class="input-wrapper {{ $errors->has('tujuan') ? 'border-red-500 bg-red-50' : '' }}">
-                        <textarea id="tujuan" name="tujuan" rows="4" 
-                            placeholder="Jelaskan tujuan kedatangan anda"
-                            class="resize-none" 
-                            required>{{ old('tujuan') }}</textarea>
-                    </div>
-                    @error('tujuan')
-                        <div class="error-message show">
-                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                            {{ $message }}
-                        </div>
-                    @else
-                        <div id="tujuan_error" class="error-message">
-                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                            Tujuan kedatangan wajib diisi
-                        </div>
-                    @enderror
-                </div>
+                <x-input-wrapper 
+                    id="tujuan"
+                    name="tujuan"
+                    label="Tujuan Kedatangan"
+                    type="textarea"
+                    placeholder="Jelaskan tujuan kedatangan anda"
+                    :value="old('tujuan')"
+                    :error="$errors->first('tujuan')"
+                    errorMessage="Tujuan kedatangan wajib diisi"
+                    :required="true"
+                    :rows="4"
+                    class="mt-4"
+                />
 
                 <div>
                     <label class="block text-[#084E8F] font-bold mb-2 mt-4">
@@ -136,16 +95,19 @@
                     <div id="image_preview" class="hidden">
                         <img id="preview_img" src="" alt="Preview KTP"
                             class="w-full rounded-lg border-2 border-[#084E8F]">
-                        <button type="button" onclick="openWebcamModal()"
-                            class="mt-3 w-full bg-[#47B9AE] hover:bg-[#F7B218] text-white font-bold py-2 px-4 rounded-lg transition">
+                        <x-button 
+                            onclick="openWebcamModal()"
+                            variant="primary"
+                            class="mt-3 w-full !bg-[#47B9AE] hover:!bg-[#F7B218]"
+                            icon="">
                             Foto Ulang
-                        </button>
+                        </x-button>
                     </div>
 
                     <input type="hidden" id="foto_ktp_base64" name="foto_ktp" value="{{ old('foto_ktp') }}">
                     
                     @error('foto_ktp')
-                        <div class="error-message show">
+                        <div id="foto_error" class="error-message show">
                             @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
                             {{ $message }}
                         </div>
@@ -171,11 +133,13 @@
                 </div>
 
                 <div class="mt-6">
-                    <button type="submit"
-                        class="w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
-                        @svg('phosphor-paper-plane-tilt-fill', 'w-5 h-5')
+                    <x-button 
+                        type="submit" 
+                        variant="primary" 
+                        icon="phosphor-paper-plane-tilt-fill"
+                        class="w-full py-3 px-6 shadow-lg hover:shadow-xl">
                         Kirim Data
-                    </button>
+                    </x-button>
                 </div>
             </div>
             </div>
@@ -183,55 +147,49 @@
     </div>
 </div>
 
-<div id="webcam_modal" class="modal-overlay">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title">Foto Identitas (KTP)</h2>
-            <button type="button" class="modal-close" onclick="closeWebcamModal()">&times;</button>
-        </div>
+<x-modal name="webcam_modal" id="webcam_modal" title="Foto Identitas (KTP)" :useAlpine="false">
+    <div id="video_container">
+        <div class="video-wrapper">
+            <video id="webcam_video" autoplay playsinline class="w-full rounded-lg"
+                style="background: #f3f4f6;"></video>
 
-        <div id="video_container">
-            <div class="video-wrapper">
-                <video id="webcam_video" autoplay playsinline class="w-full rounded-lg"
-                    style="background: #f3f4f6;"></video>
-
-                <div class="ktp-overlay">
-                    <div class="ktp-frame">
-                        <div class="ktp-guide-text">Posisikan KTP di dalam frame</div>
-                    </div>
+            <div class="ktp-overlay">
+                <div class="ktp-frame">
+                    <div class="ktp-guide-text">Posisikan KTP di dalam frame</div>
                 </div>
             </div>
-
-            <div class="flex gap-3 mt-4">
-                <button type="button" onclick="closeWebcamModal()" style="background-color: #D9D9D9; color: #000000;"
-                    class="flex-1 font-semibold py-3 px-4 rounded-lg transition hover:opacity-90 flex items-center justify-center gap-2">
-                    @svg('heroicon-o-x-mark', 'w-5 h-5')
-                    Batalkan
-                </button>
-                <button type="button" onclick="capturePhoto()" style="background-color: #084E8F; color: white;"
-                    class="flex-1 font-semibold py-3 px-4 rounded-lg transition hover:bg-[#F7B218] flex items-center justify-center gap-2">
-                    @svg('zondicon-camera', 'w-5 h-5')
-                    Ambil Foto
-                </button>
-            </div>
         </div>
 
-        <canvas id="capture_canvas" class="hidden"></canvas>
-    </div>
-</div>
-
-<div id="success_modal" class="modal-overlay" aria-hidden="true">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title">Sukses</h2>
-            <button type="button" class="modal-close" onclick="closeSuccessModal()">&times;</button>
-        </div>
-        <div class="px-1">
-            <p class="text-gray-700" id="success_message">{{ session('success') }}</p>
-            <div class="mt-6 flex justify-end">
-                <button type="button" onclick="closeSuccessModal()"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Tutup</button>
-            </div>
+        <div class="flex gap-3 mt-4">
+            <x-button 
+                variant="cancel" 
+                icon="heroicon-o-x-mark"
+                onclick="closeWebcamModal()"
+                class="flex-1 py-3">
+                Batalkan
+            </x-button>
+            <x-button 
+                variant="primary" 
+                icon="zondicon-camera"
+                onclick="capturePhoto()"
+                class="flex-1 py-3">
+                Ambil Foto
+            </x-button>
         </div>
     </div>
-</div>
+
+    <canvas id="capture_canvas" class="hidden"></canvas>
+</x-modal>
+
+<x-modal name="success_modal" id="success_modal" title="Sukses" :useAlpine="false">
+    <p class="text-gray-700" id="success_message">{{ session('success') }}</p>
+    <div class="mt-6 flex justify-end">
+        <x-button 
+            variant="primary" 
+            onclick="closeModal('success_modal')"
+            icon=""
+            >
+            Tutup
+        </x-button>
+    </div>
+</x-modal>
