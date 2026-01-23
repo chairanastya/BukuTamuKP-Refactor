@@ -10,6 +10,7 @@
     'errorMessage' => null,
     'showLabel' => true,
     'rows' => 4,
+    'appendSlot' => false,
 ])
 
 <style>
@@ -73,6 +74,7 @@
         </label>
     @endif
     
+    <div class="input-wrapper {{ $error ? 'error' : '' }} {{ $appendSlot ? 'flex items-center' : '' }}">
     <div class="input-wrapper {{ $error ? 'error' : '' }}">
         @if(isset($prepend))
             <div class="flex-shrink-0">
@@ -95,8 +97,13 @@
                 name="{{ $name }}"
                 placeholder="{{ $placeholder }}"
                 value="{{ $value }}"
+                class="{{ $appendSlot ? 'flex-1' : '' }}"
                 {{ $required ? 'required' : '' }}
             />
+        @endif
+        
+        @if($appendSlot)
+            {{ $slot }}
         @endif
     </div>
 
