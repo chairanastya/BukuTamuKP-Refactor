@@ -96,10 +96,9 @@ class KunjunganConfirmController extends Controller
 
         } elseif ($action === 'tolak') {
             $request->validate([
-                'alasan_penolakan' => 'required|string|min:10|max:500',
+                'alasan_penolakan' => 'required|string|max:500',
             ], [
                 'alasan_penolakan.required' => 'Alasan penolakan harus diisi.',
-                'alasan_penolakan.min' => 'Alasan penolakan minimal 10 karakter.',
                 'alasan_penolakan.max' => 'Alasan penolakan maksimal 500 karakter.',
             ]);
 
