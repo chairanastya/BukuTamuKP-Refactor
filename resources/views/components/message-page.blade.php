@@ -79,8 +79,8 @@
             </p>
 
             @if($kunjungan)
-                <div class="bg-{{ $type === 'error' || $type === 'warning' ? 'orange' : ($type === 'reject' ? 'red' : ($type === 'success' ? 'blue' : 'green')) }}-50 border-l-4 {{ $config['borderColor'] }} p-6 rounded mb-8 text-left">
-                    <h3 class="font-bold {{ $type === 'success' ? 'text-[#084E8F]' : $config['iconColor'] }} mb-3">Informasi Tamu:</h3>
+                <div class="bg-{{ $type === 'error' || $type === 'warning' ? 'orange' : ($type === 'reject' ? 'red' : 'green') }}-50 border-l-4 {{ $config['borderColor'] }} p-6 rounded mb-8 text-left">
+                    <h3 class="font-bold {{ $config['iconColor'] }} mb-3">Informasi Tamu:</h3>
                     <div class="space-y-2 text-gray-700">
                         <p><strong>Nama:</strong> {{ $kunjungan->tamu->nama_tamu }}</p>
                         <p><strong>Email:</strong> {{ $kunjungan->tamu->email_tamu }}</p>
@@ -92,12 +92,6 @@
                         @endif
                     </div>
                 </div>
-
-                @if($type === 'success')
-                    <div>
-                        <p><strong>Notifikasi:</strong> Email berisi link untuk melihat notulensi telah dikirim ke tamu.</p>
-                    </div>
-                @endif
             @endif
 
             @if($additionalInfo)
