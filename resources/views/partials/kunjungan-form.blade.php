@@ -7,97 +7,56 @@
 
             <div class="form-layout">
                 <div class="form-left">
-                    <div>
-                        <label for="nama_lengkap" class="block text-[#084E8F] font-bold mb-2">
-                            Nama Lengkap
-                        </label>
-                    <div class="input-wrapper {{ $errors->has('nama_lengkap') ? 'border-red-500 bg-red-50' : '' }}">
-                        <input type="text" id="nama_lengkap" name="nama_lengkap"
-                            placeholder="Tuliskan nama lengkap anda" 
-                            value="{{ old('nama_lengkap') }}"
-                            required>
-                    </div>
-                    @error('nama_lengkap')
-                        <div class="error-message show">
-                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                            {{ $message }}
-                        </div>
-                    @else
-                        <div id="nama_error" class="error-message">
-                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                            Nama lengkap wajib diisi
-                        </div>
-                    @enderror
-                </div>
+                <x-input-wrapper 
+                    id="nama_lengkap"
+                    name="nama_lengkap"
+                    label="Nama Lengkap"
+                    type="text"
+                    placeholder="Tuliskan nama lengkap anda"
+                    :value="old('nama_lengkap')"
+                    :error="$errors->first('nama_lengkap')"
+                    errorMessage="Nama lengkap wajib diisi"
+                    :required="true"
+                />
+<x-input-wrapper 
+                id="email"
+                name="email"
+                label="Alamat Email"
+                type="email"
+                placeholder="Tuliskan alamat email anda"
+                :value="old('email')"
+                :error="$errors->first('email')"
+                errorMessage="Email tidak valid"
+                :required="true"
+                class="mt-4"
+            />
 
-                <div>
-                    <label for="email" class="block text-[#084E8F] font-bold mb-2 mt-4">
-                        Alamat Email
-                    </label>
-                    <div class="input-wrapper {{ $errors->has('email') ? 'border-red-500 bg-red-50' : '' }}">
-                        <input type="email" id="email" name="email" 
-                            placeholder="Tuliskan alamat email anda" 
-                            value="{{ old('email') }}"
-                            required>
-                    </div>
-                    @error('email')
-                        <div class="error-message show">
-                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                            {{ $message }}
-                        </div>
-                    @else
-                        <div id="email_error" class="error-message">
-                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                            Email tidak valid
-                        </div>
-                    @enderror
-                </div>
+<x-input-wrapper 
+                id="instansi"
+                name="instansi"
+                label="Instansi Asal"
+                type="text"
+                placeholder="Tuliskan instansi asal anda"
+                :value="old('instansi')"
+                :error="$errors->first('instansi')"
+                errorMessage="Instansi asal wajib diisi"
+                :required="true"
+                class="mt-4"
+            />
 
-                <div>
-                    <label for="instansi" class="block text-[#084E8F] font-bold mb-2 mt-4">
-                        Instansi Asal
-                    </label>
-                    <div class="input-wrapper {{ $errors->has('instansi') ? 'border-red-500 bg-red-50' : '' }}">
-                        <input type="text" id="instansi" name="instansi" 
-                            placeholder="Tuliskan instansi asal anda"
-                            value="{{ old('instansi') }}"
-                            required>
-                    </div>
-                    @error('instansi')
-                        <div class="error-message show">
-                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                            {{ $message }}
-                        </div>
-                    @else
-                        <div id="instansi_error" class="error-message">
-                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                            Instansi asal wajib diisi
-                        </div>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="tujuan" class="block text-[#084E8F] font-bold mb-2 mt-4">
-                        Tujuan Kedatangan
-                    </label>
-                    <div class="input-wrapper {{ $errors->has('tujuan') ? 'border-red-500 bg-red-50' : '' }}">
-                        <textarea id="tujuan" name="tujuan" rows="4" 
-                            placeholder="Jelaskan tujuan kedatangan anda"
-                            class="resize-none" 
-                            required>{{ old('tujuan') }}</textarea>
-                    </div>
-                    @error('tujuan')
-                        <div class="error-message show">
-                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                            {{ $message }}
-                        </div>
-                    @else
-                        <div id="tujuan_error" class="error-message">
-                            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                            Tujuan kedatangan wajib diisi
-                        </div>
-                    @enderror
-                </div>
+<x-input-wrapper 
+                id="tujuan"
+                name="tujuan"
+                label="Tujuan Kedatangan"
+                type="textarea"
+                placeholder="Jelaskan tujuan kedatangan anda"
+                :value="old('tujuan')"
+                :error="$errors->first('tujuan')"
+                errorMessage="Tujuan kedatangan wajib diisi"
+                :required="true"
+                :rows="4"
+                class="mt-4"
+            />
 
                 <div>
                     <label class="block text-[#084E8F] font-bold mb-2 mt-4">
