@@ -41,7 +41,7 @@
             top: 2px;
             right: 100px;
         }
-        
+
         .donut {
             position: absolute;
             border-radius: 50%;
@@ -69,8 +69,8 @@
             width: 300px;
             height: 300px;
             background: linear-gradient(-45deg, rgba(255, 227, 102, 0.38) 0%, rgba(95, 129, 161, 0.38) 52.4%, rgba(71, 185, 174, 0.38) 100%);
-            -webkit-mask: radial-gradient(transparent 0, transparent 60px, black 60px); 
-            mask: radial-gradient(transparent 0, transparent 60px, black 60px); 
+            -webkit-mask: radial-gradient(transparent 0, transparent 60px, black 60px);
+            mask: radial-gradient(transparent 0, transparent 60px, black 60px);
             bottom: 1%;
             right: 15%;
         }
@@ -219,7 +219,8 @@
             <div class="mb-6 bg-blue-50 border-2 border-blue-300 text-blue-800 px-4 py-3 rounded-lg">
                 <p class="text-sm flex items-start">
                     @svg('heroicon-o-information-circle', 'w-4 h-4 mr-2 flex-shrink-0 mt-0.5')
-                    <span>Buat password yang kuat untuk melindungi akun Anda. Gunakan kombinasi huruf besar, huruf kecil, angka, dan simbol.</span>
+                    <span>Buat password yang kuat untuk melindungi akun Anda. Gunakan kombinasi huruf besar, huruf kecil,
+                        angka, dan simbol.</span>
                 </p>
             </div>
 
@@ -230,7 +231,7 @@
                     <label for="email" class="block text-gray-700 font-semibold mb-2">Email</label>
                     <div class="input-wrapper-setup readonly">
                         @svg('heroicon-s-envelope', 'w-6 h-6 text-gray-500 mr-3')
-                        <input type="email" id="email" value="{{ $email }}" 
+                        <input type="email" id="email" value="{{ $email }}"
                             class="flex-1 border-0 outline-none text-gray-600 cursor-not-allowed" readonly>
                     </div>
                 </div>
@@ -249,12 +250,13 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="password_confirmation" class="block text-gray-700 font-semibold mb-2">Konfirmasi Password</label>
+                    <label for="password_confirmation" class="block text-gray-700 font-semibold mb-2">Konfirmasi
+                        Password</label>
                     <div class="input-wrapper-setup" id="password-confirmation-wrapper">
                         @svg('fas-key', 'w-6 h-6 text-[#084E8F] mr-3')
-                        <input type="password" name="password_confirmation" id="password_confirmation" 
-                            placeholder="Masukkan ulang password"
-                            class="flex-1 border-0 outline-none text-gray-700" required>
+                        <input type="password" name="password_confirmation" id="password_confirmation"
+                            placeholder="Masukkan ulang password" class="flex-1 border-0 outline-none text-gray-700"
+                            required>
                     </div>
                     <div id="password_confirmation_error" class="error-message-setup">
                         @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
@@ -304,12 +306,12 @@
                 const passwordError = document.getElementById('password_error');
                 const confirmError = document.getElementById('password_confirmation_error');
 
-                passwordInput.addEventListener('input', function() {
+                passwordInput.addEventListener('input', function () {
                     updateInputBackground(this);
                     updatePasswordStrength();
                 });
 
-                confirmInput.addEventListener('input', function() {
+                confirmInput.addEventListener('input', function () {
                     updateInputBackground(this);
                 });
 
