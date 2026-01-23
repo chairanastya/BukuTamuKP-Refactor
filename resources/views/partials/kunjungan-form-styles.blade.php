@@ -6,67 +6,7 @@
             background-color: white;
         }
 
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        }
-
-        .modal-overlay.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 16px;
-            padding: 32px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .modal-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #084E8F;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 32px;
-            color: #6b7280;
-            cursor: pointer;
-            padding: 0;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: color 0.2s;
-            line-height: 1;
-        }
-
-        .modal-close:hover {
-            color: #374151;
-        }
-
-        /* Karyawan Search & Card */
+        /* Karyawan Search Layout */
         .karyawan-search-row {
             display: flex;
             gap: 8px;
@@ -87,55 +27,6 @@
             display: flex;
             gap: 8px;
             flex-shrink: 0;
-        }
-
-        .karyawan-card {
-            display: flex;
-            align-items: center;
-            padding: 0 12px;
-            background-color: white;
-            border: 2px solid #084E8F;
-            border-radius: 8px;
-            width: 100%;
-            height: 50px;
-            box-sizing: border-box;
-            cursor: pointer;
-            transition: all 0.2s;
-            max-width: 100%;
-        }
-
-        .karyawan-card:hover {
-            background-color: #f0f9ff;
-            border-color: #0C4777;
-        }
-
-        .karyawan-card-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 4px 0;
-            gap: 2px;
-            min-width: 0;
-            overflow: hidden;
-        }
-
-        .karyawan-card-name {
-            color: #084E8F;
-            font-weight: 600;
-            font-size: 15px;
-            line-height: 1.3;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .karyawan-card-detail {
-            color: #6b7280;
-            font-size: 13px;
-            line-height: 1.2;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .karyawan-search-input {
@@ -387,5 +278,6 @@
     <div style="display: none;">
         <x-input-wrapper id="style_loader" name="style_loader" />
         <x-autocomplete-dropdown id="style_loader_autocomplete" />
+        <x-karyawan-card nama="Loader" />
     </div>
 @endpush
