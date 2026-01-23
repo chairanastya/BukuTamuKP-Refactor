@@ -115,44 +115,21 @@
             margin: 10px;
         }
 
-        .input-wrapper-login {
-            border: 2px solid #084E8F;
-            border-radius: 8px;
-            padding: 12px 16px;
-            transition: all 0.2s ease;
-            background-color: #F9FCFF;
+        /* Tambahan untuk Page Login */
+        .input-wrapper{
             display: flex;
             align-items: center;
+            gap: 12px;
         }
 
-        .input-wrapper-login.filled {
-            background-color: white;
-        }
-
-        .input-wrapper-login:focus-within {
-            box-shadow: 0 0 0 3px rgba(8, 78, 143, 0.1);
-        }
-
-        .input-wrapper-login.error {
-            border-color: #dc2626 !important;
-            background-color: #fef2f2;
-        }
-
-        .input-wrapper-login input {
-            background-color: transparent;
+        .input-wrapper textarea {
             flex: 1;
         }
 
-        .error-message-login {
-            color: #dc2626;
-            font-size: 14px;
-            margin-top: 8px;
-            display: none;
+        .input-wrapper > .flex-shrink-0 {
+            margin-left: 10px;
         }
 
-        .error-message-login.show {
-            display: block;
-        }
     </style>
 @endpush
 @section('content')
@@ -222,26 +199,38 @@
                 @csrf
 
                 <div class="mb-6">
-                    <div class="input-wrapper-login" id="email-wrapper">
-                        @svg('bi-person-fill', 'w-6 h-6 text-[#084E8F] mr-3')
-                        <input type="email" name="email" id="email" placeholder="Email" value="{{ old('email') }}"
-                            class="flex-1 border-0 outline-none text-gray-700" required autofocus>
-                    </div>
-                    <div id="email_error" class="error-message-login">
-                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                        Email wajib diisi dengan format yang benar
-                    </div>
+                    <x-input-wrapper
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="Email"
+                        :value="old('email')"
+                        :error="$errors->first('email')"
+                        errorMessage="Email wajib diisi dengan format yang benar"
+                        :showLabel="false"
+                        :required="true"
+                    >
+                        <x-slot:prepend>
+                            @svg('bi-person-fill', 'w-6 h-6 text-[#084E8F]')
+                        </x-slot:prepend>
+                    </x-input-wrapper>
                 </div>
                 <div class="mb-4">
-                    <div class="input-wrapper-login" id="password-wrapper">
-                        @svg('fas-key', 'w-6 h-6 text-[#084E8F] mr-3')
-                        <input type="password" name="password" id="password" placeholder="Password"
-                            class="flex-1 border-0 outline-none text-gray-700" required>
-                    </div>
-                    <div id="password_error" class="error-message-login">
-                        @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-                        Password wajib diisi
-                    </div>
+                    <x-input-wrapper
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="Password"
+                        :value="''"
+                        :error="$errors->first('password')"
+                        errorMessage="Password wajib diisi"
+                        :showLabel="false"
+                        :required="true"
+                    >
+                        <x-slot:prepend>
+                            @svg('fas-key', 'w-6 h-6 text-[#084E8F]')
+                        </x-slot:prepend>
+                    </x-input-wrapper>
                 </div>
 
                 <div class="mb-6 flex items-center justify-end">
@@ -275,7 +264,7 @@
             });
 
             function updateInputBackground(input) {
-                const wrapper = input.closest('.input-wrapper-login');
+                const wrapper = input.closest('.input-wrapper');
                 if (wrapper) {
                     wrapper.classList.toggle('filled', input.value.trim() !== '');
                 }
@@ -285,8 +274,8 @@
                 const form = document.querySelector('form');
                 const emailInput = document.getElementById('email');
                 const passwordInput = document.getElementById('password');
-                const emailWrapper = document.getElementById('email-wrapper');
-                const passwordWrapper = document.getElementById('password-wrapper');
+                const emailWrapper = emailInput?.closest('.input-wrapper');
+                const passwordWrapper = passwordInput?.closest('.input-wrapper');
                 const emailError = document.getElementById('email_error');
                 const passwordError = document.getElementById('password_error');
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -295,34 +284,34 @@
                     let hasError = false;
                     let firstErrorElement = null;
 
-                    emailWrapper.classList.remove('error');
-                    passwordWrapper.classList.remove('error');
-                    emailError.classList.remove('show');
-                    passwordError.classList.remove('show');
+                    if (emailWrapper) emailWrapper.classList.remove('error');
+                    if (passwordWrapper) passwordWrapper.classList.remove('error');
+                    if (emailError) emailError.classList.remove('show');
+                    if (passwordError) passwordError.classList.remove('show');
 
                     if (!emailInput.value?.trim() || !emailRegex.test(emailInput.value)) {
                         e.preventDefault();
                         hasError = true;
-                        emailWrapper.classList.add('error');
-                        emailError.classList.add('show');
+                        if (emailWrapper) emailWrapper.classList.add('error');
+                        if (emailError) emailError.classList.add('show');
                         if (!firstErrorElement) firstErrorElement = emailInput;
 
                         setTimeout(() => {
-                            emailError.classList.remove('show');
-                            emailWrapper.classList.remove('error');
+                            if (emailError) emailError.classList.remove('show');
+                            if (emailWrapper) emailWrapper.classList.remove('error');
                         }, 5000);
                     }
 
                     if (!passwordInput.value?.trim()) {
                         e.preventDefault();
                         hasError = true;
-                        passwordWrapper.classList.add('error');
-                        passwordError.classList.add('show');
+                        if (passwordWrapper) passwordWrapper.classList.add('error');
+                        if (passwordError) passwordError.classList.add('show');
                         if (!firstErrorElement) firstErrorElement = passwordInput;
 
                         setTimeout(() => {
-                            passwordError.classList.remove('show');
-                            passwordWrapper.classList.remove('error');
+                            if (passwordError) passwordError.classList.remove('show');
+                            if (passwordWrapper) passwordWrapper.classList.remove('error');
                         }, 5000);
                     }
 
@@ -335,7 +324,7 @@
                     return true;
                 });
 
-                const inputs = document.querySelectorAll('.input-wrapper-login input');
+                const inputs = document.querySelectorAll('.input-wrapper input');
                 inputs.forEach(input => {
                     updateInputBackground(input);
                     input.addEventListener('input', () => updateInputBackground(input));

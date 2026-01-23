@@ -47,6 +47,18 @@
     .sidebar-item span {
         text-align: center;
     }
+    
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 25;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
 
     @media (max-width: 768px) {
         .sidebar {
