@@ -119,10 +119,15 @@
         @endif
     </div>
 
-    @if($errorMessage || $error)
-        <div id="{{ $id }}_error" class="error-message {{ $error ? 'show' : '' }}">
+    @if($error)
+        <div class="error-message show">
             @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
-            {{ $error ?: $errorMessage }}
+            {{ $error }}
+        </div>
+    @elseif($errorMessage)
+        <div id="{{ $id }}_error" class="error-message">
+            @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
+            {{ $errorMessage }}
         </div>
     @endif
 </div>
