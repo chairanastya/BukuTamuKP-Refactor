@@ -40,7 +40,7 @@
             top: 2px;
             right: 100px;
         }
-        
+
         .donut {
             position: absolute;
             border-radius: 50%;
@@ -68,8 +68,8 @@
             width: 300px;
             height: 300px;
             background: linear-gradient(-45deg, rgba(255, 227, 102, 0.38) 0%, rgba(95, 129, 161, 0.38) 52.4%, rgba(71, 185, 174, 0.38) 100%);
-            -webkit-mask: radial-gradient(transparent 0, transparent 60px, black 60px); 
-            mask: radial-gradient(transparent 0, transparent 60px, black 60px); 
+            -webkit-mask: radial-gradient(transparent 0, transparent 60px, black 60px);
+            mask: radial-gradient(transparent 0, transparent 60px, black 60px);
             bottom: 1%;
             right: 15%;
         }

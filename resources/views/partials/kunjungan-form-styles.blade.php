@@ -66,53 +66,6 @@
             color: #374151;
         }
 
-        /* Autocomplete Dropdown */
-        .autocomplete-dropdown {
-            position: absolute;
-            margin-top: 10px;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #084E8F;
-            border-radius: 8px;
-            max-height: 250px;
-            overflow-y: auto;
-            z-index: 50;
-            display: none;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .autocomplete-dropdown.show {
-            display: block;
-        }
-
-        .autocomplete-item {
-            padding: 12px 16px;
-            cursor: pointer;
-            border-bottom: 1px solid #e5e7eb;
-            transition: background-color 0.2s;
-        }
-
-        .autocomplete-item:hover {
-            background-color: #F9FCFF;
-        }
-
-        .autocomplete-item:last-child {
-            border-bottom: none;
-        }
-
-        .autocomplete-name {
-            color: #1e40af;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-
-        .autocomplete-detail {
-            color: #6b7280;
-            font-size: 14px;
-        }
-
         /* Karyawan Search & Card */
         .karyawan-search-row {
             display: flex;
@@ -314,36 +267,6 @@
             color: #084E8F;
         }
 
-        /* Input Wrapper */
-        .input-wrapper {
-            border: 2px solid #084E8F;
-            border-radius: 8px;
-            padding: 8px;
-            width: 100%;
-            max-width: 100%;
-            transition: all 0.2s ease;
-            background-color: #F9FCFF;
-            box-sizing: border-box;
-        }
-
-        .input-wrapper.filled {
-            background-color: white;
-        }
-
-        .input-wrapper:focus-within {
-            box-shadow: 0 0 0 3px rgba(8, 78, 143, 0.1);
-        }
-
-        .input-wrapper input,
-        .input-wrapper textarea {
-            background-color: transparent;
-            width: 100%;
-            max-width: 100%;
-            border: none;
-            outline: none;
-            box-sizing: border-box;
-        }
-
         /* Error States */
         .input-wrapper.error,
         .input-wrapper:has(input:invalid:not(:placeholder-shown)),
@@ -459,4 +382,10 @@
             }
         }
     </style>
+
+    {{-- Include component styles by rendering hidden components --}}
+    <div style="display: none;">
+        <x-input-wrapper id="style_loader" name="style_loader" />
+        <x-autocomplete-dropdown id="style_loader_autocomplete" />
+    </div>
 @endpush

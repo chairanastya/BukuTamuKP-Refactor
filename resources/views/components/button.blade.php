@@ -13,6 +13,7 @@
     
     $variants = [
         'primary' => 'bg-[#0C4777] hover:bg-[#F59E0B] text-white px-5 py-2.5 rounded-lg',
+        'cancel' => 'bg-gray-400 hover:bg-gray-500 text-white px-5 py-2.5 rounded-lg',
         'export' => 'bg-[#059669] hover:bg-[#047857] text-white px-5 py-2.5 rounded-lg',
         'export-pdf' => 'bg-[#DC2626] hover:bg-[#B91C1C] text-white px-5 py-2.5 rounded-lg',
         'success' => 'bg-[#10B981] hover:bg-[#059669] text-white px-4 py-2 rounded-md text-sm',
@@ -23,6 +24,7 @@
     // Default icons untuk setiap variant
     $defaultIcons = [
         'primary' => 'heroicon-o-plus',
+        'cancel' => 'heroicon-o-x-mark',
         'export' => 'heroicon-o-arrow-down-tray',
         'export-pdf' => 'heroicon-o-document-text',
         'success' => 'heroicon-o-check-circle',
