@@ -12,7 +12,7 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             restoreOldValues();
-            
+
             addKaryawanRow();
 
             @if(session('success'))
@@ -29,7 +29,7 @@
                 const previewImg = document.getElementById('preview_img');
                 const imagePreview = document.getElementById('image_preview');
                 const webcamArea = document.getElementById('webcam_area');
-                
+
                 if (previewImg && imagePreview && webcamArea) {
                     previewImg.src = fotoKtpBase64;
                     imagePreview.classList.remove('hidden');
@@ -43,8 +43,9 @@
                     const karyawanIds = JSON.parse(karyawanIdsInput.value);
                     if (Array.isArray(karyawanIds) && karyawanIds.length > 0) {
                         selectedKaryawan = karyawanIds.map(id => ({
-                            id: id,
-                            nama: 'Loading...'
+                            id_karyawan: id,
+                            nama_karyawan: 'Loading...',
+                            rowId: -1
                         }));
                     }
                 } catch (e) {
@@ -54,10 +55,15 @@
         }
 
         function setupFormValidation() {
-            const form = document.querySelector('form');
+            const form = document.querySelector('form[action*="tamu/submit"]');
+            if (!form) {
+                return;
+            }
+
             const submitButton = form.querySelector('button[type="submit"]');
+
             let isSubmitting = false;
-            
+
             const inputs = {
                 nama: document.getElementById('nama_lengkap'),
                 email: document.getElementById('email'),
@@ -67,7 +73,7 @@
             };
 
             const errors = {
-                nama: document.getElementById('nama_error'),
+                nama: document.getElementById('nama_lengkap_error'),
                 email: document.getElementById('email_error'),
                 instansi: document.getElementById('instansi_error'),
                 tujuan: document.getElementById('tujuan_error'),
@@ -80,9 +86,9 @@
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
             form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
                 if (isSubmitting) {
-                    e.preventDefault();
-                    console.log('Form sedang diproses, harap tunggu...');
                     return false;
                 }
 
@@ -120,39 +126,40 @@
                 if (selectedKaryawan.length === 0) {
                     e.preventDefault();
                     hasError = true;
-                    errors.karyawan.classList.add('show');
+                    if (errors.karyawan) {
+                        errors.karyawan.classList.add('show');
+                        setTimeout(() => {
+                            errors.karyawan.classList.remove('show');
+                        }, 5000);
+                    }
                     const firstRow = karyawanContainer.querySelector('.karyawan-search-container');
                     if (firstRow) {
                         const inputWrapper = firstRow.querySelector('.border-2');
                         if (inputWrapper) {
                             inputWrapper.classList.add('border-red-600');
                             inputWrapper.classList.remove('border-[#084E8F]');
+                            setTimeout(() => {
+                                inputWrapper.classList.remove('border-red-600');
+                                inputWrapper.classList.add('border-[#084E8F]');
+                            }, 5000);
                         }
                     }
                     if (!firstErrorElement) firstErrorElement = karyawanContainer;
-
-                    setTimeout(() => {
-                        errors.karyawan.classList.remove('show');
-                        const firstRow = karyawanContainer.querySelector('.karyawan-search-container');
-                        if (firstRow) {
-                            const inputWrapper = firstRow.querySelector('.border-2');
-                            if (inputWrapper) {
-                                inputWrapper.classList.remove('border-red-600');
-                                inputWrapper.classList.add('border-[#084E8F]');
-                            }
-                        }
-                    }, 5000);
                 }
 
                 if (!inputs.foto.value?.trim()) {
                     e.preventDefault();
                     hasError = true;
-                    errors.foto.classList.add('show');
+                    if (errors.foto) {
+                        errors.foto.classList.add('show');
+                    }
                     webcamArea.classList.add('error');
                     if (!firstErrorElement) firstErrorElement = webcamArea;
 
                     setTimeout(() => {
-                        errors.foto.classList.remove('show');
+                        if (errors.foto) {
+                            errors.foto.classList.remove('show');
+                        }
                         webcamArea.classList.remove('error');
                     }, 5000);
                 }
@@ -167,7 +174,7 @@
                     submitButton.disabled = true;
                     const originalText = submitButton.innerHTML;
                     submitButton.innerHTML = '<span class="animate-pulse">Mengirim...</span>';
-                    
+
                     setTimeout(() => {
                         if (isSubmitting) {
                             isSubmitting = false;
@@ -177,17 +184,28 @@
                     }, 10000);
                 }
 
-                return true;
+                e.target.submit();
             });
+        }
 
-            function showError(input, errorElement) {
+        function showError(input, errorElement) {
+            if (errorElement) {
                 errorElement.classList.add('show');
-                input.closest('.input-wrapper').classList.add('error');
-                setTimeout(() => {
-                    errorElement.classList.remove('show');
-                    input.closest('.input-wrapper').classList.remove('error');
-                }, 5000);
             }
+
+            const wrapper = input.closest('.input-wrapper');
+            if (wrapper) {
+                wrapper.classList.add('error');
+            }
+
+            setTimeout(() => {
+                if (errorElement) {
+                    errorElement.classList.remove('show');
+                }
+                if (wrapper) {
+                    wrapper.classList.remove('error');
+                }
+            }, 5000);
         }
 
         function addKaryawanRow() {
@@ -195,27 +213,27 @@
             const rowId = rowCounter++;
 
             const rowHtml = `
-                <div id="karyawan-row-${rowId}" class="karyawan-search-row">
-                    <div class="karyawan-search-container" id="content-${rowId}">
-                        <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
-                            <input type="text" 
-                                id="karyawan_input_${rowId}" 
-                                placeholder="Cari nama karyawan..."
-                                class="w-full karyawan-search-input"
-                                autocomplete="off"
-                                data-row-id="${rowId}">
-                        </div>
-                        <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>
-                    </div>
-                    <div class="karyawan-action-buttons">
-                        <button type="button" class="karyawan-add-btn" onclick="addKaryawanRow()" title="Tambah karyawan">
-                            @svg('heroicon-o-plus', 'w-7 h-7')
-                        </button>
-                        <button type="button" class="karyawan-minus-btn" onclick="removeKaryawanRow(${rowId})" title="Hapus baris">
-                            @svg('heroicon-o-minus', 'w-7 h-7')
-                        </button>
-                    </div>
-                </div>`;
+                                                                <div id="karyawan-row-${rowId}" class="karyawan-search-row">
+                                                                    <div class="karyawan-search-container" id="content-${rowId}">
+                                                                        <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
+                                                                            <input type="text" 
+                                                                                id="karyawan_input_${rowId}" 
+                                                                                placeholder="Cari nama karyawan..."
+                                                                                class="w-full karyawan-search-input"
+                                                                                autocomplete="off"
+                                                                                data-row-id="${rowId}">
+                                                                        </div>
+                                                                        <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>
+                                                                    </div>
+                                                                    <div class="karyawan-action-buttons">
+                                                                        <button type="button" class="karyawan-add-btn" onclick="addKaryawanRow()" title="Tambah karyawan">
+                                                                            @svg('heroicon-o-plus', 'w-7 h-7')
+                                                                        </button>
+                                                                        <button type="button" class="karyawan-minus-btn" onclick="removeKaryawanRow(${rowId})" title="Hapus baris">
+                                                                            @svg('heroicon-o-minus', 'w-7 h-7')
+                                                                        </button>
+                                                                    </div>
+                                                                </div>`;
 
             container.insertAdjacentHTML('beforeend', rowHtml);
             setupRowListeners(rowId);
@@ -282,10 +300,10 @@
             const html = karyawans
                 .filter(k => !selectedKaryawan.find(sk => sk.id_karyawan === k.id_karyawan))
                 .map(k => `
-                        <div class="autocomplete-item" onclick="selectKaryawan(${rowId}, ${k.id_karyawan}, '${escapeHtml(k.nama_karyawan)}', '${escapeHtml(k.jabatan)}', '${escapeHtml(k.departemen)}')">
-                            <div class="autocomplete-name">${escapeHtml(k.nama_karyawan)}</div>
-                            <div class="autocomplete-detail">${escapeHtml(k.jabatan)} - ${escapeHtml(k.departemen)}</div>
-                        </div>`)
+                                                                        <div class="autocomplete-item" onclick="selectKaryawan(${rowId}, ${k.id_karyawan}, '${escapeHtml(k.nama_karyawan)}', '${escapeHtml(k.jabatan)}', '${escapeHtml(k.departemen)}')">
+                                                                            <div class="autocomplete-name">${escapeHtml(k.nama_karyawan)}</div>
+                                                                            <div class="autocomplete-detail">${escapeHtml(k.jabatan)} - ${escapeHtml(k.departemen)}</div>
+                                                                        </div>`)
                 .join('');
 
             dropdown.innerHTML = html;
@@ -308,13 +326,13 @@
         function renderKaryawanCard(rowId, nama, jabatan, departemen) {
             const content = document.getElementById(`content-${rowId}`);
             content.innerHTML = `
-                <div class="karyawan-card w-full" onclick="resetKaryawanRow(${rowId})" title="Klik untuk mengganti karyawan">
-                    <div class="karyawan-card-info">
-                        <div class="karyawan-card-name">${escapeHtml(nama)}</div>
-                        <div class="karyawan-card-detail">${escapeHtml(jabatan)} - ${escapeHtml(departemen)}</div>
-                    </div>
-                    @svg('zondicon-edit-pencil', 'w-5 h-5 text-[#084E8F]')
-                </div>`;
+                                                                <div class="karyawan-card w-full" onclick="resetKaryawanRow(${rowId})" title="Klik untuk mengganti karyawan">
+                                                                    <div class="karyawan-card-info">
+                                                                        <div class="karyawan-card-name">${escapeHtml(nama)}</div>
+                                                                        <div class="karyawan-card-detail">${escapeHtml(jabatan)} - ${escapeHtml(departemen)}</div>
+                                                                    </div>
+                                                                    @svg('zondicon-edit-pencil', 'w-5 h-5 text-[#084E8F]')
+                                                                </div>`;
         }
 
         function updateHiddenInput() {
@@ -328,15 +346,15 @@
 
             const content = document.getElementById(`content-${rowId}`);
             content.innerHTML = `
-                <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
-                    <input type="text" 
-                        id="karyawan_input_${rowId}" 
-                        placeholder="Cari nama karyawan..."
-                        class="w-full karyawan-search-input"
-                        autocomplete="off"
-                        data-row-id="${rowId}">
-                </div>
-                <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>`;
+                                                                <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
+                                                                    <input type="text" 
+                                                                        id="karyawan_input_${rowId}" 
+                                                                        placeholder="Cari nama karyawan..."
+                                                                        class="w-full karyawan-search-input"
+                                                                        autocomplete="off"
+                                                                        data-row-id="${rowId}">
+                                                                </div>
+                                                                <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>`;
 
             setupRowListeners(rowId);
         }

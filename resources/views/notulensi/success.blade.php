@@ -12,7 +12,6 @@
         window.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const currentUrl = window.location.pathname;
-            
             try {
                 Object.keys(localStorage).forEach(key => {
                     if (key.startsWith('notulensi_images_')) {

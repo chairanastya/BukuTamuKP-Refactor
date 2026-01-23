@@ -6,10 +6,12 @@
     'placeholder' => '',
     'value' => '',
     'required' => false,
+    'readonly' => false,
     'error' => null,
     'errorMessage' => null,
     'showLabel' => true,
     'rows' => 4,
+    'appendSlot' => false,
 ])
 
 <style>
@@ -29,8 +31,18 @@
         background-color: white;
     }
 
+    .input-wrapper.readonly {
+        border-color: #d1d5db;
+        background-color: #f3f4f6;
+        cursor: not-allowed;
+    }
+
     .input-wrapper:focus-within {
         box-shadow: 0 0 0 3px rgba(8, 78, 143, 0.1);
+    }
+
+    .input-wrapper.readonly:focus-within {
+        box-shadow: none;
     }
 
     .input-wrapper input,
@@ -73,7 +85,13 @@
         </label>
     @endif
     
-    <div class="input-wrapper {{ $error ? 'error' : '' }}">
+<div class="input-wrapper {{ $error ? 'error' : '' }} {{ $readonly ? 'readonly' : '' }} {{ $appendSlot ? 'flex items-center' : '' }}">
+        @if(isset($prepend))
+            <div class="flex-shrink-0">
+                {{ $prepend }}
+            </div>
+        @endif
+        
         @if($type === 'textarea')
             <textarea 
                 id="{{ $id }}" 
@@ -81,6 +99,7 @@
                 placeholder="{{ $placeholder }}"
                 rows="{{ $rows }}"
                 {{ $required ? 'required' : '' }}
+                {{ $readonly ? 'readonly' : '' }}
             >{{ $value }}</textarea>
         @else
             <input 
@@ -89,8 +108,14 @@
                 name="{{ $name }}"
                 placeholder="{{ $placeholder }}"
                 value="{{ $value }}"
+                class="{{ $appendSlot ? 'flex-1' : '' }}"
                 {{ $required ? 'required' : '' }}
+                {{ $readonly ? 'readonly' : '' }}
             />
+        @endif
+        
+        @if($appendSlot)
+            {{ $slot }}
         @endif
     </div>
 
