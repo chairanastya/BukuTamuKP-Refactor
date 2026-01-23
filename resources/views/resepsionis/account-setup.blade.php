@@ -2,14 +2,6 @@
 @section('title', 'Buat Password Akun Baru - Buku Tamu Digital')
 @push('styles')
     <style>
-        body {
-            font-family: 'Open Sans', sans-serif;
-            background: #0C4777;
-            min-height: 100vh;
-            position: relative;
-            overflow-y: auto;
-        }
-
         .input-wrapper {
             display: flex;
             align-items: center;
