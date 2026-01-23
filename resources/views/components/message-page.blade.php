@@ -94,10 +94,8 @@
                 </div>
 
                 @if($type === 'success')
-                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded mb-8">
-                        <p class="text-green-800 text-sm">
-                            <strong>Notifikasi:</strong> Email berisi link untuk melihat notulensi telah dikirim ke tamu.
-                        </p>
+                    <div>
+                        <p><strong>Notifikasi:</strong> Email berisi link untuk melihat notulensi telah dikirim ke tamu.</p>
                     </div>
                 @endif
             @endif
