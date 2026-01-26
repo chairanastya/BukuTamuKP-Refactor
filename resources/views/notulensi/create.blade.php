@@ -201,10 +201,14 @@
 
                     <!-- Submit Button -->
                     <div class="lg:col-span-2">
-                        <button type="submit"
-                            class="w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
+                        <x-button
+                            type="submit"
+                            variant="primary"
+                            icon=""
+                            class="w-full py-3"
+                        >
                             Simpan Notulensi
-                        </button>
+                        </x-button>
                     </div>
                 </div>
             </form>

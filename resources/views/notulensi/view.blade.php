@@ -140,16 +140,18 @@
                 </div>
 
                 <!-- Buttons -->
-                <div class="lg:col-span-2 flex gap-4">
-                    <button onclick="exportToPDF()" id="exportBtn"
-                        class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-                        @svg('heroicon-o-document-text', 'w-5 h-5')
+                <div class="lg:col-span-2">
+                    <x-button
+                        variant="export-pdf"
+                        type="button"
+                        id="exportBtn"
+                        onclick="exportToPDF()"
+                        icon="heroicon-o-document-text"
+                        iconClass="w-5 h-5"
+                        class="w-full py-3"
+                    >
                         <span id="exportBtnText">Export to PDF</span>
-                    </button>
-                    <a href="{{ route('resepsionis.dashboard') }}"
-                        class="flex-1 text-center bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
-                        Kembali ke Beranda
-                    </a>
+                    </x-button>
                 </div>
             </div>
         </div>
