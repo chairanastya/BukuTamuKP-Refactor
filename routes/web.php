@@ -60,6 +60,11 @@ Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
     Route::middleware('auth:resepsionis')->group(function () {
         Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 
+        // Password management
+        Route::get('/password/edit', [ResepsionisController::class, 'editPassword'])->name('password.edit');
+        Route::post('/password/verify', [ResepsionisController::class, 'verifyPassword'])->name('password.verify');
+        Route::put('/password', [ResepsionisController::class, 'updatePassword'])->name('password.change')->middleware('throttle:submissions');
+
         Route::get('/dashboard', [ResepsionisController::class, 'dashboard'])->name('dashboard');
         Route::get('/kunjungan/data', [ResepsionisController::class, 'getKunjunganData'])->name('kunjungan.data');
         Route::get('/riwayat/data', [ResepsionisController::class, 'getRiwayatData'])->name('riwayat.data');
