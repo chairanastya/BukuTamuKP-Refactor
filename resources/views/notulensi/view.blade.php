@@ -128,8 +128,8 @@
                     <label class="block text-[#084E8F] font-semibold mb-2">
                         Notulensi Kunjungan/Rapat
                     </label>
-                    <div class="input-wrapper">
-                        <textarea rows="12" readonly>{{ $notulensi->isi_notulensi }}</textarea>
+                    <div class="input-wrapper notulensi-content">
+                        {!! $notulensi->isi_notulensi !!}
                     </div>
                 </div>
 
@@ -283,6 +283,77 @@
         </style>
     @endpush
 
+    @push('styles')
+        <style>
+            /* Make rendered notulensi look similar to Quill editor */
+            .notulensi-content {
+                background: white;
+                padding: 12px;
+                min-height: 220px;
+                border-radius: 6px;
+                font-size: 16px; /* increased font size for notulensi text only */
+                line-height: 1.6; /* improve readability */
+            }
+
+            /* Headings coming from Quill editor (h1-h6) */
+            .notulensi-content h1,
+            .notulensi-content h2,
+            .notulensi-content h3,
+            .notulensi-content h4,
+            .notulensi-content h5,
+            .notulensi-content h6 {
+                margin: 0 0 0.75rem;
+                line-height: 1.25;
+                font-weight: 600;
+            }
+
+            .notulensi-content h1 { font-size: 1.5rem; }
+            .notulensi-content h2 { font-size: 1.25rem; }
+            .notulensi-content h3 { font-size: 1.1rem; }
+            .notulensi-content h4 { font-size: 1rem; }
+            .notulensi-content h5 { font-size: 0.95rem; }
+            .notulensi-content h6 { font-size: 0.9rem; }
+
+            .notulensi-content p {
+                margin: 0 0 0.75rem;
+            }
+
+            .notulensi-content ul,
+            .notulensi-content ol {
+                margin: 0 0 0.75rem 1.25rem;
+                padding-left: 1.25rem;
+                list-style-position: outside;
+            }
+
+            .notulensi-content ul {
+                list-style-type: disc;
+            }
+
+            .notulensi-content ol {
+                list-style-type: decimal;
+            }
+
+            .notulensi-content strong,
+            .notulensi-content b {
+                font-weight: 600;
+            }
+
+            /* Link styling for rendered notulensi: blue + underline, visited -> pink/purple */
+            .notulensi-content a.notulensi-link,
+            .notulensi-content a {
+                color: #1a73e8;
+                text-decoration: underline;
+                text-decoration-color: #1a73e8;
+                text-underline-offset: 2px;
+                transition: color 0.15s ease;
+            }
+
+            .notulensi-content a:hover {
+                color: #0b5ed7;
+            }
+        </style>
+    @endpush
+
     @push('scripts')
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -355,12 +426,12 @@
 
                     const pageWidth = doc.internal.pageSize.getWidth();
                     const pageHeight = doc.internal.pageSize.getHeight();
-                    const margin = 20;
+                    const margin = 15; // Reduced margin for smaller file size
                     const contentWidth = pageWidth - (margin * 2);
                     let yPos = margin;
 
                     // ========== HEADER - FORMAL STYLE ==========
-                    doc.setFontSize(16);
+                    doc.setFontSize(14); // Smaller title for mobile-like appearance
                     doc.setTextColor(0, 0, 0);
                     doc.setFont(undefined, 'bold');
                     doc.text('NOTULENSI', pageWidth / 2, yPos, { align: 'center' });
@@ -373,10 +444,10 @@
                     yPos += 15;
 
                     // ========== INFO DASAR (Hari/Tanggal, Waktu, Tempat) ==========
-                    doc.setFontSize(11);
+                    doc.setFontSize(10); 
                     doc.setFont(undefined, 'normal');
 
-                    const labelWidth = 35;
+                    const labelWidth = 30;
 
                     // Hari/Tanggal
                     doc.setFont(undefined, 'bold');
@@ -401,13 +472,13 @@
                     yPos += 10;
 
                     // ========== PESERTA ==========
-                    doc.setFontSize(11);
+                    doc.setFontSize(10);
                     doc.setFont(undefined, 'bold');
                     doc.text('• PESERTA', margin, yPos);
-                    yPos += 7;
+                    yPos += 6;
 
                     doc.setFont(undefined, 'normal');
-                    doc.setFontSize(10);
+                    doc.setFontSize(9);
 
                     // Tamu
                     doc.text(`Tamu:`, margin + 3, yPos);
@@ -457,12 +528,12 @@
                         yPos = margin;
                     }
 
-                    doc.setFontSize(11);
+                    doc.setFontSize(10);
                     doc.setFont(undefined, 'bold');
                     doc.text('• TOPIK', margin, yPos);
-                    yPos += 7;
+                    yPos += 6;
 
-                    doc.setFontSize(10);
+                    doc.setFontSize(9);
                     doc.setFont(undefined, 'normal');
                     const topikLines = doc.splitTextToSize(tujuanKunjungan, contentWidth - 5);
                     topikLines.forEach(line => {
@@ -481,40 +552,259 @@
                         yPos = margin;
                     }
 
-                    doc.setFontSize(11);
+                    doc.setFontSize(10);
                     doc.setFont(undefined, 'bold');
                     doc.text('• AGENDA / PEMBAHASAN', margin, yPos);
-                    yPos += 7;
+                    yPos += 6;
 
-                    doc.setFontSize(10);
+                    doc.setFontSize(9);
                     doc.setFont(undefined, 'normal');
 
-                    // Split notulensi into paragraphs for better formatting
-                    const notulensiParagraphs = isiNotulensi.split('\n').filter(p => p.trim() !== '');
+                    // Render notulensi HTML as text with WYSIWYG styling
+                    try {
+                        const notulensiEl = document.querySelector('.notulensi-content');
+                        if (notulensiEl) {
+                            // Function to parse and render HTML content recursively with computed styles
+                            function renderElement(element, currentY, indent = 0, linkUrl = null) {
+                                let yPos = currentY;
+                                const tagName = element.tagName ? element.tagName.toLowerCase() : 'text';
+                                const textContent = element.textContent || element.nodeValue || '';
 
-                    notulensiParagraphs.forEach((paragraph, index) => {
-                        if (yPos > pageHeight - 30) {
-                            doc.addPage();
-                            yPos = margin;
+                                // Handle text nodes
+                                if (element.nodeType === Node.TEXT_NODE && textContent.trim()) {
+                                    const computedStyle = window.getComputedStyle(element.parentElement || element);
+                                    const fontWeight = computedStyle.fontWeight;
+                                    const fontStyle = computedStyle.fontStyle;
+                                    const textDecoration = computedStyle.textDecorationLine || '';
+
+                                    // Set font style based on computed style
+                                    let pdfFontStyle = 'normal';
+                                    if (fontWeight >= 600 || fontWeight === 'bold') {
+                                        pdfFontStyle = 'bold';
+                                    }
+                                    if (fontStyle === 'italic') {
+                                        pdfFontStyle = pdfFontStyle === 'bold' ? 'bolditalic' : 'italic';
+                                    }
+
+                                    doc.setFont(undefined, pdfFontStyle);
+
+                                    // Set text color from computed style if available (but links override it)
+                                    if (!linkUrl) {
+                                        const color = computedStyle.color;
+                                        if (color) {
+                                            const rgb = color.match(/\d+/g);
+                                            if (rgb && rgb.length >= 3) {
+                                                doc.setTextColor(parseInt(rgb[0]), parseInt(rgb[1]), parseInt(rgb[2]));
+                                            }
+                                        }
+                                    }
+
+                                    const textLines = doc.splitTextToSize(textContent.trim(), contentWidth - 5 - indent);
+                                    textLines.forEach((line, lineIndex) => {
+                                        if (yPos > pageHeight - 25) {
+                                            doc.addPage();
+                                            yPos = margin;
+                                        }
+
+                                        const x = margin + 3 + indent;
+
+                                        if (linkUrl) {
+                                            // Render linked text with blue color
+                                            doc.setTextColor(26, 115, 232); // light blue for links
+                                            doc.text(line, x, yPos);
+
+                                            // Add underline for links
+                                            const textWidth = doc.getTextWidth(line);
+                                            doc.setLineWidth(0.2);
+                                            doc.setDrawColor(26, 115, 232); // Same blue color for underline
+                                            doc.line(x, yPos + 1, x + textWidth, yPos + 1);
+
+                                            doc.setTextColor(0, 0, 0);
+
+                                            // Add clickable link area for this line
+                                            const textHeight = 4;
+                                            doc.link(x, yPos - textHeight, textWidth, textHeight + 2, { url: linkUrl });
+                                        } else {
+                                            doc.text(line, x, yPos);
+
+                                            // Add underline if needed
+                                            if (textDecoration.includes('underline')) {
+                                                const textWidth = doc.getTextWidth(line);
+                                                doc.setLineWidth(0.2); // Thinner line for underline
+                                                doc.setDrawColor(0, 0, 0);
+                                                doc.line(x, yPos + 1, x + textWidth, yPos + 1);
+                                            }
+
+                                            // Add strikethrough if needed
+                                            if (textDecoration.includes('line-through')) {
+                                                const textWidth = doc.getTextWidth(line);
+                                                const textHeight = doc.getTextDimensions(line).h;
+                                                doc.setLineWidth(0.2); // Thinner line for strikethrough
+                                                doc.setDrawColor(0, 0, 0);
+                                                doc.line(x, yPos - textHeight / 4, x + textWidth, yPos - textHeight / 4);
+                                            }
+                                        }
+
+                                        yPos += 4;
+                                    });
+
+                                    // Reset text color
+                                    doc.setTextColor(0, 0, 0);
+                                    return yPos;
+                                }
+
+                                // Handle element nodes
+                                if (element.nodeType === Node.ELEMENT_NODE) {
+                                    switch (tagName) {
+                                        case 'h1':
+                                            doc.setFontSize(14);
+                                            doc.setFont(undefined, 'bold');
+                                            yPos = renderChildren(element, yPos, indent, linkUrl);
+                                            yPos += 4;
+                                            doc.setFontSize(9); // Reset font size
+                                            return yPos;
+
+                                        case 'h2':
+                                            doc.setFontSize(12);
+                                            doc.setFont(undefined, 'bold');
+                                            yPos = renderChildren(element, yPos, indent, linkUrl);
+                                            yPos += 3;
+                                            doc.setFontSize(9);
+                                            return yPos;
+
+                                        case 'h3':
+                                            doc.setFontSize(11);
+                                            doc.setFont(undefined, 'bold');
+                                            yPos = renderChildren(element, yPos, indent, linkUrl);
+                                            yPos += 3;
+                                            doc.setFontSize(9);
+                                            return yPos;
+
+                                        case 'h4':
+                                        case 'h5':
+                                        case 'h6':
+                                            doc.setFontSize(10);
+                                            doc.setFont(undefined, 'bold');
+                                            yPos = renderChildren(element, yPos, indent, linkUrl);
+                                            yPos += 2;
+                                            doc.setFontSize(9);
+                                            return yPos;
+
+                                        case 'p':
+                                            doc.setFontSize(9);
+                                            yPos = renderChildren(element, yPos, indent, linkUrl);
+                                            yPos += 2;
+                                            return yPos;
+
+                                        case 'a':
+                                            const href = element.getAttribute('href');
+                                            if (href) {
+                                                // Render children but indicate they are links so text is rendered with link annotations
+                                                yPos = renderChildren(element, yPos, indent, href);
+                                            } else {
+                                                yPos = renderChildren(element, yPos, indent, linkUrl);
+                                            }
+                                            return yPos;
+
+                                        case 'ul':
+                                            yPos = renderList(element, yPos, indent, 'bullet', linkUrl);
+                                            return yPos;
+
+                                        case 'ol':
+                                            yPos = renderList(element, yPos, indent, 'numbered', linkUrl);
+                                            return yPos;
+
+                                        case 'li':
+                                            yPos = renderChildren(element, yPos, indent, linkUrl);
+                                            return yPos;
+
+                                        case 'blockquote':
+                                            doc.setFontSize(9);
+                                            doc.setTextColor(100, 100, 100);
+                                            yPos = renderChildren(element, yPos, indent + 5, linkUrl);
+                                            doc.setTextColor(0, 0, 0);
+                                            yPos += 2;
+                                            return yPos;
+
+                                        case 'br':
+                                            return yPos + 4;
+
+                                        default:
+                                            yPos = renderChildren(element, yPos, indent, linkUrl);
+                                            return yPos;
+                                    }
+                                }
+
+                                return yPos;
+                            }
+                            function renderChildren(element, currentY, indent = 0, linkUrl = null) {
+                                let yPos = currentY;
+                                const children = element.childNodes;
+
+                                for (let i = 0; i < children.length; i++) {
+                                    yPos = renderElement(children[i], yPos, indent, linkUrl);
+                                }
+
+                                return yPos;
+                            }
+
+                            function renderList(listElement, currentY, indent, type, linkUrl = null) {
+                                let yPos = currentY;
+                                const items = listElement.children;
+
+                                for (let i = 0; i < items.length; i++) {
+                                    const item = items[i];
+                                    if (item.tagName && item.tagName.toLowerCase() === 'li') {
+                                        if (yPos > pageHeight - 25) {
+                                            doc.addPage();
+                                            yPos = margin;
+                                        }
+
+                                        const bullet = type === 'bullet' ? '•' : `${i + 1}.`;
+                                        doc.setFontSize(9);
+                                        doc.setFont(undefined, 'normal');
+
+                                        // Render bullet/number
+                                        doc.text(bullet, margin + 3 + indent, yPos);
+
+                                        // Render list item content
+                                        yPos = renderElement(item, yPos, indent + 7, linkUrl);
+                                    }
+                                }
+
+                                return yPos + 2;
+                            }
+
+                            yPos = renderElement(notulensiEl, yPos, 0, null);
                         }
+                    } catch (err) {
+                        console.error('Error rendering notulensi HTML:', err);
+                        // Fallback: render plain text
+                        const notulensiParagraphs = isiNotulensi.split('\n').filter(p => p.trim() !== '');
 
-                        const paragraphLines = doc.splitTextToSize(paragraph.trim(), contentWidth - 5);
-                        paragraphLines.forEach(line => {
-                            if (yPos > pageHeight - 25) {
+                        notulensiParagraphs.forEach((paragraph, index) => {
+                            if (yPos > pageHeight - 30) {
                                 doc.addPage();
                                 yPos = margin;
                             }
-                            doc.text(line, margin + 3, yPos);
-                            yPos += 5;
+
+                            const paragraphLines = doc.splitTextToSize(paragraph.trim(), contentWidth - 5);
+                            paragraphLines.forEach(line => {
+                                if (yPos > pageHeight - 25) {
+                                    doc.addPage();
+                                    yPos = margin;
+                                }
+                                doc.text(line, margin + 3, yPos);
+                                yPos += 5;
+                            });
+
+                            if (index < notulensiParagraphs.length - 1) {
+                                yPos += 3;
+                            }
                         });
 
-                        // Add spacing between paragraphs
-                        if (index < notulensiParagraphs.length - 1) {
-                            yPos += 3;
-                        }
-                    });
-
-                    yPos += 8;
+                        yPos += 8;
+                    }
 
                     // ========== DOKUMENTASI ==========
                     if (dokumentasiList.length > 0) {
@@ -523,73 +813,97 @@
                             yPos = margin;
                         }
 
-                        doc.setFontSize(11);
+                        doc.setFontSize(10);
                         doc.setFont(undefined, 'bold');
                         doc.text('• DOKUMENTASI', margin, yPos);
-                        yPos += 10;
+                        yPos += 8;
 
                         exportBtnText.textContent = `Memuat Gambar (0/${dokumentasiList.length})...`;
 
-                        for (let i = 0; i < dokumentasiList.length; i++) {
-                            exportBtnText.textContent = `Memuat Gambar (${i + 1}/${dokumentasiList.length})...`;
+                        // Display images in a 2-column grid
+                        const imagesPerRow = 2;
+                        const imageSpacing = 5;
+                        const availableWidth = contentWidth - (imageSpacing * (imagesPerRow - 1));
+                        const imageWidth = availableWidth / imagesPerRow;
+                        const imageHeight = 60; // Fixed height for grid layout
 
-                            try {
-                                const imgUrl = dokumentasiList[i];
+                        let currentImageIndex = 0;
 
-                                const img = await Promise.race([
-                                    new Promise((resolve, reject) => {
-                                        const image = new Image();
-                                        image.crossOrigin = 'Anonymous';
-                                        image.onload = () => resolve(image);
-                                        image.onerror = reject;
-                                        image.src = imgUrl;
-                                    }),
-                                    new Promise((_, reject) =>
-                                        setTimeout(() => reject(new Error('Timeout')), 10000)
-                                    )
-                                ]);
+                        for (let row = 0; currentImageIndex < dokumentasiList.length; row++) {
+                            if (yPos + imageHeight + 15 > pageHeight - 20) {
+                                doc.addPage();
+                                yPos = margin;
+                            }
 
-                                const maxWidth = contentWidth - 10;
-                                const maxHeight = 80;
+                            // Process images for this row
+                            for (let col = 0; col < imagesPerRow && currentImageIndex < dokumentasiList.length; col++) {
+                                exportBtnText.textContent = `Memuat Gambar (${currentImageIndex + 1}/${dokumentasiList.length})...`;
 
-                                let imgWidth = img.width;
-                                let imgHeight = img.height;
+                                try {
+                                    const imgUrl = dokumentasiList[currentImageIndex];
 
-                                const ratio = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
-                                imgWidth = imgWidth * ratio;
-                                imgHeight = imgHeight * ratio;
+                                    const img = await Promise.race([
+                                        new Promise((resolve, reject) => {
+                                            const image = new Image();
+                                            image.crossOrigin = 'Anonymous';
+                                            image.onload = () => resolve(image);
+                                            image.onerror = reject;
+                                            image.src = imgUrl;
+                                        }),
+                                        new Promise((_, reject) =>
+                                            setTimeout(() => reject(new Error('Timeout')), 10000)
+                                        )
+                                    ]);
 
-                                if (yPos + imgHeight + 15 > pageHeight - 20) {
-                                    doc.addPage();
-                                    yPos = margin;
+                                    // Calculate image position in grid
+                                    const xPos = margin + (col * (imageWidth + imageSpacing));
+                                    const yPosImage = yPos;
+
+                                    // Calculate image size to fit in grid cell while maintaining aspect ratio
+                                    let imgDisplayWidth = imageWidth;
+                                    let imgDisplayHeight = (img.height / img.width) * imageWidth;
+
+                                    // If image is taller than grid cell, scale it down
+                                    if (imgDisplayHeight > imageHeight) {
+                                        const scaleRatio = imageHeight / imgDisplayHeight;
+                                        imgDisplayWidth *= scaleRatio;
+                                        imgDisplayHeight = imageHeight;
+                                    }
+
+                                    // Center image horizontally in its grid cell
+                                    const centeredX = xPos + (imageWidth - imgDisplayWidth) / 2;
+
+                                    // Add image
+                                    doc.addImage(img, 'JPEG', centeredX, yPosImage, imgDisplayWidth, imgDisplayHeight, undefined, 'FAST');
+
+                                    // Add small label below image
+                                    doc.setFontSize(7);
+                                    doc.setFont(undefined, 'italic');
+                                    doc.setTextColor(100, 100, 100);
+                                    doc.text(`Gambar ${currentImageIndex + 1}`, centeredX + imgDisplayWidth / 2, yPosImage + imgDisplayHeight + 3, { align: 'center' });
+                                    doc.setTextColor(0, 0, 0);
+
+                                } catch (error) {
+                                    console.error('Error loading image:', error);
+                                    // Draw placeholder rectangle
+                                    doc.setDrawColor(200, 200, 200);
+                                    doc.setLineWidth(0.5);
+                                    const xPos = margin + (col * (imageWidth + imageSpacing));
+                                    doc.rect(xPos, yPos, imageWidth, imageHeight);
+
+                                    // Add error text
+                                    doc.setFontSize(7);
+                                    doc.setFont(undefined, 'italic');
+                                    doc.setTextColor(150, 150, 150);
+                                    doc.text(`Gambar ${currentImageIndex + 1}: Gagal dimuat`, xPos + imageWidth / 2, yPos + imageHeight / 2, { align: 'center' });
+                                    doc.setTextColor(0, 0, 0);
                                 }
 
-                                // Image label
-                                doc.setFontSize(9);
-                                doc.setFont(undefined, 'italic');
-                                doc.setTextColor(80, 80, 80);
-                                doc.text(`Gambar ${i + 1}`, margin + 5, yPos);
-                                yPos += 5;
-
-                                // Border
-                                doc.setDrawColor(150, 150, 150);
-                                doc.setLineWidth(0.3);
-                                doc.rect(margin + 5, yPos, imgWidth, imgHeight);
-
-                                // Image
-                                doc.addImage(img, 'JPEG', margin + 5, yPos, imgWidth, imgHeight);
-                                yPos += imgHeight + 10;
-
-                                doc.setTextColor(0, 0, 0);
-
-                            } catch (error) {
-                                console.error('Error loading image:', error);
-                                doc.setFontSize(9);
-                                doc.setTextColor(150, 150, 150);
-                                doc.text(`Gambar ${i + 1}: Gagal dimuat`, margin + 5, yPos);
-                                yPos += 8;
-                                doc.setTextColor(0, 0, 0);
+                                currentImageIndex++;
                             }
+
+                            // Move to next row
+                            yPos += imageHeight + 15;
                         }
                     }
 
@@ -611,7 +925,7 @@
                         doc.line(margin, pageHeight - 20, pageWidth - margin, pageHeight - 20);
 
                         // Footer text
-                        doc.setFontSize(8);
+                        doc.setFontSize(7); // Smaller footer font
                         doc.setTextColor(100, 100, 100);
                         doc.setFont(undefined, 'italic');
 
@@ -653,6 +967,38 @@
                     exportBtnText.textContent = originalText;
                 }
             }
+        </script>
+        <script>
+            // Normalize and style links inside rendered Quill HTML
+            document.addEventListener('DOMContentLoaded', function () {
+                const container = document.querySelector('.notulensi-content');
+                if (!container) return;
+
+                container.querySelectorAll('a').forEach(function (a) {
+                    try {
+                        let rawHref = a.getAttribute('href') || '';
+
+                        // If href looks like plain domain without scheme, prepend https://
+                        if (rawHref && !/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(rawHref) && !rawHref.startsWith('#')) {
+                            a.setAttribute('href', 'https://' + rawHref);
+                        }
+
+                        // Open in new tab and safe settings
+                        a.setAttribute('target', '_blank');
+                        a.setAttribute('rel', 'noopener noreferrer');
+
+                        // Shorten visible text: remove protocol and trailing slash
+                        const visible = (a.textContent || a.getAttribute('href') || '').toString();
+                        const cleaned = visible.replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/$/, '');
+                        a.textContent = cleaned;
+
+                        // Ensure styling class applied
+                        a.classList.add('notulensi-link');
+                    } catch (err) {
+                        console.error('Error normalizing link in notulensi view:', err);
+                    }
+                });
+            });
         </script>
     @endpush
 @endsection

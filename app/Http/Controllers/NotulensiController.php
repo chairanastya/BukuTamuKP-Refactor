@@ -52,13 +52,12 @@ class NotulensiController extends Controller
         $request->validate([
             'jam_selesai' => 'required|date_format:H:i',
             'anggota_rapat' => 'nullable|string|max:1000',
-            'isi_notulensi' => 'required|string|min:50',
+            'isi_notulensi' => 'required|string',
             'dokumentasi.*' => 'nullable|image|mimes:jpeg,png,jpg|max:5120', // Max 5MB per file
         ], [
             'jam_selesai.required' => 'Jam selesai harus diisi.',
             'jam_selesai.date_format' => 'Format jam selesai tidak valid.',
             'isi_notulensi.required' => 'Isi notulensi harus diisi.',
-            'isi_notulensi.min' => 'Isi notulensi minimal 50 karakter.',
             'dokumentasi.*.image' => 'File harus berupa gambar.',
             'dokumentasi.*.mimes' => 'Format gambar harus jpeg, png, atau jpg.',
             'dokumentasi.*.max' => 'Ukuran gambar maksimal 5MB.',

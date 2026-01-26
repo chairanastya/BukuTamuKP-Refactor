@@ -174,14 +174,13 @@
                             Notulensi Kunjungan/Rapat <span class="text-red-500">*</span>
                         </label>
                         <div class="input-wrapper">
-                            <textarea name="isi_notulensi" id="isi_notulensi" rows="12" required
-                                placeholder="Tuliskan ringkasan pembahasan, keputusan yang diambil, dan tindak lanjut yang diperlukan...">{{ old('isi_notulensi') }}</textarea>
+                            <div id="quill-editor" class="bg-white" style="min-height:220px;">{!! old('isi_notulensi') !!}</div>
+                            <input type="hidden" name="isi_notulensi" id="isi_notulensi_input" value="{{ old('isi_notulensi') }}">
                         </div>
                         @error('isi_notulensi')
                             <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
                         @enderror
-                        <p class="text-gray-500 text-sm mt-2">Minimal 50 karakter. Sertakan detail lengkap untuk dokumentasi
-                            yang baik.</p>
+                        <p class="text-gray-500 text-sm mt-2">Gunakan editor untuk memformat notulensi (tebal, miring, daftar, tautan).</p>
                     </div>
 
                     <!-- Baris 7: Dokumentasi Rapat -->
@@ -367,7 +366,70 @@
         </style>
     @endpush
 
+    @push('styles')
+        <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    @endpush
+
     @push('scripts')
+        <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var initialContent = @json(old('isi_notulensi', ''));
+                var quill;
+                if (document.querySelector('#quill-editor')) {
+                    quill = new Quill('#quill-editor', {
+                        theme: 'snow',
+                        modules: {
+                            toolbar: [
+                                ['bold', 'italic', 'underline', 'strike'],
+                                [{ 'header': [1, 2, 3, false] }],
+                                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                ['link']
+                            ]
+                        }
+                    });
+
+                    if (initialContent) {
+                        quill.root.innerHTML = initialContent;
+                    }
+
+                    // Disable image paste and drop to prevent inserting images
+                    quill.root.addEventListener('paste', function (e) {
+                        try {
+                            if (e.clipboardData && e.clipboardData.items) {
+                                for (var i = 0; i < e.clipboardData.items.length; i++) {
+                                    var item = e.clipboardData.items[i];
+                                    if (item && item.type && item.type.indexOf('image') !== -1) {
+                                        e.preventDefault();
+                                        return;
+                                    }
+                                }
+                            }
+                        } catch (err) {
+                            console.error('Error handling paste event:', err);
+                        }
+                    });
+
+                    quill.root.addEventListener('drop', function (e) {
+                        try {
+                            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+                                // Prevent dropping files (images)
+                                e.preventDefault();
+                                return;
+                            }
+                        } catch (err) {
+                            console.error('Error handling drop event:', err);
+                        }
+                    });
+
+                    var form = document.getElementById('notulensi-form');
+                    form.addEventListener('submit', function (e) {
+                        var html = quill.root.innerHTML;
+                        document.getElementById('isi_notulensi_input').value = html;
+                    });
+                }
+            });
+        </script>
         <script>
             const dokumentasiInput = document.getElementById('dokumentasi');
             const previewContainer = document.getElementById('preview-container');
