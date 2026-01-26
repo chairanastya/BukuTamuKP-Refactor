@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Mail\KunjunganNotification;
 use App\Mail\NotulensiRequest;
 use App\Helpers\BadgeHelper;
@@ -596,6 +598,76 @@ class ResepsionisController extends Controller
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat mengambil data notulensi'
             ], 500);
+        }
+    }
+
+    /**
+     * Show the change password form.
+     */
+    public function editPassword()
+    {
+        return view('resepsionis.change-password');
+    }
+
+    /**
+     * Verify current password via AJAX.
+     */
+    public function verifyPassword(Request $request)
+    {
+        $user = Auth::guard('resepsionis')->user();
+
+        $isValid = Hash::check($request->current_password, $user->password_resepsionis);
+
+        return response()->json([
+            'valid' => $isValid
+        ]);
+    }
+
+    /**
+     * Update the user's password.
+     */
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:8|confirmed',
+        ], [
+            'current_password.required' => 'Password saat ini wajib diisi',
+            'new_password.required' => 'Password baru wajib diisi',
+            'new_password.min' => 'Password baru minimal 8 karakter',
+            'new_password.confirmed' => 'Konfirmasi password tidak cocok',
+        ]);
+
+        $user = Auth::guard('resepsionis')->user();
+
+        // Verify current password
+        if (!Hash::check($request->current_password, $user->password_resepsionis)) {
+            return back()->withErrors([
+                'current_password' => 'Password saat ini tidak sesuai'
+            ])->withInput();
+        }
+
+        // Check if new password is same as current
+        if (Hash::check($request->new_password, $user->password_resepsionis)) {
+            return back()->withErrors([
+                'new_password' => 'Password baru tidak boleh sama dengan password saat ini'
+            ])->withInput();
+        }
+
+        try {
+            // Update password
+            $user->password_resepsionis = Hash::make($request->new_password);
+            $user->save();
+
+            Log::info('Password changed successfully for resepsionis: ' . $user->email_resepsionis);
+
+            return redirect()->route('resepsionis.password.edit')
+                ->with('status', 'Password berhasil diubah!');
+        } catch (\Exception $e) {
+            Log::error('Failed to update password: ' . $e->getMessage());
+            return back()->withErrors([
+                'error' => 'Terjadi kesalahan saat mengubah password. Silakan coba lagi.'
+            ])->withInput();
         }
     }
 }

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Resepsionis;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -47,11 +49,20 @@ class ResepsionisAccountController extends Controller
     {
         $request->validate([
             'password' => 'required|min:8|confirmed',
+            'g-recaptcha-response' => 'required',
         ], [
             'password.required' => 'Password wajib diisi',
             'password.min' => 'Password minimal 8 karakter',
             'password.confirmed' => 'Konfirmasi password tidak cocok',
+            'g-recaptcha-response.required' => 'Silakan verifikasi bahwa Anda bukan robot',
         ]);
+
+        // Verify reCAPTCHA
+        if (!$this->verifyRecaptcha($request->input('g-recaptcha-response'), $request->ip())) {
+            return back()->withErrors([
+                'g-recaptcha-response' => 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.',
+            ])->withInput();
+        }
 
         $resepsionis = Resepsionis::where('token_setup', $token)
             ->where('token_setup_expired_at', '>', now())
@@ -76,5 +87,31 @@ class ResepsionisAccountController extends Controller
 
         return redirect()->route('resepsionis.login')
             ->with('status', 'Akun berhasil dibuat! Silakan login dengan email dan password yang telah Anda buat.');
+    }
+
+    private function verifyRecaptcha(string $response, string $remoteip): bool
+    {
+        try {
+            $recaptchaSecret = config('services.recaptcha.secret_key');
+            $isTestKey = $recaptchaSecret === '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
+            $isLocal = config('app.env') === 'local';
+
+            if ($isTestKey && $isLocal) {
+                \Log::info('reCAPTCHA: Using test keys in local environment - bypassing verification');
+                return true;
+            }
+
+            $httpResponse = Http::post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => $recaptchaSecret,
+                'response' => $response,
+                'remoteip' => $remoteip,
+            ]);
+
+            $recaptchaData = $httpResponse->json();
+            return isset($recaptchaData['success']) && $recaptchaData['success'];
+        } catch (\Exception $e) {
+            Log::error('reCAPTCHA verification failed', ['error' => $e->getMessage()]);
+            return false;
+        }
     }
 }
