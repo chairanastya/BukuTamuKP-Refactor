@@ -2,28 +2,6 @@
 @section('title', 'Notulensi & Dokumentasi')
 @section('header', 'Buku Tamu Digital')
 
-@push('styles')
-    <style>
-        .input-wrapper {
-            border: 2px solid #084E8F;
-            border-radius: 8px;
-            padding: 8px;
-            width: 100%;
-            transition: all 0.2s ease;
-            background-color: white;
-        }
-
-        .input-wrapper input,
-        .input-wrapper textarea,
-        .input-wrapper select {
-            background-color: transparent;
-            width: 100%;
-            border: none;
-            outline: none;
-        }
-    </style>
-@endpush
-
 @section('content')
     <div class="container mx-auto px-4 py-8 mt-24">
         <div class="max-w-6xl mx-auto">
@@ -39,32 +17,29 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                 <!-- Baris 1: Nama Lengkap & Email -->
-                <div>
-                    <label class="block text-[#084E8F] font-semibold mb-2">Nama Lengkap</label>
-                    <div class="input-wrapper">
-                        <input type="text" value="{{ $notulensi->kunjungan->tamu->nama_tamu }}" readonly>
-                    </div>
-                </div>
+                <x-input-wrapper 
+                    label="Nama Lengkap"
+                    type="text"
+                    value="{{ $notulensi->kunjungan->tamu->nama_tamu }}"
+                    readonly />
 
-                <div>
-                    <label class="block text-[#084E8F] font-semibold mb-2">Alamat Email</label>
-                    <div class="input-wrapper">
-                        <input type="text" value="{{ $notulensi->kunjungan->tamu->email_tamu }}" readonly>
-                    </div>
-                </div>
+                <x-input-wrapper 
+                    label="Alamat Email"
+                    type="text"
+                    value="{{ $notulensi->kunjungan->tamu->email_tamu }}"
+                    readonly />
 
                 <!-- Baris 2: Instansi Asal & Karyawan Tertuju -->
-                <div>
-                    <label class="block text-[#084E8F] font-semibold mb-2">Instansi Asal</label>
-                    <div class="input-wrapper">
-                        <input type="text" value="{{ $notulensi->kunjungan->tamu->instansi_tamu ?? '-' }}" readonly>
-                    </div>
-                </div>
+                <x-input-wrapper 
+                    label="Instansi Asal"
+                    type="text"
+                    value="{{ $notulensi->kunjungan->tamu->instansi_tamu ?? '-' }}"
+                    readonly />
 
                 <div>
                     <label class="block text-[#084E8F] font-semibold mb-2">Karyawan Tertuju</label>
                     @if($notulensi->kunjungan->karyawan->count() == 1)
-                        <div class="input-wrapper">
+                        <div class="input-wrapper readonly">
                             <input type="text"
                                 value="{{ $notulensi->kunjungan->karyawan->first()->nama_karyawan }} - {{ $notulensi->kunjungan->karyawan->first()->jabatan }}"
                                 readonly>
@@ -81,31 +56,29 @@
                 </div>
 
                 <!-- Baris 3: Tujuan Kunjungan/Rapat -->
-                <div class="lg:col-span-2">
-                    <label class="block text-[#084E8F] font-semibold mb-2">Tujuan Kunjungan/Rapat</label>
-                    <div class="input-wrapper">
-                        <textarea rows="3" readonly>{{ $notulensi->kunjungan->tujuan_kunjungan }}</textarea>
-                    </div>
-                </div>
+                <x-input-wrapper 
+                    label="Tujuan Kunjungan/Rapat"
+                    type="textarea"
+                    value="{{ $notulensi->kunjungan->tujuan_kunjungan }}"
+                    rows="3"
+                    readonly 
+                    class="lg:col-span-2" />
 
                 <!-- Baris 4: Tanggal & Jam -->
-                <div>
-                    <label class="block text-[#084E8F] font-semibold mb-2">Tanggal Kunjungan/Rapat</label>
-                    <div class="input-wrapper">
-                        <input type="text"
-                            value="{{ \Carbon\Carbon::parse($notulensi->kunjungan->tanggal_kunjungan)->format('l, d F Y') }}"
-                            readonly>
-                    </div>
-                </div>
+                <x-input-wrapper 
+                    label="Tanggal Kunjungan/Rapat"
+                    type="text"
+                    value="{{ \Carbon\Carbon::parse($notulensi->kunjungan->tanggal_kunjungan)->format('l, d F Y') }}"
+                    readonly />
 
                 <div>
                     <label class="block text-[#084E8F] font-semibold mb-2">Jam Kunjungan/Rapat</label>
                     <div class="flex gap-2 items-center">
-                        <div class="input-wrapper flex-1">
+                        <div class="input-wrapper readonly flex-1">
                             <input type="text" value="{{ $notulensi->kunjungan->jam_mulai }}" readonly>
                         </div>
                         <span class="text-gray-600">—</span>
-                        <div class="input-wrapper flex-1">
+                        <div class="input-wrapper readonly flex-1">
                             <input type="text" value="{{ $notulensi->kunjungan->jam_selesai ?? '...' }}" readonly>
                         </div>
                     </div>
@@ -113,14 +86,16 @@
 
                 <!-- Baris 5: Anggota Kunjungan/Rapat -->
                 @if($notulensi->anggota_rapat)
-                    <div class="lg:col-span-2">
-                        <label class="block text-[#084E8F] font-semibold mb-2">
+                    <x-input-wrapper 
+                        type="textarea"
+                        value="{{ $notulensi->anggota_rapat }}"
+                        rows="4"
+                        readonly 
+                        class="lg:col-span-2">
+                        <x-slot:label>
                             Anggota Kunjungan/Rapat
-                        </label>
-                        <div class="input-wrapper">
-                            <textarea rows="4" readonly>{{ $notulensi->anggota_rapat }}</textarea>
-                        </div>
-                    </div>
+                        </x-slot:label>
+                    </x-input-wrapper>
                 @endif
 
                 <!-- Baris 6: Notulensi Rapat -->
@@ -177,111 +152,10 @@
         </div>
     </div>
 
-    <!-- Modal Popup untuk Daftar Karyawan -->
+    <!-- Use Karyawan List Modal Component -->
     @if($notulensi->kunjungan->karyawan->count() > 1)
-        <div id="karyawan_modal" class="modal-overlay">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title">Daftar Karyawan Tertuju</h2>
-                    <button type="button" class="modal-close" onclick="closeKaryawanModal()">&times;</button>
-                </div>
-                <div class="px-1">
-                    <p class="text-gray-600 mb-4">Total {{ $notulensi->kunjungan->karyawan->count() }} karyawan yang terlibat
-                        dalam kunjungan ini:</p>
-                    <div class="space-y-3">
-                        @foreach($notulensi->kunjungan->karyawan as $index => $karyawan)
-                            <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                <div
-                                    class="flex-shrink-0 w-8 h-8 bg-[#084E8F] text-white rounded-full flex items-center justify-center font-bold">
-                                    {{ $index + 1 }}
-                                </div>
-                                <div class="flex-1">
-                                    <p class="font-semibold text-gray-800">{{ $karyawan->nama_karyawan }}</p>
-                                    <p class="text-sm text-gray-600">{{ $karyawan->jabatan }}</p>
-                                    @if($karyawan->email_karyawan)
-                                        <p class="text-sm text-gray-500 mt-1">{{ $karyawan->email_karyawan }}</p>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                    <div class="mt-6">
-                        <button type="button" onclick="closeKaryawanModal()"
-                            class="w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-4 rounded-lg transition">
-                            Tutup
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-karyawan-list-modal :karyawanList="$notulensi->kunjungan->karyawan" />
     @endif
-
-    @push('styles')
-        <style>
-            .modal-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.5);
-                display: none;
-                align-items: center;
-                justify-content: center;
-                z-index: 9999;
-                padding: 20px;
-            }
-
-            .modal-overlay.show {
-                display: flex;
-            }
-
-            .modal-content {
-                background-color: white;
-                border-radius: 12px;
-                padding: 24px;
-                max-width: 600px;
-                width: 100%;
-                max-height: 90vh;
-                overflow-y: auto;
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            }
-
-            .modal-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-                padding-bottom: 12px;
-                border-bottom: 2px solid #e5e7eb;
-            }
-
-            .modal-title {
-                font-size: 1.5rem;
-                font-weight: bold;
-                color: #084E8F;
-            }
-
-            .modal-close {
-                background: none;
-                border: none;
-                font-size: 2rem;
-                color: #6b7280;
-                cursor: pointer;
-                padding: 0;
-                width: 32px;
-                height: 32px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: color 0.2s;
-            }
-
-            .modal-close:hover {
-                color: #ef4444;
-            }
-        </style>
-    @endpush
 
     @push('styles')
         <style>
@@ -358,27 +232,6 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
         <script>
-            const karyawanModal = document.getElementById('karyawan_modal');
-
-            function openKaryawanModal() {
-                if (karyawanModal) {
-                    karyawanModal.classList.add('show');
-                }
-            }
-
-            function closeKaryawanModal() {
-                if (karyawanModal) {
-                    karyawanModal.classList.remove('show');
-                }
-            }
-
-            // Close modal on backdrop click
-            if (karyawanModal) {
-                karyawanModal.addEventListener('click', function (e) {
-                    if (e.target === karyawanModal) closeKaryawanModal();
-                });
-            }
-
             async function exportToPDF() {
                 // Disable button and show loading
                 const exportBtn = document.getElementById('exportBtn');
