@@ -1,0 +1,9 @@
+node_modules
+tests
+database/seeders
+*.log
+.env.example
+.git
+.gitignore
+storage/logs
+bootstrap/cache
