@@ -107,7 +107,7 @@
                     <input type="hidden" id="foto_ktp_base64" name="foto_ktp" value="{{ old('foto_ktp') }}">
                     
                     @error('foto_ktp')
-                        <div id="foto_error" class="error-message show">
+                        <div class="error-message show">
                             @svg('heroicon-o-x-circle', 'inline w-4 h-4 mr-1')
                             {{ $message }}
                         </div>
