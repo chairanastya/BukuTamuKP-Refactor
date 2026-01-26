@@ -133,8 +133,17 @@ class NewPasswordController extends Controller
     private function verifyRecaptcha(string $response, string $remoteip): bool
     {
         try {
+            $recaptchaSecret = config('services.recaptcha.secret_key');
+            $isTestKey = $recaptchaSecret === '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
+            $isLocal = config('app.env') === 'local';
+
+            if ($isTestKey && $isLocal) {
+                \Log::info('reCAPTCHA: Using test keys in local environment - bypassing verification');
+                return true;
+            }
+
             $httpResponse = Http::post('https://www.google.com/recaptcha/api/siteverify', [
-                'secret' => config('services.recaptcha.secret_key'),
+                'secret' => $recaptchaSecret,
                 'response' => $response,
                 'remoteip' => $remoteip,
             ]);

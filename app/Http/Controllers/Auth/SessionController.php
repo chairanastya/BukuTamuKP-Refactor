@@ -49,25 +49,68 @@ class SessionController extends Controller
         $recaptchaResponse = $request->input('g-recaptcha-response');
         $recaptchaSecret = config('services.recaptcha.secret_key');
 
-        try {
-            $httpResponse = Http::post('https://www.google.com/recaptcha/api/siteverify', [
-                'secret' => $recaptchaSecret,
-                'response' => $recaptchaResponse,
-                'remoteip' => $request->ip(),
+        // DEVELOPMENT BYPASS: Skip verification if using test keys in local environment
+        $isTestKey = $recaptchaSecret === '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
+        $isLocal = config('app.env') === 'local';
+
+        if ($isTestKey && $isLocal) {
+            \Log::info('reCAPTCHA: Using test keys in local environment - bypassing verification');
+            // Skip to authentication
+        } else {
+            // Log detail token untuk debugging
+            \Log::info('reCAPTCHA Token Details', [
+                'token_length' => strlen($recaptchaResponse ?? ''),
+                'token_preview' => substr($recaptchaResponse ?? '', 0, 50) . '...',
+                'client_ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
             ]);
 
-            /** @var array{success: bool, challenge_ts?: string, hostname?: string, error-codes?: array<string>} $recaptchaData */
-            $recaptchaData = $httpResponse->json();
+            try {
+                $httpResponse = Http::post('https://www.google.com/recaptcha/api/siteverify', [
+                    'secret' => $recaptchaSecret,
+                    'response' => $recaptchaResponse,
+                    'remoteip' => $request->ip(),
+                ]);
 
-            if (!isset($recaptchaData['success']) || !$recaptchaData['success']) {
+                /** @var array{success: bool, challenge_ts?: string, hostname?: string, error-codes?: array<string>} $recaptchaData */
+                $recaptchaData = $httpResponse->json();
+
+                // Log untuk debugging
+                \Log::info('reCAPTCHA Response', [
+                    'success' => $recaptchaData['success'] ?? false,
+                    'error-codes' => $recaptchaData['error-codes'] ?? [],
+                    'hostname' => $recaptchaData['hostname'] ?? null,
+                    'challenge_ts' => $recaptchaData['challenge_ts'] ?? null,
+                ]);
+
+                if (!isset($recaptchaData['success']) || !$recaptchaData['success']) {
+                    $errorCodes = $recaptchaData['error-codes'] ?? [];
+                    $errorMessage = 'Verifikasi reCAPTCHA gagal. ';
+
+                    if (in_array('invalid-input-secret', $errorCodes)) {
+                        $errorMessage .= 'Secret key tidak valid.';
+                    } elseif (in_array('invalid-input-response', $errorCodes)) {
+                        $errorMessage .= 'Response token tidak valid.';
+                    } elseif (in_array('timeout-or-duplicate', $errorCodes)) {
+                        $errorMessage .= 'Token sudah kadaluarsa atau sudah digunakan.';
+                    } else {
+                        $errorMessage .= 'Silakan coba lagi.';
+                    }
+
+                    return back()->withErrors([
+                        'g-recaptcha-response' => $errorMessage,
+                    ])->onlyInput('email');
+                }
+            } catch (\Exception $e) {
+                \Log::error('reCAPTCHA Exception', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+
                 return back()->withErrors([
-                    'g-recaptcha-response' => 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.',
+                    'g-recaptcha-response' => 'Gagal melakukan verifikasi reCAPTCHA. Silakan coba lagi.',
                 ])->onlyInput('email');
             }
-        } catch (\Exception $e) {
-            return back()->withErrors([
-                'g-recaptcha-response' => 'Gagal melakukan verifikasi reCAPTCHA. Silakan coba lagi.',
-            ])->onlyInput('email');
         }
 
         $resepsionis = Resepsionis::where('email_resepsionis', $request->email)->first();
