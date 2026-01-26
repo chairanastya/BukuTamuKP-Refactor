@@ -177,10 +177,9 @@
                         <label for="isi_notulensi" class="block text-[#084E8F] font-semibold mb-2">
                             Notulensi Kunjungan/Rapat <span class="text-red-500">*</span>
                         </label>
-                        <div class="input-wrapper">
-                            <div id="quill-editor" class="bg-white" style="min-height:220px;">{!! old('isi_notulensi') !!}</div>
-                            <input type="hidden" name="isi_notulensi" id="isi_notulensi_input" value="{{ old('isi_notulensi') }}">
-                        </div>
+
+                        <x-quill-editor-wrapper name="isi_notulensi" :value="old('isi_notulensi')" />
+
                         <x-input-error :messages="$errors->get('isi_notulensi')" class="mt-2" />
                         <p class="text-gray-500 text-sm mt-2">Gunakan editor untuk memformat notulensi (tebal, miring, daftar, tautan).</p>
                     </div>
@@ -220,70 +219,9 @@
         <x-karyawan-list-modal :karyawanList="$kunjungan->karyawan" />
     @endif
 
-    @push('styles')
-        <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    @endpush
+    
 
     @push('scripts')
-        <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                var initialContent = @json(old('isi_notulensi', ''));
-                var quill;
-                if (document.querySelector('#quill-editor')) {
-                    quill = new Quill('#quill-editor', {
-                        theme: 'snow',
-                        modules: {
-                            toolbar: [
-                                ['bold', 'italic', 'underline', 'strike'],
-                                [{ 'header': [1, 2, 3, false] }],
-                                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                                ['link']
-                            ]
-                        }
-                    });
-
-                    if (initialContent) {
-                        quill.root.innerHTML = initialContent;
-                    }
-
-                    // Disable image paste and drop to prevent inserting images
-                    quill.root.addEventListener('paste', function (e) {
-                        try {
-                            if (e.clipboardData && e.clipboardData.items) {
-                                for (var i = 0; i < e.clipboardData.items.length; i++) {
-                                    var item = e.clipboardData.items[i];
-                                    if (item && item.type && item.type.indexOf('image') !== -1) {
-                                        e.preventDefault();
-                                        return;
-                                    }
-                                }
-                            }
-                        } catch (err) {
-                            console.error('Error handling paste event:', err);
-                        }
-                    });
-
-                    quill.root.addEventListener('drop', function (e) {
-                        try {
-                            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
-                                // Prevent dropping files (images)
-                                e.preventDefault();
-                                return;
-                            }
-                        } catch (err) {
-                            console.error('Error handling drop event:', err);
-                        }
-                    });
-
-                    var form = document.getElementById('notulensi-form');
-                    form.addEventListener('submit', function (e) {
-                        var html = quill.root.innerHTML;
-                        document.getElementById('isi_notulensi_input').value = html;
-                    });
-                }
-            });
-        </script>
         <script>
             // Additional form handling scripts
             const form = document.getElementById('notulensi-form');
