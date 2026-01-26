@@ -2,28 +2,6 @@
 @section('title', 'Notulensi & Dokumentasi')
 @section('header', 'Buku Tamu Digital')
 
-@push('styles')
-    <style>
-        .input-wrapper {
-            border: 2px solid #084E8F;
-            border-radius: 8px;
-            padding: 8px;
-            width: 100%;
-            transition: all 0.2s ease;
-            background-color: white;
-        }
-
-        .input-wrapper input,
-        .input-wrapper textarea,
-        .input-wrapper select {
-            background-color: transparent;
-            width: 100%;
-            border: none;
-            outline: none;
-        }
-    </style>
-@endpush
-
 @section('content')
     <div class="container mx-auto px-4 py-8 mt-24">
         <div class="max-w-6xl mx-auto">
@@ -39,32 +17,29 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                 <!-- Baris 1: Nama Lengkap & Email -->
-                <div>
-                    <label class="block text-[#084E8F] font-semibold mb-2">Nama Lengkap</label>
-                    <div class="input-wrapper">
-                        <input type="text" value="{{ $notulensi->kunjungan->tamu->nama_tamu }}" readonly>
-                    </div>
-                </div>
+                <x-input-wrapper 
+                    label="Nama Lengkap"
+                    type="text"
+                    value="{{ $notulensi->kunjungan->tamu->nama_tamu }}"
+                    readonly />
 
-                <div>
-                    <label class="block text-[#084E8F] font-semibold mb-2">Alamat Email</label>
-                    <div class="input-wrapper">
-                        <input type="text" value="{{ $notulensi->kunjungan->tamu->email_tamu }}" readonly>
-                    </div>
-                </div>
+                <x-input-wrapper 
+                    label="Alamat Email"
+                    type="text"
+                    value="{{ $notulensi->kunjungan->tamu->email_tamu }}"
+                    readonly />
 
                 <!-- Baris 2: Instansi Asal & Karyawan Tertuju -->
-                <div>
-                    <label class="block text-[#084E8F] font-semibold mb-2">Instansi Asal</label>
-                    <div class="input-wrapper">
-                        <input type="text" value="{{ $notulensi->kunjungan->tamu->instansi_tamu ?? '-' }}" readonly>
-                    </div>
-                </div>
+                <x-input-wrapper 
+                    label="Instansi Asal"
+                    type="text"
+                    value="{{ $notulensi->kunjungan->tamu->instansi_tamu ?? '-' }}"
+                    readonly />
 
                 <div>
                     <label class="block text-[#084E8F] font-semibold mb-2">Karyawan Tertuju</label>
                     @if($notulensi->kunjungan->karyawan->count() == 1)
-                        <div class="input-wrapper">
+                        <div class="input-wrapper readonly">
                             <input type="text"
                                 value="{{ $notulensi->kunjungan->karyawan->first()->nama_karyawan }} - {{ $notulensi->kunjungan->karyawan->first()->jabatan }}"
                                 readonly>
@@ -81,31 +56,29 @@
                 </div>
 
                 <!-- Baris 3: Tujuan Kunjungan/Rapat -->
-                <div class="lg:col-span-2">
-                    <label class="block text-[#084E8F] font-semibold mb-2">Tujuan Kunjungan/Rapat</label>
-                    <div class="input-wrapper">
-                        <textarea rows="3" readonly>{{ $notulensi->kunjungan->tujuan_kunjungan }}</textarea>
-                    </div>
-                </div>
+                <x-input-wrapper 
+                    label="Tujuan Kunjungan/Rapat"
+                    type="textarea"
+                    value="{{ $notulensi->kunjungan->tujuan_kunjungan }}"
+                    rows="3"
+                    readonly 
+                    class="lg:col-span-2" />
 
                 <!-- Baris 4: Tanggal & Jam -->
-                <div>
-                    <label class="block text-[#084E8F] font-semibold mb-2">Tanggal Kunjungan/Rapat</label>
-                    <div class="input-wrapper">
-                        <input type="text"
-                            value="{{ \Carbon\Carbon::parse($notulensi->kunjungan->tanggal_kunjungan)->format('l, d F Y') }}"
-                            readonly>
-                    </div>
-                </div>
+                <x-input-wrapper 
+                    label="Tanggal Kunjungan/Rapat"
+                    type="text"
+                    value="{{ \Carbon\Carbon::parse($notulensi->kunjungan->tanggal_kunjungan)->format('l, d F Y') }}"
+                    readonly />
 
                 <div>
                     <label class="block text-[#084E8F] font-semibold mb-2">Jam Kunjungan/Rapat</label>
                     <div class="flex gap-2 items-center">
-                        <div class="input-wrapper flex-1">
+                        <div class="input-wrapper readonly flex-1">
                             <input type="text" value="{{ $notulensi->kunjungan->jam_mulai }}" readonly>
                         </div>
                         <span class="text-gray-600">—</span>
-                        <div class="input-wrapper flex-1">
+                        <div class="input-wrapper readonly flex-1">
                             <input type="text" value="{{ $notulensi->kunjungan->jam_selesai ?? '...' }}" readonly>
                         </div>
                     </div>
@@ -114,11 +87,18 @@
                 <!-- Baris 5: Anggota Kunjungan/Rapat -->
                 @if($notulensi->anggota_rapat)
                     <div class="lg:col-span-2">
-                        <label class="block text-[#084E8F] font-semibold mb-2">
-                            Anggota Kunjungan/Rapat
-                        </label>
+                        <label class="block text-[#084E8F] font-semibold mb-2">Anggota Kunjungan/Rapat</label>
                         <div class="input-wrapper">
-                            <textarea rows="4" readonly>{{ $notulensi->anggota_rapat }}</textarea>
+                            @php
+                                $lines = preg_split('/\r\n|\r|\n/', $notulensi->anggota_rapat);
+                            @endphp
+                            <ol class="view-anggota-list" style="margin:0; padding-left:1.35rem; list-style-type:decimal;">
+                                @foreach($lines as $line)
+                                    @if(trim($line) !== '')
+                                        <li style="margin-bottom:6px; color:#0b2e4a">{{ trim($line) }}</li>
+                                    @endif
+                                @endforeach
+                            </ol>
                         </div>
                     </div>
                 @endif
@@ -128,9 +108,7 @@
                     <label class="block text-[#084E8F] font-semibold mb-2">
                         Notulensi Kunjungan/Rapat
                     </label>
-                    <div class="input-wrapper">
-                        <textarea rows="12" readonly>{{ $notulensi->isi_notulensi }}</textarea>
-                    </div>
+                    <x-notulensi-viewer :content="$notulensi->isi_notulensi" />
                 </div>
 
                 <!-- Baris 7: Dokumentasi Rapat -->
@@ -162,152 +140,34 @@
                 </div>
 
                 <!-- Buttons -->
-                <div class="lg:col-span-2 flex gap-4">
-                    <button onclick="exportToPDF()" id="exportBtn"
-                        class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-                        @svg('heroicon-o-document-text', 'w-5 h-5')
+                <div class="lg:col-span-2">
+                    <x-button
+                        variant="export-pdf"
+                        type="button"
+                        id="exportBtn"
+                        onclick="exportToPDF()"
+                        icon="heroicon-o-document-text"
+                        iconClass="w-5 h-5"
+                        class="w-full py-3"
+                    >
                         <span id="exportBtnText">Export to PDF</span>
-                    </button>
-                    <a href="{{ route('resepsionis.dashboard') }}"
-                        class="flex-1 text-center bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
-                        Kembali ke Beranda
-                    </a>
+                    </x-button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Popup untuk Daftar Karyawan -->
+    <!-- Use Karyawan List Modal Component -->
     @if($notulensi->kunjungan->karyawan->count() > 1)
-        <div id="karyawan_modal" class="modal-overlay">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title">Daftar Karyawan Tertuju</h2>
-                    <button type="button" class="modal-close" onclick="closeKaryawanModal()">&times;</button>
-                </div>
-                <div class="px-1">
-                    <p class="text-gray-600 mb-4">Total {{ $notulensi->kunjungan->karyawan->count() }} karyawan yang terlibat
-                        dalam kunjungan ini:</p>
-                    <div class="space-y-3">
-                        @foreach($notulensi->kunjungan->karyawan as $index => $karyawan)
-                            <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                <div
-                                    class="flex-shrink-0 w-8 h-8 bg-[#084E8F] text-white rounded-full flex items-center justify-center font-bold">
-                                    {{ $index + 1 }}
-                                </div>
-                                <div class="flex-1">
-                                    <p class="font-semibold text-gray-800">{{ $karyawan->nama_karyawan }}</p>
-                                    <p class="text-sm text-gray-600">{{ $karyawan->jabatan }}</p>
-                                    @if($karyawan->email_karyawan)
-                                        <p class="text-sm text-gray-500 mt-1">{{ $karyawan->email_karyawan }}</p>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                    <div class="mt-6">
-                        <button type="button" onclick="closeKaryawanModal()"
-                            class="w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-4 rounded-lg transition">
-                            Tutup
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-karyawan-list-modal :karyawanList="$notulensi->kunjungan->karyawan" />
     @endif
 
-    @push('styles')
-        <style>
-            .modal-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.5);
-                display: none;
-                align-items: center;
-                justify-content: center;
-                z-index: 9999;
-                padding: 20px;
-            }
-
-            .modal-overlay.show {
-                display: flex;
-            }
-
-            .modal-content {
-                background-color: white;
-                border-radius: 12px;
-                padding: 24px;
-                max-width: 600px;
-                width: 100%;
-                max-height: 90vh;
-                overflow-y: auto;
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            }
-
-            .modal-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-                padding-bottom: 12px;
-                border-bottom: 2px solid #e5e7eb;
-            }
-
-            .modal-title {
-                font-size: 1.5rem;
-                font-weight: bold;
-                color: #084E8F;
-            }
-
-            .modal-close {
-                background: none;
-                border: none;
-                font-size: 2rem;
-                color: #6b7280;
-                cursor: pointer;
-                padding: 0;
-                width: 32px;
-                height: 32px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: color 0.2s;
-            }
-
-            .modal-close:hover {
-                color: #ef4444;
-            }
-        </style>
-    @endpush
+    
 
     @push('scripts')
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
         <script>
-            const karyawanModal = document.getElementById('karyawan_modal');
-
-            function openKaryawanModal() {
-                if (karyawanModal) {
-                    karyawanModal.classList.add('show');
-                }
-            }
-
-            function closeKaryawanModal() {
-                if (karyawanModal) {
-                    karyawanModal.classList.remove('show');
-                }
-            }
-
-            // Close modal on backdrop click
-            if (karyawanModal) {
-                karyawanModal.addEventListener('click', function (e) {
-                    if (e.target === karyawanModal) closeKaryawanModal();
-                });
-            }
-
             async function exportToPDF() {
                 // Disable button and show loading
                 const exportBtn = document.getElementById('exportBtn');
@@ -355,12 +215,12 @@
 
                     const pageWidth = doc.internal.pageSize.getWidth();
                     const pageHeight = doc.internal.pageSize.getHeight();
-                    const margin = 20;
+                    const margin = 15; // Reduced margin for smaller file size
                     const contentWidth = pageWidth - (margin * 2);
                     let yPos = margin;
 
                     // ========== HEADER - FORMAL STYLE ==========
-                    doc.setFontSize(16);
+                    doc.setFontSize(14); // Smaller title for mobile-like appearance
                     doc.setTextColor(0, 0, 0);
                     doc.setFont(undefined, 'bold');
                     doc.text('NOTULENSI', pageWidth / 2, yPos, { align: 'center' });
@@ -373,10 +233,10 @@
                     yPos += 15;
 
                     // ========== INFO DASAR (Hari/Tanggal, Waktu, Tempat) ==========
-                    doc.setFontSize(11);
+                    doc.setFontSize(10); 
                     doc.setFont(undefined, 'normal');
 
-                    const labelWidth = 35;
+                    const labelWidth = 30;
 
                     // Hari/Tanggal
                     doc.setFont(undefined, 'bold');
@@ -392,22 +252,16 @@
                     doc.text(`: Pukul ${jamMulai} - ${jamSelesai} WIB`, margin + labelWidth, yPos);
                     yPos += 7;
 
-                    // Tempat/Instansi
-                    doc.setFont(undefined, 'bold');
-                    doc.text('Tempat', margin, yPos);
-                    doc.setFont(undefined, 'normal');
-                    const tempatText = instansiTamu !== '-' ? instansiTamu : 'Kantor Perusahaan';
-                    doc.text(': ' + tempatText, margin + labelWidth, yPos);
-                    yPos += 10;
+                    // Tempat/Instansi removed by request
 
                     // ========== PESERTA ==========
-                    doc.setFontSize(11);
+                    doc.setFontSize(10);
                     doc.setFont(undefined, 'bold');
                     doc.text('• PESERTA', margin, yPos);
-                    yPos += 7;
+                    yPos += 6;
 
                     doc.setFont(undefined, 'normal');
-                    doc.setFontSize(10);
+                    doc.setFontSize(9);
 
                     // Tamu
                     doc.text(`Tamu:`, margin + 3, yPos);
@@ -438,14 +292,35 @@
                         doc.text(`Anggota Lain yang Hadir:`, margin + 3, yPos);
                         yPos += 6;
 
-                        const anggotaLines = doc.splitTextToSize(anggotaRapat, contentWidth - 15);
-                        anggotaLines.forEach(line => {
+                        // Render anggota with numbering. Split by newline to preserve items.
+                        const anggotaItems = anggotaRapat.split(/\r?\n/).map(s => s.trim()).filter(s => s !== '');
+                        anggotaItems.forEach((item, index) => {
                             if (yPos > pageHeight - 30) {
                                 doc.addPage();
                                 yPos = margin;
                             }
-                            doc.text('- ' + line, margin + 8, yPos);
-                            yPos += 5;
+
+                            const prefix = `${index + 1}. `;
+                            const numberWidth = doc.getTextWidth(prefix);
+
+                            // Split the item text to fit the remaining width after accounting for prefix on first line
+                            const wrapped = doc.splitTextToSize(item, contentWidth - 15 - numberWidth);
+
+                            wrapped.forEach((line, lineIndex) => {
+                                if (yPos > pageHeight - 30) {
+                                    doc.addPage();
+                                    yPos = margin;
+                                }
+
+                                if (lineIndex === 0) {
+                                    doc.text(prefix + line, margin + 8, yPos);
+                                } else {
+                                    // Indent subsequent wrapped lines to align with text after number
+                                    doc.text(line, margin + 8 + numberWidth, yPos);
+                                }
+
+                                yPos += 5;
+                            });
                         });
                     }
 
@@ -457,12 +332,12 @@
                         yPos = margin;
                     }
 
-                    doc.setFontSize(11);
+                    doc.setFontSize(10);
                     doc.setFont(undefined, 'bold');
                     doc.text('• TOPIK', margin, yPos);
-                    yPos += 7;
+                    yPos += 6;
 
-                    doc.setFontSize(10);
+                    doc.setFontSize(9);
                     doc.setFont(undefined, 'normal');
                     const topikLines = doc.splitTextToSize(tujuanKunjungan, contentWidth - 5);
                     topikLines.forEach(line => {
@@ -481,40 +356,259 @@
                         yPos = margin;
                     }
 
-                    doc.setFontSize(11);
+                    doc.setFontSize(10);
                     doc.setFont(undefined, 'bold');
                     doc.text('• AGENDA / PEMBAHASAN', margin, yPos);
-                    yPos += 7;
+                    yPos += 6;
 
-                    doc.setFontSize(10);
+                    doc.setFontSize(9);
                     doc.setFont(undefined, 'normal');
 
-                    // Split notulensi into paragraphs for better formatting
-                    const notulensiParagraphs = isiNotulensi.split('\n').filter(p => p.trim() !== '');
+                    // Render notulensi HTML as text with WYSIWYG styling
+                    try {
+                        const notulensiEl = document.querySelector('.notulensi-content');
+                        if (notulensiEl) {
+                            // Function to parse and render HTML content recursively with computed styles
+                            function renderElement(element, currentY, indent = 0, linkUrl = null) {
+                                let yPos = currentY;
+                                const tagName = element.tagName ? element.tagName.toLowerCase() : 'text';
+                                const textContent = element.textContent || element.nodeValue || '';
 
-                    notulensiParagraphs.forEach((paragraph, index) => {
-                        if (yPos > pageHeight - 30) {
-                            doc.addPage();
-                            yPos = margin;
+                                // Handle text nodes
+                                if (element.nodeType === Node.TEXT_NODE && textContent.trim()) {
+                                    const computedStyle = window.getComputedStyle(element.parentElement || element);
+                                    const fontWeight = computedStyle.fontWeight;
+                                    const fontStyle = computedStyle.fontStyle;
+                                    const textDecoration = computedStyle.textDecorationLine || '';
+
+                                    // Set font style based on computed style
+                                    let pdfFontStyle = 'normal';
+                                    if (fontWeight >= 600 || fontWeight === 'bold') {
+                                        pdfFontStyle = 'bold';
+                                    }
+                                    if (fontStyle === 'italic') {
+                                        pdfFontStyle = pdfFontStyle === 'bold' ? 'bolditalic' : 'italic';
+                                    }
+
+                                    doc.setFont(undefined, pdfFontStyle);
+
+                                    // Set text color from computed style if available (but links override it)
+                                    if (!linkUrl) {
+                                        const color = computedStyle.color;
+                                        if (color) {
+                                            const rgb = color.match(/\d+/g);
+                                            if (rgb && rgb.length >= 3) {
+                                                doc.setTextColor(parseInt(rgb[0]), parseInt(rgb[1]), parseInt(rgb[2]));
+                                            }
+                                        }
+                                    }
+
+                                    const textLines = doc.splitTextToSize(textContent.trim(), contentWidth - 5 - indent);
+                                    textLines.forEach((line, lineIndex) => {
+                                        if (yPos > pageHeight - 25) {
+                                            doc.addPage();
+                                            yPos = margin;
+                                        }
+
+                                        const x = margin + 3 + indent;
+
+                                        if (linkUrl) {
+                                            // Render linked text with blue color
+                                            doc.setTextColor(26, 115, 232); // light blue for links
+                                            doc.text(line, x, yPos);
+
+                                            // Add underline for links
+                                            const textWidth = doc.getTextWidth(line);
+                                            doc.setLineWidth(0.2);
+                                            doc.setDrawColor(26, 115, 232); // Same blue color for underline
+                                            doc.line(x, yPos + 1, x + textWidth, yPos + 1);
+
+                                            doc.setTextColor(0, 0, 0);
+
+                                            // Add clickable link area for this line
+                                            const textHeight = 4;
+                                            doc.link(x, yPos - textHeight, textWidth, textHeight + 2, { url: linkUrl });
+                                        } else {
+                                            doc.text(line, x, yPos);
+
+                                            // Add underline if needed
+                                            if (textDecoration.includes('underline')) {
+                                                const textWidth = doc.getTextWidth(line);
+                                                doc.setLineWidth(0.2); // Thinner line for underline
+                                                doc.setDrawColor(0, 0, 0);
+                                                doc.line(x, yPos + 1, x + textWidth, yPos + 1);
+                                            }
+
+                                            // Add strikethrough if needed
+                                            if (textDecoration.includes('line-through')) {
+                                                const textWidth = doc.getTextWidth(line);
+                                                const textHeight = doc.getTextDimensions(line).h;
+                                                doc.setLineWidth(0.2); // Thinner line for strikethrough
+                                                doc.setDrawColor(0, 0, 0);
+                                                doc.line(x, yPos - textHeight / 4, x + textWidth, yPos - textHeight / 4);
+                                            }
+                                        }
+
+                                        yPos += 4;
+                                    });
+
+                                    // Reset text color
+                                    doc.setTextColor(0, 0, 0);
+                                    return yPos;
+                                }
+
+                                // Handle element nodes
+                                if (element.nodeType === Node.ELEMENT_NODE) {
+                                    switch (tagName) {
+                                        case 'h1':
+                                            doc.setFontSize(14);
+                                            doc.setFont(undefined, 'bold');
+                                            yPos = renderChildren(element, yPos, indent, linkUrl);
+                                            yPos += 4;
+                                            doc.setFontSize(9); // Reset font size
+                                            return yPos;
+
+                                        case 'h2':
+                                            doc.setFontSize(12);
+                                            doc.setFont(undefined, 'bold');
+                                            yPos = renderChildren(element, yPos, indent, linkUrl);
+                                            yPos += 3;
+                                            doc.setFontSize(9);
+                                            return yPos;
+
+                                        case 'h3':
+                                            doc.setFontSize(11);
+                                            doc.setFont(undefined, 'bold');
+                                            yPos = renderChildren(element, yPos, indent, linkUrl);
+                                            yPos += 3;
+                                            doc.setFontSize(9);
+                                            return yPos;
+
+                                        case 'h4':
+                                        case 'h5':
+                                        case 'h6':
+                                            doc.setFontSize(10);
+                                            doc.setFont(undefined, 'bold');
+                                            yPos = renderChildren(element, yPos, indent, linkUrl);
+                                            yPos += 2;
+                                            doc.setFontSize(9);
+                                            return yPos;
+
+                                        case 'p':
+                                            doc.setFontSize(9);
+                                            yPos = renderChildren(element, yPos, indent, linkUrl);
+                                            yPos += 2;
+                                            return yPos;
+
+                                        case 'a':
+                                            const href = element.getAttribute('href');
+                                            if (href) {
+                                                // Render children but indicate they are links so text is rendered with link annotations
+                                                yPos = renderChildren(element, yPos, indent, href);
+                                            } else {
+                                                yPos = renderChildren(element, yPos, indent, linkUrl);
+                                            }
+                                            return yPos;
+
+                                        case 'ul':
+                                            yPos = renderList(element, yPos, indent, 'bullet', linkUrl);
+                                            return yPos;
+
+                                        case 'ol':
+                                            yPos = renderList(element, yPos, indent, 'numbered', linkUrl);
+                                            return yPos;
+
+                                        case 'li':
+                                            yPos = renderChildren(element, yPos, indent, linkUrl);
+                                            return yPos;
+
+                                        case 'blockquote':
+                                            doc.setFontSize(9);
+                                            doc.setTextColor(100, 100, 100);
+                                            yPos = renderChildren(element, yPos, indent + 5, linkUrl);
+                                            doc.setTextColor(0, 0, 0);
+                                            yPos += 2;
+                                            return yPos;
+
+                                        case 'br':
+                                            return yPos + 4;
+
+                                        default:
+                                            yPos = renderChildren(element, yPos, indent, linkUrl);
+                                            return yPos;
+                                    }
+                                }
+
+                                return yPos;
+                            }
+                            function renderChildren(element, currentY, indent = 0, linkUrl = null) {
+                                let yPos = currentY;
+                                const children = element.childNodes;
+
+                                for (let i = 0; i < children.length; i++) {
+                                    yPos = renderElement(children[i], yPos, indent, linkUrl);
+                                }
+
+                                return yPos;
+                            }
+
+                            function renderList(listElement, currentY, indent, type, linkUrl = null) {
+                                let yPos = currentY;
+                                const items = listElement.children;
+
+                                for (let i = 0; i < items.length; i++) {
+                                    const item = items[i];
+                                    if (item.tagName && item.tagName.toLowerCase() === 'li') {
+                                        if (yPos > pageHeight - 25) {
+                                            doc.addPage();
+                                            yPos = margin;
+                                        }
+
+                                        const bullet = type === 'bullet' ? '•' : `${i + 1}.`;
+                                        doc.setFontSize(9);
+                                        doc.setFont(undefined, 'normal');
+
+                                        // Render bullet/number
+                                        doc.text(bullet, margin + 3 + indent, yPos);
+
+                                        // Render list item content
+                                        yPos = renderElement(item, yPos, indent + 7, linkUrl);
+                                    }
+                                }
+
+                                return yPos + 2;
+                            }
+
+                            yPos = renderElement(notulensiEl, yPos, 0, null);
                         }
+                    } catch (err) {
+                        console.error('Error rendering notulensi HTML:', err);
+                        // Fallback: render plain text
+                        const notulensiParagraphs = isiNotulensi.split('\n').filter(p => p.trim() !== '');
 
-                        const paragraphLines = doc.splitTextToSize(paragraph.trim(), contentWidth - 5);
-                        paragraphLines.forEach(line => {
-                            if (yPos > pageHeight - 25) {
+                        notulensiParagraphs.forEach((paragraph, index) => {
+                            if (yPos > pageHeight - 30) {
                                 doc.addPage();
                                 yPos = margin;
                             }
-                            doc.text(line, margin + 3, yPos);
-                            yPos += 5;
+
+                            const paragraphLines = doc.splitTextToSize(paragraph.trim(), contentWidth - 5);
+                            paragraphLines.forEach(line => {
+                                if (yPos > pageHeight - 25) {
+                                    doc.addPage();
+                                    yPos = margin;
+                                }
+                                doc.text(line, margin + 3, yPos);
+                                yPos += 5;
+                            });
+
+                            if (index < notulensiParagraphs.length - 1) {
+                                yPos += 3;
+                            }
                         });
 
-                        // Add spacing between paragraphs
-                        if (index < notulensiParagraphs.length - 1) {
-                            yPos += 3;
-                        }
-                    });
-
-                    yPos += 8;
+                        yPos += 8;
+                    }
 
                     // ========== DOKUMENTASI ==========
                     if (dokumentasiList.length > 0) {
@@ -523,73 +617,97 @@
                             yPos = margin;
                         }
 
-                        doc.setFontSize(11);
+                        doc.setFontSize(10);
                         doc.setFont(undefined, 'bold');
                         doc.text('• DOKUMENTASI', margin, yPos);
-                        yPos += 10;
+                        yPos += 8;
 
                         exportBtnText.textContent = `Memuat Gambar (0/${dokumentasiList.length})...`;
 
-                        for (let i = 0; i < dokumentasiList.length; i++) {
-                            exportBtnText.textContent = `Memuat Gambar (${i + 1}/${dokumentasiList.length})...`;
+                        // Display images in a 2-column grid
+                        const imagesPerRow = 2;
+                        const imageSpacing = 5;
+                        const availableWidth = contentWidth - (imageSpacing * (imagesPerRow - 1));
+                        const imageWidth = availableWidth / imagesPerRow;
+                        const imageHeight = 60; // Fixed height for grid layout
 
-                            try {
-                                const imgUrl = dokumentasiList[i];
+                        let currentImageIndex = 0;
 
-                                const img = await Promise.race([
-                                    new Promise((resolve, reject) => {
-                                        const image = new Image();
-                                        image.crossOrigin = 'Anonymous';
-                                        image.onload = () => resolve(image);
-                                        image.onerror = reject;
-                                        image.src = imgUrl;
-                                    }),
-                                    new Promise((_, reject) =>
-                                        setTimeout(() => reject(new Error('Timeout')), 10000)
-                                    )
-                                ]);
+                        for (let row = 0; currentImageIndex < dokumentasiList.length; row++) {
+                            if (yPos + imageHeight + 15 > pageHeight - 20) {
+                                doc.addPage();
+                                yPos = margin;
+                            }
 
-                                const maxWidth = contentWidth - 10;
-                                const maxHeight = 80;
+                            // Process images for this row
+                            for (let col = 0; col < imagesPerRow && currentImageIndex < dokumentasiList.length; col++) {
+                                exportBtnText.textContent = `Memuat Gambar (${currentImageIndex + 1}/${dokumentasiList.length})...`;
 
-                                let imgWidth = img.width;
-                                let imgHeight = img.height;
+                                try {
+                                    const imgUrl = dokumentasiList[currentImageIndex];
 
-                                const ratio = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
-                                imgWidth = imgWidth * ratio;
-                                imgHeight = imgHeight * ratio;
+                                    const img = await Promise.race([
+                                        new Promise((resolve, reject) => {
+                                            const image = new Image();
+                                            image.crossOrigin = 'Anonymous';
+                                            image.onload = () => resolve(image);
+                                            image.onerror = reject;
+                                            image.src = imgUrl;
+                                        }),
+                                        new Promise((_, reject) =>
+                                            setTimeout(() => reject(new Error('Timeout')), 10000)
+                                        )
+                                    ]);
 
-                                if (yPos + imgHeight + 15 > pageHeight - 20) {
-                                    doc.addPage();
-                                    yPos = margin;
+                                    // Calculate image position in grid
+                                    const xPos = margin + (col * (imageWidth + imageSpacing));
+                                    const yPosImage = yPos;
+
+                                    // Calculate image size to fit in grid cell while maintaining aspect ratio
+                                    let imgDisplayWidth = imageWidth;
+                                    let imgDisplayHeight = (img.height / img.width) * imageWidth;
+
+                                    // If image is taller than grid cell, scale it down
+                                    if (imgDisplayHeight > imageHeight) {
+                                        const scaleRatio = imageHeight / imgDisplayHeight;
+                                        imgDisplayWidth *= scaleRatio;
+                                        imgDisplayHeight = imageHeight;
+                                    }
+
+                                    // Center image horizontally in its grid cell
+                                    const centeredX = xPos + (imageWidth - imgDisplayWidth) / 2;
+
+                                    // Add image
+                                    doc.addImage(img, 'JPEG', centeredX, yPosImage, imgDisplayWidth, imgDisplayHeight, undefined, 'FAST');
+
+                                    // Add small label below image
+                                    doc.setFontSize(7);
+                                    doc.setFont(undefined, 'italic');
+                                    doc.setTextColor(100, 100, 100);
+                                    doc.text(`Gambar ${currentImageIndex + 1}`, centeredX + imgDisplayWidth / 2, yPosImage + imgDisplayHeight + 3, { align: 'center' });
+                                    doc.setTextColor(0, 0, 0);
+
+                                } catch (error) {
+                                    console.error('Error loading image:', error);
+                                    // Draw placeholder rectangle
+                                    doc.setDrawColor(200, 200, 200);
+                                    doc.setLineWidth(0.5);
+                                    const xPos = margin + (col * (imageWidth + imageSpacing));
+                                    doc.rect(xPos, yPos, imageWidth, imageHeight);
+
+                                    // Add error text
+                                    doc.setFontSize(7);
+                                    doc.setFont(undefined, 'italic');
+                                    doc.setTextColor(150, 150, 150);
+                                    doc.text(`Gambar ${currentImageIndex + 1}: Gagal dimuat`, xPos + imageWidth / 2, yPos + imageHeight / 2, { align: 'center' });
+                                    doc.setTextColor(0, 0, 0);
                                 }
 
-                                // Image label
-                                doc.setFontSize(9);
-                                doc.setFont(undefined, 'italic');
-                                doc.setTextColor(80, 80, 80);
-                                doc.text(`Gambar ${i + 1}`, margin + 5, yPos);
-                                yPos += 5;
-
-                                // Border
-                                doc.setDrawColor(150, 150, 150);
-                                doc.setLineWidth(0.3);
-                                doc.rect(margin + 5, yPos, imgWidth, imgHeight);
-
-                                // Image
-                                doc.addImage(img, 'JPEG', margin + 5, yPos, imgWidth, imgHeight);
-                                yPos += imgHeight + 10;
-
-                                doc.setTextColor(0, 0, 0);
-
-                            } catch (error) {
-                                console.error('Error loading image:', error);
-                                doc.setFontSize(9);
-                                doc.setTextColor(150, 150, 150);
-                                doc.text(`Gambar ${i + 1}: Gagal dimuat`, margin + 5, yPos);
-                                yPos += 8;
-                                doc.setTextColor(0, 0, 0);
+                                currentImageIndex++;
                             }
+
+                            // Move to next row
+                            yPos += imageHeight + 15;
                         }
                     }
 
@@ -611,7 +729,7 @@
                         doc.line(margin, pageHeight - 20, pageWidth - margin, pageHeight - 20);
 
                         // Footer text
-                        doc.setFontSize(8);
+                        doc.setFontSize(7); // Smaller footer font
                         doc.setTextColor(100, 100, 100);
                         doc.setFont(undefined, 'italic');
 

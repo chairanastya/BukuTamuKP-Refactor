@@ -4,6 +4,7 @@
     :message="$message" 
     :kunjungan="$kunjungan"
     pageTitle="Notulensi Berhasil Disimpan"
+    :showButton="false"
 >
 
     @push('scripts')

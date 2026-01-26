@@ -98,7 +98,7 @@
                         <x-button 
                             onclick="openWebcamModal()"
                             variant="primary"
-                            class="mt-3 w-full"
+                            class="mt-3 w-full !bg-[#47B9AE] hover:!bg-[#F7B218]"
                             icon="">
                             Foto Ulang
                         </x-button>
@@ -186,7 +186,9 @@
     <div class="mt-6 flex justify-end">
         <x-button 
             variant="primary" 
-            onclick="closeModal('success_modal')">
+            onclick="closeModal('success_modal')"
+            icon=""
+            >
             Tutup
         </x-button>
     </div>

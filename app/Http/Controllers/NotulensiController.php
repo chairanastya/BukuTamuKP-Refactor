@@ -8,6 +8,7 @@ use App\Models\Dokumentasi;
 use App\Mail\NotulensiAvailable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Cloudinary\Cloudinary;
 use Illuminate\Support\Facades\Log;
@@ -51,13 +52,12 @@ class NotulensiController extends Controller
         $request->validate([
             'jam_selesai' => 'required|date_format:H:i',
             'anggota_rapat' => 'nullable|string|max:1000',
-            'isi_notulensi' => 'required|string|min:50',
+            'isi_notulensi' => 'required|string',
             'dokumentasi.*' => 'nullable|image|mimes:jpeg,png,jpg|max:5120', // Max 5MB per file
         ], [
             'jam_selesai.required' => 'Jam selesai harus diisi.',
             'jam_selesai.date_format' => 'Format jam selesai tidak valid.',
             'isi_notulensi.required' => 'Isi notulensi harus diisi.',
-            'isi_notulensi.min' => 'Isi notulensi minimal 50 karakter.',
             'dokumentasi.*.image' => 'File harus berupa gambar.',
             'dokumentasi.*.mimes' => 'Format gambar harus jpeg, png, atau jpg.',
             'dokumentasi.*.max' => 'Ukuran gambar maksimal 5MB.',
@@ -95,7 +95,7 @@ class NotulensiController extends Controller
         $kunjungan->status = 'done';
         $kunjungan->save();
 
-        $this->sendNotulensiToTamu($kunjungan, $tokenTamu);
+        $this->sendNotulensiToParticipants($kunjungan, $tokenTamu);
 
         return view('notulensi.success', [
             'message' => 'Notulensi berhasil disimpan. Email berisi link untuk melihat notulensi telah dikirim ke tamu.',
@@ -126,29 +126,167 @@ class NotulensiController extends Controller
         ]);
     }
 
-    private function sendNotulensiToTamu(Kunjungan $kunjungan, string $token)
+    private function sendNotulensiToParticipants(Kunjungan $kunjungan, string $token)
     {
+        // Kirim email ke tamu
         try {
             $tamu = $kunjungan->tamu;
 
-            if (!$tamu->email_tamu) {
+            if ($tamu->email_tamu) {
+                Log::info('Mengirim email notulensi ke tamu: ' . $tamu->email_tamu);
+
+                Mail::to($tamu->email_tamu)->send(
+                    new NotulensiAvailable($tamu->nama_tamu, $kunjungan, $token)
+                );
+
+                Log::info('Email notulensi berhasil dikirim ke tamu: ' . $tamu->nama_tamu);
+            } else {
                 Log::warning('Tamu tidak memiliki email untuk notulensi, ID: ' . $tamu->id_tamu);
-                return;
             }
-
-            Log::info('Mengirim email notulensi ke tamu: ' . $tamu->email_tamu);
-
-            Mail::to($tamu->email_tamu)->send(
-                new NotulensiAvailable($tamu, $kunjungan, $token)
-            );
-
-            Log::info('Email notulensi berhasil dikirim ke: ' . $tamu->nama_tamu);
-
         } catch (\Exception $e) {
             Log::error('Gagal kirim email notulensi ke tamu: ' . $e->getMessage(), [
                 'kunjungan_id' => $kunjungan->id_kunjungan,
                 'error' => $e->getMessage(),
             ]);
+        }
+
+        // Kirim email ke semua karyawan yang terlibat
+        $karyawanList = $kunjungan->karyawan;
+        
+        foreach ($karyawanList as $karyawan) {
+            try {
+                if ($karyawan->email_karyawan) {
+                    Log::info('Mengirim email notulensi ke karyawan: ' . $karyawan->email_karyawan);
+
+                    Mail::to($karyawan->email_karyawan)->send(
+                        new NotulensiAvailable($karyawan->nama_karyawan, $kunjungan, $token)
+                    );
+
+                    Log::info('Email notulensi berhasil dikirim ke karyawan: ' . $karyawan->nama_karyawan);
+                } else {
+                    Log::warning('Karyawan tidak memiliki email untuk notulensi, ID: ' . $karyawan->id_karyawan);
+                }
+            } catch (\Exception $e) {
+                Log::error('Gagal kirim email notulensi ke karyawan: ' . $e->getMessage(), [
+                    'kunjungan_id' => $kunjungan->id_kunjungan,
+                    'karyawan_id' => $karyawan->id_karyawan,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+    }
+
+    public function streamDokumentasi($token)
+    {
+        try {
+            // Validasi token dan load relasi kunjungan
+            $dokumentasi = Dokumentasi::with('kunjungan')->where('access_token', $token)->firstOrFail();
+
+            // Pastikan dokumentasi terkait dengan kunjungan yang valid
+            if (!$dokumentasi->kunjungan) {
+                Log::warning('Dokumentasi access attempt - no kunjungan', [
+                    'dokumentasi_id' => $dokumentasi->id_dokumentasi,
+                ]);
+                abort(403, 'Tidak memiliki akses ke dokumentasi ini');
+            }
+
+            // Pastikan kunjungan dalam status yang valid (approved atau done)
+            if (!in_array($dokumentasi->kunjungan->status, ['approved', 'done'])) {
+                Log::warning('Dokumentasi access - invalid kunjungan status', [
+                    'dokumentasi_id' => $dokumentasi->id_dokumentasi,
+                    'kunjungan_status' => $dokumentasi->kunjungan->status,
+                ]);
+                abort(403, 'Dokumentasi hanya dapat diakses untuk kunjungan yang sudah disetujui');
+            }
+
+            if (!$dokumentasi->dokumentasi_public_id) {
+                abort(404, 'Dokumentasi tidak ditemukan');
+            }
+
+            $publicId = $dokumentasi->dokumentasi_public_id;
+            $cacheFilename = 'dokumentasi-cache/' . md5($publicId) . '.jpg';
+
+            // Check cache first
+            if (Storage::disk('local')->exists($cacheFilename)) {
+                Log::info('Serving dokumentasi from cache', [
+                    'dokumentasi_id' => $dokumentasi->id_dokumentasi,
+                    'cache_file' => $cacheFilename
+                ]);
+
+                $imageContent = Storage::disk('local')->get($cacheFilename);
+
+                return response($imageContent)
+                    ->header('Content-Type', 'image/jpeg')
+                    ->header('Cache-Control', 'private, max-age=3600')
+                    ->header('X-Content-Type-Options', 'nosniff');
+            }
+
+            // Download from Cloudinary if not cached
+            $cloudName = config('cloudinary.cloud_name');
+
+            Log::info('Downloading dokumentasi from Cloudinary to cache', [
+                'dokumentasi_id' => $dokumentasi->id_dokumentasi,
+                'public_id' => $publicId,
+            ]);
+
+            $imageUrl = sprintf(
+                'https://res.cloudinary.com/%s/image/upload/%s',
+                $cloudName,
+                $publicId
+            );
+
+            $ch = curl_init($imageUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+
+            $imageContent = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+            $error = curl_error($ch);
+            curl_close($ch);
+
+            if ($httpCode !== 200 || !$imageContent) {
+                Log::error('Failed to download dokumentasi', [
+                    'http_code' => $httpCode,
+                    'curl_error' => $error,
+                    'dokumentasi_id' => $dokumentasi->id_dokumentasi,
+                    'public_id' => $publicId,
+                    'url' => $imageUrl
+                ]);
+
+                $errorMsg = $httpCode === 401 ? 'Dokumentasi tidak dapat diakses' :
+                    ($httpCode === 404 ? 'Dokumentasi tidak ditemukan' :
+                        'Gagal memuat dokumentasi');
+                abort(500, $errorMsg);
+            }
+
+            // Cache the image
+            Storage::disk('local')->put($cacheFilename, $imageContent);
+
+            Log::info('Successfully downloaded and cached dokumentasi', [
+                'dokumentasi_id' => $dokumentasi->id_dokumentasi,
+                'size' => strlen($imageContent),
+                'content_type' => $contentType,
+                'cache_file' => $cacheFilename
+            ]);
+
+            return response($imageContent)
+                ->header('Content-Type', $contentType ?: 'image/jpeg')
+                ->header('Cache-Control', 'private, max-age=3600')
+                ->header('X-Content-Type-Options', 'nosniff');
+
+        } catch (\Exception $e) {
+            Log::error('Error streaming dokumentasi', [
+                'token' => $token,
+                'error' => $e->getMessage(),
+                'line' => $e->getLine()
+            ]);
+
+            abort(500, 'Gagal memuat dokumentasi');
         }
     }
 

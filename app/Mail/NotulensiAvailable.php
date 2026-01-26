@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\Tamu;
 use App\Models\Kunjungan;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -14,16 +13,17 @@ class NotulensiAvailable extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $tamu;
+    public $namaPenerima;
     public $kunjungan;
     public $token;
 
     /**
      * Create a new message instance.
+     * $namaPenerima bisa berisi nama tamu atau nama karyawan
      */
-    public function __construct(Tamu $tamu, Kunjungan $kunjungan, string $token)
+    public function __construct(string $namaPenerima, Kunjungan $kunjungan, string $token)
     {
-        $this->tamu = $tamu;
+        $this->namaPenerima = $namaPenerima;
         $this->kunjungan = $kunjungan;
         $this->token = $token;
     }
