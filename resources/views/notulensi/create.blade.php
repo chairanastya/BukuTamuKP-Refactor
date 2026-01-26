@@ -108,28 +108,63 @@
                             </div>
                             <span class="text-gray-600">—</span>
                             <div class="input-wrapper flex-1">
-                                <input type="time" name="jam_selesai"
-                                    value="{{ old('jam_selesai', $kunjungan->jam_selesai) }}" required>
+                                    <input type="time" name="jam_selesai"
+                                        value="{{ old('jam_selesai', $kunjungan->jam_selesai) }}">
                             </div>
                         </div>
                         <x-input-error :messages="$errors->get('jam_selesai')" class="mt-2" />
                     </div>
 
                     <!-- Baris 5: Anggota Kunjungan/Rapat -->
-                    <x-input-wrapper 
-                        id="anggota_rapat"
-                        name="anggota_rapat"
-                        type="textarea"
-                        rows="4"
-                        required
-                        placeholder="Sebutkan anggota yang hadir dalam kunjungan/rapat..."
-                        value="{{ old('anggota_rapat') }}"
-                        :error="$errors->first('anggota_rapat')"
-                        class="lg:col-span-2">
-                        <x-slot:label>
+                    <div class="lg:col-span-2">
+                        <label for="anggota_editor" class="block text-[#084E8F] font-semibold mb-2">
                             Anggota Kunjungan/Rapat <span class="text-red-500">*</span>
-                        </x-slot:label>
-                    </x-input-wrapper>
+                        </label>
+
+                        <style>
+                            .anggota-editor {
+                                min-height: 110px;
+                                border: 2px solid #084E8F;
+                                border-radius: 8px;
+                                padding: 8px 12px;
+                                background: #F9FCFF;
+                                outline: none;
+                                overflow: auto;
+                            }
+                            .anggota-editor:focus {
+                                box-shadow: 0 0 0 3px rgba(8, 78, 143, 0.08);
+                                background: #fff;
+                            }
+                            .anggota-editor ol {
+                                margin: 0;
+                                padding-left: 1.35rem;
+                                list-style-type: decimal;
+                                list-style-position: outside;
+                                color: #0b2e4a;
+                            }
+                            .anggota-editor ol li::marker {
+                                color: #084E8F;
+                                font-weight: 600;
+                            }
+                            .anggota-placeholder {
+                                color: #6b7280;
+                                pointer-events: none;
+                                position: absolute;
+                                left: 16px;
+                                top: 12px;
+                                font-size: 0.95rem;
+                            }
+                            .anggota-wrapper { position: relative; }
+                        </style>
+
+                        <div class="anggota-wrapper">
+                            <div id="anggota_editor" class="anggota-editor" contenteditable="true" aria-label="Anggota rapat editor"></div>
+                            <div id="anggota_placeholder" class="anggota-placeholder">Sebutkan anggota yang hadir dalam kunjungan/rapat...</div>
+                        </div>
+
+                        <input type="hidden" name="anggota_rapat" id="anggota_rapat_input" value="{{ old('anggota_rapat') }}">
+                        <x-input-error :messages="$errors->get('anggota_rapat')" class="mt-2" />
+                    </div>
 
                     @if($errors->has('anggota_rapat'))
                         <p class="text-gray-500 text-sm -mt-2 lg:col-span-2">Wajib diisi. Sebutkan nama anggota yang hadir dalam kunjungan/rapat ini.</p>
@@ -252,8 +287,117 @@
         <script>
             // Additional form handling scripts
             const form = document.getElementById('notulensi-form');
+
+            // Editor elements
+            const anggotaEditor = document.getElementById('anggota_editor');
+            const anggotaInput = document.getElementById('anggota_rapat_input');
+            const anggotaPlaceholder = document.getElementById('anggota_placeholder');
+
+            // Helper: escape HTML
+            function escapeHtml(text) {
+                var map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            }
+
+            // Render the editor from plain newline-separated value
+            function renderAnggotaEditorFromText(text) {
+                const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l !== '');
+                if (lines.length === 0) {
+                    anggotaEditor.innerHTML = '';
+                    anggotaPlaceholder.style.display = 'block';
+                    return;
+                }
+                anggotaPlaceholder.style.display = 'none';
+                const html = '<ol>' + lines.map(l => '<li>' + escapeHtml(l) + '</li>').join('') + '</ol>';
+                anggotaEditor.innerHTML = html;
+            }
+
+            // Sync editor content into hidden input (plain lines separated by \n)
+            function syncEditorToInput() {
+                if (!anggotaEditor || !anggotaInput) return;
+                // Collect li texts if any, otherwise use innerText split
+                const liEls = anggotaEditor.querySelectorAll('li');
+                let lines = [];
+                if (liEls && liEls.length > 0) {
+                    liEls.forEach(li => {
+                        const t = li.innerText.trim();
+                        if (t) lines.push(t);
+                    });
+                } else {
+                    const raw = anggotaEditor.innerText || '';
+                    lines = raw.split(/\r?\n/).map(l => l.trim()).filter(l => l !== '');
+                }
+                anggotaInput.value = lines.join('\n');
+            }
+
+            // Initialize editor with old value (if any)
+                if (anggotaEditor && anggotaInput) {
+                    if (anggotaInput.value && anggotaInput.value.trim() !== '') {
+                        renderAnggotaEditorFromText(anggotaInput.value);
+                    } else {
+                        // Initialize with an empty ordered list so bullets are visible and Enter works
+                        anggotaEditor.innerHTML = '<ol><li><br></li></ol>';
+                    }
+
+                    // Hide placeholder since we show bullets by default
+                    anggotaPlaceholder.style.display = 'none';
+
+                    // Ensure there is always at least one <li> so Enter creates new items naturally
+                    function ensureListStructure() {
+                        if (!anggotaEditor.querySelector('ol')) {
+                            const raw = anggotaEditor.innerText || '';
+                            const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(l => l !== '');
+                            if (lines.length > 0) {
+                                const html = '<ol>' + lines.map(l => '<li>' + escapeHtml(l) + '</li>').join('') + '</ol>';
+                                anggotaEditor.innerHTML = html;
+                                setCaretToEnd(anggotaEditor);
+                            } else {
+                                anggotaEditor.innerHTML = '<ol><li><br></li></ol>';
+                                setCaretToEnd(anggotaEditor);
+                            }
+                        }
+                    }
+
+                    function setCaretToEnd(el) {
+                        const range = document.createRange();
+                        const sel = window.getSelection();
+                        range.selectNodeContents(el);
+                        range.collapse(false);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    }
+
+                    anggotaEditor.addEventListener('focus', function () {
+                        ensureListStructure();
+                    });
+
+                    anggotaEditor.addEventListener('input', function (e) {
+                        // Keep structure intact and simply sync values; avoid full re-render to preserve Enter behavior
+                        ensureListStructure();
+                        syncEditorToInput();
+                    });
+                }
+
             if (form) {
-                form.addEventListener('submit', function () {
+                form.addEventListener('submit', function (e) {
+                    // Ensure editor content is synced before submit
+                    syncEditorToInput();
+
+                    // Auto-fill jam_selesai with current time if empty
+                    const jamSelesaiInput = document.querySelector('input[name="jam_selesai"]');
+                    if (jamSelesaiInput && !jamSelesaiInput.value) {
+                        const now = new Date();
+                        const hours = String(now.getHours()).padStart(2, '0');
+                        const minutes = String(now.getMinutes()).padStart(2, '0');
+                        jamSelesaiInput.value = `${hours}:${minutes}`;
+                    }
+
                     sessionStorage.setItem('form_submitted_{{ $token }}', 'true');
                 });
             }

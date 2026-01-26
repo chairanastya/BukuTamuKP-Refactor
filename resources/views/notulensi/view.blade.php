@@ -86,16 +86,21 @@
 
                 <!-- Baris 5: Anggota Kunjungan/Rapat -->
                 @if($notulensi->anggota_rapat)
-                    <x-input-wrapper 
-                        type="textarea"
-                        value="{{ $notulensi->anggota_rapat }}"
-                        rows="4"
-                        readonly 
-                        class="lg:col-span-2">
-                        <x-slot:label>
-                            Anggota Kunjungan/Rapat
-                        </x-slot:label>
-                    </x-input-wrapper>
+                    <div class="lg:col-span-2">
+                        <label class="block text-[#084E8F] font-semibold mb-2">Anggota Kunjungan/Rapat</label>
+                        <div class="input-wrapper">
+                            @php
+                                $lines = preg_split('/\r\n|\r|\n/', $notulensi->anggota_rapat);
+                            @endphp
+                            <ol class="view-anggota-list" style="margin:0; padding-left:1.35rem; list-style-type:decimal;">
+                                @foreach($lines as $line)
+                                    @if(trim($line) !== '')
+                                        <li style="margin-bottom:6px; color:#0b2e4a">{{ trim($line) }}</li>
+                                    @endif
+                                @endforeach
+                            </ol>
+                        </div>
+                    </div>
                 @endif
 
                 <!-- Baris 6: Notulensi Rapat -->
@@ -362,14 +367,35 @@
                         doc.text(`Anggota Lain yang Hadir:`, margin + 3, yPos);
                         yPos += 6;
 
-                        const anggotaLines = doc.splitTextToSize(anggotaRapat, contentWidth - 15);
-                        anggotaLines.forEach(line => {
+                        // Render anggota with numbering. Split by newline to preserve items.
+                        const anggotaItems = anggotaRapat.split(/\r?\n/).map(s => s.trim()).filter(s => s !== '');
+                        anggotaItems.forEach((item, index) => {
                             if (yPos > pageHeight - 30) {
                                 doc.addPage();
                                 yPos = margin;
                             }
-                            doc.text('- ' + line, margin + 8, yPos);
-                            yPos += 5;
+
+                            const prefix = `${index + 1}. `;
+                            const numberWidth = doc.getTextWidth(prefix);
+
+                            // Split the item text to fit the remaining width after accounting for prefix on first line
+                            const wrapped = doc.splitTextToSize(item, contentWidth - 15 - numberWidth);
+
+                            wrapped.forEach((line, lineIndex) => {
+                                if (yPos > pageHeight - 30) {
+                                    doc.addPage();
+                                    yPos = margin;
+                                }
+
+                                if (lineIndex === 0) {
+                                    doc.text(prefix + line, margin + 8, yPos);
+                                } else {
+                                    // Indent subsequent wrapped lines to align with text after number
+                                    doc.text(line, margin + 8 + numberWidth, yPos);
+                                }
+
+                                yPos += 5;
+                            });
                         });
                     }
 
