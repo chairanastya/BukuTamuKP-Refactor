@@ -40,7 +40,7 @@
             top: 2px;
             right: 100px;
         }
-        
+
         .donut {
             position: absolute;
             border-radius: 50%;
@@ -68,8 +68,8 @@
             width: 300px;
             height: 300px;
             background: linear-gradient(-45deg, rgba(255, 227, 102, 0.38) 0%, rgba(95, 129, 161, 0.38) 52.4%, rgba(71, 185, 174, 0.38) 100%);
-            -webkit-mask: radial-gradient(transparent 0, transparent 60px, black 60px); 
-            mask: radial-gradient(transparent 0, transparent 60px, black 60px); 
+            -webkit-mask: radial-gradient(transparent 0, transparent 60px, black 60px);
+            mask: radial-gradient(transparent 0, transparent 60px, black 60px);
             bottom: 1%;
             right: 15%;
         }
@@ -204,10 +204,12 @@
                     <div class="input-wrapper-forgot">
                         @svg('heroicon-s-envelope', 'w-6 h-6 text-[#084E8F] mr-3')
                         <input type="email" name="email" id="email" placeholder="Email Resepsionis"
-                            value="{{ old('email') }}"
-                            class="flex-1 border-0 outline-none text-gray-700" required autofocus>
+                            value="{{ old('email') }}" class="flex-1 border-0 outline-none text-gray-700" required
+                            autofocus>
                     </div>
                 </div>
+
+                <x-recaptcha class="mb-6" />
 
                 <!-- Submit Button -->
                 <button type="submit"
@@ -236,7 +238,7 @@
                 }
             }
 
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 const inputs = document.querySelectorAll('.input-wrapper-forgot input');
                 inputs.forEach(input => {
                     updateInputBackground(input);

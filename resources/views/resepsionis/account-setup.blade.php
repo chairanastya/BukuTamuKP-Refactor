@@ -77,7 +77,7 @@
                     </x-input-wrapper>
                 </div>
 
-                <div class="mb-6 flex items-center justify-end">
+                <div class="mb-4 flex items-center justify-end">
                     <label class="flex items-center cursor-pointer text-sm text-gray-600 hover:text-gray-800">
                         <input type="checkbox" id="showPassword"
                             class="mr-2 w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
@@ -85,12 +85,9 @@
                     </label>
                 </div>
 
-                <x-button 
-                    type="submit" 
-                    variant="primary" 
-                    class="w-full py-3 shadow-lg hover:shadow-xl"
-                    icon=""
-                >
+                <x-recaptcha class="mb-6" />
+
+                <x-button type="submit" variant="primary" class="w-full py-3 shadow-lg hover:shadow-xl" icon="">
                     Buat Akun
                 </x-button>
             </form>

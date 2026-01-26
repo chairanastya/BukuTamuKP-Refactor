@@ -3,7 +3,7 @@
 @push('styles')
     <style>
         /* Tambahan untuk Page Login */
-        .input-wrapper{
+        .input-wrapper {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -13,10 +13,9 @@
             flex: 1;
         }
 
-        .input-wrapper > .flex-shrink-0 {
+        .input-wrapper>.flex-shrink-0 {
             margin-left: 10px;
         }
-
     </style>
 @endpush
 @section('content')
@@ -24,13 +23,8 @@
     <div class="relative flex items-center justify-center min-h-screen px-4">
         <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
             <div class="mb-4 flex items-center justify-between">
-                <x-button 
-                    href="{{ route('tamu.form') }}"
-                    variant="primary"
-                    icon="heroicon-o-arrow-left"
-                    iconClass="w-4 h-4"
-                    class="!bg-transparent !text-blue-600 hover:!text-blue-900 !font-normal !px-0 !py-0"
-                >
+                <x-button href="{{ route('tamu.form') }}" variant="primary" icon="heroicon-o-arrow-left" iconClass="w-4 h-4"
+                    class="!bg-transparent !text-blue-600 hover:!text-blue-900 !font-normal !px-0 !py-0">
                     Kembali ke Form Tamu
                 </x-button>
             </div>
@@ -64,41 +58,25 @@
                 @csrf
 
                 <div class="mb-6">
-                    <x-input-wrapper
-                        id="email"
-                        name="email"
-                        type="email"
-                        placeholder="Email"
-                        :value="old('email')"
-                        :error="$errors->first('email')"
-                        errorMessage="Email wajib diisi dengan format yang benar"
-                        :showLabel="false"
-                        :required="true"
-                    >
+                    <x-input-wrapper id="email" name="email" type="email" placeholder="Email" :value="old('email')"
+                        :error="$errors->first('email')" errorMessage="Email wajib diisi dengan format yang benar"
+                        :showLabel="false" :required="true">
                         <x-slot:prepend>
                             @svg('bi-person-fill', 'w-6 h-6 text-[#084E8F]')
                         </x-slot:prepend>
                     </x-input-wrapper>
                 </div>
                 <div class="mb-4">
-                    <x-input-wrapper
-                        id="password"
-                        name="password"
-                        type="password"
-                        placeholder="Password"
-                        :value="''"
-                        :error="$errors->first('password')"
-                        errorMessage="Password wajib diisi"
-                        :showLabel="false"
-                        :required="true"
-                    >
+                    <x-input-wrapper id="password" name="password" type="password" placeholder="Password" :value="''"
+                        :error="$errors->first('password')" errorMessage="Password wajib diisi" :showLabel="false"
+                        :required="true">
                         <x-slot:prepend>
                             @svg('fas-key', 'w-6 h-6 text-[#084E8F]')
                         </x-slot:prepend>
                     </x-input-wrapper>
                 </div>
 
-                <div class="mb-6 flex items-center justify-end">
+                <div class="mb-4 flex items-center justify-end">
                     <label class="flex items-center cursor-pointer text-sm text-gray-600 hover:text-gray-800">
                         <input type="checkbox" id="showPassword"
                             class="mr-2 w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
@@ -106,13 +84,10 @@
                     </label>
                 </div>
 
-                <x-button 
-                    type="submit"
-                    variant="primary"
-                    class="w-full py-3 shadow-lg hover:shadow-xl"
-                    icon=""
-                >   
-                Login
+                <x-recaptcha class="mb-6" />
+
+                <x-button type="submit" variant="primary" class="w-full py-3 shadow-lg hover:shadow-xl" icon="">
+                    Login
                 </x-button>
 
                 <div class="mt-6 text-center">

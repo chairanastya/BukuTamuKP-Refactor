@@ -9,6 +9,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class NewPasswordController extends Controller
@@ -42,12 +44,21 @@ class NewPasswordController extends Controller
         $request->validate([
             'token' => 'required',
             'password' => 'required|min:6|confirmed',
+            'g-recaptcha-response' => 'required',
         ], [
             'token.required' => 'Token reset password tidak valid',
             'password.required' => 'Password wajib diisi',
             'password.min' => 'Password minimal 6 karakter',
             'password.confirmed' => 'Konfirmasi password tidak cocok',
+            'g-recaptcha-response.required' => 'Silakan verifikasi bahwa Anda bukan robot',
         ]);
+
+        // Verify reCAPTCHA
+        if (!$this->verifyRecaptcha($request->input('g-recaptcha-response'), $request->ip())) {
+            return back()->withErrors([
+                'g-recaptcha-response' => 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.',
+            ])->withInput();
+        }
 
         $passwordReset = $this->findValidPasswordReset($request->token);
         $this->updateResepsionisPassword($passwordReset->email, $request->password);
@@ -117,5 +128,22 @@ class NewPasswordController extends Controller
         DB::table(self::PASSWORD_RESET_TABLE)
             ->where('email', $email)
             ->delete();
+    }
+
+    private function verifyRecaptcha(string $response, string $remoteip): bool
+    {
+        try {
+            $httpResponse = Http::post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => config('services.recaptcha.secret_key'),
+                'response' => $response,
+                'remoteip' => $remoteip,
+            ]);
+
+            $recaptchaData = $httpResponse->json();
+            return isset($recaptchaData['success']) && $recaptchaData['success'];
+        } catch (\Exception $e) {
+            Log::error('reCAPTCHA verification failed', ['error' => $e->getMessage()]);
+            return false;
+        }
     }
 }

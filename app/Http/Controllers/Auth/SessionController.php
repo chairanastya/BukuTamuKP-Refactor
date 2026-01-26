@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 
 class SessionController extends Controller
@@ -35,12 +36,39 @@ class SessionController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:6',
+            'g-recaptcha-response' => 'required',
         ], [
             'email.required' => 'Email wajib diisi',
             'email.email' => 'Format email tidak valid',
             'password.required' => 'Password wajib diisi',
             'password.min' => 'Password minimal 6 karakter',
+            'g-recaptcha-response.required' => 'Silakan verifikasi bahwa Anda bukan robot',
         ]);
+
+        // Verify reCAPTCHA
+        $recaptchaResponse = $request->input('g-recaptcha-response');
+        $recaptchaSecret = config('services.recaptcha.secret_key');
+
+        try {
+            $httpResponse = Http::post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => $recaptchaSecret,
+                'response' => $recaptchaResponse,
+                'remoteip' => $request->ip(),
+            ]);
+
+            /** @var array{success: bool, challenge_ts?: string, hostname?: string, error-codes?: array<string>} $recaptchaData */
+            $recaptchaData = $httpResponse->json();
+
+            if (!isset($recaptchaData['success']) || !$recaptchaData['success']) {
+                return back()->withErrors([
+                    'g-recaptcha-response' => 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.',
+                ])->onlyInput('email');
+            }
+        } catch (\Exception $e) {
+            return back()->withErrors([
+                'g-recaptcha-response' => 'Gagal melakukan verifikasi reCAPTCHA. Silakan coba lagi.',
+            ])->onlyInput('email');
+        }
 
         $resepsionis = Resepsionis::where('email_resepsionis', $request->email)->first();
 

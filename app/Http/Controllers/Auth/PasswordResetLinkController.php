@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -35,10 +36,19 @@ class PasswordResetLinkController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
+            'g-recaptcha-response' => 'required',
         ], [
             'email.required' => 'Email wajib diisi',
             'email.email' => 'Format email tidak valid',
+            'g-recaptcha-response.required' => 'Silakan verifikasi bahwa Anda bukan robot',
         ]);
+
+        // Verify reCAPTCHA
+        if (!$this->verifyRecaptcha($request->input('g-recaptcha-response'), $request->ip())) {
+            return back()->withErrors([
+                'g-recaptcha-response' => 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.',
+            ])->onlyInput('email');
+        }
 
         $resepsionis = Resepsionis::where('email_resepsionis', $request->email)->first();
 
@@ -90,6 +100,23 @@ class PasswordResetLinkController extends Controller
             ]);
 
             throw new \Exception('Gagal mengirim email. Pastikan konfigurasi email sudah benar.');
+        }
+    }
+
+    private function verifyRecaptcha(string $response, string $remoteip): bool
+    {
+        try {
+            $httpResponse = Http::post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => config('services.recaptcha.secret_key'),
+                'response' => $response,
+                'remoteip' => $remoteip,
+            ]);
+
+            $recaptchaData = $httpResponse->json();
+            return isset($recaptchaData['success']) && $recaptchaData['success'];
+        } catch (\Exception $e) {
+            Log::error('reCAPTCHA verification failed', ['error' => $e->getMessage()]);
+            return false;
         }
     }
 }
