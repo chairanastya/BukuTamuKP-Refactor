@@ -1,6 +1,6 @@
 // Form validation functions
-function validateNama() {
-    const namaError = document.getElementById('nama_karyawan_error');
+export function validateNama(namaInput, namaErrorId = 'nama_karyawan_error') {
+    const namaError = document.getElementById(namaErrorId);
     if (namaInput.value.trim() === '') {
         namaError.classList.add('show');
         return false;
@@ -10,8 +10,8 @@ function validateNama() {
     }
 }
 
-function validateEmail() {
-    const emailError = document.getElementById('email_karyawan_error');
+export function validateEmail(emailInput, emailErrorId = 'email_karyawan_error') {
+    const emailError = document.getElementById(emailErrorId);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(emailInput.value.trim())) {
         emailError.classList.add('show');
@@ -22,26 +22,17 @@ function validateEmail() {
     }
 }
 
-// Make functions global
-window.validateNama = validateNama;
-window.validateEmail = validateEmail;
+// Setup function to be called with specific elements
+export function setupFormValidation(form, namaInput, emailInput, namaErrorId = 'nama_karyawan_error', emailErrorId = 'email_karyawan_error') {
+    namaInput.addEventListener('blur', () => validateNama(namaInput, namaErrorId));
+    emailInput.addEventListener('blur', () => validateEmail(emailInput, emailErrorId));
 
-// Event listeners (assuming global variables are defined in the view)
-document.addEventListener('DOMContentLoaded', function () {
-    if (typeof namaInput !== 'undefined') {
-        namaInput.addEventListener('blur', validateNama);
-    }
-    if (typeof emailInput !== 'undefined') {
-        emailInput.addEventListener('blur', validateEmail);
-    }
-    if (typeof form !== 'undefined') {
-        form.addEventListener('submit', function (e) {
-            const isNamaValid = validateNama();
-            const isEmailValid = validateEmail();
+    form.addEventListener('submit', function (e) {
+        const isNamaValid = validateNama(namaInput, namaErrorId);
+        const isEmailValid = validateEmail(emailInput, emailErrorId);
 
-            if (!isNamaValid || !isEmailValid) {
-                e.preventDefault();
-            }
-        });
-    }
-});
+        if (!isNamaValid || !isEmailValid) {
+            e.preventDefault();
+        }
+    });
+}
