@@ -22,3 +22,24 @@ export function setupSidebar() {
         });
     });
 }
+
+export function initSidebar() {
+    const toggleBtn = document.getElementById('sidebarToggle');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', toggleSidebar);
+    }
+
+    // Bind any elements that use data attributes for toggling/closing
+    const toggleEls = document.querySelectorAll('[data-toggle-sidebar]');
+    toggleEls.forEach(el => el.addEventListener('click', toggleSidebar));
+
+    const closeEls = document.querySelectorAll('[data-close-sidebar]');
+    closeEls.forEach(el => el.addEventListener('click', closeSidebar));
+
+    const overlay = document.getElementById('sidebarOverlay');
+    if (overlay) {
+        overlay.addEventListener('click', closeSidebar);
+    }
+
+    setupSidebar();
+}
