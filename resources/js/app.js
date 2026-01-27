@@ -9,6 +9,7 @@ import { initModals } from './modals.js';
 import { ExcelExporter } from './excel-export';
 import { initLoadingSpinner } from './loading-spinner';
 import { createStatusFilter } from './status-filter.js';
+import { initDatatableFilter } from './datatables-filters.js';
 
 window.Alpine = Alpine;
 window.exportDataTablePDF = exportDataTablePDF;
@@ -23,6 +24,7 @@ window.showLoading = showLoading;
 window.hideLoading = hideLoading;
 window.createInlineSpinner = createInlineSpinner;
 window.createStatusFilter = createStatusFilter;
+window.initDatatableFilter = initDatatableFilter;
 
 Alpine.start();
 
