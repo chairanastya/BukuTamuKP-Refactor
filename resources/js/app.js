@@ -1,9 +1,9 @@
 import './bootstrap';
-import { initModals } from './modals.js';
+import { initPasswordToggle } from './password-toggle.js';
 
 import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
-window.initModals = initModals;
+window.initPasswordToggle = initPasswordToggle;
 
 Alpine.start();
