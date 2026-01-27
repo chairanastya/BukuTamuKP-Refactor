@@ -5,6 +5,8 @@ import { initSidebar, toggleSidebar, closeSidebar } from './sidebar';
 import { initDropdown } from './dropdown.js';
 import { DataTableManager } from './datatables-init.js';
 import { initModals } from './modals.js';
+import { ExcelExporter } from './excel-export';
+window.ExcelExporter = ExcelExporter;
 
 window.Alpine = Alpine;
 window.toggleSidebar = toggleSidebar;
