@@ -1,9 +1,9 @@
 import './bootstrap';
-import { initModals } from './modals.js';
+import { initSupabaseRealtime } from './supabase-realtime.js';
 
 import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
-window.initModals = initModals;
+window.initSupabaseRealtime = initSupabaseRealtime;
 
 Alpine.start();
