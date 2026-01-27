@@ -2,7 +2,6 @@
 @section('title', 'Login Resepsionis - Buku Tamu Digital')
 @push('styles')
     <style>
-        /* Tambahan untuk Page Login */
         .input-wrapper {
             display: flex;
             align-items: center;
@@ -102,19 +101,18 @@
 
     @push('scripts')
         <script>
-            document.getElementById('showPassword').addEventListener('change', function () {
-                const passwordInput = document.getElementById('password');
-                passwordInput.type = this.checked ? 'text' : 'password';
-            });
-
-            function updateInputBackground(input) {
-                const wrapper = input.closest('.input-wrapper');
-                if (wrapper) {
-                    wrapper.classList.toggle('filled', input.value.trim() !== '');
-                }
-            }
-
             document.addEventListener('DOMContentLoaded', function () {
+                initPasswordToggle({
+                    checkboxId: 'showPassword',
+                    passwordFieldId: 'password'
+                });
+
+                initInputBackgrounds('.input-wrapper input');
+
+                @if($errors->has('g-recaptcha-response'))
+                    Recaptcha.resetRecaptcha();
+                @endif
+
                 const form = document.querySelector('form');
                 const emailInput = document.getElementById('email');
                 const passwordInput = document.getElementById('password');
@@ -123,13 +121,6 @@
                 const emailError = document.getElementById('email_error');
                 const passwordError = document.getElementById('password_error');
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-                // Reset reCAPTCHA jika ada error setelah page load
-                @if($errors->has('g-recaptcha-response'))
-                    if (typeof grecaptcha !== 'undefined') {
-                        grecaptcha.reset();
-                    }
-                @endif
 
                 form.addEventListener('submit', function (e) {
                     let hasError = false;
@@ -165,33 +156,25 @@
                             if (passwordWrapper) passwordWrapper.classList.remove('error');
                         }, 5000);
                     }
-                    const recaptchaResponse = grecaptcha.getResponse();
-                    console.log('reCAPTCHA Token Length:', recaptchaResponse.length);
-                    console.log('reCAPTCHA Token Preview:', recaptchaResponse.substring(0, 50) + '...');
-                    
-                    if (!recaptchaResponse) {
-                        e.preventDefault();
-                        alert('Silakan verifikasi bahwa Anda bukan robot');
+
+                    const isRecaptchaValid = Recaptcha.validateRecaptcha(e, {
+                        logResponse: true,
+                        alertMessage: 'Silakan verifikasi bahwa Anda bukan robot'
+                    });
+
+                    if (!isRecaptchaValid) {
+                        Recaptcha.resetRecaptcha();
                         return false;
                     }
 
                     if (hasError && firstErrorElement) {
-                        if (typeof grecaptcha !== 'undefined') {
-                            grecaptcha.reset();
-                        }
+                        Recaptcha.resetRecaptcha();
                         firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         firstErrorElement.focus();
                         return false;
                     }
 
                     return true;
-                });
-
-                const inputs = document.querySelectorAll('.input-wrapper input');
-                inputs.forEach(input => {
-                    updateInputBackground(input);
-                    input.addEventListener('input', () => updateInputBackground(input));
-                    input.addEventListener('change', () => updateInputBackground(input));
                 });
             });
         </script>
