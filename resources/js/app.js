@@ -10,6 +10,7 @@ import { ExcelExporter } from './excel-export';
 import { initLoadingSpinner } from './loading-spinner';
 import { createStatusFilter } from './status-filter.js';
 import { initDatatableFilter } from './datatables-filters.js';
+import { updateInputBackground, initInputBackgrounds } from './input-background.js';
 
 window.Alpine = Alpine;
 window.exportDataTablePDF = exportDataTablePDF;
@@ -25,6 +26,8 @@ window.hideLoading = hideLoading;
 window.createInlineSpinner = createInlineSpinner;
 window.createStatusFilter = createStatusFilter;
 window.initDatatableFilter = initDatatableFilter;
+window.updateInputBackground = updateInputBackground;
+window.initInputBackgrounds = initInputBackgrounds;
 
 Alpine.start();
 
