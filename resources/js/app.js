@@ -18,6 +18,8 @@ import { clearOldImageStorages } from './image-storage';
 import { initSupabaseRealtime } from './supabase-realtime.js';
 import * as Recaptcha from './captcha';
 
+import { setupFormValidation, validateNama, validateEmail } from './form-validation';
+
 window.Alpine = Alpine;
 window.exportDataTablePDF = exportDataTablePDF;
 window.exportContentPDF = exportContentPDF;
@@ -53,6 +55,11 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 window.initSupabaseRealtime = initSupabaseRealtime;
 window.Recaptcha = Recaptcha;
+
+// Expose form validation helpers to global scope so blade views can call them
+window.setupFormValidation = setupFormValidation;
+window.validateNama = validateNama;
+window.validateEmail = validateEmail;
 
 Alpine.start();
 
