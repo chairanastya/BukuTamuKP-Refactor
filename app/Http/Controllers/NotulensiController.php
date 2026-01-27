@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Cloudinary\Cloudinary;
 use Illuminate\Support\Facades\Log;
 
 class NotulensiController extends Controller
@@ -203,79 +202,34 @@ class NotulensiController extends Controller
                 abort(404, 'Dokumentasi tidak ditemukan');
             }
 
-            $publicId = $dokumentasi->dokumentasi_public_id;
-            $cacheFilename = 'dokumentasi-cache/' . md5($publicId) . '.jpg';
+            $filePath = $dokumentasi->dokumentasi_public_id;
 
-            // Check cache first
-            if (Storage::disk('local')->exists($cacheFilename)) {
-                Log::info('Serving dokumentasi from cache', [
+            // Check if file exists in local storage
+            if (!Storage::disk('public')->exists($filePath)) {
+                Log::error('Dokumentasi file not found in storage', [
                     'dokumentasi_id' => $dokumentasi->id_dokumentasi,
-                    'cache_file' => $cacheFilename
+                    'file_path' => $filePath
                 ]);
-
-                $imageContent = Storage::disk('local')->get($cacheFilename);
-
-                return response($imageContent)
-                    ->header('Content-Type', 'image/jpeg')
-                    ->header('Cache-Control', 'private, max-age=3600')
-                    ->header('X-Content-Type-Options', 'nosniff');
+                abort(404, 'File dokumentasi tidak ditemukan');
             }
 
-            // Download from Cloudinary if not cached
-            $cloudName = config('cloudinary.cloud_name');
-
-            Log::info('Downloading dokumentasi from Cloudinary to cache', [
+            Log::info('Serving dokumentasi from local storage', [
                 'dokumentasi_id' => $dokumentasi->id_dokumentasi,
-                'public_id' => $publicId,
+                'file_path' => $filePath
             ]);
 
-            $imageUrl = sprintf(
-                'https://res.cloudinary.com/%s/image/upload/%s',
-                $cloudName,
-                $publicId
-            );
-
-            $ch = curl_init($imageUrl);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
-
-            $imageContent = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-            $error = curl_error($ch);
-            curl_close($ch);
-
-            if ($httpCode !== 200 || !$imageContent) {
-                Log::error('Failed to download dokumentasi', [
-                    'http_code' => $httpCode,
-                    'curl_error' => $error,
-                    'dokumentasi_id' => $dokumentasi->id_dokumentasi,
-                    'public_id' => $publicId,
-                    'url' => $imageUrl
-                ]);
-
-                $errorMsg = $httpCode === 401 ? 'Dokumentasi tidak dapat diakses' :
-                    ($httpCode === 404 ? 'Dokumentasi tidak ditemukan' :
-                        'Gagal memuat dokumentasi');
-                abort(500, $errorMsg);
-            }
-
-            // Cache the image
-            Storage::disk('local')->put($cacheFilename, $imageContent);
-
-            Log::info('Successfully downloaded and cached dokumentasi', [
-                'dokumentasi_id' => $dokumentasi->id_dokumentasi,
-                'size' => strlen($imageContent),
-                'content_type' => $contentType,
-                'cache_file' => $cacheFilename
-            ]);
+            $imageContent = Storage::disk('public')->get($filePath);
+            
+            // Determine content type from file extension
+            $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+            $contentType = match(strtolower($extension)) {
+                'jpg', 'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                default => 'image/jpeg'
+            };
 
             return response($imageContent)
-                ->header('Content-Type', $contentType ?: 'image/jpeg')
+                ->header('Content-Type', $contentType)
                 ->header('Cache-Control', 'private, max-age=3600')
                 ->header('X-Content-Type-Options', 'nosniff');
 
@@ -293,27 +247,22 @@ class NotulensiController extends Controller
     private function uploadDokumentasi(array $files, int $idKunjungan)
     {
         try {
-            $cloudinary = new Cloudinary([
-                'cloud' => [
-                    'cloud_name' => config('cloudinary.cloud_name'),
-                    'api_key' => config('cloudinary.api_key'),
-                    'api_secret' => config('cloudinary.api_secret'),
-                ],
-            ]);
-
             foreach ($files as $file) {
-                $uploadResult = $cloudinary->uploadApi()->upload(
-                    $file->getRealPath(),
-                    [
-                        'folder' => 'buku_tamu/dokumentasi',
-                        'resource_type' => 'image',
-                    ]
-                );
+                // Generate unique filename
+                $filename = 'dokumentasi/' . Str::random(40) . '.' . $file->getClientOriginalExtension();
+                
+                // Store file in public disk
+                $path = $file->storeAs('dokumentasi', basename($filename), 'public');
+                
+                Log::info('File stored', [
+                    'filename' => $filename,
+                    'path' => $path
+                ]);
 
                 Dokumentasi::create([
                     'id_kunjungan' => $idKunjungan,
-                    'dokumentasi_public_id' => $uploadResult['public_id'],
-                    'dokumentasi_url' => $uploadResult['secure_url'],
+                    'dokumentasi_public_id' => $path, // Store file path instead of Cloudinary public_id
+                    'dokumentasi_url' => Storage::disk('public')->url($path),
                     'uploaded_at' => now(),
                 ]);
             }

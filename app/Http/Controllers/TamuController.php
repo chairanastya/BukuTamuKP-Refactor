@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Karyawan;
 use App\Models\Tamu;
 use App\Models\Kunjungan;
-use Cloudinary\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Mail\KunjunganConfirmation;
 
@@ -29,7 +29,7 @@ class TamuController extends Controller
         }
 
         $karyawans = Karyawan::where('status', 'aktif')
-            ->where('nama_karyawan', 'ILIKE', '%' . $keyword . '%')
+            ->where('nama_karyawan', 'LIKE', '%' . $keyword . '%')
             ->orderBy('nama_karyawan', 'asc')
             ->get(['id_karyawan', 'nama_karyawan', 'jabatan', 'departemen']);
 
@@ -71,50 +71,28 @@ class TamuController extends Controller
                 throw new \Exception('Ukuran foto terlalu besar (' . number_format($sizeInMB, 2) . ' MB). Maksimal 5MB.');
             }
 
-            // Setup Cloudinary dengan SSL fix untuk Windows/WAMP
-            // Disable SSL verification untuk development (putenv akan dipakai oleh Guzzle)
-            if (config('app.env') === 'local') {
-                putenv('CURLOPT_SSL_VERIFYPEER=0');
-                Log::info('SSL verification disabled (development mode)');
-            }
-
-            $cloudinaryConfig = [
-                'cloud' => [
-                    'cloud_name' => config('cloudinary.cloud_name'),
-                    'api_key' => config('cloudinary.api_key'),
-                    'api_secret' => config('cloudinary.api_secret'),
-                ]
-            ];
+            // Upload ke local storage
+            Log::info('Menyimpan foto ke local storage...');
             
-            Log::info('Cloudinary config check', [
-                'cloud_name' => config('cloudinary.cloud_name'),
-                'api_key_set' => !empty(config('cloudinary.api_key')),
-                'api_secret_set' => !empty(config('cloudinary.api_secret')),
-            ]);
-
-            $cloudinary = new Cloudinary($cloudinaryConfig);
+            // Decode base64 image
+            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $base64Image));
             
-            Log::info('Mengirim ke Cloudinary...');
+            // Generate unique filename
+            $filename = 'tamu-ktp/' . Str::random(40) . '.jpg';
             
-            $uploadResult = $cloudinary->uploadApi()->upload($base64Image, [
-                'folder' => 'tamu-ktp',
-                'resource_type' => 'image',
-                'type' => 'upload',
-                'transformation' => [
-                    'quality' => 'auto',
-                    'fetch_format' => 'auto'
-                ]
-            ]);
+            // Save to storage/app/public
+            Storage::disk('public')->put($filename, $imageData);
             
-            Log::info('Upload ke Cloudinary berhasil', [
-                'public_id' => $uploadResult['public_id'],
+            Log::info('Upload ke local storage berhasil', [
+                'filename' => $filename,
+                'path' => Storage::disk('public')->path($filename)
             ]);
 
             $tamu = Tamu::create([
                 'nama_tamu' => $validated['nama_lengkap'],
                 'email_tamu' => $validated['email'],
                 'instansi_tamu' => $validated['instansi'],
-                'ktp_public_id' => $uploadResult['public_id'],
+                'ktp_public_id' => $filename, // Store the file path instead of Cloudinary public_id
             ]);
             
             Log::info('Tamu berhasil dibuat, ID: ' . $tamu->id_tamu);
@@ -195,12 +173,13 @@ class TamuController extends Controller
                 'line' => $e->getLine(),
             ]);
 
-            if (isset($uploadResult['public_id'])) {
+            // Cleanup: delete uploaded file if it exists
+            if (isset($filename)) {
                 try {
-                    $cloudinary->uploadApi()->destroy($uploadResult['public_id']);
-                    Log::info('Cleanup: foto berhasil dihapus dari Cloudinary');
+                    Storage::disk('public')->delete($filename);
+                    Log::info('Cleanup: foto berhasil dihapus dari local storage');
                 } catch (\Exception $deleteError) {
-                    Log::error('Gagal hapus foto dari Cloudinary');
+                    Log::error('Gagal hapus foto dari local storage');
                 }
             }
 
@@ -208,17 +187,16 @@ class TamuController extends Controller
             $errorMessage = 'Terjadi kesalahan: ' . $e->getMessage();
 
             if (
-                str_contains($e->getMessage(), 'Cloudinary') ||
+                str_contains($e->getMessage(), 'storage') ||
                 str_contains($e->getMessage(), 'upload') ||
                 str_contains($e->getMessage(), 'Invalid image')
             ) {
                 $errorMessage = 'GAGAL UPLOAD FOTO\n\n';
                 $errorMessage .= 'Error: ' . $e->getMessage() . '\n\n';
                 $errorMessage .= 'Kemungkinan penyebab:\n';
-                $errorMessage .= '• Koneksi internet tidak stabil\n';
                 $errorMessage .= '• Ukuran foto terlalu besar\n';
                 $errorMessage .= '• Format foto tidak valid\n';
-                $errorMessage .= '• Kredensial Cloudinary bermasalah\n\n';
+                $errorMessage .= '• Permission folder storage bermasalah\n\n';
                 $errorMessage .= 'Solusi: Coba ambil foto ulang atau refresh halaman.';
             }
 

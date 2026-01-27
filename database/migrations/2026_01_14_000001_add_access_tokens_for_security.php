@@ -13,12 +13,12 @@ return new class extends Migration
     {
         // Tambahkan kolom access_token untuk keamanan akses gambar
         Schema::table('tamu', function (Blueprint $table) {
-            $table->string('ktp_access_token', 64)->unique()->nullable()->after('ktp_url');
+            $table->string('ktp_access_token', 64)->unique()->nullable();
             $table->index('ktp_access_token');
         });
 
         Schema::table('dokumentasi', function (Blueprint $table) {
-            $table->string('access_token', 64)->unique()->nullable()->after('dokumentasi_url');
+            $table->string('access_token', 64)->unique()->nullable();
             $table->index('access_token');
         });
     }
