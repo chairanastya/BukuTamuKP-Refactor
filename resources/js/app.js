@@ -15,6 +15,7 @@ import { initPasswordToggle } from './password-toggle.js';
 import * as KaryawanRowManager from './karyawan-row-manager.js';
 import { initWebcam } from './webcam.js';
 import { clearOldImageStorages } from './image-storage';
+import { initSupabaseRealtime } from './supabase-realtime.js';
 
 window.Alpine = Alpine;
 window.exportDataTablePDF = exportDataTablePDF;
@@ -49,6 +50,7 @@ window.initWebcam = initWebcam;
 window.addEventListener('DOMContentLoaded', function() {
     clearOldImageStorages();
 });
+window.initSupabaseRealtime = initSupabaseRealtime;
 
 Alpine.start();
 

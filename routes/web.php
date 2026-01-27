@@ -21,14 +21,15 @@ Route::prefix('tamu')->name('tamu.')->group(function () {
     Route::post('/submit', [TamuController::class, 'submitForm'])->name('submit')->middleware('throttle:submissions');
 });
 
-// API untuk Supabase Realtime - HANYA untuk authenticated users
-Route::middleware('auth:resepsionis')->group(function () {
-    Route::get('/api/supabase-config', function () {
-        return response()->json([
-            'url' => env('SUPABASE_URL'),
-            'key' => env('SUPABASE_ANON_KEY')
-        ]);
-    });
+// API untuk Supabase Realtime
+Route::get('/api/supabase-config', function () {
+    if (!auth('resepsionis')->check()) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+    return response()->json([
+        'url' => env('SUPABASE_URL'),
+        'key' => env('SUPABASE_ANON_KEY')
+    ]);
 });
 
 Route::get('/kunjungan/confirm/{token}', [KunjunganConfirmController::class, 'confirm'])->name('kunjungan.confirm');
