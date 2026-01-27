@@ -11,6 +11,7 @@ import { initLoadingSpinner } from './loading-spinner';
 import { createStatusFilter } from './status-filter.js';
 import { initDatatableFilter } from './datatables-filters.js';
 import { updateInputBackground, initInputBackgrounds } from './input-background.js';
+import { initPasswordToggle } from './password-toggle.js';
 
 window.Alpine = Alpine;
 window.exportDataTablePDF = exportDataTablePDF;
@@ -28,6 +29,7 @@ window.createStatusFilter = createStatusFilter;
 window.initDatatableFilter = initDatatableFilter;
 window.updateInputBackground = updateInputBackground;
 window.initInputBackgrounds = initInputBackgrounds;
+window.initPasswordToggle = initPasswordToggle;
 
 Alpine.start();
 
