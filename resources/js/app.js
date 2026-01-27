@@ -13,6 +13,7 @@ import { initDatatableFilter } from './datatables-filters.js';
 import { updateInputBackground, initInputBackgrounds } from './input-background.js';
 import { initPasswordToggle } from './password-toggle.js';
 import * as KaryawanRowManager from './karyawan-row-manager.js';
+import { initWebcam } from './webcam.js';
 
 window.Alpine = Alpine;
 window.exportDataTablePDF = exportDataTablePDF;
@@ -43,6 +44,7 @@ window.resetKaryawanRow = KaryawanRowManager.resetKaryawanRow;
 window.updateMinusButtonsVisibility = KaryawanRowManager.updateMinusButtonsVisibility;
 window.setSearchKaryawanRoute = KaryawanRowManager.setSearchKaryawanRoute;
 window.setEscapeHtmlFn = KaryawanRowManager.setEscapeHtmlFn;
+window.initWebcam = initWebcam;
 
 Alpine.start();
 
