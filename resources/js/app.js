@@ -16,6 +16,7 @@ import * as KaryawanRowManager from './karyawan-row-manager.js';
 import { initWebcam } from './webcam.js';
 import { clearOldImageStorages } from './image-storage';
 import { initSupabaseRealtime } from './supabase-realtime.js';
+import * as Recaptcha from './captcha';
 
 window.Alpine = Alpine;
 window.exportDataTablePDF = exportDataTablePDF;
@@ -51,6 +52,7 @@ window.addEventListener('DOMContentLoaded', function() {
     clearOldImageStorages();
 });
 window.initSupabaseRealtime = initSupabaseRealtime;
+window.Recaptcha = Recaptcha;
 
 Alpine.start();
 
