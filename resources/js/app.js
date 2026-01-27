@@ -12,6 +12,7 @@ import { createStatusFilter } from './status-filter.js';
 import { initDatatableFilter } from './datatables-filters.js';
 import { updateInputBackground, initInputBackgrounds } from './input-background.js';
 import { initPasswordToggle } from './password-toggle.js';
+import * as KaryawanRowManager from './karyawan-row-manager.js';
 
 window.Alpine = Alpine;
 window.exportDataTablePDF = exportDataTablePDF;
@@ -30,6 +31,18 @@ window.initDatatableFilter = initDatatableFilter;
 window.updateInputBackground = updateInputBackground;
 window.initInputBackgrounds = initInputBackgrounds;
 window.initPasswordToggle = initPasswordToggle;
+window.addKaryawanRow = KaryawanRowManager.addKaryawanRow;
+window.removeKaryawanRow = KaryawanRowManager.removeKaryawanRow;
+window.setupRowListeners = KaryawanRowManager.setupRowListeners;
+window.searchKaryawan = KaryawanRowManager.searchKaryawan;
+window.displayAutocomplete = KaryawanRowManager.displayAutocomplete;
+window.selectKaryawan = KaryawanRowManager.selectKaryawan;
+window.renderKaryawanCard = KaryawanRowManager.renderKaryawanCard;
+window.updateHiddenInput = KaryawanRowManager.updateHiddenInput;
+window.resetKaryawanRow = KaryawanRowManager.resetKaryawanRow;
+window.updateMinusButtonsVisibility = KaryawanRowManager.updateMinusButtonsVisibility;
+window.setSearchKaryawanRoute = KaryawanRowManager.setSearchKaryawanRoute;
+window.setEscapeHtmlFn = KaryawanRowManager.setEscapeHtmlFn;
 
 Alpine.start();
 
