@@ -1,9 +1,9 @@
 import './bootstrap';
-import { initModals } from './modals.js';
+import { initWebcam } from './webcam.js';
 
 import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
-window.initModals = initModals;
+window.initWebcam = initWebcam;
 
 Alpine.start();
