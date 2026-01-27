@@ -213,27 +213,27 @@
             const rowId = rowCounter++;
 
             const rowHtml = `
-                                                                <div id="karyawan-row-${rowId}" class="karyawan-search-row">
-                                                                    <div class="karyawan-search-container" id="content-${rowId}">
-                                                                        <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
-                                                                            <input type="text" 
-                                                                                id="karyawan_input_${rowId}" 
-                                                                                placeholder="Cari nama karyawan..."
-                                                                                class="w-full karyawan-search-input"
-                                                                                autocomplete="off"
-                                                                                data-row-id="${rowId}">
-                                                                        </div>
-                                                                        <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>
-                                                                    </div>
-                                                                    <div class="karyawan-action-buttons">
-                                                                        <button type="button" class="karyawan-add-btn" onclick="addKaryawanRow()" title="Tambah karyawan">
-                                                                            @svg('heroicon-o-plus', 'w-7 h-7')
-                                                                        </button>
-                                                                        <button type="button" class="karyawan-minus-btn" onclick="removeKaryawanRow(${rowId})" title="Hapus baris">
-                                                                            @svg('heroicon-o-minus', 'w-7 h-7')
-                                                                        </button>
-                                                                    </div>
-                                                                </div>`;
+                                                                        <div id="karyawan-row-${rowId}" class="karyawan-search-row">
+                                                                            <div class="karyawan-search-container" id="content-${rowId}">
+                                                                                <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
+                                                                                    <input type="text" 
+                                                                                        id="karyawan_input_${rowId}" 
+                                                                                        placeholder="Cari nama karyawan..."
+                                                                                        class="w-full karyawan-search-input"
+                                                                                        autocomplete="off"
+                                                                                        data-row-id="${rowId}">
+                                                                                </div>
+                                                                                <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>
+                                                                            </div>
+                                                                            <div class="karyawan-action-buttons">
+                                                                                <button type="button" class="karyawan-add-btn" onclick="addKaryawanRow()" title="Tambah karyawan">
+                                                                                    @svg('heroicon-o-plus', 'w-7 h-7')
+                                                                                </button>
+                                                                                <button type="button" class="karyawan-minus-btn" onclick="removeKaryawanRow(${rowId})" title="Hapus baris">
+                                                                                    @svg('heroicon-o-minus', 'w-7 h-7')
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>`;
 
             container.insertAdjacentHTML('beforeend', rowHtml);
             setupRowListeners(rowId);
@@ -300,10 +300,10 @@
             const html = karyawans
                 .filter(k => !selectedKaryawan.find(sk => sk.id_karyawan === k.id_karyawan))
                 .map(k => `
-                                                                        <div class="autocomplete-item" onclick="selectKaryawan(${rowId}, ${k.id_karyawan}, '${escapeHtml(k.nama_karyawan)}', '${escapeHtml(k.jabatan)}', '${escapeHtml(k.departemen)}')">
-                                                                            <div class="autocomplete-name">${escapeHtml(k.nama_karyawan)}</div>
-                                                                            <div class="autocomplete-detail">${escapeHtml(k.jabatan)} - ${escapeHtml(k.departemen)}</div>
-                                                                        </div>`)
+                                                                                <div class="autocomplete-item" onclick="selectKaryawan(${rowId}, ${k.id_karyawan}, '${escapeHtml(k.nama_karyawan)}', '${escapeHtml(k.jabatan)}', '${escapeHtml(k.departemen)}')">
+                                                                                    <div class="autocomplete-name">${escapeHtml(k.nama_karyawan)}</div>
+                                                                                    <div class="autocomplete-detail">${escapeHtml(k.jabatan)} - ${escapeHtml(k.departemen)}</div>
+                                                                                </div>`)
                 .join('');
 
             dropdown.innerHTML = html;
@@ -326,13 +326,13 @@
         function renderKaryawanCard(rowId, nama, jabatan, departemen) {
             const content = document.getElementById(`content-${rowId}`);
             content.innerHTML = `
-                                                                <div class="karyawan-card w-full" onclick="resetKaryawanRow(${rowId})" title="Klik untuk mengganti karyawan">
-                                                                    <div class="karyawan-card-info">
-                                                                        <div class="karyawan-card-name">${escapeHtml(nama)}</div>
-                                                                        <div class="karyawan-card-detail">${escapeHtml(jabatan)} - ${escapeHtml(departemen)}</div>
-                                                                    </div>
-                                                                    @svg('zondicon-edit-pencil', 'w-5 h-5 text-[#084E8F]')
-                                                                </div>`;
+                                                                        <div class="karyawan-card w-full" onclick="resetKaryawanRow(${rowId})" title="Klik untuk mengganti karyawan">
+                                                                            <div class="karyawan-card-info">
+                                                                                <div class="karyawan-card-name">${escapeHtml(nama)}</div>
+                                                                                <div class="karyawan-card-detail">${escapeHtml(jabatan)} - ${escapeHtml(departemen)}</div>
+                                                                            </div>
+                                                                            @svg('zondicon-edit-pencil', 'w-5 h-5 text-[#084E8F]')
+                                                                        </div>`;
         }
 
         function updateHiddenInput() {
@@ -346,15 +346,15 @@
 
             const content = document.getElementById(`content-${rowId}`);
             content.innerHTML = `
-                                                                <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
-                                                                    <input type="text" 
-                                                                        id="karyawan_input_${rowId}" 
-                                                                        placeholder="Cari nama karyawan..."
-                                                                        class="w-full karyawan-search-input"
-                                                                        autocomplete="off"
-                                                                        data-row-id="${rowId}">
-                                                                </div>
-                                                                <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>`;
+                                                                        <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
+                                                                            <input type="text" 
+                                                                                id="karyawan_input_${rowId}" 
+                                                                                placeholder="Cari nama karyawan..."
+                                                                                class="w-full karyawan-search-input"
+                                                                                autocomplete="off"
+                                                                                data-row-id="${rowId}">
+                                                                        </div>
+                                                                        <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>`;
 
             setupRowListeners(rowId);
         }
