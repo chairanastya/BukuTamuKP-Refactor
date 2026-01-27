@@ -14,6 +14,7 @@ import { updateInputBackground, initInputBackgrounds } from './input-background.
 import { initPasswordToggle } from './password-toggle.js';
 import * as KaryawanRowManager from './karyawan-row-manager.js';
 import { initWebcam } from './webcam.js';
+import { clearOldImageStorages } from './image-storage';
 
 window.Alpine = Alpine;
 window.exportDataTablePDF = exportDataTablePDF;
@@ -45,6 +46,9 @@ window.updateMinusButtonsVisibility = KaryawanRowManager.updateMinusButtonsVisib
 window.setSearchKaryawanRoute = KaryawanRowManager.setSearchKaryawanRoute;
 window.setEscapeHtmlFn = KaryawanRowManager.setEscapeHtmlFn;
 window.initWebcam = initWebcam;
+window.addEventListener('DOMContentLoaded', function() {
+    clearOldImageStorages();
+});
 
 Alpine.start();
 
