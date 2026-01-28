@@ -84,7 +84,7 @@ class TamuController extends Controller
                     'api_secret' => config('cloudinary.api_secret'),
                 ]
             ];
-            
+
             Log::info('Cloudinary config check', [
                 'cloud_name' => config('cloudinary.cloud_name'),
                 'api_key_set' => !empty(config('cloudinary.api_key')),
@@ -92,9 +92,9 @@ class TamuController extends Controller
             ]);
 
             $cloudinary = new Cloudinary($cloudinaryConfig);
-            
+
             Log::info('Mengirim ke Cloudinary...');
-            
+
             $uploadResult = $cloudinary->uploadApi()->upload($base64Image, [
                 'folder' => 'tamu-ktp',
                 'resource_type' => 'image',
@@ -104,7 +104,7 @@ class TamuController extends Controller
                     'fetch_format' => 'auto'
                 ]
             ]);
-            
+
             Log::info('Upload ke Cloudinary berhasil', [
                 'public_id' => $uploadResult['public_id'],
             ]);
@@ -115,7 +115,7 @@ class TamuController extends Controller
                 'instansi_tamu' => $validated['instansi'],
                 'ktp_public_id' => $uploadResult['public_id'],
             ]);
-            
+
             Log::info('Tamu berhasil dibuat, ID: ' . $tamu->id_tamu);
 
             // Generate token untuk approval
@@ -131,7 +131,7 @@ class TamuController extends Controller
                 'token_approval' => $token,
                 'expired_at' => $expiredAt,
             ]);
-            
+
             Log::info('Kunjungan berhasil dibuat, ID: ' . $kunjungan->id_kunjungan);
 
             $karyawanIds = json_decode($validated['karyawan_ids'], true);
@@ -146,8 +146,22 @@ class TamuController extends Controller
             DB::commit();
 
             // Dispatch job untuk kirim email ke karyawan secara asynchronous
-            dispatch(new SendConfirmationEmailJob($karyawanIds, $kunjungan, $tamu, $token));
-            
+            // Dispatch satu job per karyawan agar kegagalan satu karyawan tidak memblokir yang lain
+            Log::info('Starting email job dispatch', [
+                'karyawan_ids_count' => count($karyawanIds),
+                'karyawan_ids_array' => $karyawanIds,
+                'kunjungan_id' => $kunjungan->id_kunjungan,
+            ]);
+
+            foreach ($karyawanIds as $index => $karyawanId) {
+                Log::info('Dispatching email job', [
+                    'index' => $index,
+                    'karyawan_id' => $karyawanId,
+                    'kunjungan_id' => $kunjungan->id_kunjungan,
+                ]);
+                dispatch(new SendConfirmationEmailJob($karyawanId, $tamu, $kunjungan, $token));
+            }
+
             Log::info('Job pengiriman email telah didispatch untuk ' . count($karyawanIds) . ' karyawan');
 
             $successMessage = 'Data kunjungan berhasil dikirim! Email konfirmasi sedang dikirim ke karyawan. Silakan tunggu approval dari karyawan.';
@@ -161,7 +175,7 @@ class TamuController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Error submit form tamu', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),

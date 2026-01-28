@@ -29,14 +29,14 @@ class SendConfirmationEmailJob implements ShouldQueue
      *
      * @var array
      */
-    public $backoff = [10, 30, 60]; 
+    public $backoff = [10, 30, 60];
 
     /**
-     * The karyawan instance.
+     * The karyawan ID.
      *
-     * @var \App\Models\Karyawan
+     * @var int
      */
-    protected $karyawan;
+    protected $karyawanId;
 
     /**
      * The tamu instance.
@@ -62,9 +62,9 @@ class SendConfirmationEmailJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(Karyawan $karyawan, Tamu $tamu, Kunjungan $kunjungan, string $token)
+    public function __construct(int $karyawanId, Tamu $tamu, Kunjungan $kunjungan, string $token)
     {
-        $this->karyawan = $karyawan;
+        $this->karyawanId = $karyawanId;
         $this->tamu = $tamu;
         $this->kunjungan = $kunjungan;
         $this->token = $token;
@@ -76,25 +76,36 @@ class SendConfirmationEmailJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            if (!$this->karyawan->email_karyawan) {
+            // Re-fetch karyawan from database to ensure fresh model
+            $karyawan = Karyawan::find($this->karyawanId);
+
+            if (!$karyawan) {
+                Log::error('Karyawan not found in database', [
+                    'karyawan_id' => $this->karyawanId,
+                    'job_id' => $this->job->getJobId(),
+                ]);
+                throw new \Exception("Karyawan with ID {$this->karyawanId} not found");
+            }
+
+            if (!$karyawan->email_karyawan) {
                 Log::warning('Karyawan has no email, skipping confirmation email', [
-                    'karyawan_id' => $this->karyawan->id_karyawan,
+                    'karyawan_id' => $karyawan->id_karyawan,
                     'job_id' => $this->job->getJobId(),
                 ]);
                 return;
             }
 
             Log::info('Sending confirmation email to karyawan', [
-                'karyawan_id' => $this->karyawan->id_karyawan,
-                'karyawan_email' => $this->karyawan->email_karyawan,
+                'karyawan_id' => $karyawan->id_karyawan,
+                'karyawan_email' => $karyawan->email_karyawan,
                 'kunjungan_id' => $this->kunjungan->id_kunjungan,
                 'attempt' => $this->attempts(),
                 'job_id' => $this->job->getJobId(),
             ]);
 
-            Mail::to($this->karyawan->email_karyawan)->send(
+            Mail::to($karyawan->email_karyawan)->send(
                 new KunjunganConfirmation(
-                    $this->karyawan,
+                    $karyawan,
                     $this->tamu,
                     $this->kunjungan,
                     $this->token
@@ -102,15 +113,14 @@ class SendConfirmationEmailJob implements ShouldQueue
             );
 
             Log::info('Confirmation email sent successfully', [
-                'karyawan_email' => $this->karyawan->email_karyawan,
-                'karyawan_name' => $this->karyawan->nama_karyawan,
+                'karyawan_email' => $karyawan->email_karyawan,
+                'karyawan_name' => $karyawan->nama_karyawan,
                 'job_id' => $this->job->getJobId(),
             ]);
 
         } catch (\Exception $e) {
             Log::error('Failed to send confirmation email', [
-                'karyawan_id' => $this->karyawan->id_karyawan,
-                'karyawan_email' => $this->karyawan->email_karyawan,
+                'karyawan_id' => $this->karyawanId,
                 'error' => $e->getMessage(),
                 'attempt' => $this->attempts(),
                 'job_id' => $this->job->getJobId(),
@@ -126,11 +136,9 @@ class SendConfirmationEmailJob implements ShouldQueue
     public function failed(\Throwable $exception): void
     {
         Log::error('Confirmation email job failed after all retries', [
-            'karyawan_id' => $this->karyawan->id_karyawan,
-            'karyawan_email' => $this->karyawan->email_karyawan,
+            'karyawan_id' => $this->karyawanId,
             'kunjungan_id' => $this->kunjungan->id_kunjungan,
             'error' => $exception->getMessage(),
-            'trace' => $exception->getTraceAsString(),
         ]);
     }
 }
