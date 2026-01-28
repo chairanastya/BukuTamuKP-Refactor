@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SendConfirmationEmailJob;
+use App\Jobs\UploadPhotoToCloudinaryJob;
 use App\Models\Karyawan;
 use App\Models\Tamu;
 use App\Models\Kunjungan;
-use Cloudinary\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -70,50 +70,10 @@ class TamuController extends Controller
                 throw new \Exception('Ukuran foto terlalu besar (' . number_format($sizeInMB, 2) . ' MB). Maksimal 5MB.');
             }
 
-            // Setup Cloudinary dengan SSL fix untuk Windows/WAMP
-            // Disable SSL verification untuk development (putenv akan dipakai oleh Guzzle)
-            if (config('app.env') === 'local') {
-                putenv('CURLOPT_SSL_VERIFYPEER=0');
-                Log::info('SSL verification disabled (development mode)');
-            }
-
-            $cloudinaryConfig = [
-                'cloud' => [
-                    'cloud_name' => config('cloudinary.cloud_name'),
-                    'api_key' => config('cloudinary.api_key'),
-                    'api_secret' => config('cloudinary.api_secret'),
-                ]
-            ];
-            
-            Log::info('Cloudinary config check', [
-                'cloud_name' => config('cloudinary.cloud_name'),
-                'api_key_set' => !empty(config('cloudinary.api_key')),
-                'api_secret_set' => !empty(config('cloudinary.api_secret')),
-            ]);
-
-            $cloudinary = new Cloudinary($cloudinaryConfig);
-            
-            Log::info('Mengirim ke Cloudinary...');
-            
-            $uploadResult = $cloudinary->uploadApi()->upload($base64Image, [
-                'folder' => 'tamu-ktp',
-                'resource_type' => 'image',
-                'type' => 'upload',
-                'transformation' => [
-                    'quality' => 'auto',
-                    'fetch_format' => 'auto'
-                ]
-            ]);
-            
-            Log::info('Upload ke Cloudinary berhasil', [
-                'public_id' => $uploadResult['public_id'],
-            ]);
-
             $tamu = Tamu::create([
                 'nama_tamu' => $validated['nama_lengkap'],
                 'email_tamu' => $validated['email'],
                 'instansi_tamu' => $validated['instansi'],
-                'ktp_public_id' => $uploadResult['public_id'],
             ]);
             
             Log::info('Tamu berhasil dibuat, ID: ' . $tamu->id_tamu);
@@ -145,6 +105,11 @@ class TamuController extends Controller
 
             DB::commit();
 
+            // Dispatch job untuk upload foto ke Cloudinary secara asynchronous
+            dispatch(new UploadPhotoToCloudinaryJob($base64Image, $tamu->id_tamu));
+            
+            Log::info('Job upload foto ke Cloudinary telah didispatch untuk tamu ID: ' . $tamu->id_tamu);
+
             // Dispatch job untuk kirim email ke karyawan secara asynchronous
             dispatch(new SendConfirmationEmailJob($karyawanIds, $kunjungan->id_kunjungan, $tamu->id_tamu, $token));
             
@@ -167,15 +132,6 @@ class TamuController extends Controller
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
-
-            if (isset($uploadResult['public_id'])) {
-                try {
-                    $cloudinary->uploadApi()->destroy($uploadResult['public_id']);
-                    Log::info('Cleanup: foto berhasil dihapus dari Cloudinary');
-                } catch (\Exception $deleteError) {
-                    Log::error('Gagal hapus foto dari Cloudinary');
-                }
-            }
 
             // Custom error message untuk masalah upload foto
             $errorMessage = 'Terjadi kesalahan: ' . $e->getMessage();
