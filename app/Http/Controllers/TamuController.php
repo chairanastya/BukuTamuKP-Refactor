@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendConfirmationEmailJob;
 use App\Models\Karyawan;
 use App\Models\Tamu;
 use App\Models\Kunjungan;
@@ -9,9 +10,7 @@ use Cloudinary\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use App\Mail\KunjunganConfirmation;
 
 class TamuController extends Controller
 {
@@ -146,38 +145,12 @@ class TamuController extends Controller
 
             DB::commit();
 
-            // Kirim email ke setiap karyawan yang dituju
-            Log::info('Mulai mengirim email ke karyawan...');
-            $emailsSent = 0;
-            $emailsFailed = 0;
-
-            foreach ($karyawanIds as $karyawanId) {
-                try {
-                    $karyawan = Karyawan::find($karyawanId);
-
-                    if ($karyawan && $karyawan->email_karyawan) {
-                        Mail::to($karyawan->email_karyawan)->send(
-                            new KunjunganConfirmation($karyawan, $tamu, $kunjungan, $token)
-                        );
-                        $emailsSent++;
-                        Log::info("Email terkirim ke: {$karyawan->nama_karyawan} ({$karyawan->email_karyawan})");
-                    } else {
-                        Log::warning("Karyawan ID {$karyawanId} tidak memiliki email");
-                        $emailsFailed++;
-                    }
-                } catch (\Exception $mailError) {
-                    Log::error("Gagal kirim email ke karyawan ID {$karyawanId}: " . $mailError->getMessage());
-                    $emailsFailed++;
-                }
-            }
+            // Dispatch job untuk kirim email ke karyawan secara asynchronous
+            dispatch(new SendConfirmationEmailJob($karyawanIds, $kunjungan, $tamu, $token));
             
-            Log::info("Email summary: {$emailsSent} terkirim, {$emailsFailed} gagal");
+            Log::info('Job pengiriman email telah didispatch untuk ' . count($karyawanIds) . ' karyawan');
 
-            $successMessage = 'Data kunjungan berhasil dikirim!';
-            if ($emailsSent > 0) {
-                $successMessage .= " Email konfirmasi telah dikirim ke {$emailsSent} karyawan.";
-            }
-            $successMessage .= ' Silakan tunggu approval dari karyawan.';
+            $successMessage = 'Data kunjungan berhasil dikirim! Email konfirmasi sedang dikirim ke karyawan. Silakan tunggu approval dari karyawan.';
 
             // Check if submission is from receptionist
             if (auth('resepsionis')->check()) {
