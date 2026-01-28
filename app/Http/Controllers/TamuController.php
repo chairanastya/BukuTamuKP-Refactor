@@ -146,7 +146,7 @@ class TamuController extends Controller
             DB::commit();
 
             // Dispatch job untuk kirim email ke karyawan secara asynchronous
-            dispatch(new SendConfirmationEmailJob($karyawanIds, $kunjungan, $tamu, $token));
+            dispatch(new SendConfirmationEmailJob($karyawanIds, $kunjungan->id_kunjungan, $tamu->id_tamu, $token));
             
             Log::info('Job pengiriman email telah didispatch untuk ' . count($karyawanIds) . ' karyawan');
 

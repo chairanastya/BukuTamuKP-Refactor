@@ -17,100 +17,94 @@ class SendConfirmationEmailJob implements ShouldQueue
 {
     use Queueable, InteractsWithQueue, SerializesModels;
 
-    /**
-     * The number of times the job may be attempted.
-     *
-     * @var int
-     */
     public $tries = 3;
 
-    /**
-     * The number of seconds to wait before retrying the job.
-     *
-     * @var array
-     */
-    public $backoff = [10, 30, 60]; 
+    public $backoff = [10, 30, 60];
 
-    /**
-     * The karyawan instance.
-     *
-     * @var \App\Models\Karyawan
-     */
-    protected $karyawan;
-
-    /**
-     * The tamu instance.
-     *
-     * @var \App\Models\Tamu
-     */
-    protected $tamu;
-
-    /**
-     * The kunjungan instance.
-     *
-     * @var \App\Models\Kunjungan
-     */
-    protected $kunjungan;
-
-    /**
-     * The approval token.
-     *
-     * @var string
-     */
+    protected $karyawanIds;
+    protected $kunjunganId;
+    protected $tamuId;
     protected $token;
 
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(Karyawan $karyawan, Tamu $tamu, Kunjungan $kunjungan, string $token)
+    public function __construct(array $karyawanIds, int $kunjunganId, int $tamuId, string $token)
     {
-        $this->karyawan = $karyawan;
-        $this->tamu = $tamu;
-        $this->kunjungan = $kunjungan;
+        $this->karyawanIds = $karyawanIds;
+        $this->kunjunganId = $kunjunganId;
+        $this->tamuId = $tamuId;
         $this->token = $token;
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         try {
-            if (!$this->karyawan->email_karyawan) {
-                Log::warning('Karyawan has no email, skipping confirmation email', [
-                    'karyawan_id' => $this->karyawan->id_karyawan,
-                    'job_id' => $this->job->getJobId(),
-                ]);
-                return;
+            $kunjungan = Kunjungan::findOrFail($this->kunjunganId);
+            $tamu = Tamu::findOrFail($this->tamuId);
+
+            $emailsSent = 0;
+            $emailsFailed = 0;
+
+            foreach ($this->karyawanIds as $karyawanId) {
+                try {
+                    $karyawan = Karyawan::find($karyawanId);
+
+                    if (!$karyawan) {
+                        Log::warning('Karyawan not found', [
+                            'karyawan_id' => $karyawanId,
+                            'job_id' => $this->job->getJobId(),
+                        ]);
+                        $emailsFailed++;
+                        continue;
+                    }
+
+                    if (!$karyawan->email_karyawan) {
+                        Log::warning('Karyawan has no email', [
+                            'karyawan_id' => $karyawanId,
+                            'job_id' => $this->job->getJobId(),
+                        ]);
+                        $emailsFailed++;
+                        continue;
+                    }
+
+                    Log::info('Sending confirmation email to karyawan', [
+                        'karyawan_id' => $karyawan->id_karyawan,
+                        'karyawan_email' => $karyawan->email_karyawan,
+                        'kunjungan_id' => $kunjungan->id_kunjungan,
+                        'attempt' => $this->attempts(),
+                        'job_id' => $this->job->getJobId(),
+                    ]);
+
+                    Mail::to($karyawan->email_karyawan)->send(
+                        new KunjunganConfirmation($karyawan, $tamu, $kunjungan, $this->token)
+                    );
+
+                    $emailsSent++;
+
+                    Log::info('Confirmation email sent successfully', [
+                        'karyawan_email' => $karyawan->email_karyawan,
+                        'karyawan_name' => $karyawan->nama_karyawan,
+                        'job_id' => $this->job->getJobId(),
+                    ]);
+
+                } catch (\Exception $mailError) {
+                    Log::error('Failed to send email to individual karyawan', [
+                        'karyawan_id' => $karyawanId,
+                        'error' => $mailError->getMessage(),
+                        'job_id' => $this->job->getJobId(),
+                    ]);
+                    $emailsFailed++;
+                }
             }
 
-            Log::info('Sending confirmation email to karyawan', [
-                'karyawan_id' => $this->karyawan->id_karyawan,
-                'karyawan_email' => $this->karyawan->email_karyawan,
-                'kunjungan_id' => $this->kunjungan->id_kunjungan,
-                'attempt' => $this->attempts(),
-                'job_id' => $this->job->getJobId(),
-            ]);
-
-            Mail::to($this->karyawan->email_karyawan)->send(
-                new KunjunganConfirmation(
-                    $this->karyawan,
-                    $this->tamu,
-                    $this->kunjungan,
-                    $this->token
-                )
-            );
-
-            Log::info('Confirmation email sent successfully', [
-                'karyawan_email' => $this->karyawan->email_karyawan,
-                'karyawan_name' => $this->karyawan->nama_karyawan,
+            Log::info('Email batch completed', [
+                'sent' => $emailsSent,
+                'failed' => $emailsFailed,
+                'total' => count($this->karyawanIds),
                 'job_id' => $this->job->getJobId(),
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Failed to send confirmation email', [
-                'karyawan_id' => $this->karyawan->id_karyawan,
-                'karyawan_email' => $this->karyawan->email_karyawan,
+            Log::error('Failed to process confirmation email job', [
+                'kunjungan_id' => $this->kunjunganId,
                 'error' => $e->getMessage(),
                 'attempt' => $this->attempts(),
                 'job_id' => $this->job->getJobId(),
@@ -120,15 +114,11 @@ class SendConfirmationEmailJob implements ShouldQueue
         }
     }
 
-    /**
-     * Handle a job failure.
-     */
     public function failed(\Throwable $exception): void
     {
         Log::error('Confirmation email job failed after all retries', [
-            'karyawan_id' => $this->karyawan->id_karyawan,
-            'karyawan_email' => $this->karyawan->email_karyawan,
-            'kunjungan_id' => $this->kunjungan->id_kunjungan,
+            'kunjungan_id' => $this->kunjunganId,
+            'karyawan_ids' => $this->karyawanIds,
             'error' => $exception->getMessage(),
             'trace' => $exception->getTraceAsString(),
         ]);
