@@ -5,9 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Notulensi;
 use App\Models\Kunjungan;
 use App\Models\Dokumentasi;
-use App\Mail\NotulensiAvailable;
+use App\Jobs\SendNotulensiAvailableJob;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Cloudinary\Cloudinary;
@@ -128,52 +127,11 @@ class NotulensiController extends Controller
 
     private function sendNotulensiToParticipants(Kunjungan $kunjungan, string $token)
     {
-        // Kirim email ke tamu
-        try {
-            $tamu = $kunjungan->tamu;
-
-            if ($tamu->email_tamu) {
-                Log::info('Mengirim email notulensi ke tamu: ' . $tamu->email_tamu);
-
-                Mail::to($tamu->email_tamu)->send(
-                    new NotulensiAvailable($tamu->nama_tamu, $kunjungan, $token)
-                );
-
-                Log::info('Email notulensi berhasil dikirim ke tamu: ' . $tamu->nama_tamu);
-            } else {
-                Log::warning('Tamu tidak memiliki email untuk notulensi, ID: ' . $tamu->id_tamu);
-            }
-        } catch (\Exception $e) {
-            Log::error('Gagal kirim email notulensi ke tamu: ' . $e->getMessage(), [
-                'kunjungan_id' => $kunjungan->id_kunjungan,
-                'error' => $e->getMessage(),
-            ]);
-        }
-
-        // Kirim email ke semua karyawan yang terlibat
-        $karyawanList = $kunjungan->karyawan;
+        SendNotulensiAvailableJob::dispatch($kunjungan->id_kunjungan, $token);
         
-        foreach ($karyawanList as $karyawan) {
-            try {
-                if ($karyawan->email_karyawan) {
-                    Log::info('Mengirim email notulensi ke karyawan: ' . $karyawan->email_karyawan);
-
-                    Mail::to($karyawan->email_karyawan)->send(
-                        new NotulensiAvailable($karyawan->nama_karyawan, $kunjungan, $token)
-                    );
-
-                    Log::info('Email notulensi berhasil dikirim ke karyawan: ' . $karyawan->nama_karyawan);
-                } else {
-                    Log::warning('Karyawan tidak memiliki email untuk notulensi, ID: ' . $karyawan->id_karyawan);
-                }
-            } catch (\Exception $e) {
-                Log::error('Gagal kirim email notulensi ke karyawan: ' . $e->getMessage(), [
-                    'kunjungan_id' => $kunjungan->id_kunjungan,
-                    'karyawan_id' => $karyawan->id_karyawan,
-                    'error' => $e->getMessage(),
-                ]);
-            }
-        }
+        Log::info('Notulensi email job dispatched', [
+            'kunjungan_id' => $kunjungan->id_kunjungan,
+        ]);
     }
 
     public function streamDokumentasi($token)
