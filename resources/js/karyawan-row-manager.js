@@ -137,7 +137,10 @@ export function selectKaryawan(rowId, id, nama, jabatan, departemen) {
         return;
     }
 
-    selectedKaryawan.splice(selectedKaryawan.findIndex(k => k.rowId === rowId), 1);
+    const index = selectedKaryawan.findIndex(k => k.rowId === rowId);
+    if (index >= 0) {
+        selectedKaryawan.splice(index, 1);
+    }
     selectedKaryawan.push({ rowId, id_karyawan: id, nama_karyawan: nama, jabatan, departemen });
 
     renderKaryawanCard(rowId, nama, jabatan, departemen);
