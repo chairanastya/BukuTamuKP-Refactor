@@ -1,6 +1,10 @@
 export let selectedKaryawan = [];
 export let rowCounter = 0;
 
+export function getSelectedKaryawan() {
+    return selectedKaryawan;
+}
+
 export function setSearchKaryawanRoute(route) {
     window.karyawanSearchRoute = route;
 }
@@ -28,10 +32,14 @@ export function addKaryawanRow() {
             </div>
             <div class="karyawan-action-buttons">
                 <button type="button" class="karyawan-add-btn" onclick="addKaryawanRow()" title="Tambah karyawan">
-                    @svg('heroicon-o-plus', 'w-7 h-7')
+                    <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
                 </button>
                 <button type="button" class="karyawan-minus-btn" onclick="removeKaryawanRow(${rowId})" title="Hapus baris">
-                    @svg('heroicon-o-minus', 'w-7 h-7')
+                    <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
+                    </svg>
                 </button>
             </div>
         </div>`;
@@ -49,7 +57,7 @@ export function removeKaryawanRow(rowId) {
     }
 
     const row = document.getElementById(`karyawan-row-${rowId}`);
-    selectedKaryawan.splice(selectedKaryawan.findIndex(k => k.rowId === rowId), 1);
+    selectedKaryawan = selectedKaryawan.filter(k => k.rowId !== rowId);
     updateHiddenInput();
 
     if (row) row.remove();
@@ -116,7 +124,7 @@ export function selectKaryawan(rowId, id, nama, jabatan, departemen) {
         return;
     }
 
-    selectedKaryawan.splice(selectedKaryawan.findIndex(k => k.rowId === rowId), 1);
+    selectedKaryawan = selectedKaryawan.filter(k => k.rowId !== rowId);
     selectedKaryawan.push({ rowId, id_karyawan: id, nama_karyawan: nama, jabatan, departemen });
 
     renderKaryawanCard(rowId, nama, jabatan, departemen);
@@ -131,7 +139,10 @@ export function renderKaryawanCard(rowId, nama, jabatan, departemen) {
                 <div class="karyawan-card-name">${window.escapeHtmlFn(nama)}</div>
                 <div class="karyawan-card-detail">${window.escapeHtmlFn(jabatan)} - ${window.escapeHtmlFn(departemen)}</div>
             </div>
-            @svg('zondicon-edit-pencil', 'w-5 h-5 text-[#084E8F]')
+            <svg class="w-5 h-5 text-[#084E8F]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
+            </svg>
         </div>`;
 }
 
@@ -141,7 +152,7 @@ export function updateHiddenInput() {
 }
 
 export function resetKaryawanRow(rowId) {
-    selectedKaryawan.splice(selectedKaryawan.findIndex(k => k.rowId === rowId), 1);
+    selectedKaryawan = selectedKaryawan.filter(k => k.rowId !== rowId);
     updateHiddenInput();
 
     const content = document.getElementById(`content-${rowId}`);
