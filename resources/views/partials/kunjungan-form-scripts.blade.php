@@ -1,5 +1,12 @@
 @push('scripts')
     <script>
+        // Pre-render SVG icons for use in JavaScript
+        window.KARYAWAN_ICONS = {
+            plus: `{!! svg('heroicon-o-plus', 'w-7 h-7')->toHtml() !!}`,
+            minus: `{!! svg('heroicon-o-minus', 'w-7 h-7')->toHtml() !!}`,
+            edit: `{!! svg('zondicon-edit-pencil', 'w-5 h-5 text-[#084E8F]')->toHtml() !!}`
+        };
+
         let selectedKaryawan = [];
         let rowCounter = 0;
         let stream = null;
@@ -11,6 +18,16 @@
         const successModal = document.getElementById('success_modal');
 
         document.addEventListener('DOMContentLoaded', function () {
+            // Set the search route for karyawan autocomplete
+            if (typeof setSearchKaryawanRoute !== 'undefined') {
+                setSearchKaryawanRoute('{{ route('tamu.search-karyawan') }}');
+            }
+
+            // Set escape HTML function
+            if (typeof setEscapeHtmlFn !== 'undefined') {
+                setEscapeHtmlFn(escapeHtml);
+            }
+
             restoreOldValues();
 
             addKaryawanRow();
