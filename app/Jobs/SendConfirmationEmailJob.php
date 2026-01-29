@@ -17,51 +17,14 @@ class SendConfirmationEmailJob implements ShouldQueue
 {
     use Queueable, InteractsWithQueue, SerializesModels;
 
-    /**
-     * The number of times the job may be attempted.
-     *
-     * @var int
-     */
     public $tries = 3;
-
-    /**
-     * The number of seconds to wait before retrying the job.
-     *
-     * @var array
-     */
     public $backoff = [10, 30, 60];
 
-    /**
-     * The karyawan ID.
-     *
-     * @var int
-     */
     protected $karyawanId;
-
-    /**
-     * The tamu instance.
-     *
-     * @var \App\Models\Tamu
-     */
     protected $tamu;
-
-    /**
-     * The kunjungan instance.
-     *
-     * @var \App\Models\Kunjungan
-     */
     protected $kunjungan;
-
-    /**
-     * The approval token.
-     *
-     * @var string
-     */
     protected $token;
 
-    /**
-     * Create a new job instance.
-     */
     public function __construct(int $karyawanId, Tamu $tamu, Kunjungan $kunjungan, string $token)
     {
         $this->karyawanId = $karyawanId;
@@ -70,9 +33,6 @@ class SendConfirmationEmailJob implements ShouldQueue
         $this->token = $token;
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         try {
@@ -130,9 +90,6 @@ class SendConfirmationEmailJob implements ShouldQueue
         }
     }
 
-    /**
-     * Handle a job failure.
-     */
     public function failed(\Throwable $exception): void
     {
         Log::error('Confirmation email job failed after all retries', [

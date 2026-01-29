@@ -165,15 +165,6 @@
                             if (passwordWrapper) passwordWrapper.classList.remove('error');
                         }, 5000);
                     }
-                    const recaptchaResponse = grecaptcha.getResponse();
-                    console.log('reCAPTCHA Token Length:', recaptchaResponse.length);
-                    console.log('reCAPTCHA Token Preview:', recaptchaResponse.substring(0, 50) + '...');
-                    
-                    if (!recaptchaResponse) {
-                        e.preventDefault();
-                        alert('Silakan verifikasi bahwa Anda bukan robot');
-                        return false;
-                    }
 
                     if (hasError && firstErrorElement) {
                         if (typeof grecaptcha !== 'undefined') {

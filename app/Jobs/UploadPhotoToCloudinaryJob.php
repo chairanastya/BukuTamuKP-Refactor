@@ -12,23 +12,22 @@ use Illuminate\Support\Facades\Log;
 
 class UploadPhotoToCloudinaryJob implements ShouldQueue
 {
-    /**
-     * Create a new job instance.
-     */
     use Queueable, InteractsWithQueue, SerializesModels;
+
     public $tries = 3;
+
     public $backoff = [10, 30, 60];
+
     protected $base64Image;
+
     protected $tamuId;
+
     public function __construct(string $base64Image, int $tamuId)
     {
-    /**
-     * Execute the job.
-     */
         $this->base64Image = $base64Image;
         $this->tamuId = $tamuId;
     }
-   
+
     public function handle(): void
     {
         try {
