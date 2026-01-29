@@ -65,3 +65,4 @@ Alpine.start();
 
 initSidebar();
 initLoadingSpinner();
+initModals();

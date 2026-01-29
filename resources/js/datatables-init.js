@@ -11,8 +11,8 @@ export class DataTableManager {
     }
 
     init() {
-        if ($.fn.DataTable.isDataTable(this.tableId)) {
-            $(this.tableId).DataTable().destroy();
+        if ($.fn.DataTable.isDataTable(`#${this.tableId}`)) {
+            $(`#${this.tableId}`).DataTable().destroy();
         }
 
         const config = {
