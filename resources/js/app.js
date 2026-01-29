@@ -69,7 +69,13 @@ document.addEventListener('DOMContentLoaded', function() {
     initModals();
     initInputBackgrounds();
     initPasswordToggle();
-    initWebcam();
+    if (
+        document.getElementById('webcam_video') &&
+        document.getElementById('capture_canvas') &&
+        document.getElementById('webcam_modal')
+    ) {
+        initWebcam();
+    }
     initSupabaseRealtime();
     if (window.dataTableInstance) {
         initDatatableFilter({ tableInstance: window.dataTableInstance });
