@@ -119,7 +119,6 @@ export function exportDataTablePDF(options = {}) {
         doc.rect(startX, finalY + 2, tableWidth, 10, 'S');
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
-        doc.text(`TOTAL: ${data.length} Items`, 15, finalY + 8);
         doc.setTextColor(0, 0, 0);
         doc.text(`TOTAL: ${data.length} ${footerText}`, startX + 4, finalY + 8);
 
