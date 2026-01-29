@@ -1,3 +1,4 @@
+
 import './bootstrap';
 
 import Alpine from 'alpinejs';
@@ -20,23 +21,14 @@ import * as Recaptcha from './captcha';
 import { setupFormValidation, validateNama, validateEmail } from './form-validation';
 import { createAutocomplete } from './autocomplete';
 
-window.Alpine = Alpine;
-window.exportDataTablePDF = exportDataTablePDF;
-window.exportContentPDF = exportContentPDF;
 window.toggleSidebar = toggleSidebar;
 window.closeSidebar = closeSidebar;
-window.initDropdown = initDropdown;
+window.exportDataTablePDF = exportDataTablePDF;
+window.exportContentPDF = exportContentPDF;
 window.DataTableManager = DataTableManager;
-window.initModals = initModals;
 window.ExcelExporter = ExcelExporter;
-window.showLoading = showLoading;
-window.hideLoading = hideLoading;
-window.createInlineSpinner = createInlineSpinner;
 window.createStatusFilter = createStatusFilter;
-window.initDatatableFilter = initDatatableFilter;
 window.updateInputBackground = updateInputBackground;
-window.initInputBackgrounds = initInputBackgrounds;
-window.initPasswordToggle = initPasswordToggle;
 window.addKaryawanRow = KaryawanRowManager.addKaryawanRow;
 window.removeKaryawanRow = KaryawanRowManager.removeKaryawanRow;
 window.setupRowListeners = KaryawanRowManager.setupRowListeners;
@@ -50,19 +42,22 @@ window.updateMinusButtonsVisibility = KaryawanRowManager.updateMinusButtonsVisib
 window.setSearchKaryawanRoute = KaryawanRowManager.setSearchKaryawanRoute;
 window.setEscapeHtmlFn = KaryawanRowManager.setEscapeHtmlFn;
 window.getSelectedKaryawan = KaryawanRowManager.getSelectedKaryawan;
-window.initWebcam = initWebcam;
-window.addEventListener('DOMContentLoaded', function() {
-    clearOldImageStorages();
-});
-window.initSupabaseRealtime = initSupabaseRealtime;
 window.Recaptcha = Recaptcha;
 window.setupFormValidation = setupFormValidation;
 window.validateNama = validateNama;
 window.validateEmail = validateEmail;
 window.createAutocomplete = createAutocomplete;
 
-Alpine.start();
-
-initSidebar();
-initLoadingSpinner();
-initModals();
+document.addEventListener('DOMContentLoaded', function() {
+    clearOldImageStorages();
+    initDropdown('dropdown');
+    initSidebar();
+    initLoadingSpinner();
+    initModals();
+    initInputBackgrounds();
+    initPasswordToggle();
+    initWebcam();
+    initSupabaseRealtime();
+    initDatatableFilter();
+    Alpine.start();
+});
