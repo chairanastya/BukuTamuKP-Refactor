@@ -307,6 +307,8 @@
             karyawan: null,
             tanggal: null
         };
+        // Expose to window for component access
+        window.activeFilters = activeFilters;
 
         document.addEventListener('DOMContentLoaded', function () {
             initModals();
@@ -316,10 +318,12 @@
                 activeFiltersVar: 'activeFilters',
                 tableVar: 'table',
                 columnIndex: 7,
-                multipleCards: false,
                 useRegex: false
             });
             window.filterByStatus = filterByStatus;
+
+            // Set initial filter selection
+            document.querySelector('[data-filter="all"]').classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
 
             setTimeout(function () {
                 initDataTable();
@@ -571,6 +575,8 @@
             });
 
             table = dtManager.init();
+            // Expose to window for component access
+            window.table = table;
         }
 
         // Initialize custom filters using initDatatableFilter component
