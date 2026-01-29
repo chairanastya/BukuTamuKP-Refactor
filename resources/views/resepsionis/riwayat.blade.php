@@ -120,18 +120,18 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                 <x-stats-card title="Total Kunjungan" :value="$allTimeStats['total']" icon="akar-people-group"
                     iconColor="text-gray-600" valueColor="text-[#084E8F]" bgColor="#E5E7EB" filter="all"
-                    onclick="filterByStatus('all')" />
+                    onclick="window.filterByStatus('all')" />
 
                 <x-stats-card title="Pending" :value="$allTimeStats['pending']" icon="far-clock" iconColor="text-yellow-600"
-                    valueColor="text-yellow-600" bgColor="#FEF3C7" filter="pending" onclick="filterByStatus('pending')" />
+                    valueColor="text-yellow-600" bgColor="#FEF3C7" filter="pending" onclick="window.filterByStatus('pending')" />
 
                 <x-stats-card title="Done" :value="$allTimeStats['done']" icon="heroicon-o-check-circle"
                     iconColor="text-green-600" valueColor="text-green-600" bgColor="#D1FAE5" filter="done"
-                    onclick="filterByStatus('done')" />
+                    onclick="window.filterByStatus('done')" />
 
                 <x-stats-card title="Canceled" :value="$allTimeStats['canceled']" icon="heroicon-o-x-circle"
                     iconColor="text-red-600" valueColor="text-red-600" bgColor="#FEE2E2" filter="canceled"
-                    onclick="filterByStatus('canceled')" />
+                    onclick="window.filterByStatus('canceled')" />
             </div>
 
             <div class="bg-white rounded-lg shadow p-6">
@@ -214,7 +214,7 @@
     <x-modal name="karyawanListModal" id="karyawanListModal" :useAlpine="false" title="Daftar Karyawan Tertuju"
         :showCloseButton="true">
         <x-slot name="closeButton">
-            <button type="button" class="modal-close" onclick="closeKaryawanListModal()">&times;</button>
+            <button type="button" class="modal-close" onclick="window.closeModal('karyawanListModal')">&times;</button>
         </x-slot>
         <div id="karyawanListContent"></div>
     </x-modal>
@@ -269,9 +269,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
     <script>
-        let table;
+        window.table = null;
         let currentKunjunganId = null;
-        let activeFilters = {
+        window.activeFilters = {
             status: 'all',
             instansi: null,
             karyawan: null,
@@ -367,7 +367,7 @@
                 }
             });
 
-            table = dtManager.init();
+            window.table = dtManager.init();
             window.initSupabaseRealtime({
                 channelName: 'riwayat-realtime',
                 tableName: 'kunjungan',
@@ -376,12 +376,20 @@
                     dtManager.reload(false);
                 }
             });
+
+            // Initialize status filter
+            window.filterByStatus = window.createStatusFilter({
+                tableVar: 'table',
+                currentFilterVar: 'activeFilters.status',
+                activeFiltersVar: 'activeFilters',
+                columnIndex: 7
+            });
         });
 
         function exportToExcel() {
             const exporter = new window.ExcelExporter({
-                table: table,
-                activeFilters: activeFilters,
+                table: window.table,
+                activeFilters: window.activeFilters,
                 title: 'LAPORAN RIWAYAT KUNJUNGAN',
                 sheetName: 'Riwayat Kunjungan',
                 filePrefix: 'Laporan_Riwayat'
@@ -430,37 +438,9 @@
             });
         }
 
-        function filterByStatus(status) {
-            activeFilters.status = status;
-
-            document.querySelectorAll('.stats-card').forEach(card => {
-                card.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
-            });
-            const targetCard = document.querySelector(`[data-filter="${status}"]`);
-            if (targetCard) targetCard.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
-
-            if (status === 'all') {
-                table.column(7).search('').draw();
-            } else {
-                table.column(7).search(status).draw();
-            }
-        }
-
         function viewKtp(ktpToken) {
-            const modal = document.getElementById('ktpModal');
-            const content = document.getElementById('ktpContent');
-            content.innerHTML = window.createInlineSpinner('Memuat KTP...');
-            modal.classList.add('show');
-
             const streamUrl = `/resepsionis/ktp/${ktpToken}/stream`;
-            const img = new Image();
-            img.onload = function() {
-                content.innerHTML = `<img src="${streamUrl}" alt="KTP" class="ktp-preview rounded-lg shadow-lg">`;
-            };
-            img.onerror = function() {
-                content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">Gagal memuat KTP</p></div>';
-            };
-            img.src = streamUrl;
+            window.renderKtpModal(streamUrl);
         }
 
         function closeKtpModal() {
@@ -468,16 +448,15 @@
         }
 
         function viewDetail(id) {
-            const modal = document.getElementById('detailModal');
             const content = document.getElementById('detailContent');
 
-            if (!modal || !content) {
+            if (!content) {
                 console.error('Modal detail tidak ditemukan');
                 return;
             }
 
-            content.innerHTML = createInlineSpinner('Memuat Detail Kunjungan...');
-            modal.classList.add('show');
+            content.innerHTML = window.createInlineSpinner('Memuat Detail Kunjungan...');
+            window.showModal('detailModal');
 
             fetch(`{{ route('resepsionis.riwayat.data') }}`)
                 .then(res => res.json())
@@ -488,46 +467,7 @@
                         return;
                     }
 
-                    let karyawanList = kunjungan.karyawan.map(k =>
-                        `<li>${k.nama} - ${k.jabatan} (${k.departemen})</li>`
-                    ).join('');
-
-                    let actions = '';
-                    if (kunjungan.status === 'pending') {
-                        actions = `
-                            <div class="flex gap-3 mt-6">
-                                <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
-                                <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
-                            </div>
-                        `;
-                    }
-
-                    let cancelReason = '';
-                    if (kunjungan.status === 'canceled' && kunjungan.alasan_batal) {
-                        cancelReason = `
-                                                                                                                <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                                                                                                    <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
-                                                                                                                    <p class="text-red-700">${kunjungan.alasan_batal}</p>
-                                                                                                                </div>
-                                                                                                            `;
-                    }
-
-                    const statusBadge = kunjungan.status_badge || kunjungan.status;
-
-                    document.getElementById('detailContent').innerHTML = `
-                                                                                                            <div class="space-y-3">
-                                                                                                                <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
-                                                                                                                <div><strong>Jam:</strong> ${kunjungan.jam}</div>
-                                                                                                                <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
-                                                                                                                <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
-                                                                                                                <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
-                                                                                                                <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
-                                                                                                                <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
-                                                                                                                <div><strong>Status:</strong> ${statusBadge}</div>
-                                                                                                                ${cancelReason}
-                                                                                                                ${actions}
-                                                                                                            </div>
-                                                                                                        `;
+                    window.renderDetailModal(kunjungan);
                 })
                 .catch(error => {
                     console.error('Error fetching detail:', error);
@@ -1000,39 +940,7 @@
         }
 
         function showKaryawanList(karyawanData) {
-            const modal = document.getElementById('karyawanListModal');
-            const content = document.getElementById('karyawanListContent');
-
-            let html = `<p class="text-gray-600 mb-4">Total ${karyawanData.length} karyawan yang terlibat:</p>`;
-            html += '<div class="space-y-3">';
-
-            karyawanData.forEach((karyawan, index) => {
-                html += `
-                        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                            <div class="flex-shrink-0 w-8 h-8 bg-[#084E8F] text-white rounded-full flex items-center justify-center font-bold">
-                                ${index + 1}
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-semibold text-gray-800">${karyawan.nama}</p>
-                                <p class="text-sm text-gray-600">${karyawan.jabatan}</p>
-                                <p class="text-sm text-gray-500">${karyawan.departemen}</p>
-                            </div>
-                        </div>
-                    `;
-            });
-
-            html += '</div>';
-            html += '<div class="mt-6"><button onclick="closeKaryawanListModal()" class="w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-4 rounded-lg transition">Tutup</button></div>';
-
-            content.innerHTML = html;
-            modal.classList.add('show');
-        }
-
-        function closeKaryawanListModal() {
-            const modal = document.getElementById('karyawanListModal');
-            if (modal) {
-                modal.classList.remove('show');
-            }
+            window.renderKaryawanListModal(karyawanData);
         }
 
         let navigationTimeout = null;
