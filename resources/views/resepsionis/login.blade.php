@@ -174,6 +174,10 @@
                         return false;
                     }
 
+                    if (!hasError && typeof showLoading === 'function') {
+                        showLoading();
+                    }
+
                     return true;
                 });
             });
