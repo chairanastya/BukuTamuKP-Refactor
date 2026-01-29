@@ -8,7 +8,7 @@ import { initDropdown } from './dropdown.js';
 import { DataTableManager } from './datatables-init.js';
 import { initModals } from './modals.js';
 import { ExcelExporter } from './excel-export';
-import { initLoadingSpinner } from './loading-spinner';
+import { initLoadingSpinner, showLoading, hideLoading, createInlineSpinner } from './loading-spinner';
 import { createStatusFilter } from './status-filter.js';
 import { initDatatableFilter } from './datatables-filters.js';
 import { updateInputBackground, initInputBackgrounds } from './input-background.js';
