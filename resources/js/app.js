@@ -51,9 +51,6 @@ window.setSearchKaryawanRoute = KaryawanRowManager.setSearchKaryawanRoute;
 window.setEscapeHtmlFn = KaryawanRowManager.setEscapeHtmlFn;
 window.getSelectedKaryawan = KaryawanRowManager.getSelectedKaryawan;
 window.initWebcam = initWebcam;
-window.addEventListener('DOMContentLoaded', function() {
-    clearOldImageStorages();
-});
 window.initSupabaseRealtime = initSupabaseRealtime;
 window.Recaptcha = Recaptcha;
 window.setupFormValidation = setupFormValidation;
