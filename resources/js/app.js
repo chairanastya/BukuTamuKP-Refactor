@@ -2,6 +2,7 @@ import './bootstrap';
 
 import Alpine from 'alpinejs';
 import { exportDataTablePDF, exportContentPDF } from './pdf-export.js';
+import { exportNotulensiPDF } from './notulensi-export.js';
 import { initSidebar, toggleSidebar, closeSidebar } from './sidebar';
 import { initDropdown } from './dropdown.js';
 import { DataTableManager } from './datatables-init.js';
@@ -23,6 +24,7 @@ import { createAutocomplete } from './autocomplete';
 window.Alpine = Alpine;
 window.exportDataTablePDF = exportDataTablePDF;
 window.exportContentPDF = exportContentPDF;
+window.exportNotulensiPDF = exportNotulensiPDF;
 window.toggleSidebar = toggleSidebar;
 window.closeSidebar = closeSidebar;
 window.DataTableManager = DataTableManager;
