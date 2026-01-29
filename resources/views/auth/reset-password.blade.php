@@ -54,7 +54,8 @@
                 </p>
             </div>
 
-            <form method="POST" action="{{ route('resepsionis.password.update') }}">
+            <form method="POST" action="{{ route('resepsionis.password.update') }}" data-protect
+                data-protect-cooldown="1000" data-protect-loading="Mengirim...">
                 @csrf
 
                 <input type="hidden" name="token" value="{{ $token }}">
@@ -114,21 +115,6 @@
 
     @push('scripts')
         <script>
-            document.getElementById('showPassword').addEventListener('change', function () {
-                const passwordInput = document.getElementById('password');
-                const confirmInput = document.getElementById('password_confirmation');
-                const type = this.checked ? 'text' : 'password';
-                passwordInput.type = type;
-                confirmInput.type = type;
-            });
-
-            function updateInputBackground(input) {
-                const wrapper = input.closest('.input-wrapper');
-                if (wrapper && !input.readOnly) {
-                    wrapper.classList.toggle('filled', input.value.trim() !== '');
-                }
-            }
-
             document.addEventListener('DOMContentLoaded', function () {
                 const form = document.querySelector('form');
                 const passwordInput = document.getElementById('password');
@@ -138,15 +124,41 @@
                 const passwordError = document.getElementById('password_error');
                 const confirmError = document.getElementById('password_confirmation_error');
 
+                // 1. Initialize password toggle
+                window.initPasswordToggle({
+                    checkboxId: 'showPassword',
+                    passwordFieldId: 'password',
+                    confirmFieldId: 'password_confirmation'
+                });
+
+                // 2. Initialize input backgrounds
+                window.initInputBackgrounds('#password, #password_confirmation', true);
+
+                // 3. Update background on input
                 passwordInput.addEventListener('input', function () {
-                    updateInputBackground(this);
-                    updatePasswordStrength();
+                    window.updateInputBackground(this, true);
                 });
 
                 confirmInput.addEventListener('input', function () {
-                    updateInputBackground(this);
+                    window.updateInputBackground(this, true);
+                    // Real-time confirm password validation
+                    validateConfirmPasswordRealtime(confirmInput, passwordInput, confirmWrapper, confirmError);
                 });
 
+                // Real-time confirm password validation function
+                function validateConfirmPasswordRealtime(confirmInput, passwordInput, confirmWrapper, confirmError) {
+                    if (confirmInput.value && passwordInput.value !== confirmInput.value) {
+                        if (!confirmWrapper.classList.contains('error')) {
+                            confirmWrapper.classList.add('error');
+                            confirmError.classList.add('show');
+                        }
+                    } else {
+                        confirmWrapper.classList.remove('error');
+                        confirmError.classList.remove('show');
+                    }
+                }
+
+                // 4. Form password validation on submit
                 form.addEventListener('submit', function (e) {
                     let hasError = false;
                     let firstErrorElement = null;
@@ -156,6 +168,7 @@
                     passwordError.classList.remove('show');
                     confirmError.classList.remove('show');
 
+                    // Validate password length
                     if (!passwordInput.value?.trim() || passwordInput.value.length < 8) {
                         e.preventDefault();
                         hasError = true;
@@ -169,6 +182,7 @@
                         }, 5000);
                     }
 
+                    // Validate password confirmation match
                     if (passwordInput.value !== confirmInput.value) {
                         e.preventDefault();
                         hasError = true;
@@ -195,9 +209,17 @@
                     return true;
                 });
 
-                const inputs = document.querySelectorAll('.input-wrapper-setup input');
-                inputs.forEach(input => {
-                    updateInputBackground(input);
+                // 5. Initialize reCAPTCHA validation
+                window.Recaptcha.initRecaptchaValidation(form, {
+                    beforeValidate: function (e, form) {
+                        // This is called before recaptcha check
+                        return false; // no pre-validation errors
+                    },
+                    onError: function (e, form) {
+                        console.warn('reCAPTCHA validation failed');
+                    },
+                    resetOnError: true,
+                    alertMessage: 'Silakan verifikasi bahwa Anda bukan robot'
                 });
             });
         </script>

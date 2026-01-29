@@ -53,6 +53,7 @@ window.getSelectedKaryawan = KaryawanRowManager.getSelectedKaryawan;
 window.initWebcam = initWebcam;
 window.addEventListener('DOMContentLoaded', function() {
     clearOldImageStorages();
+    initDropdown('dropdown');
 });
 window.initSupabaseRealtime = initSupabaseRealtime;
 window.Recaptcha = Recaptcha;
