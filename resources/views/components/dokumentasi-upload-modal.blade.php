@@ -122,77 +122,31 @@
             const dokumentasiModal = document.getElementById('dokumentasi_modal');
             const choiceContainer = document.getElementById('choice_container');
             const videoContainer = document.getElementById('video_container');
-            const video = document.getElementById('webcam_video');
-            const canvas = document.getElementById('capture_canvas');
-            const ctx = canvas.getContext('2d');
-            const storageKey = 'notulensi_images_{{ $token }}';
 
-            let stream = null;
             let capturedImages = [];
 
-            window.addEventListener('DOMContentLoaded', function () {
-                loadSavedImages();
-            });
+            let imageStorage, webcam, saveImagesToStorage, loadSavedImages, clearSavedImages, setCapturedImages, getCapturedImages;
 
-            function saveImagesToStorage() {
-                const imageData = [];
-                capturedImages.forEach((file, index) => {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        imageData.push({
-                            name: file.name,
-                            type: file.type,
-                            data: e.target.result
-                        });
-
-                        if (imageData.length === capturedImages.length) {
-                            try {
-                                localStorage.setItem(storageKey, JSON.stringify(imageData));
-                            } catch (e) {
-                                console.error('Error saving to localStorage:', e);
-                            }
-                        }
-                    };
-                    reader.readAsDataURL(file);
-                });
-
-                if (capturedImages.length === 0) {
-                    localStorage.removeItem(storageKey);
-                }
-            }
-
-            function loadSavedImages() {
+            window.addEventListener('DOMContentLoaded', async function () {
+                // Initialize after window is ready
                 try {
-                    const saved = localStorage.getItem(storageKey);
-                    if (!saved) return;
+                    imageStorage = window.createImageStorage('{{ $token }}', dokumentasiInput, renderPreviews);
+                    ({ saveImagesToStorage, loadSavedImages, clearSavedImages, setCapturedImages, getCapturedImages } = imageStorage);
 
-                    const imageData = JSON.parse(saved);
-                    if (!imageData || imageData.length === 0) return;
-
-                    const promises = imageData.map(img => {
-                        return fetch(img.data)
-                            .then(res => res.blob())
-                            .then(blob => new File([blob], img.name, { type: img.type }));
+                    webcam = window.initWebcam({
+                        videoId: 'webcam_video',
+                        canvasId: 'capture_canvas',
+                        modalId: 'dokumentasi_modal',
+                        qualityJpeg: 0.8,
+                        frameWidthPercent: 0.85,
+                        frameAspectRatio: 1.586
                     });
 
-                    Promise.all(promises).then(files => {
-                        capturedImages = files;
-
-                        const dt = new DataTransfer();
-                        files.forEach(file => dt.items.add(file));
-                        dokumentasiInput.files = dt.files;
-
-                        renderPreviews();
-                    });
+                    capturedImages = await loadSavedImages();
                 } catch (e) {
-                    console.error('Error loading from localStorage:', e);
-                    localStorage.removeItem(storageKey);
+                    console.error('Initialization error:', e);
                 }
-            }
-
-            function clearSavedImages() {
-                localStorage.removeItem(storageKey);
-            }
+            });
 
             function renderPreviews() {
                 previewContainer.innerHTML = '';
@@ -217,15 +171,17 @@
 
             // Open modal
             function openDokumentasiModal() {
-                dokumentasiModal.classList.add('show');
+                window.showModal('dokumentasi_modal');
                 choiceContainer.classList.remove('hidden');
                 videoContainer.classList.add('hidden');
             }
 
+            window.openDokumentasiModal = openDokumentasiModal;
+
             // Close modal
             function closeDokumentasiModal() {
-                dokumentasiModal.classList.remove('show');
-                stopWebcam();
+                window.closeModal('dokumentasi_modal');
+                webcam.stop();
                 choiceContainer.classList.remove('hidden');
                 videoContainer.classList.add('hidden');
             }
@@ -238,44 +194,37 @@
 
             // Choose camera
             function chooseCamera() {
+                console.log('chooseCamera called');
                 choiceContainer.classList.add('hidden');
                 videoContainer.classList.remove('hidden');
-                startWebcam();
+                console.log('webcam object:', webcam);
+                if (webcam && webcam.start) {
+                    webcam.start();
+                    console.log('webcam.start called');
+                } else {
+                    console.error('webcam.start not available');
+                }
             }
 
             // Back to choice
             function backToChoice() {
-                stopWebcam();
+                webcam.stop();
                 videoContainer.classList.add('hidden');
                 choiceContainer.classList.remove('hidden');
             }
 
-            // Start webcam
-            async function startWebcam() {
-                try {
-                    stream = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: 'environment' }, // rear camera
-                        audio: false
-                    });
-                    video.srcObject = stream;
-                } catch (error) {
-                    console.error('Error accessing webcam:', error);
-                    alert('Tidak dapat mengakses kamera. Pastikan Anda memberikan izin akses kamera.');
-                    backToChoice();
-                }
-            }
-
-            // Stop webcam
-            function stopWebcam() {
-                if (stream) {
-                    stream.getTracks().forEach(track => track.stop());
-                    stream = null;
-                }
-            }
-
             // Capture photo
             function capturePhoto() {
+                console.log('capturePhoto called');
                 try {
+                    const video = document.getElementById('webcam_video');
+                    const canvas = document.getElementById('capture_canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    console.log('video element:', video);
+                    console.log('video readyState:', video ? video.readyState : 'no video');
+                    console.log('video dimensions:', video ? video.videoWidth + 'x' + video.videoHeight : 'no dimensions');
+
                     if (!video || !video.videoWidth || !video.videoHeight) {
                         throw new Error('Kamera tidak siap. Silakan coba lagi.');
                     }
@@ -302,17 +251,24 @@
                         throw new Error('Gagal mengambil foto. Silakan coba lagi.');
                     }
 
+                    console.log('Captured photo data length:', photoData.length);
+
                     // Convert base64 to file
                     fetch(photoData)
                         .then(res => res.blob())
                         .then(blob => {
+                            console.log('Blob created:', blob);
                             const file = new File([blob], `dokumentasi-${Date.now()}.jpg`, { type: 'image/jpeg' });
+                            console.log('File created:', file);
                             capturedImages.push(file);
+                            console.log('Captured images length:', capturedImages.length);
+                            setCapturedImages(capturedImages);
 
                             // Update file input
                             const dt = new DataTransfer();
                             capturedImages.forEach(img => dt.items.add(img));
                             dokumentasiInput.files = dt.files;
+                            console.log('Input files updated:', dokumentasiInput.files.length);
 
                             // Save to localStorage
                             saveImagesToStorage();
@@ -321,6 +277,9 @@
                             dokumentasiInput.dispatchEvent(new Event('change'));
 
                             closeDokumentasiModal();
+                        })
+                        .catch(error => {
+                            console.error('Error in photo processing:', error);
                         });
 
                 } catch (error) {
@@ -339,6 +298,7 @@
 
                 if (newFiles.length > 0) {
                     capturedImages = [...capturedImages, ...newFiles];
+                    setCapturedImages(capturedImages);
                 }
 
                 // Update the file input with all captured images
@@ -355,6 +315,7 @@
 
             function removeImage(index) {
                 capturedImages.splice(index, 1);
+                setCapturedImages(capturedImages);
                 const dt = new DataTransfer();
                 capturedImages.forEach(file => dt.items.add(file));
                 dokumentasiInput.files = dt.files;

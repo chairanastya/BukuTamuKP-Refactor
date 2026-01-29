@@ -104,7 +104,8 @@ export function initWebcam(options = {}) {
         open: openWebcamModal,
         close: closeWebcamModal,
         capture: capturePhoto,
-        stop: stopWebcam
+        stop: stopWebcam,
+        start: startWebcam
     };
 }
 

@@ -30,30 +30,44 @@ export function createImageStorage(token, dokumentasiInput, renderPreviews) {
     }
 
     function loadSavedImages() {
-        try {
-            const saved = localStorage.getItem(storageKey);
-            if (!saved) return;
+        return new Promise((resolve) => {
+            try {
+                const saved = localStorage.getItem(storageKey);
+                if (!saved) {
+                    resolve([]);
+                    return;
+                }
 
-            const imageData = JSON.parse(saved);
-            if (!imageData || imageData.length === 0) return;
+                const imageData = JSON.parse(saved);
+                if (!imageData || imageData.length === 0) {
+                    resolve([]);
+                    return;
+                }
 
-            const promises = imageData.map(img => {
-                return fetch(img.data)
-                    .then(res => res.blob())
-                    .then(blob => new File([blob], img.name, { type: img.type }));
-            });
+                const promises = imageData.map(img => {
+                    return fetch(img.data)
+                        .then(res => res.blob())
+                        .then(blob => new File([blob], img.name, { type: img.type }));
+                });
 
-            Promise.all(promises).then(files => {
-                capturedImages = files;
-                const dt = new DataTransfer();
-                files.forEach(file => dt.items.add(file));
-                dokumentasiInput.files = dt.files;
-                renderPreviews();
-            });
-        } catch (e) {
-            console.error('Error loading from localStorage:', e);
-            localStorage.removeItem(storageKey);
-        }
+                Promise.all(promises).then(files => {
+                    capturedImages = files;
+                    const dt = new DataTransfer();
+                    files.forEach(file => dt.items.add(file));
+                    dokumentasiInput.files = dt.files;
+                    renderPreviews();
+                    resolve(files);
+                }).catch(e => {
+                    console.error('Error loading images:', e);
+                    localStorage.removeItem(storageKey);
+                    resolve([]);
+                });
+            } catch (e) {
+                console.error('Error loading from localStorage:', e);
+                localStorage.removeItem(storageKey);
+                resolve([]);
+            }
+        });
     }
 
     function clearSavedImages() {
