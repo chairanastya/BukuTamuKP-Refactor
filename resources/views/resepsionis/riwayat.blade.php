@@ -117,7 +117,6 @@
                 </div>
             </div>
 
-            <!-- Stats Cards -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                 <x-stats-card title="Total Kunjungan" :value="$allTimeStats['total']" icon="akar-people-group"
                     iconColor="text-gray-600" valueColor="text-[#084E8F]" bgColor="#E5E7EB" filter="all"
@@ -135,7 +134,6 @@
                     onclick="filterByStatus('canceled')" />
             </div>
 
-            <!-- DataTable -->
             <div class="bg-white rounded-lg shadow p-6">
                 <table id="riwayatTable" class="display" style="width:100%">
                     <thead>
@@ -183,13 +181,12 @@
         </div>
     </x-modal>
 
-    <!-- Accept Confirmation Modal -->
-    <x-modal name="acceptModal" id="acceptModal" :useAlpine="false" :showCloseButton="true">
-        <x-slot name="closeButton">
-            <button type="button" class="modal-close" onclick="closeAcceptModal()">&times;</button>
-        </x-slot>
+    <x-modal name="acceptModal" id="acceptModal" :useAlpine="false">
         <x-slot name="header">
             <h3 class="text-2xl font-bold text-green-600">Konfirmasi Terima Kunjungan</h3>
+        </x-slot>
+        <x-slot name="closeButton">
+            <button type="button" class="modal-close" onclick="closeAcceptModal()">&times;</button>
         </x-slot>
         <div class="mb-6">
             <p class="text-gray-700">Apakah Anda yakin ingin menerima kunjungan ini?</p>
@@ -197,18 +194,12 @@
                 notulensi.</p>
         </div>
         <div class="flex gap-3">
-            <x-secondary-button onclick="closeAcceptModal()" class="flex-1">
+            <button onclick="closeAcceptModal()"
+                class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">
                 Batalkan
-            </x-secondary-button>
-            <x-button variant="success" id="acceptButton" onclick="confirmAccept()" class="flex-1">
-                <span id="acceptButtonText">Terima</span>
-                <svg id="acceptSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
-                    fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                    </path>
-                </svg>
+            </button>
+            <x-button id="acceptButton" variant="success" onclick="confirmAccept()" :loading="true" loadingId="accept" class="flex-1 py-3">
+                Terima
             </x-button>
         </div>
     </x-modal>
@@ -217,12 +208,9 @@
         <x-slot name="closeButton">
             <button type="button" class="modal-close" onclick="closeKtpModal()">&times;</button>
         </x-slot>
-        <div id="ktpContent" class="flex justify-center items-center" style="min-height: 400px;">
-            <!-- Content akan di-replace dengan createInlineSpinner saat viewKtp dipanggil -->
-        </div>
+        <div id="ktpContent" class="flex justify-center items-center" style="min-height: 400px;"></div>
     </x-modal>
 
-    <!-- Karyawan List Modal -->
     <x-modal name="karyawanListModal" id="karyawanListModal" :useAlpine="false" title="Daftar Karyawan Tertuju"
         :showCloseButton="true">
         <x-slot name="closeButton">
@@ -231,10 +219,9 @@
         <div id="karyawanListContent"></div>
     </x-modal>
 
-    <!-- Success Modal -->
     <x-modal name="successModal" id="successModal" :useAlpine="false" :showCloseButton="true">
         <x-slot name="closeButton">
-            <button type="button" class="modal-close" onclick="closeSuccessModal()">&times;</button>
+            <button type="button" class="modal-close" onclick="window.closeSuccessModal()">&times;</button>
         </x-slot>
         <x-slot name="header">
             <h3 class="text-2xl font-bold text-green-600">Sukses!</h3>
@@ -246,16 +233,15 @@
             </div>
         </div>
         <div class="flex justify-end">
-            <x-button variant="success" onclick="closeSuccessModal()">
+            <x-button variant="success" onclick="window.closeSuccessModal()">
                 Tutup
             </x-button>
         </div>
     </x-modal>
 
-    <!-- Error Modal -->
     <x-modal name="errorModal" id="errorModal" :useAlpine="false" :showCloseButton="true">
         <x-slot name="closeButton">
-            <button type="button" class="modal-close" onclick="closeErrorModal()">&times;</button>
+            <button type="button" class="modal-close" onclick="window.closeErrorModal()">&times;</button>
         </x-slot>
         <x-slot name="header">
             <h3 class="text-2xl font-bold text-red-600">Terjadi Kesalahan</h3>
@@ -267,12 +253,11 @@
             </div>
         </div>
         <div class="flex justify-end">
-            <x-button variant="danger" onclick="closeErrorModal()">
+            <x-button variant="danger" onclick="window.closeErrorModal()">
                 Tutup
             </x-button>
         </div>
     </x-modal>
-
 @endsection
 
 @push('scripts')
@@ -282,468 +267,81 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
     <script>
         let table;
         let currentKunjunganId = null;
-        let currentFilter = 'all';
-        const eyeIcon = `{!! svg('heroicon-c-eye', 'w-5 h-5 inline')->toHtml() !!}`;
-        const filterIcon = `{!! svg('akar-settings-horizontal', 'w-5 h-5 inline')->toHtml() !!}`;
         let activeFilters = {
             status: 'all',
             instansi: null,
             karyawan: null,
             tanggal: null
         };
+        const eyeIcon = `{!! svg('heroicon-c-eye', 'w-5 h-5 inline')->toHtml() !!}`;
+        const filterIcon = `{!! svg('akar-settings-horizontal', 'w-5 h-5 inline')->toHtml() !!}`;
 
-        document.addEventListener('DOMContentLoaded', function () {
-            setTimeout(function () {
-                initRiwayatTable();
-            }, 100);
-        });
-
-        function showSuccessModal(message) {
-            document.getElementById('successMessage').textContent = message;
-            document.getElementById('successModal').classList.add('show');
-        }
-
-        function closeSuccessModal() {
-            document.getElementById('successModal').classList.remove('show');
-            location.reload();
-        }
-
-        function showErrorModal(message) {
-            document.getElementById('errorMessage').textContent = message;
-            document.getElementById('errorModal').classList.add('show');
-        }
-
-        function closeErrorModal() {
-            document.getElementById('errorModal').classList.remove('show');
-        }
-
-        function filterByStatus(status) {
-            currentFilter = status;
-            activeFilters.status = status;
-
-
-            document.querySelectorAll('.stats-card').forEach(card => {
-                card.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
-            });
-            document.querySelector(`[data-filter="${status}"]`).classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
-
-
-            if (status === 'all') {
-                table.column(7).search('').draw();
-            } else {
-
-                table.column(7).search(status).draw();
-            }
-        }
-
-        function exportToExcel() {
-            // Ambil data yang sedang ditampilkan (setelah filter)
-            const filteredData = table.rows({ search: 'applied' }).data().toArray();
-
-            if (filteredData.length === 0) {
-                alert('Tidak ada data untuk diekspor');
-                return;
-            }
-
-            // Generate tanggal untuk header dan filename
-            const today = new Date();
-            const dateStr = today.toISOString().split('T')[0];
-            const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-            const monthYear = `${monthNames[today.getMonth()]} ${today.getFullYear()}`;
-
-            // Build filter description
-            let filterParts = [];
-
-            // Status filter
-            if (activeFilters.status !== 'all') {
-                filterParts.push(`Status: ${activeFilters.status.charAt(0).toUpperCase() + activeFilters.status.slice(1)}`);
-            }
-
-            // Instansi filter
-            if (activeFilters.instansi) {
-                filterParts.push(`Instansi: ${activeFilters.instansi}`);
-            }
-
-            // Karyawan filter
-            if (activeFilters.karyawan) {
-                filterParts.push(`Karyawan: ${activeFilters.karyawan}`);
-            }
-
-            // Tanggal filter
-            if (activeFilters.tanggal) {
-                filterParts.push(`Tanggal: ${activeFilters.tanggal}`);
-            }
-
-            const filterDescription = filterParts.length > 0
-                ? filterParts.join(' | ')
-                : 'Semua Data';
-
-            const periodeText = `Periode: ${monthYear} | Filter: ${filterDescription}`;
-
-            // Siapkan data untuk Excel
-            const excelData = filteredData.map((row, index) => {
-                let karyawanNama = '-';
-                let karyawanJabatan = '-';
-                let karyawanDepartemen = '-';
-
-                if (row.karyawan && row.karyawan.length > 0) {
-                    // Gabungkan semua karyawan
-                    karyawanNama = row.karyawan.map(k => k.nama).join(', ');
-                    karyawanJabatan = row.karyawan.map(k => k.jabatan).join(', ');
-                    karyawanDepartemen = row.karyawan.map(k => k.departemen).join(', ');
-                }
-
-                return [
-                    index + 1,
-                    row.tanggal,
-                    row.jam,
-                    row.nama_tamu,
-                    row.email_tamu,
-                    row.instansi,
-                    row.tujuan_kunjungan,
-                    karyawanNama,
-                    karyawanJabatan,
-                    karyawanDepartemen,
-                    row.status.toUpperCase(),
-                    row.alasan_batal || '-'
-                ];
-            });
-
-            // Buat workbook baru
-            const wb = XLSX.utils.book_new();
-            const ws = {};
-
-            // Title dan Periode
-            ws['A1'] = { v: 'LAPORAN RIWAYAT KUNJUNGAN', t: 's' };
-            ws['A2'] = { v: periodeText, t: 's' };
-
-            // Header kolom
-            const headers = ['No', 'Tanggal', 'Jam', 'Nama Tamu', 'Email Tamu', 'Instansi', 'Tujuan Kunjungan', 'PIC Karyawan', 'Jabatan PIC', 'Departemen PIC', 'Status', 'Alasan Batal'];
-            headers.forEach((header, idx) => {
-                const cellRef = XLSX.utils.encode_cell({ r: 3, c: idx });
-                ws[cellRef] = { v: header, t: 's' };
-            });
-
-            // Data rows
-            excelData.forEach((row, rowIdx) => {
-                row.forEach((cell, colIdx) => {
-                    const cellRef = XLSX.utils.encode_cell({ r: rowIdx + 4, c: colIdx });
-                    ws[cellRef] = { v: cell, t: typeof cell === 'number' ? 'n' : 's' };
-                });
-            });
-
-            // Total row
-            const totalRow = excelData.length + 4;
-            ws[XLSX.utils.encode_cell({ r: totalRow, c: 0 })] = { v: 'TOTAL', t: 's' };
-            ws[XLSX.utils.encode_cell({ r: totalRow, c: 1 })] = { v: `${excelData.length} Kunjungan`, t: 's' };
-
-            // Set range
-            const range = { s: { r: 0, c: 0 }, e: { r: totalRow, c: 11 } };
-            ws['!ref'] = XLSX.utils.encode_range(range);
-
-            // Column widths
-            ws['!cols'] = [
-                { wch: 5 }, { wch: 12 }, { wch: 10 }, { wch: 20 }, { wch: 25 }, { wch: 20 },
-                { wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 12 }, { wch: 30 }
-            ];
-
-            // Styling
-            const headerFill = { patternType: 'solid', fgColor: { rgb: '4472C4' } };
-            const headerFont = { bold: true, color: { rgb: 'FFFFFF' } };
-            const totalFill = { patternType: 'solid', fgColor: { rgb: 'FFEB9C' } };
-            const totalFont = { bold: true };
-            const border = {
-                top: { style: 'thin', color: { rgb: '000000' } },
-                bottom: { style: 'thin', color: { rgb: '000000' } },
-                left: { style: 'thin', color: { rgb: '000000' } },
-                right: { style: 'thin', color: { rgb: '000000' } }
-            };
-
-            // Apply styles to title
-            ws['A1'].s = { font: { bold: true, sz: 16 }, alignment: { horizontal: 'center', vertical: 'center' } };
-            ws['A2'].s = { font: { italic: true, sz: 11 }, alignment: { horizontal: 'center' } };
-
-            // Merge title cells
-            ws['!merges'] = [
-                { s: { r: 0, c: 0 }, e: { r: 0, c: 11 } },
-                { s: { r: 1, c: 0 }, e: { r: 1, c: 11 } },
-                { s: { r: totalRow, c: 1 }, e: { r: totalRow, c: 11 } }
-            ];
-
-            // Apply styles to headers
-            headers.forEach((_, idx) => {
-                const cellRef = XLSX.utils.encode_cell({ r: 3, c: idx });
-                ws[cellRef].s = {
-                    fill: headerFill,
-                    font: headerFont,
-                    alignment: { horizontal: 'center', vertical: 'center' },
-                    border: border
-                };
-            });
-
-            // Apply borders to data cells
-            excelData.forEach((row, rowIdx) => {
-                row.forEach((_, colIdx) => {
-                    const cellRef = XLSX.utils.encode_cell({ r: rowIdx + 4, c: colIdx });
-                    if (ws[cellRef]) {
-                        ws[cellRef].s = {
-                            border: border,
-                            alignment: { vertical: 'center', wrapText: colIdx >= 6 }
-                        };
-                    }
-                });
-            });
-
-            // Apply styles to total row
-            ws[XLSX.utils.encode_cell({ r: totalRow, c: 0 })].s = {
-                fill: totalFill,
-                font: totalFont,
-                alignment: { horizontal: 'center', vertical: 'center' },
-                border: border
-            };
-            ws[XLSX.utils.encode_cell({ r: totalRow, c: 1 })].s = {
-                fill: totalFill,
-                font: totalFont,
-                alignment: { horizontal: 'left', vertical: 'center' },
-                border: border
-            };
-
-            // Row heights
-            ws['!rows'] = [
-                { hpt: 24 }, // Title
-                { hpt: 18 }, // Periode
-                { hpt: 6 },  // Empty row
-                { hpt: 30 }  // Header
-            ];
-
-            XLSX.utils.book_append_sheet(wb, ws, 'Riwayat Kunjungan');
-
-            // Download file dengan nama yang deskriptif
-            const filenameParts = ['Laporan_Riwayat', dateStr];
-            if (activeFilters.status !== 'all') filenameParts.push(activeFilters.status);
-            if (activeFilters.instansi) filenameParts.push(activeFilters.instansi.replace(/\s+/g, '_'));
-            if (activeFilters.karyawan) filenameParts.push(activeFilters.karyawan.replace(/\s+/g, '_'));
-            const filename = filenameParts.join('_') + '.xlsx';
-            XLSX.writeFile(wb, filename);
-        }
-
-        function exportToPDF() {
-            // Ambil data yang sedang ditampilkan (setelah filter)
-            const filteredData = table.rows({ search: 'applied' }).data().toArray();
-
-            if (filteredData.length === 0) {
-                alert('Tidak ada data untuk diekspor');
-                return;
-            }
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('l', 'mm', 'a4'); // landscape
-
-            // Generate tanggal dan filter info
-            const today = new Date();
-            const dateStr = today.toISOString().split('T')[0];
-            const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-            const monthYear = `${monthNames[today.getMonth()]} ${today.getFullYear()}`;
-
-            // Build filter description
-            let filterParts = [];
-            if (activeFilters.status !== 'all') {
-                filterParts.push(`Status: ${activeFilters.status.charAt(0).toUpperCase() + activeFilters.status.slice(1)}`);
-            }
-            if (activeFilters.instansi) filterParts.push(`Instansi: ${activeFilters.instansi}`);
-            if (activeFilters.karyawan) filterParts.push(`Karyawan: ${activeFilters.karyawan}`);
-            if (activeFilters.tanggal) filterParts.push(`Tanggal: ${activeFilters.tanggal}`);
-
-            const filterDescription = filterParts.length > 0 ? filterParts.join(' | ') : 'Semua Data';
-
-            // Title
-            doc.setFontSize(18);
-            doc.setFont('helvetica', 'bold');
-            doc.text('LAPORAN RIWAYAT KUNJUNGAN', doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
-
-            // Subtitle
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'italic');
-            doc.text(`Periode: ${monthYear} | Filter: ${filterDescription}`, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
-
-            // Prepare data for table
-            const tableData = filteredData.map((row, index) => {
-                let karyawanInfo = '-';
-                if (row.karyawan && row.karyawan.length > 0) {
-                    // Gabungkan semua karyawan dengan newline
-                    karyawanInfo = row.karyawan.map(k => `${k.nama}\n${k.jabatan} - ${k.departemen}`).join('\n---\n');
-                }
-
-                return [
-                    index + 1,
-                    row.tanggal,
-                    row.jam,
-                    row.nama_tamu,
-                    row.instansi,
-                    row.tujuan_kunjungan,
-                    karyawanInfo,
-                    row.status.toUpperCase()
-                ];
-            });
-
-            // Generate table
-            doc.autoTable({
-                startY: 28,
-                head: [['No', 'Tanggal', 'Jam', 'Nama Tamu', 'Instansi', 'Tujuan', 'PIC Karyawan', 'Status']],
-                body: tableData,
-                theme: 'grid',
-                headStyles: {
-                    fillColor: [68, 114, 196],
-                    textColor: [255, 255, 255],
-                    fontStyle: 'bold',
-                    halign: 'center',
-                    valign: 'middle',
-                    fontSize: 9,
-                    cellPadding: 3
-                },
-                bodyStyles: {
-                    fontSize: 8,
-                    valign: 'middle',
-                    cellPadding: 3,
-                    minCellHeight: 10
-                },
-                columnStyles: {
-                    0: { cellWidth: 10, halign: 'center' },   // No
-                    1: { cellWidth: 25, halign: 'center' },   // Tanggal
-                    2: { cellWidth: 20, halign: 'center' },   // Jam
-                    3: { cellWidth: 40 },                      // Nama Tamu
-                    4: { cellWidth: 38 },                      // Instansi
-                    5: { cellWidth: 60 },                      // Tujuan
-                    6: { cellWidth: 58 },                      // PIC Karyawan
-                    7: { cellWidth: 26, halign: 'center' }    // Status
-                },
-                styles: {
-                    lineColor: [0, 0, 0],
-                    lineWidth: 0.1,
-                    overflow: 'linebreak',
-                    cellWidth: 'wrap'
-                },
-                alternateRowStyles: {
-                    fillColor: [245, 245, 245]
-                },
-                margin: { top: 28, left: 10, right: 10, bottom: 15 },
-                tableWidth: 'auto'
-            });
-
-            // Footer with total
-            const finalY = doc.lastAutoTable.finalY || 28;
-            const tableWidth = 277; // Total column widths
-            const startX = (doc.internal.pageSize.getWidth() - tableWidth) / 2;
-
-            doc.setFillColor(255, 235, 156);
-            doc.rect(startX, finalY + 2, tableWidth, 10, 'F');
-            doc.setDrawColor(0, 0, 0);
-            doc.rect(startX, finalY + 2, tableWidth, 10, 'S');
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(0, 0, 0);
-            doc.text(`TOTAL: ${filteredData.length} Kunjungan`, startX + 4, finalY + 8);
-
-            // Download PDF
-            const filenameParts = ['Laporan_Riwayat', dateStr];
-            if (activeFilters.status !== 'all') filenameParts.push(activeFilters.status);
-            if (activeFilters.instansi) filenameParts.push(activeFilters.instansi.replace(/\s+/g, '_'));
-            if (activeFilters.karyawan) filenameParts.push(activeFilters.karyawan.replace(/\s+/g, '_'));
-            const filename = filenameParts.join('_') + '.pdf';
-
-            doc.save(filename);
-        }
-
-        function initRiwayatTable() {
-            if ($.fn.DataTable.isDataTable('#riwayatTable')) {
-                $('#riwayatTable').DataTable().destroy();
-            }
-
-            table = new DataTable('#riwayatTable', {
-                responsive: {
-                    details: {
-                        type: 'column',
-                        target: 0
-                    }
-                },
-                columnDefs: [
-                    {
-                        className: 'dtr-control',
-                        orderable: false,
-                        targets: 0
-                    }
-                ],
-                ajax: {
-                    url: '{{ route("resepsionis.riwayat.data") }}',
-                    dataSrc: 'data',
-                    error: function (xhr, error, thrown) {
-                        console.error('DataTables AJAX error:', error, thrown);
-                        if (xhr.status === 0) {
-                            setTimeout(function () {
-                                table.ajax.reload();
-                            }, 500);
-                        }
-                    }
-                },
-                columns: [
-                    {
+        document.addEventListener('DOMContentLoaded', function() {
+            const dtManager = new window.DataTableManager({
+                tableId: 'riwayatTable',
+                ajaxUrl: '{{ route("resepsionis.riwayat.data") }}',
+                columns: [{
                         data: null,
                         responsivePriority: 1,
-                        render: function (data, type, row, meta) {
+                        render: function(data, type, row, meta) {
                             return meta.row + 1;
                         }
                     },
-                    { data: 'tanggal', responsivePriority: 4 },
-                    { data: 'jam', responsivePriority: 5 },
-                    { data: 'nama_tamu', responsivePriority: 2 },
+                    {
+                        data: 'tanggal',
+                        responsivePriority: 4
+                    },
+                    {
+                        data: 'jam',
+                        responsivePriority: 5
+                    },
+                    {
+                        data: 'nama_tamu',
+                        responsivePriority: 2
+                    },
                     {
                         data: null,
                         responsivePriority: 3,
-                        render: function (data) {
+                        render: function(data) {
                             if (!data.has_ktp || !data.ktp_token) return '-';
                             return `<button onclick="viewKtp('${data.ktp_token}')" class="text-blue-600 hover:underline font-regular inline-flex items-center gap-1">${eyeIcon} Lihat KTP</button>`;
                         }
                     },
-                    { data: 'instansi', responsivePriority: 6 },
+                    {
+                        data: 'instansi',
+                        responsivePriority: 6
+                    },
                     {
                         data: 'karyawan',
                         responsivePriority: 7,
-                        render: function (data) {
+                        render: function(data) {
                             if (!data || data.length === 0) return '-';
-
-                            // Jika 3 atau kurang, tampilkan semua
                             if (data.length <= 3) {
                                 return data.map(k =>
                                     `${k.nama}<br><span class="text-xs text-gray-500">${k.jabatan} - ${k.departemen}</span>`
                                 ).join('<br><div class="border-t border-gray-200 my-1"></div>');
                             }
-
-                            // Jika lebih dari 3, tampilkan button
-                            return `<button onclick="showKaryawanList(${JSON.stringify(data).replace(/"/g, '&quot;')})" class="text-blue-600 hover:underline font-semibold flex items-center gap-1">
-                                                                                                                Lihat Detail (${data.length} Karyawan)
-                                                                                                            </button>`;
+                            return `<button onclick="showKaryawanList(${JSON.stringify(data).replace(/"/g, '&quot;')})" class="text-blue-600 hover:underline font-semibold flex items-center gap-1">Lihat Detail (${data.length} Karyawan)</button>`;
                         }
                     },
                     {
                         data: 'status_badge',
                         responsivePriority: 8,
-                        render: function (data, type, row) {
-
+                        render: function(data, type, row) {
                             if (type === 'filter' || type === 'sort') {
                                 return row.status;
                             }
-
-                            // Server-rendered badge HTML
                             return data;
                         }
                     },
                     {
                         data: null,
                         responsivePriority: 9,
-                        render: function (data) {
+                        render: function(data) {
                             if (data.status === 'done') {
                                 return '<button onclick="viewHasil(' + data.id_kunjungan + ')" id="viewHasilBtn_' + data.id_kunjungan + '" class="btn-view flex items-center justify-center gap-2">' +
                                     '<span id="viewHasilText_' + data.id_kunjungan + '">Lihat Hasil</span>' +
@@ -761,16 +359,320 @@
                         visible: false
                     }
                 ],
-                pageLength: 10,
-                order: [[9, 'desc']],
-                initComplete: function () {
-                    console.log('DataTable initialized, calling addCustomFilters');
-                    setTimeout(function () {
-                        addCustomFilters();
-                    }, 200);
+                order: [
+                    [9, 'desc']
+                ],
+                onInitComplete: function() {
+                    if (typeof addCustomFilters === 'function') addCustomFilters();
                 }
             });
+
+            table = dtManager.init();
+            window.initSupabaseRealtime({
+                channelName: 'riwayat-realtime',
+                tableName: 'kunjungan',
+                onPayload: (payload) => {
+                    console.log('Update detected:', payload.eventType);
+                    dtManager.reload(false);
+                }
+            });
+        });
+
+        function exportToExcel() {
+            const exporter = new window.ExcelExporter({
+                table: table,
+                activeFilters: activeFilters,
+                title: 'LAPORAN RIWAYAT KUNJUNGAN',
+                sheetName: 'Riwayat Kunjungan',
+                filePrefix: 'Laporan_Riwayat'
+            });
+            exporter.export();
         }
+
+        function exportToPDF() {
+            const filteredData = table.rows({ search: 'applied' }).data().toArray();
+
+            if (filteredData.length === 0) {
+                alert('Tidak ada data untuk diekspor');
+                return;
+            }
+
+            const data = filteredData.map((row, index) => {
+                return {
+                    no: index + 1,
+                    tanggal: row.tanggal,
+                    nama_tamu: row.nama_tamu,
+                    instansi: row.instansi,
+                    tujuan: row.tujuan_kunjungan,
+                    pic: row.karyawan ? row.karyawan.map(k => `${k.nama} (${k.departemen})`).join('\n') : '-',
+                    status: row.status.toUpperCase(),
+                    alasan: row.alasan_batal || '-'
+                };
+            });
+
+            const columns = [
+                { key: 'no', label: 'No' },
+                { key: 'tanggal', label: 'Tanggal' },
+                { key: 'nama_tamu', label: 'Nama Tamu' },
+                { key: 'instansi', label: 'Instansi' },
+                { key: 'tujuan', label: 'Tujuan' },
+                { key: 'pic', label: 'PIC Karyawan' },
+                { key: 'status', label: 'Status' },
+                { key: 'alasan', label: 'Alasan Batal' }
+            ];
+
+            window.exportDataTablePDF({
+                title: 'LAPORAN RIWAYAT KUNJUNGAN',
+                filename: 'Laporan_Riwayat_' + new Date().toISOString().split('T')[0],
+                columns: columns,
+                data: data,
+                footerText: 'Kunjungan'
+            });
+        }
+
+        function filterByStatus(status) {
+            activeFilters.status = status;
+
+            document.querySelectorAll('.stats-card').forEach(card => {
+                card.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
+            });
+            const targetCard = document.querySelector(`[data-filter="${status}"]`);
+            if (targetCard) targetCard.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
+
+            if (status === 'all') {
+                table.column(7).search('').draw();
+            } else {
+                table.column(7).search(status).draw();
+            }
+        }
+
+        function viewKtp(ktpToken) {
+            const modal = document.getElementById('ktpModal');
+            const content = document.getElementById('ktpContent');
+            content.innerHTML = window.createInlineSpinner('Memuat KTP...');
+            modal.classList.add('show');
+
+            const streamUrl = `/resepsionis/ktp/${ktpToken}/stream`;
+            const img = new Image();
+            img.onload = function() {
+                content.innerHTML = `<img src="${streamUrl}" alt="KTP" class="ktp-preview rounded-lg shadow-lg">`;
+            };
+            img.onerror = function() {
+                content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">Gagal memuat KTP</p></div>';
+            };
+            img.src = streamUrl;
+        }
+
+        function closeKtpModal() {
+            document.getElementById('ktpModal').classList.remove('show');
+        }
+
+        function viewDetail(id) {
+            const modal = document.getElementById('detailModal');
+            const content = document.getElementById('detailContent');
+
+            if (!modal || !content) {
+                console.error('Modal detail tidak ditemukan');
+                return;
+            }
+
+            content.innerHTML = createInlineSpinner('Memuat Detail Kunjungan...');
+            modal.classList.add('show');
+
+            fetch(`{{ route('resepsionis.riwayat.data') }}`)
+                .then(res => res.json())
+                .then(result => {
+                    const kunjungan = result.data.find(k => k.id_kunjungan === id);
+                    if (!kunjungan) {
+                        content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">Detail tidak ditemukan</p><p class="text-sm">Kunjungan tidak ditemukan dalam sistem</p></div>';
+                        return;
+                    }
+
+                    let karyawanList = kunjungan.karyawan.map(k =>
+                        `<li>${k.nama} - ${k.jabatan} (${k.departemen})</li>`
+                    ).join('');
+
+                    let actions = '';
+                    if (kunjungan.status === 'pending') {
+                        actions = `
+                            <div class="flex gap-3 mt-6">
+                                <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
+                                <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
+                            </div>
+                        `;
+                    }
+
+                    let cancelReason = '';
+                    if (kunjungan.status === 'canceled' && kunjungan.alasan_batal) {
+                        cancelReason = `
+                                                                                                                <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                                                                                                    <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
+                                                                                                                    <p class="text-red-700">${kunjungan.alasan_batal}</p>
+                                                                                                                </div>
+                                                                                                            `;
+                    }
+
+                    const statusBadge = kunjungan.status_badge || kunjungan.status;
+
+                    document.getElementById('detailContent').innerHTML = `
+                                                                                                            <div class="space-y-3">
+                                                                                                                <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
+                                                                                                                <div><strong>Jam:</strong> ${kunjungan.jam}</div>
+                                                                                                                <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
+                                                                                                                <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
+                                                                                                                <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
+                                                                                                                <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
+                                                                                                                <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
+                                                                                                                <div><strong>Status:</strong> ${statusBadge}</div>
+                                                                                                                ${cancelReason}
+                                                                                                                ${actions}
+                                                                                                            </div>
+                                                                                                        `;
+                })
+                .catch(error => {
+                    console.error('Error fetching detail:', error);
+                    content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">Gagal memuat detail</p><p class="text-sm">Terjadi kesalahan saat memuat data</p></div>';
+                });
+        }
+
+        function acceptKunjungan(id) {
+            currentKunjunganId = id;
+            closeModal();
+            document.getElementById('acceptModal').classList.add('show');
+        }
+
+        function closeAcceptModal() {
+            document.getElementById('acceptModal').classList.remove('show');
+        }
+
+        function confirmAccept() {
+            const button = document.getElementById('acceptButton');
+            const buttonText = document.getElementById('acceptButtonText');
+            const spinner = document.getElementById('acceptSpinner');
+
+            button.disabled = true;
+            buttonText.textContent = 'Memproses...';
+            spinner.classList.remove('hidden');
+
+            fetch(`/resepsionis/kunjungan/${currentKunjunganId}/accept`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        closeAcceptModal();
+                        showSuccessModal('Kunjungan berhasil diterima. Email telah dikirim ke karyawan tujuan untuk mengisi notulensi.');
+                    }
+                })
+                .catch(error => {
+                    button.disabled = false;
+                    buttonText.textContent = 'Terima';
+                    spinner.classList.add('hidden');
+                    closeAcceptModal();
+                    showErrorModal('Terjadi kesalahan saat menerima kunjungan');
+                });
+        }
+
+        function openRejectModal(id) {
+            currentKunjunganId = id;
+            closeModal();
+            document.getElementById('rejectModal').classList.add('show');
+        }
+
+        function confirmReject() {
+            const alasan = document.getElementById('alasanBatal').value.trim();
+            if (!alasan) {
+                showErrorModal('Alasan pembatalan harus diisi');
+                return;
+            }
+
+            const button = document.getElementById('rejectButton');
+            const buttonText = document.getElementById('rejectButtonText');
+            const spinner = document.getElementById('rejectSpinner');
+
+            button.disabled = true;
+            buttonText.textContent = 'Memproses...';
+            spinner.classList.remove('hidden');
+
+            fetch(`/resepsionis/kunjungan/${currentKunjunganId}/reject`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ alasan_batal: alasan })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        closeRejectModal();
+                        showSuccessModal('Kunjungan berhasil ditolak.');
+                    }
+                })
+                .catch(error => {
+                    button.disabled = false;
+                    buttonText.textContent = 'Tolak Kunjungan';
+                    spinner.classList.add('hidden');
+                    closeRejectModal();
+                    showErrorModal('Terjadi kesalahan saat menolak kunjungan');
+                });
+        }
+
+        let isLoadingNotulensi = false;
+
+        function viewHasil(kunjunganId) {
+            if (isLoadingNotulensi) {
+                return;
+            }
+
+            isLoadingNotulensi = true;
+
+            const button = document.getElementById('viewHasilBtn_' + kunjunganId);
+            const buttonText = document.getElementById('viewHasilText_' + kunjunganId);
+            const spinner = document.getElementById('viewHasilSpinner_' + kunjunganId);
+
+            if (button && buttonText && spinner) {
+                button.disabled = true;
+                button.classList.add('opacity-70', 'cursor-not-allowed');
+                buttonText.textContent = 'Memuat...';
+                spinner.classList.remove('hidden');
+            }
+
+            fetch(`/resepsionis/notulensi/${kunjunganId}/token`)
+                .then(response => response.json())
+                .then(data => {
+                    isLoadingNotulensi = false;
+
+                    if (data.success && data.token) {
+                        window.open(`/notulensi/view/${data.token}`, '_blank');
+                    } else {
+                        showErrorModal(data.message || 'Notulensi tidak ditemukan');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching notulensi token:', error);
+                    isLoadingNotulensi = false;
+                    showErrorModal('Terjadi kesalahan saat mengambil data notulensi');
+                })
+                .finally(() => {
+                    if (button && buttonText && spinner) {
+                        button.disabled = false;
+                        button.classList.remove('opacity-70', 'cursor-not-allowed');
+                        buttonText.textContent = 'Lihat Hasil';
+                        spinner.classList.add('hidden');
+                    }
+                });
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('show');
+            }
+        };
 
         let currentDateFilterStart = null;
         let currentDateFilterEnd = null;
@@ -1074,218 +976,6 @@
             table.draw();
         }
 
-        function viewDetail(id) {
-            const modal = document.getElementById('detailModal');
-            const content = document.getElementById('detailContent');
-
-            if (!modal || !content) {
-                console.error('Modal detail tidak ditemukan');
-                return;
-            }
-
-            content.innerHTML = createInlineSpinner('Memuat Detail Kunjungan...');
-            modal.classList.add('show');
-
-            fetch(`{{ route('resepsionis.riwayat.data') }}`)
-                .then(res => res.json())
-                .then(result => {
-                    const kunjungan = result.data.find(k => k.id_kunjungan === id);
-                    if (!kunjungan) {
-                        content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">Detail tidak ditemukan</p><p class="text-sm">Kunjungan tidak ditemukan dalam sistem</p></div>';
-                        return;
-                    }
-
-                    let karyawanList = kunjungan.karyawan.map(k =>
-                        `<li>${k.nama} - ${k.jabatan} (${k.departemen})</li>`
-                    ).join('');
-
-                    let actions = '';
-                    if (kunjungan.status === 'pending') {
-                        actions = `
-                            <div class="flex gap-3 mt-6">
-                                <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
-                                <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
-                            </div>
-                        `;
-                    }
-
-                    let cancelReason = '';
-                    if (kunjungan.status === 'canceled' && kunjungan.alasan_batal) {
-                        cancelReason = `
-                                                                                                                <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                                                                                                    <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
-                                                                                                                    <p class="text-red-700">${kunjungan.alasan_batal}</p>
-                                                                                                                </div>
-                                                                                                            `;
-                    }
-
-                    // Gunakan status_badge dari server (sudah di-generate oleh BadgeHelper)
-                    const statusBadge = kunjungan.status_badge || kunjungan.status;
-
-                    document.getElementById('detailContent').innerHTML = `
-                                                                                                            <div class="space-y-3">
-                                                                                                                <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
-                                                                                                                <div><strong>Jam:</strong> ${kunjungan.jam}</div>
-                                                                                                                <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
-                                                                                                                <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
-                                                                                                                <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
-                                                                                                                <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
-                                                                                                                <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
-                                                                                                                <div><strong>Status:</strong> ${statusBadge}</div>
-                                                                                                                ${cancelReason}
-                                                                                                                ${actions}
-                                                                                                            </div>
-                                                                                                        `;
-                })
-                .catch(error => {
-                    console.error('Error fetching detail:', error);
-                    content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">Gagal memuat detail</p><p class="text-sm">Terjadi kesalahan saat memuat data</p></div>';
-                });
-        }
-
-        function acceptKunjungan(id) {
-            currentKunjunganId = id;
-            closeModal();
-            document.getElementById('acceptModal').classList.add('show');
-        }
-
-        function closeAcceptModal() {
-            document.getElementById('acceptModal').classList.remove('show');
-        }
-
-        function confirmAccept() {
-            const button = document.getElementById('acceptButton');
-            const buttonText = document.getElementById('acceptButtonText');
-            const spinner = document.getElementById('acceptSpinner');
-
-            // Disable button and show spinner
-            button.disabled = true;
-            buttonText.textContent = 'Memproses...';
-            spinner.classList.remove('hidden');
-
-            fetch(`/resepsionis/kunjungan/${currentKunjunganId}/accept`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        closeAcceptModal();
-                        showSuccessModal('Kunjungan berhasil diterima. Email telah dikirim ke karyawan tujuan untuk mengisi notulensi.');
-                    }
-                })
-                .catch(error => {
-                    // Re-enable button on error
-                    button.disabled = false;
-                    buttonText.textContent = 'Terima';
-                    spinner.classList.add('hidden');
-                    closeAcceptModal();
-                    showErrorModal('Terjadi kesalahan saat menerima kunjungan');
-                });
-        }
-
-        function openRejectModal(id) {
-            currentKunjunganId = id;
-            closeModal();
-            document.getElementById('rejectModal').classList.add('show');
-        }
-
-        function confirmReject() {
-            const alasan = document.getElementById('alasanBatal').value.trim();
-            if (!alasan) {
-                showErrorModal('Alasan pembatalan harus diisi');
-                return;
-            }
-
-            const button = document.getElementById('rejectButton');
-            const buttonText = document.getElementById('rejectButtonText');
-            const spinner = document.getElementById('rejectSpinner');
-
-            // Disable button and show spinner
-            button.disabled = true;
-            buttonText.textContent = 'Memproses...';
-            spinner.classList.remove('hidden');
-
-            fetch(`/resepsionis/kunjungan/${currentKunjunganId}/reject`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ alasan_batal: alasan })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        closeRejectModal();
-                        showSuccessModal('Kunjungan berhasil ditolak.');
-                    }
-                })
-                .catch(error => {
-                    // Re-enable button on error
-                    button.disabled = false;
-                    buttonText.textContent = 'Tolak Kunjungan';
-                    spinner.classList.add('hidden');
-                    closeRejectModal();
-                    showErrorModal('Terjadi kesalahan saat menolak kunjungan');
-                });
-        }
-
-        let isLoadingNotulensi = false;
-
-        function viewHasil(kunjunganId) {
-            // Prevent rapid clicks
-            if (isLoadingNotulensi) {
-                return;
-            }
-
-            isLoadingNotulensi = true;
-
-            // Get button elements
-            const button = document.getElementById('viewHasilBtn_' + kunjunganId);
-            const buttonText = document.getElementById('viewHasilText_' + kunjunganId);
-            const spinner = document.getElementById('viewHasilSpinner_' + kunjunganId);
-
-            // Show spinner
-            if (button && buttonText && spinner) {
-                button.disabled = true;
-                button.classList.add('opacity-70', 'cursor-not-allowed');
-                buttonText.textContent = 'Memuat...';
-                spinner.classList.remove('hidden');
-            }
-
-            // Fetch token notulensi berdasarkan kunjungan ID
-            fetch(`/resepsionis/notulensi/${kunjunganId}/token`)
-                .then(response => response.json())
-                .then(data => {
-                    isLoadingNotulensi = false;
-
-                    if (data.success && data.token) {
-                        // Buka halaman notulensi view dengan token yang didapat
-                        window.open(`/notulensi/view/${data.token}`, '_blank');
-                    } else {
-                        showErrorModal(data.message || 'Notulensi tidak ditemukan');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching notulensi token:', error);
-                    isLoadingNotulensi = false;
-                    showErrorModal('Terjadi kesalahan saat mengambil data notulensi');
-                })
-                .finally(() => {
-                    // Hide spinner
-                    if (button && buttonText && spinner) {
-                        button.disabled = false;
-                        button.classList.remove('opacity-70', 'cursor-not-allowed');
-                        buttonText.textContent = 'Lihat Hasil';
-                        spinner.classList.add('hidden');
-                    }
-                });
-        }
-
         function showLoadingOverlay() {
             const overlay = document.getElementById('loadingOverlay');
             if (overlay) {
@@ -1307,31 +997,6 @@
         function closeRejectModal() {
             document.getElementById('rejectModal').classList.remove('show');
             document.getElementById('alasanBatal').value = '';
-        }
-
-        function viewKtp(ktpToken) {
-            const modal = document.getElementById('ktpModal');
-            const content = document.getElementById('ktpContent');
-
-            content.innerHTML = createInlineSpinner('Memuat KTP...');
-            modal.classList.add('show');
-
-            const streamUrl = `/resepsionis/ktp/${ktpToken}/stream`;
-            const img = new Image();
-
-            img.onload = function () {
-                content.innerHTML = `<img src="${streamUrl}" alt="KTP" class="ktp-preview rounded-lg shadow-lg">`;
-            };
-
-            img.onerror = function () {
-                content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">Gagal memuat KTP</p><p class="text-sm">Terjadi kesalahan saat memuat gambar</p></div>';
-            };
-
-            img.src = streamUrl;
-        }
-
-        function closeKtpModal() {
-            document.getElementById('ktpModal').classList.remove('show');
         }
 
         function showKaryawanList(karyawanData) {
@@ -1404,36 +1069,5 @@
             }
         });
 
-        // Supabase Realtime - Auto reload hanya ketika ada perubahan
-        (function () {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-            script.onload = function () {
-                fetch('/api/supabase-config')
-                    .then(res => res.json())
-                    .then(config => {
-                        const { createClient } = supabase;
-                        const supabaseClient = createClient(config.url, config.key);
-
-                        const channel = supabaseClient
-                            .channel('riwayat-realtime')
-                            .on('postgres_changes',
-                                { event: '*', schema: 'public', table: 'kunjungan' },
-                                (payload) => {
-                                    console.log('Perubahan terdeteksi:', payload.eventType);
-                                    table.ajax.reload(null, false);
-                                }
-                            )
-                            .subscribe((status) => {
-                                if (status === 'SUBSCRIBED') {
-                                    console.log('Realtime active - akan auto-reload saat ada perubahan');
-                                }
-                            });
-
-                        window.addEventListener('beforeunload', () => channel.unsubscribe());
-                    });
-            };
-            document.head.appendChild(script);
-        })();
     </script>
 @endpush
