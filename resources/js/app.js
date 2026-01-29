@@ -49,6 +49,7 @@ window.resetKaryawanRow = KaryawanRowManager.resetKaryawanRow;
 window.updateMinusButtonsVisibility = KaryawanRowManager.updateMinusButtonsVisibility;
 window.setSearchKaryawanRoute = KaryawanRowManager.setSearchKaryawanRoute;
 window.setEscapeHtmlFn = KaryawanRowManager.setEscapeHtmlFn;
+window.getSelectedKaryawan = KaryawanRowManager.getSelectedKaryawan;
 window.initWebcam = initWebcam;
 window.addEventListener('DOMContentLoaded', function() {
     clearOldImageStorages();

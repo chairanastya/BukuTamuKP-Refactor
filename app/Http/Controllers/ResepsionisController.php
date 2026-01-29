@@ -17,6 +17,8 @@ use App\Mail\KunjunganNotification;
 use App\Mail\NotulensiRequest;
 use App\Helpers\BadgeHelper;
 use Cloudinary\Cloudinary;
+use App\Jobs\SendNotificationEmailJob;
+use App\Jobs\SendNotulensiRequestJob;
 
 class ResepsionisController extends Controller
 {
@@ -507,30 +509,19 @@ class ResepsionisController extends Controller
     private function sendNotificationToTamu(Kunjungan $kunjungan, string $status)
     {
         try {
-            $tamu = $kunjungan->tamu;
+            Log::info('Dispatching notification email job to guest', [
+                'kunjungan_id' => $kunjungan->id_kunjungan,
+                'status' => $status,
+            ]);
 
-            $karyawan = $kunjungan->karyawan()->first();
+            SendNotificationEmailJob::dispatch($kunjungan->id_kunjungan, $status);
 
-            if (!$karyawan) {
-                Log::warning('No employee associated with kunjungan ID: ' . $kunjungan->id_kunjungan);
-                return;
-            }
-
-            if (!$tamu->email_tamu) {
-                Log::warning('Guest has no email, ID: ' . $tamu->id_tamu);
-                return;
-            }
-
-            Log::info('Sending notification to guest: ' . $tamu->email_tamu);
-
-            Mail::to($tamu->email_tamu)->send(
-                new KunjunganNotification($tamu, $karyawan, $kunjungan, $status)
-            );
-
-            Log::info('Email notification successfully sent to: ' . $tamu->nama_tamu);
+            Log::info('Notification email job dispatched successfully', [
+                'kunjungan_id' => $kunjungan->id_kunjungan,
+            ]);
 
         } catch (\Exception $e) {
-            Log::error('Failed to send email to guest: ' . $e->getMessage(), [
+            Log::error('Failed to dispatch notification email job: ' . $e->getMessage(), [
                 'kunjungan_id' => $kunjungan->id_kunjungan,
                 'error' => $e->getMessage(),
             ]);
@@ -540,8 +531,6 @@ class ResepsionisController extends Controller
     private function sendNotulensiRequestToKaryawan(Kunjungan $kunjungan)
     {
         try {
-            $kunjungan->load(['tamu', 'karyawan']);
-
             $token = $kunjungan->token_approval;
 
             if (!$token) {
@@ -549,29 +538,20 @@ class ResepsionisController extends Controller
                 return;
             }
 
-            foreach ($kunjungan->karyawan as $karyawan) {
-                if (!$karyawan->email_karyawan) {
-                    Log::warning('Karyawan has no email, ID: ' . $karyawan->id_karyawan);
-                    continue;
-                }
+            Log::info('Dispatching notulensi request email job', [
+                'kunjungan_id' => $kunjungan->id_kunjungan,
+            ]);
 
-                Log::info('Sending notulensi request to karyawan: ' . $karyawan->email_karyawan, [
-                    'karyawan_id' => $karyawan->id_karyawan,
-                    'kunjungan_id' => $kunjungan->id_kunjungan,
-                ]);
+            SendNotulensiRequestJob::dispatch($kunjungan->id_kunjungan, $token);
 
-                Mail::to($karyawan->email_karyawan)->send(
-                    new NotulensiRequest($karyawan, $kunjungan, $token)
-                );
-
-                Log::info('Notulensi request email sent to: ' . $karyawan->nama_karyawan);
-            }
+            Log::info('Notulensi request email job dispatched successfully', [
+                'kunjungan_id' => $kunjungan->id_kunjungan,
+            ]);
 
         } catch (\Exception $e) {
-            Log::error('Failed to send notulensi request emails: ' . $e->getMessage(), [
+            Log::error('Failed to dispatch notulensi request email job: ' . $e->getMessage(), [
                 'kunjungan_id' => $kunjungan->id_kunjungan,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
             ]);
         }
     }
