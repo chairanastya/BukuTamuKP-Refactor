@@ -57,12 +57,3 @@
 @endsection
 
 @include('partials.kunjungan-form-scripts')
-
-@push('scripts')
-    <script>     function toggleDropdown() { const dropdown = document.getElementById('dropdown'); dropdown.classList.toggle('hidden'); }
-        document.addEventListener('click', function (event) {
-            const dropdown = document.getElementById('dropdown'); const button = event.target.closest('button');
-            if (!button || button.getAttribute('onclick') !== 'toggleDropdown()') { dropdown.classList.add('hidden'); }
-        });
-    </script>
-@endpush

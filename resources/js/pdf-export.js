@@ -45,7 +45,6 @@ export function exportDataTablePDF(options = {}) {
         doc.setFont('helvetica', 'bold');
         doc.text(title, doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
 
-        // Subtitle with filter info
         if (subtitle || filterInfo) {
             doc.setFontSize(10);
             doc.setFont('helvetica', 'italic');
@@ -53,35 +52,26 @@ export function exportDataTablePDF(options = {}) {
             doc.text(subtitleText, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
         }
 
-        // Transform data if dataMapper provided
         let tableData = data;
         if (dataMapper && typeof dataMapper === 'function') {
             console.log('Using dataMapper to transform data');
             tableData = data.map((row, index) => dataMapper(row, index));
         } else if (Array.isArray(data) && data.length > 0 && typeof data[0] === 'object' && !Array.isArray(data[0])) {
-            // If data is array of objects, extract values based on columns
-            console.log('Data is array of objects, extracting...');
             tableData = data.map(row => {
                 return columns.map(col => row[col.key] || '-');
             });
         } else {
-            console.log('Data is array of arrays, using as-is');
             tableData = data;
         }
 
-        console.log('TableData prepared, rows:', tableData.length);
         if (tableData.length > 0) {
             console.log('First tableData row:', tableData[0]);
         }
 
-        // Prepare headers
         const headers = Array.isArray(columns[0]) 
             ? columns 
             : [columns.map(col => col.label || col)];
 
-        console.log('Headers:', headers);
-
-        // Generate table
         doc.autoTable({
             startY: subtitle || filterInfo ? 28 : 25,
             head: headers,
@@ -94,7 +84,9 @@ export function exportDataTablePDF(options = {}) {
                 halign: 'center',
                 valign: 'middle',
                 fontSize: 9,
-                cellPadding: 3
+                valign: 'middle',
+                cellPadding: 3,
+                minCellHeight: 10
             },
             bodyStyles: {
                 fontSize: 8,
@@ -127,6 +119,7 @@ export function exportDataTablePDF(options = {}) {
         doc.rect(startX, finalY + 2, tableWidth, 10, 'S');
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
+        doc.text(`TOTAL: ${data.length} Items`, 15, finalY + 8);
         doc.setTextColor(0, 0, 0);
         doc.text(`TOTAL: ${data.length} ${footerText}`, startX + 4, finalY + 8);
 
