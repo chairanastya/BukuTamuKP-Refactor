@@ -5,7 +5,9 @@ export function exportDataTablePDF(options = {}) {
         filename = 'export',
         columns = [],
         data = [],
-        filters = {},
+        dataMapper = null,
+        filterInfo = '',
+        footerText = 'Items',
         buttonId = null
     } = options;
 
@@ -26,30 +28,48 @@ export function exportDataTablePDF(options = {}) {
         doc.setFont('helvetica', 'bold');
         doc.text(title, doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
 
-        if (subtitle) {
+        if (subtitle || filterInfo) {
             doc.setFontSize(10);
             doc.setFont('helvetica', 'italic');
-            doc.text(subtitle, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
+            const subtitleText = subtitle || filterInfo;
+            doc.text(subtitleText, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
         }
 
+        let tableData = data;
+        if (dataMapper && typeof dataMapper === 'function') {
+            console.log('Using dataMapper to transform data');
+            tableData = data.map((row, index) => dataMapper(row, index));
+        } else if (Array.isArray(data) && data.length > 0 && typeof data[0] === 'object' && !Array.isArray(data[0])) {
+            tableData = data.map(row => {
+                return columns.map(col => row[col.key] || '-');
+            });
+        } else {
+            tableData = data;
+        }
+
+        if (tableData.length > 0) {
+            console.log('First tableData row:', tableData[0]);
+        }
+
+        const headers = Array.isArray(columns[0]) 
+            ? columns 
+            : [columns.map(col => col.label || col)];
+
         doc.autoTable({
-            startY: subtitle ? 28 : 25,
-            head: [columns.map(col => col.label)],
-            body: data.map((row, index) => {
-                const rowData = [];
-                columns.forEach(col => {
-                    rowData.push(row[col.key] || '-');
-                });
-                return rowData;
-            }),
+            startY: subtitle || filterInfo ? 28 : 25,
+            head: headers,
+            body: tableData,
             theme: 'grid',
             headStyles: {
                 fillColor: [68, 114, 196],
                 textColor: [255, 255, 255],
                 fontStyle: 'bold',
                 halign: 'center',
+                valign: 'middle',
                 fontSize: 9,
-                cellPadding: 3
+                valign: 'middle',
+                cellPadding: 3,
+                minCellHeight: 10
             },
             bodyStyles: {
                 fontSize: 8,
@@ -58,17 +78,36 @@ export function exportDataTablePDF(options = {}) {
             alternateRowStyles: {
                 fillColor: [245, 245, 245]
             },
-            margin: { top: 28, left: 10, right: 10, bottom: 15 }
+            styles: {
+                lineColor: [0, 0, 0],
+                lineWidth: 0.1,
+                overflow: 'linebreak',
+                cellWidth: 'wrap'
+            },
+            margin: { top: 28, left: 10, right: 10, bottom: 15 },
+            tableWidth: 'auto'
         });
 
         const finalY = doc.lastAutoTable.finalY || 28;
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const tableWidth = 277; // Default total column widths
+        const startX = (pageWidth - tableWidth) / 2;
+
+        doc.setFillColor(255, 235, 156);
+        doc.rect(startX, finalY + 2, tableWidth, 10, 'F');
+        doc.setDrawColor(0, 0, 0);
+        doc.rect(startX, finalY + 2, tableWidth, 10, 'S');
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
         doc.text(`TOTAL: ${data.length} Items`, 15, finalY + 8);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`TOTAL: ${data.length} ${footerText}`, startX + 4, finalY + 8);
 
         doc.save(filename + '.pdf');
+        console.log('PDF saved successfully');
     } catch (error) {
         console.error('PDF export error:', error);
+        console.error('Error stack:', error.stack);
         alert('Terjadi kesalahan saat membuat PDF');
     } finally {
         if (buttonId) {
