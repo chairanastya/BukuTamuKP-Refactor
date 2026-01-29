@@ -59,7 +59,7 @@
             @endif
 
             <!-- Forgot Password Form -->
-            <form method="POST" action="{{ route('resepsionis.password.email') }}">
+            <form method="POST" action="{{ route('resepsionis.password.email') }}" data-init="forgot-password">
                 @csrf
 
                 <!-- Email Input -->
@@ -92,3 +92,20 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form[data-init="forgot-password"]');
+    if (!form) return; 
+
+    if (typeof initInputBackgrounds === 'function') {
+        initInputBackgrounds('.input-wrapper input');
+    }
+
+    if (typeof initRecaptchaValidation === 'function') {
+        initRecaptchaValidation(form);
+    }
+});
+</script>
+@endpush
