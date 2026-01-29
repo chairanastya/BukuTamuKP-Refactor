@@ -30,7 +30,7 @@
 
             restoreOldValues();
 
-            addKaryawanRow();
+            window.addKaryawanRow();
 
             @if(session('success'))
                 showSuccessModal();
@@ -54,21 +54,8 @@
                 }
             }
 
-            const karyawanIdsInput = document.getElementById('karyawan_ids');
-            if (karyawanIdsInput && karyawanIdsInput.value) {
-                try {
-                    const karyawanIds = JSON.parse(karyawanIdsInput.value);
-                    if (Array.isArray(karyawanIds) && karyawanIds.length > 0) {
-                        selectedKaryawan = karyawanIds.map(id => ({
-                            id_karyawan: id,
-                            nama_karyawan: 'Loading...',
-                            rowId: -1
-                        }));
-                    }
-                } catch (e) {
-                    console.error('Error parsing karyawan_ids:', e);
-                }
-            }
+            // Note: Karyawan restoration is handled by the module
+            // The karyawan_ids field is read directly by the backend when submitting
         }
 
         function setupFormValidation() {
@@ -140,6 +127,7 @@
                     if (!firstErrorElement) firstErrorElement = inputs.tujuan;
                 }
 
+                const selectedKaryawan = window.getSelectedKaryawan();
                 if (selectedKaryawan.length === 0) {
                     e.preventDefault();
                     hasError = true;
@@ -223,165 +211,6 @@
                     wrapper.classList.remove('error');
                 }
             }, 5000);
-        }
-
-        function addKaryawanRow() {
-            const container = document.getElementById('karyawan_rows_container');
-            const rowId = rowCounter++;
-
-            const rowHtml = `
-                                                                        <div id="karyawan-row-${rowId}" class="karyawan-search-row">
-                                                                            <div class="karyawan-search-container" id="content-${rowId}">
-                                                                                <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
-                                                                                    <input type="text" 
-                                                                                        id="karyawan_input_${rowId}" 
-                                                                                        placeholder="Cari nama karyawan..."
-                                                                                        class="w-full karyawan-search-input"
-                                                                                        autocomplete="off"
-                                                                                        data-row-id="${rowId}">
-                                                                                </div>
-                                                                                <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>
-                                                                            </div>
-                                                                            <div class="karyawan-action-buttons">
-                                                                                <button type="button" class="karyawan-add-btn" onclick="addKaryawanRow()" title="Tambah karyawan">
-                                                                                    @svg('heroicon-o-plus', 'w-7 h-7')
-                                                                                </button>
-                                                                                <button type="button" class="karyawan-minus-btn" onclick="removeKaryawanRow(${rowId})" title="Hapus baris">
-                                                                                    @svg('heroicon-o-minus', 'w-7 h-7')
-                                                                                </button>
-                                                                            </div>
-                                                                        </div>`;
-
-            container.insertAdjacentHTML('beforeend', rowHtml);
-            setupRowListeners(rowId);
-            updateMinusButtonsVisibility();
-        }
-
-        function removeKaryawanRow(rowId) {
-            const rows = document.querySelectorAll('[id^="karyawan-row-"]');
-
-            if (rows.length <= 1) {
-                alert('Minimal harus ada satu karyawan yang dituju');
-                return;
-            }
-
-            const row = document.getElementById(`karyawan-row-${rowId}`);
-            selectedKaryawan = selectedKaryawan.filter(k => k.rowId !== rowId);
-            updateHiddenInput();
-
-            if (row) row.remove();
-            updateMinusButtonsVisibility();
-        }
-
-        function setupRowListeners(rowId) {
-            const input = document.getElementById(`karyawan_input_${rowId}`);
-            const dropdown = document.getElementById(`autocomplete_dropdown_${rowId}`);
-            let debounceTimeout;
-
-            input.addEventListener('input', function () {
-                const query = this.value.trim();
-                clearTimeout(debounceTimeout);
-
-                if (query.length < 2) {
-                    dropdown.classList.remove('show');
-                    dropdown.innerHTML = '';
-                    return;
-                }
-
-                debounceTimeout = setTimeout(() => {
-                    searchKaryawan(query, rowId, dropdown);
-                }, 300);
-            });
-
-            document.addEventListener('click', function (e) {
-                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
-                    dropdown.classList.remove('show');
-                }
-            });
-        }
-
-        function searchKaryawan(query, rowId, dropdown) {
-            fetch(`{{ route('tamu.search-karyawan') }}?q=${encodeURIComponent(query)}`)
-                .then(response => response.json())
-                .then(data => displayAutocomplete(data, rowId, dropdown))
-                .catch(error => console.error('Error searching karyawan:', error));
-        }
-
-        function displayAutocomplete(karyawans, rowId, dropdown) {
-            if (karyawans.length === 0) {
-                dropdown.innerHTML = '<div class="autocomplete-item">Tidak ada hasil</div>';
-                dropdown.classList.add('show');
-                return;
-            }
-
-            const html = karyawans
-                .filter(k => !selectedKaryawan.find(sk => sk.id_karyawan === k.id_karyawan))
-                .map(k => `
-                                                                                <div class="autocomplete-item" onclick="selectKaryawan(${rowId}, ${k.id_karyawan}, '${escapeHtml(k.nama_karyawan)}', '${escapeHtml(k.jabatan)}', '${escapeHtml(k.departemen)}')">
-                                                                                    <div class="autocomplete-name">${escapeHtml(k.nama_karyawan)}</div>
-                                                                                    <div class="autocomplete-detail">${escapeHtml(k.jabatan)} - ${escapeHtml(k.departemen)}</div>
-                                                                                </div>`)
-                .join('');
-
-            dropdown.innerHTML = html;
-            dropdown.classList.add('show');
-        }
-
-        function selectKaryawan(rowId, id, nama, jabatan, departemen) {
-            if (selectedKaryawan.find(k => k.id_karyawan === id)) {
-                alert('Karyawan ini sudah dipilih di baris lain');
-                return;
-            }
-
-            selectedKaryawan = selectedKaryawan.filter(k => k.rowId !== rowId);
-            selectedKaryawan.push({ rowId, id_karyawan: id, nama_karyawan: nama, jabatan, departemen });
-
-            renderKaryawanCard(rowId, nama, jabatan, departemen);
-            updateHiddenInput();
-        }
-
-        function renderKaryawanCard(rowId, nama, jabatan, departemen) {
-            const content = document.getElementById(`content-${rowId}`);
-            content.innerHTML = `
-                                                                        <div class="karyawan-card w-full" onclick="resetKaryawanRow(${rowId})" title="Klik untuk mengganti karyawan">
-                                                                            <div class="karyawan-card-info">
-                                                                                <div class="karyawan-card-name">${escapeHtml(nama)}</div>
-                                                                                <div class="karyawan-card-detail">${escapeHtml(jabatan)} - ${escapeHtml(departemen)}</div>
-                                                                            </div>
-                                                                            @svg('zondicon-edit-pencil', 'w-5 h-5 text-[#084E8F]')
-                                                                        </div>`;
-        }
-
-        function updateHiddenInput() {
-            const ids = selectedKaryawan.map(k => k.id_karyawan);
-            document.getElementById('karyawan_ids').value = JSON.stringify(ids);
-        }
-
-        function resetKaryawanRow(rowId) {
-            selectedKaryawan = selectedKaryawan.filter(k => k.rowId !== rowId);
-            updateHiddenInput();
-
-            const content = document.getElementById(`content-${rowId}`);
-            content.innerHTML = `
-                                                                        <div class="w-full h-full px-2 border-2 border-[#084E8F] rounded-lg transition flex items-center">
-                                                                            <input type="text" 
-                                                                                id="karyawan_input_${rowId}" 
-                                                                                placeholder="Cari nama karyawan..."
-                                                                                class="w-full karyawan-search-input"
-                                                                                autocomplete="off"
-                                                                                data-row-id="${rowId}">
-                                                                        </div>
-                                                                        <div id="autocomplete_dropdown_${rowId}" class="autocomplete-dropdown"></div>`;
-
-            setupRowListeners(rowId);
-        }
-
-        function updateMinusButtonsVisibility() {
-            const rows = document.querySelectorAll('[id^="karyawan-row-"]');
-            const minusButtons = document.querySelectorAll('.karyawan-minus-btn');
-            const shouldDisable = rows.length === 1;
-
-            minusButtons.forEach(btn => btn.disabled = shouldDisable);
         }
 
         function openWebcamModal() {

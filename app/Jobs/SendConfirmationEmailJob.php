@@ -18,93 +18,69 @@ class SendConfirmationEmailJob implements ShouldQueue
     use Queueable, InteractsWithQueue, SerializesModels;
 
     public $tries = 3;
-
     public $backoff = [10, 30, 60];
 
-    protected $karyawanIds;
-    protected $kunjunganId;
-    protected $tamuId;
+    protected $karyawanId;
+    protected $tamu;
+    protected $kunjungan;
     protected $token;
 
-    public function __construct(array $karyawanIds, int $kunjunganId, int $tamuId, string $token)
+    public function __construct(int $karyawanId, Tamu $tamu, Kunjungan $kunjungan, string $token)
     {
-        $this->karyawanIds = $karyawanIds;
-        $this->kunjunganId = $kunjunganId;
-        $this->tamuId = $tamuId;
+        $this->karyawanId = $karyawanId;
+        $this->tamu = $tamu;
+        $this->kunjungan = $kunjungan;
         $this->token = $token;
     }
 
     public function handle(): void
     {
         try {
-            $kunjungan = Kunjungan::findOrFail($this->kunjunganId);
-            $tamu = Tamu::findOrFail($this->tamuId);
+            // Re-fetch karyawan from database to ensure fresh model
+            $karyawan = Karyawan::find($this->karyawanId);
 
-            $emailsSent = 0;
-            $emailsFailed = 0;
-
-            foreach ($this->karyawanIds as $karyawanId) {
-                try {
-                    $karyawan = Karyawan::find($karyawanId);
-
-                    if (!$karyawan) {
-                        Log::warning('Karyawan not found', [
-                            'karyawan_id' => $karyawanId,
-                            'job_id' => $this->job->getJobId(),
-                        ]);
-                        $emailsFailed++;
-                        continue;
-                    }
-
-                    if (!$karyawan->email_karyawan) {
-                        Log::warning('Karyawan has no email', [
-                            'karyawan_id' => $karyawanId,
-                            'job_id' => $this->job->getJobId(),
-                        ]);
-                        $emailsFailed++;
-                        continue;
-                    }
-
-                    Log::info('Sending confirmation email to karyawan', [
-                        'karyawan_id' => $karyawan->id_karyawan,
-                        'karyawan_email' => $karyawan->email_karyawan,
-                        'kunjungan_id' => $kunjungan->id_kunjungan,
-                        'attempt' => $this->attempts(),
-                        'job_id' => $this->job->getJobId(),
-                    ]);
-
-                    Mail::to($karyawan->email_karyawan)->send(
-                        new KunjunganConfirmation($karyawan, $tamu, $kunjungan, $this->token)
-                    );
-
-                    $emailsSent++;
-
-                    Log::info('Confirmation email sent successfully', [
-                        'karyawan_email' => $karyawan->email_karyawan,
-                        'karyawan_name' => $karyawan->nama_karyawan,
-                        'job_id' => $this->job->getJobId(),
-                    ]);
-
-                } catch (\Exception $mailError) {
-                    Log::error('Failed to send email to individual karyawan', [
-                        'karyawan_id' => $karyawanId,
-                        'error' => $mailError->getMessage(),
-                        'job_id' => $this->job->getJobId(),
-                    ]);
-                    $emailsFailed++;
-                }
+            if (!$karyawan) {
+                Log::error('Karyawan not found in database', [
+                    'karyawan_id' => $this->karyawanId,
+                    'job_id' => $this->job->getJobId(),
+                ]);
+                throw new \Exception("Karyawan with ID {$this->karyawanId} not found");
             }
 
-            Log::info('Email batch completed', [
-                'sent' => $emailsSent,
-                'failed' => $emailsFailed,
-                'total' => count($this->karyawanIds),
+            if (!$karyawan->email_karyawan) {
+                Log::warning('Karyawan has no email, skipping confirmation email', [
+                    'karyawan_id' => $karyawan->id_karyawan,
+                    'job_id' => $this->job->getJobId(),
+                ]);
+                return;
+            }
+
+            Log::info('Sending confirmation email to karyawan', [
+                'karyawan_id' => $karyawan->id_karyawan,
+                'karyawan_email' => $karyawan->email_karyawan,
+                'kunjungan_id' => $this->kunjungan->id_kunjungan,
+                'attempt' => $this->attempts(),
+                'job_id' => $this->job->getJobId(),
+            ]);
+
+            Mail::to($karyawan->email_karyawan)->send(
+                new KunjunganConfirmation(
+                    $karyawan,
+                    $this->tamu,
+                    $this->kunjungan,
+                    $this->token
+                )
+            );
+
+            Log::info('Confirmation email sent successfully', [
+                'karyawan_email' => $karyawan->email_karyawan,
+                'karyawan_name' => $karyawan->nama_karyawan,
                 'job_id' => $this->job->getJobId(),
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Failed to process confirmation email job', [
-                'kunjungan_id' => $this->kunjunganId,
+            Log::error('Failed to send confirmation email', [
+                'karyawan_id' => $this->karyawanId,
                 'error' => $e->getMessage(),
                 'attempt' => $this->attempts(),
                 'job_id' => $this->job->getJobId(),
@@ -117,10 +93,9 @@ class SendConfirmationEmailJob implements ShouldQueue
     public function failed(\Throwable $exception): void
     {
         Log::error('Confirmation email job failed after all retries', [
-            'kunjungan_id' => $this->kunjunganId,
-            'karyawan_ids' => $this->karyawanIds,
+            'karyawan_id' => $this->karyawanId,
+            'kunjungan_id' => $this->kunjungan->id_kunjungan,
             'error' => $exception->getMessage(),
-            'trace' => $exception->getTraceAsString(),
         ]);
     }
 }
