@@ -22,11 +22,3 @@
         </form>
     </div>
 </div>
-
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            initDropdown('dropdown');
-        });
-    </script>
-@endpush
