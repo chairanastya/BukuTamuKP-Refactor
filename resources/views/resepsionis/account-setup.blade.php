@@ -96,21 +96,26 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    initPasswordToggle({
-        passwordFieldIds: ['password', 'password_confirmation'],
-        checkboxId: 'showPassword'
-    });
+    document.addEventListener('DOMContentLoaded', function () {
+        initPasswordToggle({
+            passwordFieldIds: ['password', 'password_confirmation'],
+            checkboxId: 'showPassword'
+        });
 
-    initInputBackgrounds();
+        initInputBackgrounds();
 
-    setupFormValidation({
-        passwordFieldId: 'password',
-        confirmPasswordFieldId: 'password_confirmation',
-        minLength: 8,
-        formSelector: 'form',
-        errorTimeout: 3000
+        setupFormValidation({
+            passwordFieldId: 'password',
+            confirmPasswordFieldId: 'password_confirmation',
+            minLength: 8,
+            formSelector: 'form',
+            errorTimeout: 3000
+        });
+
+        Recaptcha.initRecaptchaValidation('form', {
+            alertMessage: 'Silakan verifikasi bahwa Anda bukan robot',
+            resetOnError: true
+        });
     });
-});
 </script>
 @endpush
