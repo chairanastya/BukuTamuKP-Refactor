@@ -5,9 +5,27 @@ export function exportDataTablePDF(options = {}) {
         filename = 'export',
         columns = [],
         data = [],
-        filters = {},
+        dataMapper = null,
+        filterInfo = '',
+        footerText = 'Items',
         buttonId = null
     } = options;
+
+    console.log('exportDataTablePDF called with:', {
+        title,
+        subtitle,
+        filename,
+        columnsLength: columns.length,
+        dataLength: data.length,
+        dataMapperExists: !!dataMapper,
+        filterInfo,
+        footerText
+    });
+
+    if (data && data.length > 0) {
+        console.log('First data row:', data[0]);
+        console.log('Columns structure:', columns);
+    }
 
     if (buttonId) {
         const btn = document.getElementById(buttonId);
@@ -20,56 +38,104 @@ export function exportDataTablePDF(options = {}) {
         }
 
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('l', 'mm', 'a4');
+        const doc = new jsPDF('l', 'mm', 'a4'); // landscape
 
+        // Title
         doc.setFontSize(18);
         doc.setFont('helvetica', 'bold');
         doc.text(title, doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
 
-        if (subtitle) {
+        // Subtitle with filter info
+        if (subtitle || filterInfo) {
             doc.setFontSize(10);
             doc.setFont('helvetica', 'italic');
-            doc.text(subtitle, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
+            const subtitleText = subtitle || filterInfo;
+            doc.text(subtitleText, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
         }
 
+        // Transform data if dataMapper provided
+        let tableData = data;
+        if (dataMapper && typeof dataMapper === 'function') {
+            console.log('Using dataMapper to transform data');
+            tableData = data.map((row, index) => dataMapper(row, index));
+        } else if (Array.isArray(data) && data.length > 0 && typeof data[0] === 'object' && !Array.isArray(data[0])) {
+            // If data is array of objects, extract values based on columns
+            console.log('Data is array of objects, extracting...');
+            tableData = data.map(row => {
+                return columns.map(col => row[col.key] || '-');
+            });
+        } else {
+            console.log('Data is array of arrays, using as-is');
+            tableData = data;
+        }
+
+        console.log('TableData prepared, rows:', tableData.length);
+        if (tableData.length > 0) {
+            console.log('First tableData row:', tableData[0]);
+        }
+
+        // Prepare headers
+        const headers = Array.isArray(columns[0]) 
+            ? columns 
+            : [columns.map(col => col.label || col)];
+
+        console.log('Headers:', headers);
+
+        // Generate table
         doc.autoTable({
-            startY: subtitle ? 28 : 25,
-            head: [columns.map(col => col.label)],
-            body: data.map((row, index) => {
-                const rowData = [];
-                columns.forEach(col => {
-                    rowData.push(row[col.key] || '-');
-                });
-                return rowData;
-            }),
+            startY: subtitle || filterInfo ? 28 : 25,
+            head: headers,
+            body: tableData,
             theme: 'grid',
             headStyles: {
                 fillColor: [68, 114, 196],
                 textColor: [255, 255, 255],
                 fontStyle: 'bold',
                 halign: 'center',
+                valign: 'middle',
                 fontSize: 9,
                 cellPadding: 3
             },
             bodyStyles: {
                 fontSize: 8,
-                cellPadding: 3
+                valign: 'middle',
+                cellPadding: 3,
+                minCellHeight: 10
             },
             alternateRowStyles: {
                 fillColor: [245, 245, 245]
             },
-            margin: { top: 28, left: 10, right: 10, bottom: 15 }
+            styles: {
+                lineColor: [0, 0, 0],
+                lineWidth: 0.1,
+                overflow: 'linebreak',
+                cellWidth: 'wrap'
+            },
+            margin: { top: 28, left: 10, right: 10, bottom: 15 },
+            tableWidth: 'auto'
         });
 
+        // Footer with total
         const finalY = doc.lastAutoTable.finalY || 28;
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const tableWidth = 277; // Default total column widths
+        const startX = (pageWidth - tableWidth) / 2;
+
+        doc.setFillColor(255, 235, 156);
+        doc.rect(startX, finalY + 2, tableWidth, 10, 'F');
+        doc.setDrawColor(0, 0, 0);
+        doc.rect(startX, finalY + 2, tableWidth, 10, 'S');
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
-        doc.text(`TOTAL: ${data.length} Items`, 15, finalY + 8);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`TOTAL: ${data.length} ${footerText}`, startX + 4, finalY + 8);
 
         doc.save(filename + '.pdf');
+        console.log('PDF saved successfully');
     } catch (error) {
         console.error('PDF export error:', error);
-        alert('Terjadi kesalahan saat membuat PDF');
+        console.error('Error stack:', error.stack);
+        alert('Terjadi kesalahan saat membuat PDF: ' + error.message);
     } finally {
         if (buttonId) {
             const btn = document.getElementById(buttonId);

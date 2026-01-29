@@ -6,10 +6,7 @@
 @endsection
 
 @section('header-action')
-    <x-user-dropdown 
-        :userName="Auth::user()->nama_resepsionis" 
-        :logoutRoute="route('resepsionis.logout')" 
-    />
+    <x-user-dropdown :userName="Auth::user()->nama_resepsionis" :logoutRoute="route('resepsionis.logout')" />
 @endsection
 
 @push('styles')
@@ -90,6 +87,7 @@
                 grid-template-columns: repeat(2, 1fr) !important;
                 gap: 8px !important;
             }
+
             .main-content {
                 padding-top: 120px;
             }
@@ -142,50 +140,21 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                <x-stats-card
-                    title="Total Kunjungan"
-                    :value="$stats['total']"
-                    valueColor="text-[#084E8F]"
-                    icon="akar-people-group"
-                    iconColor="text-gray-600"
-                    bgColor="#E5E7EB"
-                    filter="all"
-                    onclick="filterByStatus('all')"
-                />
+                <x-stats-card title="Total Kunjungan" :value="$stats['total']" valueColor="text-[#084E8F]"
+                    icon="akar-people-group" iconColor="text-gray-600" bgColor="#E5E7EB" filter="all"
+                    onclick="filterByStatus('all')" />
 
-                <x-stats-card
-                    title="Pending"
-                    :value="$stats['pending']"
-                    valueColor="text-yellow-600"
-                    icon="far-clock"
-                    iconColor="text-yellow-600"
-                    bgColor="#FEF3C7"
-                    filter="pending"
-                    onclick="filterByStatus('pending')"
-                />
+                <x-stats-card title="Pending" :value="$stats['pending']" valueColor="text-yellow-600" icon="far-clock"
+                    iconColor="text-yellow-600" bgColor="#FEF3C7" filter="pending" onclick="filterByStatus('pending')" />
 
-                <x-stats-card
-                    title="Done"
-                    :value="$stats['done']"
-                    valueColor="text-green-600"
-                    icon="heroicon-o-check-circle"
-                    iconColor="text-green-600"
-                    bgColor="#D1FAE5"
-                    filter="done"
-                    onclick="filterByStatus('done')"
-                />
-                
-                <x-stats-card
-                    title="Canceled"
-                    :value="$stats['canceled']"
-                    valueColor="text-red-600"
-                    icon="heroicon-o-x-circle"
-                    iconColor="text-red-600"
-                    bgColor="#FEE2E2"
-                    filter="canceled"
-                    onclick="filterByStatus('canceled')"
-                />
-                
+                <x-stats-card title="Done" :value="$stats['done']" valueColor="text-green-600"
+                    icon="heroicon-o-check-circle" iconColor="text-green-600" bgColor="#D1FAE5" filter="done"
+                    onclick="filterByStatus('done')" />
+
+                <x-stats-card title="Canceled" :value="$stats['canceled']" valueColor="text-red-600"
+                    icon="heroicon-o-x-circle" iconColor="text-red-600" bgColor="#FEE2E2" filter="canceled"
+                    onclick="filterByStatus('canceled')" />
+
             </div>
 
             <!-- DataTable -->
@@ -213,7 +182,7 @@
     <!-- Modals -->
     <x-modal name="detailModal" id="detailModal" title="Detail Kunjungan" :useAlpine="false">
         <x-slot name="closeButton">
-            <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
+            <button type="button" class="modal-close" onclick="window.closeModal('detailModal')">&times;</button>
         </x-slot>
         <div id="detailContent"></div>
     </x-modal>
@@ -238,7 +207,7 @@
             <h3 class="text-2xl font-bold text-green-600">Konfirmasi Terima Kunjungan</h3>
         </x-slot>
         <x-slot name="closeButton">
-            <button type="button" class="modal-close" onclick="closeAcceptModal()">&times;</button>
+            <button type="button" class="modal-close" onclick="window.closeModal('acceptModal')">&times;</button>
         </x-slot>
         <div class="mb-6">
             <p class="text-gray-700">Apakah Anda yakin ingin menerima kunjungan ini?</p>
@@ -250,7 +219,8 @@
                 class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">
                 Batalkan
             </button>
-            <x-button id="acceptButton" variant="success" onclick="confirmAccept()" :loading="true" loadingId="accept" class="flex-1 py-3">
+            <x-button id="acceptButton" variant="success" onclick="confirmAccept()" :loading="true" loadingId="accept"
+                class="flex-1 py-3">
                 Terima
             </x-button>
         </div>
@@ -259,7 +229,7 @@
     <!-- KTP Preview Modal -->
     <x-modal name="ktpModal" id="ktpModal" title="Foto KTP" maxWidth="large" :useAlpine="false">
         <x-slot name="closeButton">
-            <button type="button" class="modal-close" onclick="closeKtpModal()">&times;</button>
+            <button type="button" class="modal-close" onclick="window.closeModal('ktpModal')">&times;</button>
         </x-slot>
         <div id="ktpContent" class="flex justify-center items-center" style="min-height: 400px;"></div>
     </x-modal>
@@ -267,7 +237,7 @@
     <!-- Karyawan List Modal -->
     <x-modal name="karyawanListModal" id="karyawanListModal" title="Daftar Karyawan Tertuju" :useAlpine="false">
         <x-slot name="closeButton">
-            <button type="button" class="modal-close" onclick="closeKaryawanListModal()">&times;</button>
+            <button type="button" class="modal-close" onclick="window.closeModal('karyawanListModal')">&times;</button>
         </x-slot>
         <div id="karyawanListContent"></div>
     </x-modal>
@@ -278,7 +248,7 @@
             <h3 class="text-2xl font-bold text-green-600">Sukses!</h3>
         </x-slot>
         <x-slot name="closeButton">
-            <button type="button" class="modal-close" onclick="closeSuccessModal()">&times;</button>
+            <button type="button" class="modal-close" onclick="window.closeSuccessModal()">&times;</button>
         </x-slot>
         <div id="successContent" class="mb-6">
             <div class="flex items-center gap-3">
@@ -299,7 +269,7 @@
             <h3 class="text-2xl font-bold text-red-600">Terjadi Kesalahan</h3>
         </x-slot>
         <x-slot name="closeButton">
-            <button type="button" class="modal-close" onclick="closeErrorModal()">&times;</button>
+            <button type="button" class="modal-close" onclick="window.closeErrorModal()">&times;</button>
         </x-slot>
         <div id="errorContent" class="mb-6">
             <div class="flex items-center gap-3">
@@ -325,7 +295,10 @@
     <script>
         let table;
         let currentKunjunganId = null;
+        let currentDetailKunjunganId = null;
         let currentFilter = 'all';
+        let currentInstansiFilter = [];
+        let currentKaryawanFilter = [];
         const eyeIcon = `{!! svg('heroicon-c-eye', 'w-5 h-5 inline')->toHtml() !!}`;
         const filterIcon = `{!! svg('akar-settings-horizontal', 'w-5 h-5 inline')->toHtml() !!}`;
         let activeFilters = {
@@ -334,52 +307,91 @@
             karyawan: null,
             tanggal: null
         };
-        let currentInstansiFilter = [];
-        let currentKaryawanFilter = [];
 
         document.addEventListener('DOMContentLoaded', function () {
+            initModals();
+
+            const filterByStatus = createStatusFilter({
+                currentFilterVar: 'currentFilter',
+                activeFiltersVar: 'activeFilters',
+                tableVar: 'table',
+                columnIndex: 7,
+                multipleCards: false,
+                useRegex: false
+            });
+            window.filterByStatus = filterByStatus;
+
             setTimeout(function () {
                 initDataTable();
             }, 100);
         });
 
-        function showSuccessModal(message) {
-            document.getElementById('successMessage').textContent = message;
-            document.getElementById('successModal').classList.add('show');
-        }
-
-        function closeSuccessModal() {
-            document.getElementById('successModal').classList.remove('show');
-            location.reload();
-        }
-
-        function showErrorModal(message) {
-            document.getElementById('errorMessage').textContent = message;
-            document.getElementById('errorModal').classList.add('show');
-        }
-
-        function closeErrorModal() {
-            document.getElementById('errorModal').classList.remove('show');
-        }
-
-        function filterByStatus(status) {
-            currentFilter = status;
-            activeFilters.status = status;
-
-            document.querySelectorAll('.stats-card').forEach(card => {
-                card.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
-            });
-            document.querySelector(`[data-filter="${status}"]`).classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
-
-            if (status === 'all') {
-                table.column(7).search('').draw();
-            } else {
-                table.column(7).search(status).draw();
+        window.closeSuccessModal = function () {
+            const successModal = document.getElementById('successModal');
+            if (successModal) {
+                successModal.classList.remove('show');
             }
+        };
+
+        // Excel export using ExcelExporter component
+        function exportToExcel() {
+            const exporter = new ExcelExporter({
+                table: table,
+                activeFilters: activeFilters,
+                title: 'LAPORAN KUNJUNGAN HARI INI',
+                sheetName: 'Kunjungan Hari Ini',
+                filePrefix: 'Laporan_Kunjungan',
+                columns: [
+                    { header: 'No', width: 5 },
+                    { header: 'Tanggal', width: 12 },
+                    { header: 'Jam', width: 10 },
+                    { header: 'Nama Tamu', width: 20 },
+                    { header: 'Email Tamu', width: 25 },
+                    { header: 'Instansi', width: 20 },
+                    { header: 'Tujuan Kunjungan', width: 30 },
+                    { header: 'PIC Karyawan', width: 20 },
+                    { header: 'Jabatan PIC', width: 20 },
+                    { header: 'Departemen PIC', width: 20 },
+                    { header: 'Status', width: 12 },
+                    { header: 'Alasan Batal', width: 30 }
+                ],
+                dataMapper: (row, index) => {
+                    let karyawanNama = '-';
+                    let karyawanJabatan = '-';
+                    let karyawanDepartemen = '-';
+
+                    if (row.karyawan && row.karyawan.length > 0) {
+                        karyawanNama = row.karyawan.map(k => k.nama).join(', ');
+                        karyawanJabatan = row.karyawan.map(k => k.jabatan).join(', ');
+                        karyawanDepartemen = row.karyawan.map(k => k.departemen).join(', ');
+                    }
+
+                    return [
+                        index + 1,
+                        row.tanggal,
+                        row.jam,
+                        row.nama_tamu,
+                        row.email_tamu,
+                        row.instansi,
+                        row.tujuan_kunjungan,
+                        karyawanNama,
+                        karyawanJabatan,
+                        karyawanDepartemen,
+                        row.status.toUpperCase(),
+                        row.alasan_batal || '-'
+                    ];
+                }
+            });
+            exporter.export();
         }
 
-        function exportToExcel() {
+        function exportToPDF() {
             // Ambil data yang sedang ditampilkan (setelah filter)
+            if (!table) {
+                alert('Tabel belum dimuat, silakan tunggu...');
+                return;
+            }
+
             const filteredData = table.rows({ search: 'applied' }).data().toArray();
 
             if (filteredData.length === 0) {
@@ -387,7 +399,10 @@
                 return;
             }
 
-            // Generate tanggal untuk header dan filename
+            console.log('Filtered data count:', filteredData.length);
+            console.log('First row sample:', filteredData[0]);
+
+            // Generate tanggal dan filter info
             const today = new Date();
             const dateStr = today.toISOString().split('T')[0];
             const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -395,336 +410,88 @@
 
             // Build filter description
             let filterParts = [];
-
-            // Status filter
-            if (activeFilters.status !== 'all') {
-                filterParts.push(`Status: ${activeFilters.status.charAt(0).toUpperCase() + activeFilters.status.slice(1)}`);
+            if (currentFilter !== 'all') {
+                filterParts.push(`Status: ${currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1)}`);
             }
-
-            // Instansi filter
-            if (activeFilters.instansi) {
-                filterParts.push(`Instansi: ${activeFilters.instansi}`);
+            if (currentInstansiFilter && currentInstansiFilter.length > 0) {
+                filterParts.push(`Instansi: ${currentInstansiFilter.join(', ')}`);
             }
-
-            // Karyawan filter
-            if (activeFilters.karyawan) {
-                filterParts.push(`Karyawan: ${activeFilters.karyawan}`);
+            if (currentKaryawanFilter && currentKaryawanFilter.length > 0) {
+                filterParts.push(`Karyawan: ${currentKaryawanFilter.length} terpilih`);
             }
-
-            // Tanggal filter
-            if (activeFilters.tanggal) {
-                filterParts.push(`Tanggal: ${activeFilters.tanggal}`);
-            }
-
-            const filterDescription = filterParts.length > 0
-                ? filterParts.join(' | ')
-                : 'Semua Data';
-
-            const periodeText = `Periode: ${dateStr} | Filter: ${filterDescription}`;
-
-            // Siapkan data untuk Excel
-            const excelData = filteredData.map((row, index) => {
-                let karyawanNama = '-';
-                let karyawanJabatan = '-';
-                let karyawanDepartemen = '-';
-
-                if (row.karyawan && row.karyawan.length > 0) {
-                    // Gabungkan semua karyawan
-                    karyawanNama = row.karyawan.map(k => k.nama).join(', ');
-                    karyawanJabatan = row.karyawan.map(k => k.jabatan).join(', ');
-                    karyawanDepartemen = row.karyawan.map(k => k.departemen).join(', ');
-                }
-
-                return [
-                    index + 1,
-                    row.tanggal,
-                    row.jam,
-                    row.nama_tamu,
-                    row.email_tamu,
-                    row.instansi,
-                    row.tujuan_kunjungan,
-                    karyawanNama,
-                    karyawanJabatan,
-                    karyawanDepartemen,
-                    row.status.toUpperCase(),
-                    row.alasan_batal || '-'
-                ];
-            });
-
-            // Buat workbook baru
-            const wb = XLSX.utils.book_new();
-            const ws = {};
-
-            // Title dan Periode
-            ws['A1'] = { v: 'LAPORAN KUNJUNGAN HARI INI', t: 's' };
-            ws['A2'] = { v: periodeText, t: 's' };
-
-            // Header kolom
-            const headers = ['No', 'Tanggal', 'Jam', 'Nama Tamu', 'Email Tamu', 'Instansi', 'Tujuan Kunjungan', 'PIC Karyawan', 'Jabatan PIC', 'Departemen PIC', 'Status', 'Alasan Batal'];
-            headers.forEach((header, idx) => {
-                const cellRef = XLSX.utils.encode_cell({ r: 3, c: idx });
-                ws[cellRef] = { v: header, t: 's' };
-            });
-
-            // Data rows
-            excelData.forEach((row, rowIdx) => {
-                row.forEach((cell, colIdx) => {
-                    const cellRef = XLSX.utils.encode_cell({ r: rowIdx + 4, c: colIdx });
-                    ws[cellRef] = { v: cell, t: typeof cell === 'number' ? 'n' : 's' };
-                });
-            });
-
-            // Total row
-            const totalRow = excelData.length + 4;
-            ws[XLSX.utils.encode_cell({ r: totalRow, c: 0 })] = { v: 'TOTAL', t: 's' };
-            ws[XLSX.utils.encode_cell({ r: totalRow, c: 1 })] = { v: `${excelData.length} Kunjungan`, t: 's' };
-
-            // Set range
-            const range = { s: { r: 0, c: 0 }, e: { r: totalRow, c: 11 } };
-            ws['!ref'] = XLSX.utils.encode_range(range);
-
-            // Column widths
-            ws['!cols'] = [
-                { wch: 5 }, { wch: 12 }, { wch: 10 }, { wch: 20 }, { wch: 25 }, { wch: 20 },
-                { wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 12 }, { wch: 30 }
-            ];
-
-            // Styling
-            const headerFill = { patternType: 'solid', fgColor: { rgb: '4472C4' } };
-            const headerFont = { bold: true, color: { rgb: 'FFFFFF' } };
-            const totalFill = { patternType: 'solid', fgColor: { rgb: 'FFEB9C' } };
-            const totalFont = { bold: true };
-            const border = {
-                top: { style: 'thin', color: { rgb: '000000' } },
-                bottom: { style: 'thin', color: { rgb: '000000' } },
-                left: { style: 'thin', color: { rgb: '000000' } },
-                right: { style: 'thin', color: { rgb: '000000' } }
-            };
-
-            // Apply styles to title
-            ws['A1'].s = { font: { bold: true, sz: 16 }, alignment: { horizontal: 'center', vertical: 'center' } };
-            ws['A2'].s = { font: { italic: true, sz: 11 }, alignment: { horizontal: 'center' } };
-
-            // Merge title cells
-            ws['!merges'] = [
-                { s: { r: 0, c: 0 }, e: { r: 0, c: 11 } },
-                { s: { r: 1, c: 0 }, e: { r: 1, c: 11 } },
-                { s: { r: totalRow, c: 1 }, e: { r: totalRow, c: 11 } }
-            ];
-
-            // Apply styles to headers
-            headers.forEach((_, idx) => {
-                const cellRef = XLSX.utils.encode_cell({ r: 3, c: idx });
-                ws[cellRef].s = {
-                    fill: headerFill,
-                    font: headerFont,
-                    alignment: { horizontal: 'center', vertical: 'center' },
-                    border: border
-                };
-            });
-
-            // Apply borders to data cells
-            excelData.forEach((row, rowIdx) => {
-                row.forEach((_, colIdx) => {
-                    const cellRef = XLSX.utils.encode_cell({ r: rowIdx + 4, c: colIdx });
-                    if (ws[cellRef]) {
-                        ws[cellRef].s = {
-                            border: border,
-                            alignment: { vertical: 'center', wrapText: colIdx >= 6 }
-                        };
-                    }
-                });
-            });
-
-            // Apply styles to total row
-            ws[XLSX.utils.encode_cell({ r: totalRow, c: 0 })].s = {
-                fill: totalFill,
-                font: totalFont,
-                alignment: { horizontal: 'center', vertical: 'center' },
-                border: border
-            };
-            ws[XLSX.utils.encode_cell({ r: totalRow, c: 1 })].s = {
-                fill: totalFill,
-                font: totalFont,
-                alignment: { horizontal: 'left', vertical: 'center' },
-                border: border
-            };
-
-            // Row heights
-            ws['!rows'] = [
-                { hpt: 24 }, // Title
-                { hpt: 18 }, // Periode
-                { hpt: 6 },  // Empty row
-                { hpt: 30 }  // Header
-            ];
-
-            XLSX.utils.book_append_sheet(wb, ws, 'Kunjungan Hari Ini');
-
-            // Download file dengan nama yang deskriptif
-            const filenameParts = ['Laporan_Kunjungan', dateStr];
-            if (activeFilters.status !== 'all') filenameParts.push(activeFilters.status);
-            if (activeFilters.instansi) filenameParts.push(activeFilters.instansi.replace(/\s+/g, '_'));
-            if (activeFilters.karyawan) filenameParts.push(activeFilters.karyawan.replace(/\s+/g, '_'));
-            const filename = filenameParts.join('_') + '.xlsx';
-            XLSX.writeFile(wb, filename);
-        }
-
-        function exportToPDF() {
-            // Ambil data yang sedang ditampilkan (setelah filter)
-            const filteredData = table.rows({ search: 'applied' }).data().toArray();
-
-            if (filteredData.length === 0) {
-                alert('Tidak ada data untuk diekspor');
-                return;
-            }
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('l', 'mm', 'a4'); // landscape
-
-            // Generate tanggal dan filter info
-            const today = new Date();
-            const dateStr = today.toISOString().split('T')[0];
-
-            // Build filter description
-            let filterParts = [];
-            if (activeFilters.status !== 'all') {
-                filterParts.push(`Status: ${activeFilters.status.charAt(0).toUpperCase() + activeFilters.status.slice(1)}`);
-            }
-            if (activeFilters.instansi) filterParts.push(`Instansi: ${activeFilters.instansi}`);
-            if (activeFilters.karyawan) filterParts.push(`Karyawan: ${activeFilters.karyawan}`);
-            if (activeFilters.tanggal) filterParts.push(`Tanggal: ${activeFilters.tanggal}`);
 
             const filterDescription = filterParts.length > 0 ? filterParts.join(' | ') : 'Semua Data';
+            const subtitle = `Periode: ${monthYear} | Filter: ${filterDescription}`;
 
-            // Title
-            doc.setFontSize(18);
-            doc.setFont('helvetica', 'bold');
-            doc.text('LAPORAN KUNJUNGAN HARI INI', doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
-
-            // Subtitle
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'italic');
-            doc.text(`Periode: ${dateStr} | Filter: ${filterDescription}`, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
-
-            // Prepare data for table
-            const tableData = filteredData.map((row, index) => {
-                let karyawanInfo = '-';
-                if (row.karyawan && row.karyawan.length > 0) {
-                    // Gabungkan semua karyawan dengan newline
-                    karyawanInfo = row.karyawan.map(k => `${k.nama}\n${k.jabatan} - ${k.departemen}`).join('\n---\n');
-                }
+            // Transform data for PDF export - IMPORTANT: must be array of arrays matching columns order
+            const pdfData = filteredData.map((row, index) => {
+                const karyawanList = row.karyawan && row.karyawan.length > 0 
+                    ? row.karyawan.map(k => `${k.nama}\n${k.jabatan} - ${k.departemen}`).join('\n---\n')
+                    : '-';
 
                 return [
-                    index + 1,
-                    row.tanggal,
-                    row.jam,
-                    row.nama_tamu,
-                    row.instansi,
-                    row.tujuan_kunjungan,
-                    karyawanInfo,
-                    row.status.toUpperCase()
+                    index + 1,                          // No
+                    row.tanggal || '-',                 // Tanggal
+                    row.jam || '-',                     // Jam
+                    row.nama_tamu || '-',               // Nama Tamu
+                    row.instansi || '-',                // Instansi
+                    row.tujuan_kunjungan || '-',        // Tujuan
+                    karyawanList,                       // PIC Karyawan
+                    (row.status || '').toUpperCase()    // Status
                 ];
             });
 
-            // Generate table
-            doc.autoTable({
-                startY: 28,
-                head: [['No', 'Tanggal', 'Jam', 'Nama Tamu', 'Instansi', 'Tujuan', 'PIC Karyawan', 'Status']],
-                body: tableData,
-                theme: 'grid',
-                headStyles: {
-                    fillColor: [68, 114, 196],
-                    textColor: [255, 255, 255],
-                    fontStyle: 'bold',
-                    halign: 'center',
-                    valign: 'middle',
-                    fontSize: 9,
-                    cellPadding: 3
-                },
-                bodyStyles: {
-                    fontSize: 8,
-                    valign: 'middle',
-                    cellPadding: 3,
-                    minCellHeight: 10
-                },
-                columnStyles: {
-                    0: { cellWidth: 10, halign: 'center' },   // No
-                    1: { cellWidth: 25, halign: 'center' },   // Tanggal
-                    2: { cellWidth: 20, halign: 'center' },   // Jam
-                    3: { cellWidth: 40 },                      // Nama Tamu
-                    4: { cellWidth: 38 },                      // Instansi
-                    5: { cellWidth: 60 },                      // Tujuan
-                    6: { cellWidth: 58 },                      // PIC Karyawan
-                    7: { cellWidth: 26, halign: 'center' }    // Status
-                },
-                styles: {
-                    lineColor: [0, 0, 0],
-                    lineWidth: 0.1,
-                    overflow: 'linebreak',
-                    cellWidth: 'wrap'
-                },
-                alternateRowStyles: {
-                    fillColor: [245, 245, 245]
-                },
-                margin: { top: 28, left: 10, right: 10, bottom: 15 },
-                tableWidth: 'auto'
-            });
+            console.log('PDF data count:', pdfData.length);
+            console.log('First PDF row:', pdfData[0]);
 
-            // Footer with total
-            const finalY = doc.lastAutoTable.finalY || 28;
-            const tableWidth = 277; // Total column widths
-            const startX = (doc.internal.pageSize.getWidth() - tableWidth) / 2;
-
-            doc.setFillColor(255, 235, 156);
-            doc.rect(startX, finalY + 2, tableWidth, 10, 'F');
-            doc.setDrawColor(0, 0, 0);
-            doc.rect(startX, finalY + 2, tableWidth, 10, 'S');
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(0, 0, 0);
-            doc.text(`TOTAL: ${filteredData.length} Kunjungan`, startX + 4, finalY + 8);
-
-            // Download PDF
+            // Generate filename
             const filenameParts = ['Laporan_Kunjungan', dateStr];
-            if (activeFilters.status !== 'all') filenameParts.push(activeFilters.status);
-            if (activeFilters.instansi) filenameParts.push(activeFilters.instansi.replace(/\s+/g, '_'));
-            if (activeFilters.karyawan) filenameParts.push(activeFilters.karyawan.replace(/\s+/g, '_'));
-            const filename = filenameParts.join('_') + '.pdf';
+            if (currentFilter !== 'all') filenameParts.push(currentFilter);
+            if (currentInstansiFilter && currentInstansiFilter.length > 0) filenameParts.push(currentInstansiFilter[0].replace(/\s+/g, '_'));
+            const filename = filenameParts.join('_');
 
-            doc.save(filename);
+            // Use PDF export component dengan error handling
+            try {
+                if (typeof exportDataTablePDF !== 'function') {
+                    console.error('exportDataTablePDF tidak ditemukan. window.exportDataTablePDF:', window.exportDataTablePDF);
+                    alert('Error: PDF export component tidak tersedia. Silakan refresh halaman.');
+                    return;
+                }
+
+                if (!window.jspdf) {
+                    console.error('jsPDF tidak ditemukan. window.jspdf:', window.jspdf);
+                    alert('Error: jsPDF library tidak tersedia. Silakan refresh halaman.');
+                    return;
+                }
+
+                console.log('Memanggil exportDataTablePDF dengan data:', {
+                    title: 'LAPORAN KUNJUNGAN HARI INI',
+                    subtitle: subtitle,
+                    dataCount: pdfData.length,
+                    filename: filename,
+                    columnCount: 8
+                });
+
+                exportDataTablePDF({
+                    title: 'LAPORAN KUNJUNGAN HARI INI',
+                    subtitle: subtitle,
+                    filename: filename,
+                    columns: [['No', 'Tanggal', 'Jam', 'Nama Tamu', 'Instansi', 'Tujuan', 'PIC Karyawan', 'Status']],
+                    data: pdfData,
+                    footerText: 'Kunjungan'
+                });
+            } catch (error) {
+                console.error('PDF Export Error:', error);
+                console.error('Stack:', error.stack);
+                alert('Terjadi kesalahan saat membuat PDF: ' + error.message);
+            }
         }
 
+        // Initialize DataTable using DataTableManager component
         function initDataTable() {
-            if ($.fn.DataTable.isDataTable('#myTable')) {
-                $('#myTable').DataTable().destroy();
-            }
-
-            table = new DataTable('#myTable', {
-                responsive: {
-                    details: {
-                        type: 'column',
-                        target: 0
-                    }
-                },
-                columnDefs: [
-                    {
-                        className: 'dtr-control',
-                        orderable: false,
-                        targets: 0
-                    }
-                ],
-                ajax: {
-                    url: '{{ route("resepsionis.kunjungan.data") }}',
-                    dataSrc: 'data',
-                    error: function (xhr, error, thrown) {
-                        console.error('DataTables AJAX error:', error, thrown);
-                        if (xhr.status === 0) {
-                            setTimeout(function () {
-                                table.ajax.reload();
-                            }, 500);
-                        }
-                    }
-                },
+            const dtManager = new DataTableManager({
+                tableId: 'myTable',
+                ajaxUrl: '{{ route("resepsionis.kunjungan.data") }}',
                 columns: [
                     {
                         data: null,
@@ -751,17 +518,15 @@
                         render: function (data) {
                             if (!data || data.length === 0) return '-';
 
-                            // Jika 3 atau kurang, tampilkan semua
                             if (data.length <= 3) {
                                 return data.map(k =>
                                     `${k.nama}<br><span class="text-xs text-gray-500">${k.jabatan} - ${k.departemen}</span>`
                                 ).join('<br><div class="border-t border-gray-200 my-1"></div>');
                             }
 
-                            // Jika lebih dari 3, tampilkan button
                             return `<button onclick="showKaryawanList(${JSON.stringify(data).replace(/"/g, '&quot;')})" class="text-blue-600 hover:underline font-semibold flex items-center gap-1">
-                                                Lihat Detail (${data.length} Karyawan)
-                                            </button>`;
+                                                                            Lihat Detail (${data.length} Karyawan)
+                                                                        </button>`;
                         }
                     },
                     {
@@ -769,9 +534,8 @@
                         responsivePriority: 8,
                         render: function (data, type, row) {
                             if (type === 'filter' || type === 'sort') {
-                                return row.status;;
+                                return row.status;
                             }
-                            
                             return data;
                         }
                     },
@@ -798,273 +562,75 @@
                 ],
                 pageLength: 10,
                 order: [[9, 'desc']],
-                initComplete: function () {
+                onInitComplete: function () {
                     console.log('DataTable initialized, calling addCustomFilters');
-                    console.log('Table wrapper HTML:', $('#myTable_wrapper').html());
                     setTimeout(function () {
                         addCustomFilters();
                     }, 200);
                 }
             });
+
+            table = dtManager.init();
         }
 
+        // Initialize custom filters using initDatatableFilter component
         function addCustomFilters() {
             console.log('Adding custom filters...');
 
-            // Coba cari filter wrapper dengan berbagai selector
-            let filterWrapper = $('.dataTables_filter');
-            if (filterWrapper.length === 0) {
-                filterWrapper = $('.dt-search');
-            }
-            if (filterWrapper.length === 0) {
-                filterWrapper = $('div[id$="_filter"]');
-            }
-            if (filterWrapper.length === 0) {
-                // Fallback: cari di dalam wrapper table
-                filterWrapper = $('#myTable_wrapper').find('.dataTables_filter, .dt-search');
-            }
-
-            console.log('Filter wrapper found:', filterWrapper.length, filterWrapper);
-
-            if (filterWrapper.length === 0) {
-                console.error('Filter wrapper not found! Trying alternative method...');
-                // Last resort: tambahkan di dalam wrapper langsung
-                const wrapper = $('#myTable_wrapper .dataTables_filter, #myTable_wrapper .dt-search').first();
-                if (wrapper.length > 0) {
-                    filterWrapper = wrapper;
-                } else {
-                    console.error('Cannot find any suitable location for filters');
-                    return;
-                }
-            }
-
-            // Hapus filter lama jika ada
-            $('.filter-container').remove();
-
-            // Buat container untuk filter button
-            const filterContainer = $('<div class="filter-container"></div>');
-
-            // Single Filter Button
-            const filterBtn = $(`
-                        <div class="filter-btn" id="filterByBtn">
-                            <span class="inline-flex items-center gap-1">${filterIcon} Filter By</span>
-                            <span id="filterBadge"></span>
-                            <span style="font-size: 10px;">▼</span>
-                        </div>
-                    `);
-
-            // Main dropdown dengan kategori
-            const mainDropdown = $(`
-                        <div class="filter-main-dropdown" id="mainFilterDropdown">
-                            <div class="filter-category-item" data-category="instansi">
-                                <span>Instansi</span>
-                                <span style="font-size: 10px;">▶</span>
-                            </div>
-                            <div class="filter-category-item" data-category="karyawan">
-                                <span>Karyawan</span>
-                                <span style="font-size: 10px;">▶</span>
-                            </div>
-                        </div>
-                    `);
-
-            const instansiSubDropdown = $('<div class="filter-sub-dropdown" id="instansiSubDropdown"></div>');
-            const karyawanSubDropdown = $('<div class="filter-sub-dropdown" id="karyawanSubDropdown"></div>');
-
-            mainDropdown.find('[data-category="instansi"]').append(instansiSubDropdown);
-            mainDropdown.find('[data-category="karyawan"]').append(karyawanSubDropdown);
-
-            filterContainer.append(filterBtn, mainDropdown);
-
-            // Tambahkan filter container ke dt-layout-end (bersama dengan search)
-            filterWrapper.parent().append(filterContainer);
-
-            console.log('Filter button added to layout');
-
-            // Populate sub-dropdowns dengan data
-            populateFilterDropdowns();
-
-            // Event handler untuk toggle main dropdown
-            filterBtn.on('click', function (e) {
-                e.stopPropagation();
-                mainDropdown.toggleClass('show');
-            });
-
-            // Event handlers untuk menampilkan sub-dropdown
-            $('.filter-category-item').on('mouseenter', function () {
-                $('.filter-sub-dropdown').removeClass('show');
-                const subDropdown = $(this).find('.filter-sub-dropdown');
-                subDropdown.addClass('show');
-            });
-
-            mainDropdown.on('mouseleave', function () {
-                $('.filter-sub-dropdown').removeClass('show');
-            });
-
-            // Close dropdown saat klik di luar
-            $(document).on('click', function () {
-                mainDropdown.removeClass('show');
-                $('.filter-sub-dropdown').removeClass('show');
-            });
-
-            // Prevent closing saat klik di dalam dropdown
-            mainDropdown.on('click', function (e) {
-                e.stopPropagation();
-            });
-
-            console.log('Custom filters added successfully');
-        }
-
-        function populateFilterDropdowns() {
-            fetch('{{ route("resepsionis.kunjungan.data") }}')
-                .then(res => res.json())
-                .then(result => {
-                    const data = result.data;
-
-                    const instansi = [...new Set(data.map(item => item.instansi))].sort();
-                    const instansiDropdown = $('#instansiSubDropdown');
-                    instansiDropdown.empty();
-                    instansi.forEach(inst => {
-                        const item = $(`<div class="filter-dropdown-item" data-value="${inst}">${inst}</div>`);
-                        item.on('click', function (e) {
-                            e.stopPropagation();
-                            applyInstansiFilter(inst);
-                        });
-                        instansiDropdown.append(item);
-                    });
-                    instansiDropdown.append(`<div class="filter-clear" onclick="clearInstansiFilter()">✕ Hapus Filter</div>`);
-
-                    // Get unique karyawan dengan detail
-                    const karyawanMap = new Map();
-                    data.forEach(item => {
-                        if (item.karyawan && item.karyawan.length > 0) {
-                            item.karyawan.forEach(k => {
-                                const key = `${k.nama}|${k.departemen}|${k.jabatan}`;
-                                if (!karyawanMap.has(key)) {
-                                    karyawanMap.set(key, {
-                                        nama: k.nama,
-                                        departemen: k.departemen,
-                                        jabatan: k.jabatan
-                                    });
-                                }
-                            });
-                        }
-                    });
-                    const karyawan = [...karyawanMap.values()].sort((a, b) => a.nama.localeCompare(b.nama));
-                    const karyawanDropdown = $('#karyawanSubDropdown');
-                    karyawanDropdown.empty();
-                    karyawan.forEach(kary => {
-                        const uniqueKey = `${kary.nama}|${kary.departemen}|${kary.jabatan}`;
-                        const item = $(`
-                                    <div class="karyawan-item" data-value="${uniqueKey}">
-                                        <div class="karyawan-name">${kary.nama}</div>
-                                        <div class="karyawan-detail">${kary.departemen} • ${kary.jabatan}</div>
-                                    </div>
-                                `);
-                        item.on('click', function (e) {
-                            e.stopPropagation();
-                            applyKaryawanFilter(uniqueKey, kary.nama, kary.departemen, kary.jabatan);
-                        });
-                        karyawanDropdown.append(item);
-                    });
-                    karyawanDropdown.append(`<div class="filter-clear" onclick="clearKaryawanFilter()">✕ Hapus Filter</div>`);
-                });
-        }
-
-        function updateFilterBadge() {
-            let count = 0;
-            count += currentInstansiFilter.length;
-            count += currentKaryawanFilter.length;
-
-            const badge = $('#filterBadge');
-            if (count > 0) {
-                badge.html(`<span class="active-filter-badge">${count}</span>`);
-                $('#filterByBtn').addClass('active');
-            } else {
-                badge.html('');
-                $('#filterByBtn').removeClass('active');
-            }
-        }
-
-        function applyInstansiFilter(instansi) {
-            const index = currentInstansiFilter.indexOf(instansi);
-            const item = $(`#instansiSubDropdown .filter-dropdown-item[data-value="${instansi}"]`);
-
-            if (index > -1) {
-                currentInstansiFilter.splice(index, 1);
-                item.removeClass('active');
-            } else {
-                currentInstansiFilter.push(instansi);
-                item.addClass('active');
-            }
-
-            updateFilterBadge();
-            applyAllFilters();
-        }
-
-        function clearInstansiFilter() {
-            currentInstansiFilter = [];
-            $('#instansiSubDropdown .filter-dropdown-item').removeClass('active');
-            updateFilterBadge();
-            applyAllFilters();
-        }
-
-        function applyKaryawanFilter(uniqueKey, nama, departemen, jabatan) {
-            const index = currentKaryawanFilter.indexOf(uniqueKey);
-            const item = $(`#karyawanSubDropdown .karyawan-item[data-value="${uniqueKey}"]`);
-
-            if (index > -1) {
-                currentKaryawanFilter.splice(index, 1);
-                item.removeClass('active');
-            } else {
-                currentKaryawanFilter.push(uniqueKey);
-                item.addClass('active');
-            }
-
-            updateFilterBadge();
-            applyAllFilters();
-        }
-
-        function clearKaryawanFilter() {
-            currentKaryawanFilter = [];
-            $('#karyawanSubDropdown .karyawan-item').removeClass('active');
-            updateFilterBadge();
-            applyAllFilters();
-        }
-
-        function applyAllFilters() {
-            if ($.fn.dataTable.ext.search.length > 0) {
-                $.fn.dataTable.ext.search.pop();
-            }
-
-            $.fn.dataTable.ext.search.push(
-                function (settings, data, dataIndex) {
-                    const instansi = data[5];
-                    const rowData = table.row(dataIndex).data();
-                    const karyawanArray = rowData.karyawan;
-
-                    if (currentInstansiFilter.length > 0 && !currentInstansiFilter.includes(instansi)) {
-                        return false;
+            // Initialize Instansi filter
+            const instansiFilter = initDatatableFilter({
+                filterId: 'instansiFilter',
+                filterName: 'Instansi',
+                tableInstance: table,
+                columnIndex: 5, // Instansi column
+                multiple: true,
+                dataFetcher: async () => {
+                    try {
+                        const response = await fetch('{{ route("resepsionis.kunjungan.data") }}');
+                        const result = await response.json();
+                        const data = result.data || [];
+                        return [...new Set(data.map(item => item.instansi))].sort();
+                    } catch (error) {
+                        console.error('Error fetching instansi data:', error);
+                        return [];
                     }
-
-                    if (currentKaryawanFilter.length > 0 && karyawanArray && karyawanArray.length > 0) {
-                        const hasMatch = currentKaryawanFilter.some(filterKey => {
-                            const [filterNama, filterDepartemen, filterJabatan] = filterKey.split('|');
-                            return karyawanArray.some(k =>
-                                k.nama === filterNama &&
-                                k.departemen === filterDepartemen &&
-                                k.jabatan === filterJabatan
-                            );
-                        });
-                        if (!hasMatch) {
-                            return false;
-                        }
-                    }
-
-                    return true;
                 }
-            );
+            });
 
-            table.draw();
+            // Initialize Karyawan filter
+            const karyawanFilter = initDatatableFilter({
+                filterId: 'karyawanFilter',
+                filterName: 'Karyawan',
+                tableInstance: table,
+                columnIndex: 6, // Karyawan column
+                multiple: true,
+                dataFetcher: async () => {
+                    try {
+                        const response = await fetch('{{ route("resepsionis.kunjungan.data") }}');
+                        const result = await response.json();
+                        const data = result.data || [];
+
+                        const karyawanMap = new Map();
+                        data.forEach(item => {
+                            if (item.karyawan && item.karyawan.length > 0) {
+                                item.karyawan.forEach(k => {
+                                    const key = `${k.nama}|${k.departemen}|${k.jabatan}`;
+                                    if (!karyawanMap.has(key)) {
+                                        karyawanMap.set(key, k.nama);
+                                    }
+                                });
+                            }
+                        });
+
+                        return [...karyawanMap.values()].sort();
+                    } catch (error) {
+                        console.error('Error fetching karyawan data:', error);
+                        return [];
+                    }
+                }
+            });
+
+            console.log('Custom filters initialized successfully');
         }
 
         function viewDetail(id) {
@@ -1075,6 +641,9 @@
                 console.error('Modal detail tidak ditemukan');
                 return;
             }
+
+            currentDetailKunjunganId = id;
+            window.currentDetailId = id;
 
             content.innerHTML = createInlineSpinner('Memuat Detail Kunjungan...');
             modal.classList.add('show');
@@ -1095,39 +664,39 @@
                     let actions = '';
                     if (kunjungan.status === 'pending') {
                         actions = `
-                            <div class="flex gap-3 mt-6">
-                                <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
-                                <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
-                            </div>
-                        `;
+                                                        <div class="flex gap-3 mt-6">
+                                                            <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
+                                                            <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
+                                                        </div>
+                                                    `;
                     }
 
                     let cancelReason = '';
                     if (kunjungan.status === 'canceled' && kunjungan.alasan_batal) {
                         cancelReason = `
-                                                        <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                                            <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
-                                                            <p class="text-red-700">${kunjungan.alasan_batal}</p>
-                                                        </div>
-                                                    `;
+                                    <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                        <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
+                                        <p class="text-red-700">${kunjungan.alasan_batal}</p>
+                                    </div>
+                                `;
                     }
 
                     const statusBadge = kunjungan.status_badge || kunjungan.status;
 
                     document.getElementById('detailContent').innerHTML = `
-                                                    <div class="space-y-3">
-                                                        <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
-                                                        <div><strong>Jam:</strong> ${kunjungan.jam}</div>
-                                                        <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
-                                                        <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
-                                                        <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
-                                                        <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
-                                                        <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
-                                                        <div><strong>Status:</strong> ${statusBadge}</div>
-                                                        ${cancelReason}
-                                                        ${actions}
-                                                    </div>
-                                                `;
+                                <div class="space-y-3">
+                                    <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
+                                    <div><strong>Jam:</strong> ${kunjungan.jam}</div>
+                                    <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
+                                    <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
+                                    <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
+                                    <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
+                                    <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
+                                    <div><strong>Status:</strong> ${statusBadge}</div>
+                                    ${cancelReason}
+                                    ${actions}
+                                </div>
+                            `;
                 })
                 .catch(error => {
                     console.error('Error fetching detail:', error);
@@ -1164,7 +733,21 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
+                        // Close modals immediately
                         closeAcceptModal();
+
+                        // Reload table first
+                        if (table) {
+                            table.ajax.reload(null, false);
+                        }
+
+                        // Wait a bit for table to reload, then refresh modal detail
+                        setTimeout(() => {
+                            if (currentDetailKunjunganId) {
+                                viewDetail(currentDetailKunjunganId);
+                            }
+                        }, 500);
+
                         showSuccessModal('Kunjungan berhasil diterima. Email telah dikirim ke karyawan tujuan untuk mengisi notulensi.');
                     }
                 })
@@ -1179,8 +762,8 @@
 
         function openRejectModal(id) {
             currentKunjunganId = id;
-            closeModal();
-            document.getElementById('rejectModal').classList.add('show');
+            window.closeModal('detailModal');
+            window.showModal('rejectModal');
         }
 
         function confirmReject() {
@@ -1209,7 +792,21 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
+                        // Close modals immediately
                         closeRejectModal();
+
+                        // Reload table first
+                        if (table) {
+                            table.ajax.reload(null, false);
+                        }
+
+                        // Wait a bit for table to reload, then refresh modal detail
+                        setTimeout(() => {
+                            if (currentDetailKunjunganId) {
+                                viewDetail(currentDetailKunjunganId);
+                            }
+                        }, 500);
+
                         showSuccessModal('Kunjungan berhasil ditolak.');
                     }
                 })
@@ -1231,12 +828,12 @@
             }
 
             isLoadingNotulensi = true;
-            
+
             // Get button elements
             const button = document.getElementById('viewHasilBtn_' + kunjunganId);
             const buttonText = document.getElementById('viewHasilText_' + kunjunganId);
             const spinner = document.getElementById('viewHasilSpinner_' + kunjunganId);
-            
+
             // Show spinner
             if (button && buttonText && spinner) {
                 button.disabled = true;
@@ -1274,36 +871,28 @@
                 });
         }
 
-        function showLoadingOverlay() {
-            const overlay = document.getElementById('loadingOverlay');
-            if (overlay) {
-                overlay.style.display = 'flex';
-            }
-        }
-
-        function hideLoadingOverlay() {
-            const overlay = document.getElementById('loadingOverlay');
-            if (overlay) {
-                overlay.style.display = 'none';
-            }
-        }
-
         function closeModal() {
-            const modal = document.getElementById('detailModal');
-            if (modal) {
-                modal.classList.remove('show');
-            }
+            window.closeModal('detailModal');
         }
 
         function closeRejectModal() {
-            const modal = document.getElementById('rejectModal');
             const textarea = document.getElementById('alasanBatal');
-            if (modal) {
-                modal.classList.remove('show');
-            }
             if (textarea) {
                 textarea.value = '';
             }
+            window.closeModal('rejectModal');
+        }
+
+        function closeAcceptModal() {
+            window.closeModal('acceptModal');
+        }
+
+        function closeKtpModal() {
+            window.closeModal('ktpModal');
+        }
+
+        function closeKaryawanListModal() {
+            window.closeModal('karyawanListModal');
         }
 
         function showKaryawanList(karyawanData) {
@@ -1333,13 +922,6 @@
 
             content.innerHTML = html;
             modal.classList.add('show');
-        }
-
-        function closeKaryawanListModal() {
-            const modal = document.getElementById('karyawanListModal');
-            if (modal) {
-                modal.classList.remove('show');
-            }
         }
 
         function viewKtp(ktpToken) {
@@ -1375,103 +957,49 @@
             }
         }
 
-        let navigationTimeout = null;
+        // Sidebar navigation loading handled by loading-spinner.js
         document.querySelectorAll('.sidebar-item').forEach(link => {
             link.addEventListener('click', function (e) {
                 if (this.href && !this.classList.contains('active')) {
-                    // Clear previous timeout jika ada
-                    if (navigationTimeout) {
-                        clearTimeout(navigationTimeout);
-                    }
-                    // Tampilkan loading dengan slight delay agar tidak ngelag
-                    navigationTimeout = setTimeout(() => {
-                        showLoading();
-                    }, 50);
+                    showLoading();
                 }
             });
         });
 
-        const ktpModal = document.getElementById('ktpModal');
-        if (ktpModal) {
-            ktpModal.addEventListener('click', function (e) {
-                if (e.target === this) {
-                    closeKtpModal();
-                }
-            });
-        }
+        // Supabase Realtime using supabase-realtime.js component
+        initSupabaseRealtime({
+            channelName: 'kunjungan-realtime',
+            tableName: 'kunjungan',
+            configUrl: '/api/supabase-config',
+            onPayload: (payload) => {
+                console.log('Perubahan terdeteksi:', payload.eventType);
 
-        const detailModal = document.getElementById('detailModal');
-        if (detailModal) {
-            detailModal.addEventListener('click', function (e) {
-                if (e.target === this) {
-                    closeModal();
+                // Reload DataTable tanpa reset pagination
+                if (table) {
+                    table.ajax.reload(null, false);
                 }
-            });
-        }
 
-        const karyawanListModal = document.getElementById('karyawanListModal');
-        if (karyawanListModal) {
-            karyawanListModal.addEventListener('click', function (e) {
-                if (e.target === this) {
-                    closeKaryawanListModal();
-                }
-            });
-        }
-
-        const rejectModal = document.getElementById('rejectModal');
-        if (rejectModal) {
-            rejectModal.addEventListener('click', function (e) {
-                if (e.target === this) {
-                    closeRejectModal();
-                }
-            });
-        }
-
-        // Supabase Realtime - Auto reload hanya ketika ada perubahan
-        (function () {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-            script.onload = function () {
-                fetch('/api/supabase-config')
+                // Update stats cards
+                fetch('{{ route("resepsionis.kunjungan.data") }}')
                     .then(res => res.json())
-                    .then(config => {
-                        const { createClient } = supabase;
-                        const supabaseClient = createClient(config.url, config.key);
+                    .then(result => {
+                        if (result.data) {
+                            const data = result.data;
 
-                        // Subscribe ke perubahan tabel kunjungan
-                        const channel = supabaseClient
-                            .channel('kunjungan-realtime')
-                            .on('postgres_changes',
-                                { event: '*', schema: 'public', table: 'kunjungan' },
-                                (payload) => {
-                                    console.log('Perubahan terdeteksi:', payload.eventType);
-                                    table.ajax.reload(null, false);
+                            // Update each stats card value
+                            const totalCard = document.querySelector('[data-filter="all"] .stats-value');
+                            const pendingCard = document.querySelector('[data-filter="pending"] .stats-value');
+                            const doneCard = document.querySelector('[data-filter="done"] .stats-value');
+                            const canceledCard = document.querySelector('[data-filter="canceled"] .stats-value');
 
-                                    // Update stats
-                                    fetch('{{ route("resepsionis.kunjungan.data") }}')
-                                        .then(res => res.json())
-                                        .then(result => {
-                                            if (result.data) {
-                                                const d = result.data;
-                                                document.querySelector('[data-filter="all"] .stats-value').textContent = d.length;
-                                                document.querySelector('[data-filter="pending"] .stats-value').textContent = d.filter(r => r.status === 'pending').length;
-                                                document.querySelector('[data-filter="accepted"] .stats-value').textContent = d.filter(r => r.status === 'accepted').length;
-                                                document.querySelector('[data-filter="done"] .stats-value').textContent = d.filter(r => r.status === 'done').length;
-                                                document.querySelector('[data-filter="canceled"] .stats-value').textContent = d.filter(r => r.status === 'canceled').length;
-                                            }
-                                        });
-                                }
-                            )
-                            .subscribe((status) => {
-                                if (status === 'SUBSCRIBED') {
-                                    console.log('Realtime active - akan auto-reload saat ada perubahan');
-                                }
-                            });
-
-                        window.addEventListener('beforeunload', () => channel.unsubscribe());
-                    });
-            };
-            document.head.appendChild(script);
-        })();
+                            if (totalCard) totalCard.textContent = data.length;
+                            if (pendingCard) pendingCard.textContent = data.filter(r => r.status === 'pending').length;
+                            if (doneCard) doneCard.textContent = data.filter(r => r.status === 'done').length;
+                            if (canceledCard) canceledCard.textContent = data.filter(r => r.status === 'canceled').length;
+                        }
+                    })
+                    .catch(error => console.error('Error updating stats:', error));
+            }
+        });
     </script>
 @endpush
