@@ -62,7 +62,7 @@
      {{ $attributes }}>
     <div>
         <p class="text-gray-600 text-sm mb-1">{{ $title }}</p>
-        <p class="text-3xl font-bold {{ $valueColor }}">{{ $value }}</p>
+        <p class="stats-value text-3xl font-bold {{ $valueColor }}">{{ $value }}</p>
     </div>
     <div class="stats-icon" style="background: {{ $bgColor }};">
         @svg($icon, 'w-6 h-6 ' . $iconColor)

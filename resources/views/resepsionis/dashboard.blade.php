@@ -429,7 +429,7 @@
 
             // Transform data for PDF export - IMPORTANT: must be array of arrays matching columns order
             const pdfData = filteredData.map((row, index) => {
-                const karyawanList = row.karyawan && row.karyawan.length > 0 
+                const karyawanList = row.karyawan && row.karyawan.length > 0
                     ? row.karyawan.map(k => `${k.nama}\n${k.jabatan} - ${k.departemen}`).join('\n---\n')
                     : '-';
 
@@ -529,8 +529,8 @@
                             }
 
                             return `<button onclick="showKaryawanList(${JSON.stringify(data).replace(/"/g, '&quot;')})" class="text-blue-600 hover:underline font-semibold flex items-center gap-1">
-                                                                            Lihat Detail (${data.length} Karyawan)
-                                                                        </button>`;
+                                                                                Lihat Detail (${data.length} Karyawan)
+                                                                            </button>`;
                         }
                     },
                     {
@@ -575,20 +575,17 @@
             });
 
             table = dtManager.init();
-            // Expose to window for component access
             window.table = table;
         }
 
-        // Initialize custom filters using initDatatableFilter component
         function addCustomFilters() {
             console.log('Adding custom filters...');
 
-            // Initialize Instansi filter
             const instansiFilter = initDatatableFilter({
                 filterId: 'instansiFilter',
                 filterName: 'Instansi',
                 tableInstance: table,
-                columnIndex: 5, // Instansi column
+                columnIndex: 5,
                 multiple: true,
                 dataFetcher: async () => {
                     try {
@@ -603,12 +600,11 @@
                 }
             });
 
-            // Initialize Karyawan filter
             const karyawanFilter = initDatatableFilter({
                 filterId: 'karyawanFilter',
                 filterName: 'Karyawan',
                 tableInstance: table,
-                columnIndex: 6, // Karyawan column
+                columnIndex: 6,
                 multiple: true,
                 dataFetcher: async () => {
                     try {
@@ -640,11 +636,9 @@
         }
 
         function viewDetail(id) {
-            const modal = document.getElementById('detailModal');
             const content = document.getElementById('detailContent');
-
-            if (!modal || !content) {
-                console.error('Modal detail tidak ditemukan');
+            if (!content) {
+                console.error('Modal detail content tidak ditemukan');
                 return;
             }
 
@@ -652,7 +646,7 @@
             window.currentDetailId = id;
 
             content.innerHTML = createInlineSpinner('Memuat Detail Kunjungan...');
-            modal.classList.add('show');
+            window.showModal('detailModal');
 
             fetch(`{{ route('resepsionis.kunjungan.data') }}`)
                 .then(res => res.json())
@@ -663,46 +657,7 @@
                         return;
                     }
 
-                    let karyawanList = kunjungan.karyawan.map(k =>
-                        `<li>${k.nama} - ${k.jabatan} (${k.departemen})</li>`
-                    ).join('');
-
-                    let actions = '';
-                    if (kunjungan.status === 'pending') {
-                        actions = `
-                                                        <div class="flex gap-3 mt-6">
-                                                            <button onclick="acceptKunjungan(${id})" class="btn-success flex-1">Terima</button>
-                                                            <button onclick="openRejectModal(${id})" class="btn-danger flex-1">Tolak</button>
-                                                        </div>
-                                                    `;
-                    }
-
-                    let cancelReason = '';
-                    if (kunjungan.status === 'canceled' && kunjungan.alasan_batal) {
-                        cancelReason = `
-                                    <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                        <p class="font-semibold text-red-800">Alasan Pembatalan:</p>
-                                        <p class="text-red-700">${kunjungan.alasan_batal}</p>
-                                    </div>
-                                `;
-                    }
-
-                    const statusBadge = kunjungan.status_badge || kunjungan.status;
-
-                    document.getElementById('detailContent').innerHTML = `
-                                <div class="space-y-3">
-                                    <div><strong>Tanggal:</strong> ${kunjungan.tanggal}</div>
-                                    <div><strong>Jam:</strong> ${kunjungan.jam}</div>
-                                    <div><strong>Nama Tamu:</strong> ${kunjungan.nama_tamu}</div>
-                                    <div><strong>Email:</strong> ${kunjungan.email_tamu}</div>
-                                    <div><strong>Instansi:</strong> ${kunjungan.instansi}</div>
-                                    <div><strong>Tujuan Kunjungan:</strong> ${kunjungan.tujuan_kunjungan}</div>
-                                    <div><strong>Karyawan Tujuan:</strong><ul class="list-disc ml-6">${karyawanList}</ul></div>
-                                    <div><strong>Status:</strong> ${statusBadge}</div>
-                                    ${cancelReason}
-                                    ${actions}
-                                </div>
-                            `;
+                    window.renderDetailModal(kunjungan);
                 })
                 .catch(error => {
                     console.error('Error fetching detail:', error);
@@ -712,12 +667,8 @@
 
         function acceptKunjungan(id) {
             currentKunjunganId = id;
-            closeModal();
+            window.closeModal('detailModal');
             document.getElementById('acceptModal').classList.add('show');
-        }
-
-        function closeAcceptModal() {
-            document.getElementById('acceptModal').classList.remove('show');
         }
 
         function confirmAccept() {
@@ -740,7 +691,7 @@
                 .then(data => {
                     if (data.success) {
                         // Close modals immediately
-                        closeAcceptModal();
+                        window.closeModal('acceptModal');
 
                         // Reload table first
                         if (table) {
@@ -754,15 +705,15 @@
                             }
                         }, 500);
 
-                        showSuccessModal('Kunjungan berhasil diterima. Email telah dikirim ke karyawan tujuan untuk mengisi notulensi.');
+                        window.showSuccessModal('Kunjungan berhasil diterima. Email telah dikirim ke karyawan tujuan untuk mengisi notulensi.');
                     }
                 })
                 .catch(error => {
                     button.disabled = false;
                     buttonText.classList.remove('hidden');
                     spinner.classList.add('hidden');
-                    closeAcceptModal();
-                    showErrorModal('Terjadi kesalahan saat menerima kunjungan');
+                    window.closeModal('acceptModal');
+                    window.showErrorModal('Terjadi kesalahan saat menerima kunjungan');
                 });
         }
 
@@ -775,7 +726,7 @@
         function confirmReject() {
             const alasan = document.getElementById('alasanBatal').value.trim();
             if (!alasan) {
-                showErrorModal('Alasan pembatalan harus diisi');
+                window.showErrorModal('Alasan pembatalan harus diisi');
                 return;
             }
 
@@ -813,7 +764,7 @@
                             }
                         }, 500);
 
-                        showSuccessModal('Kunjungan berhasil ditolak.');
+                        window.showSuccessModal('Kunjungan berhasil ditolak.');
                     }
                 })
                 .catch(error => {
@@ -821,7 +772,7 @@
                     buttonText.classList.remove('hidden');
                     spinner.classList.add('hidden');
                     closeRejectModal();
-                    showErrorModal('Terjadi kesalahan saat menolak kunjungan');
+                    window.showErrorModal('Terjadi kesalahan saat menolak kunjungan');
                 });
         }
 
@@ -858,13 +809,13 @@
                         // Buka halaman notulensi view dengan token yang didapat
                         window.open(`/notulensi/view/${data.token}`, '_blank');
                     } else {
-                        showErrorModal(data.message || 'Notulensi tidak ditemukan');
+                        window.showErrorModal(data.message || 'Notulensi tidak ditemukan');
                     }
                 })
                 .catch(error => {
                     console.error('Error fetching notulensi token:', error);
                     isLoadingNotulensi = false;
-                    showErrorModal('Terjadi kesalahan saat mengambil data notulensi');
+                    window.showErrorModal('Terjadi kesalahan saat mengambil data notulensi');
                 })
                 .finally(() => {
                     // Hide spinner
@@ -877,10 +828,7 @@
                 });
         }
 
-        function closeModal() {
-            window.closeModal('detailModal');
-        }
-
+        // Helper wrapper functions that enhance component behavior
         function closeRejectModal() {
             const textarea = document.getElementById('alasanBatal');
             if (textarea) {
@@ -889,78 +837,13 @@
             window.closeModal('rejectModal');
         }
 
-        function closeAcceptModal() {
-            window.closeModal('acceptModal');
-        }
-
-        function closeKtpModal() {
-            window.closeModal('ktpModal');
-        }
-
-        function closeKaryawanListModal() {
-            window.closeModal('karyawanListModal');
-        }
-
         function showKaryawanList(karyawanData) {
-            const modal = document.getElementById('karyawanListModal');
-            const content = document.getElementById('karyawanListContent');
-
-            let html = `<p class="text-gray-600 mb-4">Total ${karyawanData.length} karyawan yang terlibat:</p>`;
-            html += '<div class="space-y-3">';
-
-            karyawanData.forEach((karyawan, index) => {
-                html += `
-                            <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                <div class="flex-shrink-0 w-8 h-8 bg-[#084E8F] text-white rounded-full flex items-center justify-center font-bold">
-                                    ${index + 1}
-                                </div>
-                                <div class="flex-1">
-                                    <p class="font-semibold text-gray-800">${karyawan.nama}</p>
-                                    <p class="text-sm text-gray-600">${karyawan.jabatan}</p>
-                                    <p class="text-sm text-gray-500">${karyawan.departemen}</p>
-                                </div>
-                            </div>
-                        `;
-            });
-
-            html += '</div>';
-            html += '<div class="mt-6"><button onclick="closeKaryawanListModal()" class="w-full bg-[#084E8F] hover:bg-[#F7B218] text-white font-bold py-3 px-4 rounded-lg transition">Tutup</button></div>';
-
-            content.innerHTML = html;
-            modal.classList.add('show');
+            window.renderKaryawanListModal(karyawanData);
         }
 
         function viewKtp(ktpToken) {
-            const modal = document.getElementById('ktpModal');
-            const content = document.getElementById('ktpContent');
-
-            if (!modal || !content) {
-                console.error('Modal KTP tidak ditemukan');
-                return;
-            }
-
-            content.innerHTML = createInlineSpinner('Memuat KTP...');
-            modal.classList.add('show');
-
             const streamUrl = `/resepsionis/ktp/${ktpToken}/stream`;
-            const img = new Image();
-
-            img.onload = function () {
-                content.innerHTML = `<img src="${streamUrl}" alt="KTP" class="ktp-preview rounded-lg shadow-lg">`;
-            };
-
-            img.onerror = function () {
-                content.innerHTML = '<div class="text-red-600"><p class="font-semibold mb-2">Gagal memuat KTP</p><p class="text-sm">Terjadi kesalahan saat memuat gambar</p></div>';
-            };
-
-            img.src = streamUrl;
-        }
-
-        function closeKtpModal() {
-            const modal = document.getElementById('ktpModal');
-            if (modal) {
-                modal.classList.remove('show');
-            }
+            window.renderKtpModal(streamUrl);
         }
 
         // Sidebar navigation loading handled by loading-spinner.js
@@ -972,40 +855,53 @@
             });
         });
 
-        // Supabase Realtime using supabase-realtime.js component
-        initSupabaseRealtime({
-            channelName: 'kunjungan-realtime',
-            tableName: 'kunjungan',
-            configUrl: '/api/supabase-config',
-            onPayload: (payload) => {
-                console.log('Perubahan terdeteksi:', payload.eventType);
+        function initRealtimeWhenReady() {
+            if (typeof initSupabaseRealtime === 'function') {
+                initSupabaseRealtime({
+                    channelName: 'kunjungan-realtime',
+                    tableName: 'kunjungan',
+                    configUrl: '/api/supabase-config',
+                    onPayload: (payload) => {
+                        console.log('Perubahan terdeteksi:', payload.eventType);
 
-                // Reload DataTable tanpa reset pagination
-                if (table) {
-                    table.ajax.reload(null, false);
-                }
-
-                // Update stats cards
-                fetch('{{ route("resepsionis.kunjungan.data") }}')
-                    .then(res => res.json())
-                    .then(result => {
-                        if (result.data) {
-                            const data = result.data;
-
-                            // Update each stats card value
-                            const totalCard = document.querySelector('[data-filter="all"] .stats-value');
-                            const pendingCard = document.querySelector('[data-filter="pending"] .stats-value');
-                            const doneCard = document.querySelector('[data-filter="done"] .stats-value');
-                            const canceledCard = document.querySelector('[data-filter="canceled"] .stats-value');
-
-                            if (totalCard) totalCard.textContent = data.length;
-                            if (pendingCard) pendingCard.textContent = data.filter(r => r.status === 'pending').length;
-                            if (doneCard) doneCard.textContent = data.filter(r => r.status === 'done').length;
-                            if (canceledCard) canceledCard.textContent = data.filter(r => r.status === 'canceled').length;
+                        // Reload DataTable tanpa reset pagination
+                        if (table) {
+                            table.ajax.reload(null, false);
                         }
-                    })
-                    .catch(error => console.error('Error updating stats:', error));
+
+                        fetch('{{ route("resepsionis.kunjungan.data") }}')
+                            .then(res => res.json())
+                            .then(result => {
+                                if (result.data) {
+                                    const data = result.data;
+
+                                    const totalCard = document.querySelector('[data-filter="all"] .stats-value');
+                                    const pendingCard = document.querySelector('[data-filter="pending"] .stats-value');
+                                    const doneCard = document.querySelector('[data-filter="done"] .stats-value');
+                                    const canceledCard = document.querySelector('[data-filter="canceled"] .stats-value');
+
+                                    if (totalCard) totalCard.textContent = data.length;
+                                    if (pendingCard) pendingCard.textContent = data.filter(r => r.status === 'pending').length;
+                                    if (doneCard) doneCard.textContent = data.filter(r => r.status === 'done').length;
+                                    if (canceledCard) canceledCard.textContent = data.filter(r => r.status === 'canceled').length;
+                                }
+                            })
+                            .catch(error => console.error('Error updating stats:', error));
+                    }
+                });
+            } else {
+                // Retry if not ready yet
+                setTimeout(initRealtimeWhenReady, 100);
             }
-        });
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () {
+                setTimeout(initRealtimeWhenReady, 500);
+            });
+        } else {
+            setTimeout(initRealtimeWhenReady, 500);
+        }
     </script>
 @endpush

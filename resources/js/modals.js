@@ -1,12 +1,3 @@
-/**
- * Modal Management Component
- * Handles showing/closing modals with support for:
- * - Success/Error modals with dynamic messages
- * - Karyawan modal management
- * - Backdrop click to close
- * - ESC key to close
- */
-
 export function initModals() {
     // Success Modal Functions
     window.showSuccessModal = function(message) {
@@ -87,9 +78,6 @@ export function initModals() {
     setupESCKeyHandler();
 }
 
-/**
- * Setup backdrop click to close modal
- */
 function setupBackdropClickHandlers() {
     // Success Modal
     const successModal = document.getElementById('successModal');
@@ -122,9 +110,7 @@ function setupBackdropClickHandlers() {
     }
 }
 
-/**
- * Setup ESC key to close modals
- */
+
 function setupESCKeyHandler() {
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
