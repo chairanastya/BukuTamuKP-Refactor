@@ -124,28 +124,23 @@
                 const passwordError = document.getElementById('password_error');
                 const confirmError = document.getElementById('password_confirmation_error');
 
-                // 1. Initialize password toggle
                 window.initPasswordToggle({
                     checkboxId: 'showPassword',
                     passwordFieldId: 'password',
                     confirmFieldId: 'password_confirmation'
                 });
 
-                // 2. Initialize input backgrounds
                 window.initInputBackgrounds('#password, #password_confirmation', true);
 
-                // 3. Update background on input
                 passwordInput.addEventListener('input', function () {
                     window.updateInputBackground(this, true);
                 });
 
                 confirmInput.addEventListener('input', function () {
                     window.updateInputBackground(this, true);
-                    // Real-time confirm password validation
                     validateConfirmPasswordRealtime(confirmInput, passwordInput, confirmWrapper, confirmError);
                 });
 
-                // Real-time confirm password validation function
                 function validateConfirmPasswordRealtime(confirmInput, passwordInput, confirmWrapper, confirmError) {
                     if (confirmInput.value && passwordInput.value !== confirmInput.value) {
                         if (!confirmWrapper.classList.contains('error')) {
@@ -158,7 +153,6 @@
                     }
                 }
 
-                // 4. Form password validation on submit
                 form.addEventListener('submit', function (e) {
                     let hasError = false;
                     let firstErrorElement = null;
@@ -168,7 +162,6 @@
                     passwordError.classList.remove('show');
                     confirmError.classList.remove('show');
 
-                    // Validate password length
                     if (!passwordInput.value?.trim() || passwordInput.value.length < 8) {
                         e.preventDefault();
                         hasError = true;
@@ -182,7 +175,6 @@
                         }, 5000);
                     }
 
-                    // Validate password confirmation match
                     if (passwordInput.value !== confirmInput.value) {
                         e.preventDefault();
                         hasError = true;
@@ -197,7 +189,6 @@
                     }
 
                     if (hasError && firstErrorElement) {
-                        // Hide loading spinner if validation fails
                         if (typeof window.hideLoading === 'function') {
                             window.hideLoading();
                         }
@@ -209,11 +200,9 @@
                     return true;
                 });
 
-                // 5. Initialize reCAPTCHA validation
                 window.Recaptcha.initRecaptchaValidation(form, {
                     beforeValidate: function (e, form) {
-                        // This is called before recaptcha check
-                        return false; // no pre-validation errors
+                        return false;
                     },
                     onError: function (e, form) {
                         console.warn('reCAPTCHA validation failed');
