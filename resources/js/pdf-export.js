@@ -11,6 +11,22 @@ export function exportDataTablePDF(options = {}) {
         buttonId = null
     } = options;
 
+    console.log('exportDataTablePDF called with:', {
+        title,
+        subtitle,
+        filename,
+        columnsLength: columns.length,
+        dataLength: data.length,
+        dataMapperExists: !!dataMapper,
+        filterInfo,
+        footerText
+    });
+
+    if (data && data.length > 0) {
+        console.log('First data row:', data[0]);
+        console.log('Columns structure:', columns);
+    }
+
     if (buttonId) {
         const btn = document.getElementById(buttonId);
         if (btn) btn.disabled = true;
@@ -22,8 +38,9 @@ export function exportDataTablePDF(options = {}) {
         }
 
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('l', 'mm', 'a4');
+        const doc = new jsPDF('l', 'mm', 'a4'); // landscape
 
+        // Title
         doc.setFontSize(18);
         doc.setFont('helvetica', 'bold');
         doc.text(title, doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
@@ -73,7 +90,9 @@ export function exportDataTablePDF(options = {}) {
             },
             bodyStyles: {
                 fontSize: 8,
-                cellPadding: 3
+                valign: 'middle',
+                cellPadding: 3,
+                minCellHeight: 10
             },
             alternateRowStyles: {
                 fillColor: [245, 245, 245]
@@ -88,6 +107,7 @@ export function exportDataTablePDF(options = {}) {
             tableWidth: 'auto'
         });
 
+        // Footer with total
         const finalY = doc.lastAutoTable.finalY || 28;
         const pageWidth = doc.internal.pageSize.getWidth();
         const tableWidth = 277; // Default total column widths
@@ -108,7 +128,7 @@ export function exportDataTablePDF(options = {}) {
     } catch (error) {
         console.error('PDF export error:', error);
         console.error('Error stack:', error.stack);
-        alert('Terjadi kesalahan saat membuat PDF');
+        alert('Terjadi kesalahan saat membuat PDF: ' + error.message);
     } finally {
         if (buttonId) {
             const btn = document.getElementById(buttonId);
