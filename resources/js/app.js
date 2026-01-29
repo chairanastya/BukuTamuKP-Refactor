@@ -25,7 +25,6 @@ window.exportDataTablePDF = exportDataTablePDF;
 window.exportContentPDF = exportContentPDF;
 window.toggleSidebar = toggleSidebar;
 window.closeSidebar = closeSidebar;
-window.initDropdown = initDropdown;
 window.DataTableManager = DataTableManager;
 window.initModals = initModals;
 window.ExcelExporter = ExcelExporter;
@@ -62,7 +61,9 @@ Alpine.start();
 
 document.addEventListener('DOMContentLoaded', function() {
     clearOldImageStorages();
-    initDropdown('dropdown');
+    if (document.getElementById('dropdown')) {
+        initDropdown('dropdown');
+    }
     initSidebar();
     initLoadingSpinner();
     initModals();
@@ -70,5 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initPasswordToggle();
     initWebcam();
     initSupabaseRealtime();
-    initDatatableFilter();
+    if (window.dataTableInstance) {
+        initDatatableFilter({ tableInstance: window.dataTableInstance });
+    }
 });
