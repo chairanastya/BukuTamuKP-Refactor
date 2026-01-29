@@ -157,7 +157,7 @@
 
     <x-modal name="detailModal" id="detailModal" :useAlpine="false" title="Detail Kunjungan" :showCloseButton="true">
         <x-slot name="closeButton">
-            <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
+            <button type="button" class="modal-close" onclick="window.closeModal('detailModal')">&times;</button>
         </x-slot>
         <div id="detailContent"></div>
     </x-modal>
@@ -186,7 +186,7 @@
             <h3 class="text-2xl font-bold text-green-600">Konfirmasi Terima Kunjungan</h3>
         </x-slot>
         <x-slot name="closeButton">
-            <button type="button" class="modal-close" onclick="closeAcceptModal()">&times;</button>
+            <button type="button" class="modal-close" onclick="window.closeModal('acceptModal')">&times;</button>
         </x-slot>
         <div class="mb-6">
             <p class="text-gray-700">Apakah Anda yakin ingin menerima kunjungan ini?</p>
@@ -194,7 +194,7 @@
                 notulensi.</p>
         </div>
         <div class="flex gap-3">
-            <button onclick="closeAcceptModal()"
+            <button onclick="window.closeModal('acceptModal')"
                 class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">
                 Batalkan
             </button>
@@ -206,7 +206,7 @@
 
     <x-modal name="ktpModal" id="ktpModal" :useAlpine="false" maxWidth="3xl" title="Foto KTP" :showCloseButton="true">
         <x-slot name="closeButton">
-            <button type="button" class="modal-close" onclick="closeKtpModal()">&times;</button>
+            <button type="button" class="modal-close" onclick="window.closeModal('ktpModal')">&times;</button>
         </x-slot>
         <div id="ktpContent" class="flex justify-center items-center" style="min-height: 400px;"></div>
     </x-modal>
@@ -384,6 +384,9 @@
                 activeFiltersVar: 'activeFilters',
                 columnIndex: 7
             });
+
+            // Initialize modals
+            window.initModals();
         });
 
         function exportToExcel() {
@@ -443,10 +446,6 @@
             window.renderKtpModal(streamUrl);
         }
 
-        function closeKtpModal() {
-            document.getElementById('ktpModal').classList.remove('show');
-        }
-
         function viewDetail(id) {
             const content = document.getElementById('detailContent');
 
@@ -477,22 +476,14 @@
 
         function acceptKunjungan(id) {
             currentKunjunganId = id;
-            closeModal();
-            document.getElementById('acceptModal').classList.add('show');
-        }
-
-        function closeAcceptModal() {
-            document.getElementById('acceptModal').classList.remove('show');
+            window.closeModal('detailModal');
+            window.showModal('acceptModal');
         }
 
         function confirmAccept() {
             const button = document.getElementById('acceptButton');
-            const buttonText = document.getElementById('acceptButtonText');
-            const spinner = document.getElementById('acceptSpinner');
 
             button.disabled = true;
-            buttonText.textContent = 'Memproses...';
-            spinner.classList.remove('hidden');
 
             fetch(`/resepsionis/kunjungan/${currentKunjunganId}/accept`, {
                 method: 'POST',
@@ -504,22 +495,20 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        closeAcceptModal();
+                        window.closeModal('acceptModal');
                         showSuccessModal('Kunjungan berhasil diterima. Email telah dikirim ke karyawan tujuan untuk mengisi notulensi.');
                     }
                 })
                 .catch(error => {
                     button.disabled = false;
-                    buttonText.textContent = 'Terima';
-                    spinner.classList.add('hidden');
-                    closeAcceptModal();
+                    window.closeModal('acceptModal');
                     showErrorModal('Terjadi kesalahan saat menerima kunjungan');
                 });
         }
 
         function openRejectModal(id) {
             currentKunjunganId = id;
-            closeModal();
+            window.closeModal('detailModal');
             document.getElementById('rejectModal').classList.add('show');
         }
 
@@ -930,10 +919,6 @@
             }
         }
 
-        function closeModal() {
-            document.getElementById('detailModal').classList.remove('show');
-        }
-
         function closeRejectModal() {
             document.getElementById('rejectModal').classList.remove('show');
             document.getElementById('alasanBatal').value = '';
@@ -961,13 +946,19 @@
 
         document.getElementById('ktpModal').addEventListener('click', function (e) {
             if (e.target === this) {
-                closeKtpModal();
+                window.closeModal('ktpModal');
             }
         });
 
         document.getElementById('detailModal').addEventListener('click', function (e) {
             if (e.target === this) {
-                closeModal();
+                window.closeModal('detailModal');
+            }
+        });
+
+        document.getElementById('acceptModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                window.closeModal('acceptModal');
             }
         });
 
