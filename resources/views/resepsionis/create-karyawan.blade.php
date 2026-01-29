@@ -151,7 +151,7 @@
     <x-modal name="successModal" :useAlpine="false" id="successModal" :showHeader="false" maxWidth="md">
         <div class="modal-header">
             <h3 class="text-2xl font-bold text-green-600">Berhasil</h3>
-            <button onclick="closeSuccessModal()" class="modal-close">&times;</button>
+            <button onclick="window.closeSuccessModal()" class="modal-close">&times;</button>
         </div>
         <div id="successContent" class="mb-6">
             <div class="flex items-center gap-3">
@@ -160,268 +160,98 @@
             </div>
         </div>
         <div class="flex justify-end">
-            <x-button variant="success" onclick="closeSuccessModal()">
+            <x-button variant="success" onclick="window.closeSuccessModal()">
                 Tutup
             </x-button>
         </div>
     </x-modal>
 
     <script>
-        let debounceTimeout;
-
-        function showSuccessModal(message) {
-            document.getElementById('successMessage').textContent = message;
-            document.getElementById('successModal').classList.add('show');
-        }
-
-        function closeSuccessModal() {
-            document.getElementById('successModal').classList.remove('show');
-        }
-
-        // Check for session success message
-        @if(session('success'))
-            document.addEventListener('DOMContentLoaded', function () {
-                showSuccessModal('{{ session('success') }}');
-            });
-        @endif
-
-        document.addEventListener('click', function (e) {
-            const successModal = document.getElementById('successModal');
-            if (e.target === successModal) {
-                closeSuccessModal();
-            }
-        });
-
-        // Form validation
+        // Form elements
         const form = document.getElementById('karyawan_form');
         const namaInput = document.getElementById('nama_karyawan');
         const emailInput = document.getElementById('email_karyawan');
         const departemenInput = document.getElementById('departemen');
         const jabatanInput = document.getElementById('jabatan');
+        const submitButtonText = document.getElementById('submitButtonText');
 
-        function validateNama() {
-            const namaError = document.getElementById('nama_karyawan_error');
-            if (namaInput.value.trim() === '') {
-                namaError.classList.add('show');
-                return false;
-            } else {
-                namaError.classList.remove('show');
-                return true;
-            }
-        }
-
-        function validateEmail() {
-            const emailError = document.getElementById('email_karyawan_error');
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(emailInput.value.trim())) {
-                emailError.classList.add('show');
-                return false;
-            } else {
-                emailError.classList.remove('show');
-                return true;
-            }
-        }
-
-        function validateDepartemen() {
-            const departemenError = document.getElementById('departemen_error');
-            if (departemenInput.value.trim() === '') {
-                departemenError.classList.add('show');
-                return false;
-            } else {
-                departemenError.classList.remove('show');
-                return true;
-            }
-        }
-
-        function validateJabatan() {
-            const jabatanError = document.getElementById('jabatan_error');
-            if (jabatanInput.value.trim() === '') {
-                jabatanError.classList.add('show');
-                return false;
-            } else {
-                jabatanError.classList.remove('show');
-                return true;
-            }
-        }
-
-        namaInput.addEventListener('blur', validateNama);
-        emailInput.addEventListener('blur', validateEmail);
-        departemenInput.addEventListener('blur', validateDepartemen);
-        jabatanInput.addEventListener('blur', validateJabatan);
-
-        form.addEventListener('submit', function (e) {
-            const isNamaValid = validateNama();
-            const isEmailValid = validateEmail();
-            const isDepartemenValid = validateDepartemen();
-            const isJabatanValid = validateJabatan();
-
-            if (!isNamaValid || !isEmailValid || !isDepartemenValid || !isJabatanValid) {
-                e.preventDefault();
-            }
-        });
-
-        // Generic Autocomplete Handler
-        function createAutocomplete(config) {
-            const { input, dropdown, searchRoute, validateFn, label } = config;
-            let allItems = [];
-
-            const toggle = () => {
-                if (dropdown.classList.contains('show')) {
-                    dropdown.classList.remove('show');
-                } else {
-                    loadAll();
-                }
-            };
-
-            const loadAll = () => {
-                fetch(`${searchRoute}?q=`)
-                    .then(response => response.json())
-                    .then(data => {
-                        allItems = data;
-                        display(data, input.value.trim());
-                    })
-                    .catch(error => console.error(`Error loading ${label}:`, error));
-            };
-
-            const search = (query) => {
-                fetch(`${searchRoute}?q=${encodeURIComponent(query)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        allItems = data;
-                        display(data, query);
-                    })
-                    .catch(error => console.error(`Error searching ${label}:`, error));
-            };
-
-            const display = (items, query = '') => {
-                const filteredItems = query ? items.filter(item => item.toLowerCase().includes(query.toLowerCase())) : items;
-
-                let html = filteredItems.map(item => `
-                                    <div class="autocomplete-item" onclick="${config.selectFn}('${escapeHtml(item)}')">
-                                        ${escapeHtml(item)}
-                                    </div>
-                                `).join('');
-
-                html += `
-                                    <div class="autocomplete-item" style="border-top: 1px solid #e5e7eb; background-color: #f3f4f6; font-weight: 600;" onclick="${config.addNewFn}()">
-                                        @svg('heroicon-o-plus-circle', 'inline w-4 h-4 mr-2')
-                                        Tambah ${label} Baru
-                                    </div>
-                                `;
-
-                dropdown.innerHTML = html;
-                dropdown.classList.add('show');
-            };
-
-            const select = (value) => {
-                input.value = value;
-                dropdown.classList.remove('show');
-                validateFn();
-            };
-
-            const addNew = () => {
-                dropdown.classList.remove('show');
-                input.focus();
-                if (input.value.trim() === '') {
-                    input.placeholder = `Ketik ${label.toLowerCase()} baru...`;
-                }
-            };
-
-            // Event listeners
-            input.addEventListener('input', function () {
-                const query = this.value.trim();
-                clearTimeout(debounceTimeout);
-
-                if (query.length === 0) {
-                    dropdown.classList.remove('show');
-                    return;
-                }
-
-                debounceTimeout = setTimeout(() => {
-                    allItems.length > 0 ? display(allItems, query) : search(query);
-                }, 300);
+        // Handle session success message
+        @if(session('success'))
+            document.addEventListener('DOMContentLoaded', function () {
+                window.showSuccessModal('{{ session('success') }}');
             });
+        @endif
 
-            input.addEventListener('focus', function () {
-                if (this.value.trim().length > 0 && allItems.length > 0) {
-                    display(allItems, this.value.trim());
+        // Setup form validation using form-validation.js component
+        function initializeKaryawanForm() {
+            // Validate each field
+            const validateFields = () => {
+                const namaError = document.getElementById('nama_karyawan_error');
+                const emailError = document.getElementById('email_karyawan_error');
+                const departemenError = document.getElementById('departemen_error');
+                const jabatanError = document.getElementById('jabatan_error');
+
+                return validateTextField(namaInput, namaError) &&
+                       validateEmail(emailInput, emailError) &&
+                       validateTextField(departemenInput, departemenError) &&
+                       validateTextField(jabatanInput, jabatanError);
+            };
+
+            // Add blur listeners for real-time validation
+            namaInput.addEventListener('blur', () => validateTextField(namaInput, document.getElementById('nama_karyawan_error')));
+            emailInput.addEventListener('blur', () => validateEmail(emailInput, document.getElementById('email_karyawan_error')));
+            departemenInput.addEventListener('blur', () => validateTextField(departemenInput, document.getElementById('departemen_error')));
+            jabatanInput.addEventListener('blur', () => validateTextField(jabatanInput, document.getElementById('jabatan_error')));
+
+            // Setup form submit validation
+            form.addEventListener('submit', function (e) {
+                if (!validateFields()) {
+                    e.preventDefault();
                 }
             });
+        }
 
-            document.addEventListener('click', function (e) {
-                if (!input.contains(e.target) && !dropdown.contains(e.target) && !e.target.closest(`button[onclick="${config.toggleFn}()"]`)) {
-                    dropdown.classList.remove('show');
-                }
+        function initializeAutocomplete() {
+            // Departemen autocomplete
+            const departemenAuto = window.createAutocomplete({
+                input: departemenInput,
+                dropdown: document.getElementById('departemen_dropdown'),
+                searchRoute: '{{ route('resepsionis.karyawan.search-departemen') }}',
+                validateFn: () => validateTextField(departemenInput, document.getElementById('departemen_error')),
+                label: 'Departemen'
             });
+            window.toggleDepartemenDropdown = () => departemenAuto.toggle();
 
-            return { toggle, select, addNew };
+            // Jabatan autocomplete with submit button update callback
+            const jabatanAuto = window.createAutocomplete({
+                input: jabatanInput,
+                dropdown: document.getElementById('jabatan_dropdown'),
+                searchRoute: '{{ route('resepsionis.karyawan.search-jabatan') }}',
+                validateFn: () => {
+                    validateTextField(jabatanInput, document.getElementById('jabatan_error'));
+                    updateSubmitButton();
+                },
+                label: 'Jabatan'
+            });
+            window.toggleJabatanDropdown = () => jabatanAuto.toggle();
         }
 
-        // Departemen Autocomplete
-        const departemenAuto = createAutocomplete({
-            input: departemenInput,
-            dropdown: document.getElementById('departemen_dropdown'),
-            searchRoute: '{{ route('resepsionis.karyawan.search-departemen') }}',
-            validateFn: validateDepartemen,
-            label: 'Departemen',
-            toggleFn: 'toggleDepartemenDropdown',
-            selectFn: 'selectDepartemen',
-            addNewFn: 'addNewDepartemen'
-        });
-
-        function toggleDepartemenDropdown() { departemenAuto.toggle(); }
-        function selectDepartemen(value) { departemenAuto.select(value); }
-        function addNewDepartemen() { departemenAuto.addNew(); }
-
-        // Jabatan Autocomplete
-        const jabatanAuto = createAutocomplete({
-            input: jabatanInput,
-            dropdown: document.getElementById('jabatan_dropdown'),
-            searchRoute: '{{ route('resepsionis.karyawan.search-jabatan') }}',
-            validateFn: validateJabatan,
-            label: 'Jabatan',
-            toggleFn: 'toggleJabatanDropdown',
-            selectFn: 'selectJabatan',
-            addNewFn: 'addNewJabatan'
-        });
-
-        function toggleJabatanDropdown() { jabatanAuto.toggle(); }
-        function selectJabatan(value) { jabatanAuto.select(value); updateSubmitButton(); }
-        function addNewJabatan() { jabatanAuto.addNew(); }
-
-        function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, m => map[m]);
-        }
-
-        // Update button text when jabatan changes
+        // Update submit button text based on jabatan value
         function updateSubmitButton() {
             const jabatanValue = jabatanInput.value.trim().toLowerCase();
-            const submitButtonText = document.getElementById('submitButtonText');
-
-            if (jabatanValue === 'resepsionis') {
-                submitButtonText.textContent = 'Simpan & Kirim Undangan';
-            } else {
-                submitButtonText.textContent = 'Simpan';
-            }
+            submitButtonText.textContent = jabatanValue === 'resepsionis'
+                ? 'Simpan & Kirim Undangan'
+                : 'Simpan';
         }
 
-        // Listen for jabatan changes
+        // Listen for jabatan input changes
         jabatanInput.addEventListener('input', updateSubmitButton);
         jabatanInput.addEventListener('change', updateSubmitButton);
 
-        // Also update when selecting from dropdown
-        const originalSelectJabatan = window.selectJabatan;
-        window.selectJabatan = function (value) {
-            originalSelectJabatan(value);
-            updateSubmitButton();
-        };
-
+        // Initialize all on DOM ready
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeKaryawanForm();
+            initializeAutocomplete();
+        });
     </script>
 @endsection
