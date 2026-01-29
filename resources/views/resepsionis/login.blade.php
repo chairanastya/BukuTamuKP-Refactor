@@ -102,19 +102,18 @@
 
     @push('scripts')
         <script>
-            document.getElementById('showPassword').addEventListener('change', function () {
-                const passwordInput = document.getElementById('password');
-                passwordInput.type = this.checked ? 'text' : 'password';
-            });
-
-            function updateInputBackground(input) {
-                const wrapper = input.closest('.input-wrapper');
-                if (wrapper) {
-                    wrapper.classList.toggle('filled', input.value.trim() !== '');
-                }
-            }
-
             document.addEventListener('DOMContentLoaded', function () {
+                // Initialize password toggle
+                if (typeof initPasswordToggle === 'function') {
+                    initPasswordToggle();
+                }
+
+                // Initialize input backgrounds
+                if (typeof initInputBackgrounds === 'function') {
+                    initInputBackgrounds();
+                }
+
+                // Form validation
                 const form = document.querySelector('form');
                 const emailInput = document.getElementById('email');
                 const passwordInput = document.getElementById('password');
@@ -176,13 +175,6 @@
                     }
 
                     return true;
-                });
-
-                const inputs = document.querySelectorAll('.input-wrapper input');
-                inputs.forEach(input => {
-                    updateInputBackground(input);
-                    input.addEventListener('input', () => updateInputBackground(input));
-                    input.addEventListener('change', () => updateInputBackground(input));
                 });
             });
         </script>
