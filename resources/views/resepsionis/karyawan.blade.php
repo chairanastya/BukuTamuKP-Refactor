@@ -261,9 +261,10 @@
                 pageLength: 10,
                 order: [[8, 'desc']],
                 onInitComplete: function() {
+                    // Wait for DataTables UI to fully render before adding custom filters
                     setTimeout(function () {
                         addDepartemenFilter();
-                    }, 200);
+                    }, 300);
                 }
             });
 
@@ -272,7 +273,21 @@
         }
 
         function addDepartemenFilter() {
-            initDatatableFilter({
+            // Ensure the filter wrapper exists before initializing
+            const filterWrapper = document.querySelector('.dataTables_filter') || document.querySelector('.dt-search');
+            
+            console.log('[addDepartemenFilter] Filter wrapper:', filterWrapper);
+            console.log('[addDepartemenFilter] Filter wrapper parent:', filterWrapper?.parentElement);
+            
+            if (!filterWrapper) {
+                console.error('[addDepartemenFilter] DataTables filter wrapper not found yet, retrying...');
+                setTimeout(addDepartemenFilter, 200);
+                return;
+            }
+
+            console.log('[addDepartemenFilter] Calling initDatatableFilter...');
+            
+            const filterInstance = initDatatableFilter({
                 filterId: 'departemenFilter',
                 filterName: 'Departemen',
                 tableInstance: window.table,
@@ -285,6 +300,8 @@
                     return [...new Set(data.map(item => item.departemen).filter(d => d && d !== '-'))].sort();
                 }
             });
+            
+            console.log('[addDepartemenFilter] Filter instance:', filterInstance);
         }
 
         function openToggleStatusModal(id, nama, currentStatus) {
@@ -378,19 +395,19 @@
                     }, 50);
                 }
             });
-        });
 
-        // Supabase Realtime - Auto reload when changes detected
-        initSupabaseRealtime({
-            channelName: 'karyawan-realtime',
-            tableName: 'karyawan',
-            configUrl: '/api/supabase-config',
-            onPayload: function(payload) {
-                console.log('Perubahan terdeteksi:', payload.eventType);
-                if (window.table) {
-                    window.table.ajax.reload(null, false);
+            // Supabase Realtime - Auto reload when changes detected
+            initSupabaseRealtime({
+                channelName: 'karyawan-realtime',
+                tableName: 'karyawan',
+                configUrl: '/api/supabase-config',
+                onPayload: function(payload) {
+                    console.log('Perubahan terdeteksi:', payload.eventType);
+                    if (window.table) {
+                        window.table.ajax.reload(null, false);
+                    }
                 }
-            }
+            });
         });
     </script>
 @endpush
