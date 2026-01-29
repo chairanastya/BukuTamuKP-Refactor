@@ -24,6 +24,8 @@ export function validateEmail(emailInput, emailErrorId = 'email_karyawan_error')
 
 // Setup function to be called with specific elements
 export function setupFormValidation(form, namaInput, emailInput, namaErrorId = 'nama_karyawan_error', emailErrorId = 'email_karyawan_error') {
+    if (!form || !namaInput || !emailInput) return;
+    
     namaInput.addEventListener('blur', () => validateNama(namaInput, namaErrorId));
     emailInput.addEventListener('blur', () => validateEmail(emailInput, emailErrorId));
 
