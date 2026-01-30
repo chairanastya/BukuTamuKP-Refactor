@@ -11,22 +11,6 @@ export function exportDataTablePDF(options = {}) {
         buttonId = null
     } = options;
 
-    console.log('exportDataTablePDF called with:', {
-        title,
-        subtitle,
-        filename,
-        columnsLength: columns.length,
-        dataLength: data.length,
-        dataMapperExists: !!dataMapper,
-        filterInfo,
-        footerText
-    });
-
-    if (data && data.length > 0) {
-        console.log('First data row:', data[0]);
-        console.log('Columns structure:', columns);
-    }
-
     if (buttonId) {
         const btn = document.getElementById(buttonId);
         if (btn) btn.disabled = true;
@@ -62,10 +46,6 @@ export function exportDataTablePDF(options = {}) {
             });
         } else {
             tableData = data;
-        }
-
-        if (tableData.length > 0) {
-            console.log('First tableData row:', tableData[0]);
         }
 
         const headers = Array.isArray(columns[0]) 
