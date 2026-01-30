@@ -54,7 +54,8 @@
                 </p>
             </div>
 
-            <form method="POST" action="{{ route('resepsionis.password.update') }}">
+            <form method="POST" action="{{ route('resepsionis.password.update') }}" data-protect
+                data-protect-cooldown="1000" data-protect-loading="Mengirim...">
                 @csrf
 
                 <input type="hidden" name="token" value="{{ $token }}">
@@ -114,21 +115,6 @@
 
     @push('scripts')
         <script>
-            document.getElementById('showPassword').addEventListener('change', function () {
-                const passwordInput = document.getElementById('password');
-                const confirmInput = document.getElementById('password_confirmation');
-                const type = this.checked ? 'text' : 'password';
-                passwordInput.type = type;
-                confirmInput.type = type;
-            });
-
-            function updateInputBackground(input) {
-                const wrapper = input.closest('.input-wrapper');
-                if (wrapper && !input.readOnly) {
-                    wrapper.classList.toggle('filled', input.value.trim() !== '');
-                }
-            }
-
             document.addEventListener('DOMContentLoaded', function () {
                 const form = document.querySelector('form');
                 const passwordInput = document.getElementById('password');
@@ -138,14 +124,34 @@
                 const passwordError = document.getElementById('password_error');
                 const confirmError = document.getElementById('password_confirmation_error');
 
+                window.initPasswordToggle({
+                    checkboxId: 'showPassword',
+                    passwordFieldId: 'password',
+                    confirmFieldId: 'password_confirmation'
+                });
+
+                window.initInputBackgrounds('#password, #password_confirmation', true);
+
                 passwordInput.addEventListener('input', function () {
-                    updateInputBackground(this);
-                    updatePasswordStrength();
+                    window.updateInputBackground(this, true);
                 });
 
                 confirmInput.addEventListener('input', function () {
-                    updateInputBackground(this);
+                    window.updateInputBackground(this, true);
+                    validateConfirmPasswordRealtime(confirmInput, passwordInput, confirmWrapper, confirmError);
                 });
+
+                function validateConfirmPasswordRealtime(confirmInput, passwordInput, confirmWrapper, confirmError) {
+                    if (confirmInput.value && passwordInput.value !== confirmInput.value) {
+                        if (!confirmWrapper.classList.contains('error')) {
+                            confirmWrapper.classList.add('error');
+                            confirmError.classList.add('show');
+                        }
+                    } else {
+                        confirmWrapper.classList.remove('error');
+                        confirmError.classList.remove('show');
+                    }
+                }
 
                 form.addEventListener('submit', function (e) {
                     let hasError = false;
@@ -183,7 +189,6 @@
                     }
 
                     if (hasError && firstErrorElement) {
-                        // Hide loading spinner if validation fails
                         if (typeof window.hideLoading === 'function') {
                             window.hideLoading();
                         }
@@ -195,9 +200,15 @@
                     return true;
                 });
 
-                const inputs = document.querySelectorAll('.input-wrapper-setup input');
-                inputs.forEach(input => {
-                    updateInputBackground(input);
+                window.Recaptcha.initRecaptchaValidation(form, {
+                    beforeValidate: function (e, form) {
+                        return false;
+                    },
+                    onError: function (e, form) {
+                        console.warn('reCAPTCHA validation failed');
+                    },
+                    resetOnError: true,
+                    alertMessage: 'Silakan verifikasi bahwa Anda bukan robot'
                 });
             });
         </script>

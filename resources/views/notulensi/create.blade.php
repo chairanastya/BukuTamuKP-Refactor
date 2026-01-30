@@ -349,26 +349,9 @@
                 if (wasSubmitted) {
                     sessionStorage.removeItem('form_submitted_{{ $token }}');
                 }
-            });
 
-            // Toggle filled class based on input value
-            function updateFilledState(element) {
-                const wrapper = element.closest('.input-wrapper');
-                if (wrapper && !wrapper.classList.contains('readonly')) {
-                    if (element.value.trim() !== '') {
-                        wrapper.classList.add('filled');
-                    } else {
-                        wrapper.classList.remove('filled');
-                    }
-                }
-            }
-
-            // Check all inputs on page load
-            document.querySelectorAll('.input-wrapper input, .input-wrapper textarea').forEach(element => {
-                updateFilledState(element);
-                element.addEventListener('input', function () {
-                    updateFilledState(this);
-                });
+                // Toggle filled class based on input value
+                window.initInputBackgrounds('.input-wrapper input, .input-wrapper textarea', true);
             });
         </script>
     @endpush

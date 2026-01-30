@@ -35,11 +35,25 @@ export function initWebcam(options = {}) {
 
     async function startWebcam() {
         try {
+            console.log('[startWebcam] Requesting camera access...');
             stream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: 'user' },
                 audio: false
             });
+            console.log('[startWebcam] Stream obtained:', stream);
             video.srcObject = stream;
+            console.log('[startWebcam] Video srcObject set');
+            
+            // Wait for video to be ready
+            await new Promise((resolve) => {
+                const onLoadedData = () => {
+                    video.removeEventListener('loadeddata', onLoadedData);
+                    console.log('[startWebcam] Video loaded, dimensions:', video.videoWidth, 'x', video.videoHeight);
+                    resolve();
+                };
+                video.addEventListener('loadeddata', onLoadedData);
+            });
+            
         } catch (error) {
             console.error('[initWebcam] Error accessing webcam:', error);
             alert('Tidak dapat mengakses kamera. Pastikan Anda memberikan izin akses kamera.');
@@ -98,13 +112,14 @@ export function initWebcam(options = {}) {
 
     window.openWebcamModal = openWebcamModal;
     window.closeWebcamModal = closeWebcamModal;
-    window.capturePhoto = capturePhoto;
+    // Removed: window.capturePhoto = capturePhoto; - conflicts with blade template implementation
 
     return {
         open: openWebcamModal,
         close: closeWebcamModal,
         capture: capturePhoto,
-        stop: stopWebcam
+        stop: stopWebcam,
+        start: startWebcam
     };
 }
 

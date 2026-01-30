@@ -11,8 +11,8 @@ export class DataTableManager {
     }
 
     init() {
-        if ($.fn.DataTable.isDataTable(this.tableId)) {
-            $(this.tableId).DataTable().destroy();
+        if ($.fn.DataTable.isDataTable(`#${this.tableId}`)) {
+            $(`#${this.tableId}`).DataTable().destroy();
         }
 
         const config = {
@@ -21,8 +21,11 @@ export class DataTableManager {
                 dataSrc: 'data',
                 error: (xhr, error, thrown) => {
                     console.error('DataTables AJAX error:', error, thrown);
+                    // Remove automatic retry to prevent infinite loops
+                    // Only retry once for network errors
                     if (xhr.status === 0) {
-                        setTimeout(() => this.table.ajax.reload(), 500);
+                        console.warn('Network error detected, retrying once...');
+                        setTimeout(() => this.table.ajax.reload(), 2000); // Increased delay
                     }
                 }
             },

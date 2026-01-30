@@ -5,6 +5,9 @@ export function createStatusFilter(config) {
         }
         
         if (config.activeFiltersVar) {
+            if (!window[config.activeFiltersVar]) {
+                window[config.activeFiltersVar] = {};
+            }
             window[config.activeFiltersVar].status = status;
         }
 
@@ -12,28 +15,39 @@ export function createStatusFilter(config) {
             card.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
         });
         
-        const selector = config.multipleCards ? 
-            `[data-filter="${status}"]` : 
-            `[data-filter="${status}"]`;
-        
-        if (config.multipleCards) {
-            document.querySelectorAll(selector).forEach(card => {
-                card.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
-            });
-        } else {
-            document.querySelector(selector).classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
+        // Add ring styling to selected card
+        const selectedCard = document.querySelector(`[data-filter="${status}"]`);
+        if (selectedCard) {
+            selectedCard.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
         }
 
+        // Get the table instance from config
         const tableVar = window[config.tableVar];
-        const columnIndex = config.columnIndex;
+        const columnIndex = config.columnIndex || 7;
+
+        // Check if table is initialized
+        if (!tableVar) {
+            console.warn(`Table '${config.tableVar}' not yet initialized. Skipping filter.`);
+            return;
+        }
+
+        // Check if column method exists
+        if (typeof tableVar.column !== 'function') {
+            console.warn(`Table instance doesn't have 'column' method. Table might not be fully initialized.`);
+            return;
+        }
 
         if (status === 'all') {
             tableVar.column(columnIndex).search('').draw();
-        } else if (config.useRegex) {
-            const searchTerm = status === 'aktif' ? '^Aktif$' : '^Nonaktif$';
-            tableVar.column(columnIndex).search(searchTerm, true, false).draw();
         } else {
-            tableVar.column(columnIndex).search(status).draw();
+            if (config.useRegex) {
+                const searchPattern = `^${status}$`;
+                tableVar.column(columnIndex).search(searchPattern, true, false).draw();
+            } else {
+                tableVar.column(columnIndex).search(status).draw();
+            }
         }
+
+        console.log(`Status filter applied: ${status}, Column: ${columnIndex}`);
     };
 }

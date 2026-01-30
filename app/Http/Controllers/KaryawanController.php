@@ -40,7 +40,7 @@ class KaryawanController extends Controller
 
             if (strtolower($validated['jabatan']) === 'resepsionis') {
                 $token = Str::random(64);
-                $expiredAt = now()->addHours(48); 
+                $expiredAt = now()->addHours(48);
 
                 Resepsionis::create([
                     'id_karyawan' => $karyawan->id_karyawan,
@@ -83,8 +83,9 @@ class KaryawanController extends Controller
             ->distinct()
             ->orderBy('departemen', 'asc');
 
+        // Use prefix matching (ILIKE with %) for better performance
         if (!empty($keyword)) {
-            $query->where('departemen', 'ILIKE', '%' . $keyword . '%');
+            $query->where('departemen', 'ILIKE', $keyword . '%');
         }
 
         $departemens = $query->pluck('departemen');
@@ -101,8 +102,9 @@ class KaryawanController extends Controller
             ->distinct()
             ->orderBy('jabatan', 'asc');
 
+        // Use prefix matching (ILIKE with %) for better performance
         if (!empty($keyword)) {
-            $query->where('jabatan', 'ILIKE', '%' . $keyword . '%');
+            $query->where('jabatan', 'ILIKE', $keyword . '%');
         }
 
         $jabatans = $query->pluck('jabatan');
