@@ -167,10 +167,10 @@
         <textarea id="alasanBatal" class="w-full border border-gray-300 rounded-lg p-3 mb-4" rows="4"
             placeholder="Alasan pembatalan..."></textarea>
         <div class="flex gap-3 justify-end">
-            <x-secondary-button onclick="closeRejectModal()">Batal</x-secondary-button>
-            <x-button variant="danger" id="rejectButton" onclick="confirmReject()">
-                <span id="rejectButtonText">Tolak Kunjungan</span>
-                <svg id="rejectSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+            <button onclick="closeRejectModal()" class="px-4 py-2 bg-gray-300 rounded-lg">Batal</button>
+            <x-button id="rejectButton" variant="danger" onclick="confirmReject()" :loading="true" loadingId="reject">
+                <span id="reject_text">Tolak Kunjungan</span>
+                <svg id="reject_spinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
                     fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor"
@@ -280,6 +280,8 @@
         const eyeIcon = `{!! svg('heroicon-c-eye', 'w-5 h-5 inline')->toHtml() !!}`;
         const filterIcon = `{!! svg('akar-settings-horizontal', 'w-5 h-5 inline')->toHtml() !!}`;
 
+        let reloadTimeout = null;
+
         document.addEventListener('DOMContentLoaded', function() {
             const dtManager = new window.DataTableManager({
                 tableId: 'riwayatTable',
@@ -373,7 +375,13 @@
                 tableName: 'kunjungan',
                 onPayload: (payload) => {
                     console.log('Update detected:', payload.eventType);
-                    dtManager.reload(false);
+                    // Only reload for new submissions (INSERT), not for updates like reject
+                    if (payload.eventType === 'INSERT') {
+                        clearTimeout(reloadTimeout);
+                        reloadTimeout = setTimeout(() => {
+                            dtManager.reload(false);
+                        }, 1000);
+                    }
                 }
             });
 
@@ -509,7 +517,7 @@
         function openRejectModal(id) {
             currentKunjunganId = id;
             window.closeModal('detailModal');
-            document.getElementById('rejectModal').classList.add('show');
+            window.showModal('rejectModal');
         }
 
         function confirmReject() {
@@ -520,11 +528,11 @@
             }
 
             const button = document.getElementById('rejectButton');
-            const buttonText = document.getElementById('rejectButtonText');
-            const spinner = document.getElementById('rejectSpinner');
+            const buttonText = document.getElementById('reject_text');
+            const spinner = document.getElementById('reject_spinner');
 
             button.disabled = true;
-            buttonText.textContent = 'Memproses...';
+            buttonText.classList.add('hidden');
             spinner.classList.remove('hidden');
 
             fetch(`/resepsionis/kunjungan/${currentKunjunganId}/reject`, {
@@ -538,13 +546,21 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
+                        // Close modals immediately
                         closeRejectModal();
+
+                        // Reload table first
+                        if (window.table) {
+                            console.log('Reloading table after reject');
+                            window.table.ajax.reload(null, false);
+                        }
+
                         showSuccessModal('Kunjungan berhasil ditolak.');
                     }
                 })
                 .catch(error => {
                     button.disabled = false;
-                    buttonText.textContent = 'Tolak Kunjungan';
+                    buttonText.classList.remove('hidden');
                     spinner.classList.add('hidden');
                     closeRejectModal();
                     showErrorModal('Terjadi kesalahan saat menolak kunjungan');

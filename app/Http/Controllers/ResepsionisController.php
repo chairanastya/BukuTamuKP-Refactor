@@ -97,6 +97,8 @@ class ResepsionisController extends Controller
 
     public function getRiwayatData(Request $request)
     {
+        Log::info('getRiwayatData called', ['per_page' => $request->input('per_page', 100), 'page' => $request->input('page', 1)]);
+        $start = microtime(true);
         $perPage = $request->input('per_page', 100);
         $page = $request->input('page', 1);
 
@@ -134,6 +136,9 @@ class ResepsionisController extends Controller
                 'alasan_batal' => $kunjungan->alasan_batal,
             ];
         });
+
+        $end = microtime(true);
+        Log::info('getRiwayatData completed', ['time' => $end - $start, 'count' => $kunjungans->count()]);
 
         return response()->json(['data' => $kunjungans]);
     }
