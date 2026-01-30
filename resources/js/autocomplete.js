@@ -2,33 +2,66 @@ export function createAutocomplete(config) {
     const { input, dropdown, searchRoute, validateFn, label } = config;
     let allItems = [];
     let debounceTimeout;
+    let isPreloaded = false;
 
     const toggle = () => {
         if (dropdown.classList.contains('show')) {
             dropdown.classList.remove('show');
         } else {
-            loadAll();
+            displayPreloaded();
         }
     };
 
-    const loadAll = () => {
+    // Just preload data without showing dropdown
+    const preloadData = () => {
+        if (isPreloaded && allItems.length > 0) {
+            return;
+        }
+
         fetch(`${searchRoute}?q=`)
             .then(response => response.json())
             .then(data => {
                 allItems = data;
-                display(data, input.value.trim());
+                isPreloaded = true;
             })
             .catch(error => console.error(`Error loading ${label}:`, error));
     };
 
-    const search = (query) => {
-        fetch(`${searchRoute}?q=${encodeURIComponent(query)}`)
-            .then(response => response.json())
-            .then(data => {
-                allItems = data;
-                display(data, query);
-            })
-            .catch(error => console.error(`Error searching ${label}:`, error));
+    // Load and display preloaded data
+    const loadAll = () => {
+        if (!isPreloaded) {
+            preloadData();
+            return;
+        }
+        displayPreloaded();
+    };
+
+    // Display preloaded data with query filter
+    const displayPreloaded = () => {
+        display(allItems, input.value.trim());
+    };
+
+    // Fuzzy search on preloaded data
+    const fuzzySearch = (query) => {
+        if (!query) return allItems;
+        
+        const q = query.toLowerCase();
+        return allItems
+            .filter(item => 
+                (item.name || item.label || item)
+                    .toString()
+                    .toLowerCase()
+                    .includes(q)
+            )
+            .sort((a, b) => {
+                const aStr = (a.name || a.label || a).toString().toLowerCase();
+                const bStr = (b.name || b.label || b).toString().toLowerCase();
+                // Prioritize prefix matches
+                const aStart = aStr.startsWith(q) ? 0 : 1;
+                const bStart = bStr.startsWith(q) ? 0 : 1;
+                if (aStart !== bStart) return aStart - bStart;
+                return aStr.localeCompare(bStr);
+            });
     };
 
     const display = (items, query = '') => {
@@ -38,15 +71,8 @@ export function createAutocomplete(config) {
             return;
         }
 
-        // Filter items if query exists
-        const filteredItems = query 
-            ? items.filter(item => 
-                (item.name || item.label || item)
-                    .toString()
-                    .toLowerCase()
-                    .includes(query.toLowerCase())
-            )
-            : items;
+        // Use fuzzy search for client-side filtering (instant!)
+        const filteredItems = query ? fuzzySearch(query) : items.slice(0, 20);
 
         if (filteredItems.length === 0) {
             dropdown.classList.remove('show');
@@ -102,15 +128,22 @@ export function createAutocomplete(config) {
             return;
         }
 
+        // Preload if not already done
+        if (!isPreloaded) {
+            loadAll();
+            return;
+        }
+
+        // Use preloaded data with instant fuzzy search (50ms debounce only for rendering)
         debounceTimeout = setTimeout(() => {
-            allItems.length > 0 ? display(allItems, query) : search(query);
-        }, 300);
+            display(allItems, query);
+        }, 50);
     });
 
     input.addEventListener('focus', function () {
         if (this.value.trim().length > 0 && allItems.length > 0) {
             display(allItems, this.value.trim());
-        } else if (allItems.length === 0) {
+        } else if (!isPreloaded) {
             loadAll();
         }
     });
@@ -125,6 +158,9 @@ export function createAutocomplete(config) {
             dropdown.classList.remove('show');
         }
     });
+
+    // Preload data on initialization (without showing dropdown)
+    preloadData();
 
     return { toggle, select, addNew };
 }
