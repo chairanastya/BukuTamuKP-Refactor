@@ -83,7 +83,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('capture_canvas') &&
         document.getElementById('webcam_modal')
     ) {
-        initWebcam();
+        const webcam = initWebcam();
+        window.capturePhoto = webcam.capture;
     }
     initSupabaseRealtime();
     if (window.dataTableInstance) {
