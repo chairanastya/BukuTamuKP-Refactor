@@ -562,7 +562,6 @@
             window.multiFilter = new DatatableMultiFilter({
                 tableInstance: table,
                 filters: {
-                    date: true,
                     instansi: true,
                     karyawan: true
                 },

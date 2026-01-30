@@ -365,11 +365,14 @@
                     [9, 'desc']
                 ],
                 onInitComplete: function() {
-                    if (typeof addCustomFilters === 'function') addCustomFilters();
+                    setTimeout(function () {
+                        addCustomFilters();
+                    }, 200);
                 }
             });
 
             window.table = dtManager.init();
+
             window.initSupabaseRealtime({
                 channelName: 'riwayat-realtime',
                 tableName: 'kunjungan',
@@ -617,310 +620,33 @@
             }
         };
 
-        let currentDateFilterStart = null;
-        let currentDateFilterEnd = null;
-        let currentInstansiFilter = [];
-        let currentKaryawanFilter = [];
-
-        function addCustomFilters() {
-            console.log('Adding custom filters...');
-
-            let filterWrapper = $('.dataTables_filter');
-            if (filterWrapper.length === 0) {
-                filterWrapper = $('.dt-search');
-            }
-            if (filterWrapper.length === 0) {
-                filterWrapper = $('#myTable_wrapper').find('.dataTables_filter, .dt-search');
-            }
-
-            console.log('Filter wrapper found:', filterWrapper.length);
-
-            if (filterWrapper.length === 0) {
-                console.error('Filter wrapper not found!');
-                return;
-            }
-
-            $('.filter-container').remove();
-
-            const filterContainer = $('<div class="filter-container"></div>');
-
-            const filterBtn = $(`
-                    <div class="filter-btn" id="filterByBtn">
-                        <span class="inline-flex items-center gap-1">${filterIcon} Filter By</span>
-                        <span id="filterBadge"></span>
-                        <span style="font-size: 10px;">▼</span>
-                    </div>
-                `);
-
-            const mainDropdown = $(`
-                <div class="filter-main-dropdown" id="mainFilterDropdown">
-                    <div class="filter-category-item" data-category="tanggal">
-                        <span>Tanggal</span>
-                        <span style="font-size: 10px;">▶</span>
-                    </div>
-                    <div class="filter-category-item" data-category="instansi">
-                        <span>Instansi</span>
-                        <span style="font-size: 10px;">▶</span>
-                    </div>
-                    <div class="filter-category-item" data-category="karyawan">
-                        <span>Karyawan</span>
-                        <span style="font-size: 10px;">▶</span>
-                    </div>
-                </div>
-            `);
-
-            const dateSubDropdown = $(`
-            <div class="filter-sub-dropdown" id="dateSubDropdown">
-                {!! view('components.date-range-filter', [
-        'startInputId' => 'dateFilterStart',
-        'endInputId' => 'dateFilterEnd',
-        'applyFunction' => 'applyDateFilter()',
-        'clearFunction' => 'clearDateFilter()'
-    ])->render() !!}
-                                                                                        </div>
-                                                                                    `);
-            const instansiSubDropdown = $('<div class="filter-sub-dropdown" id="instansiSubDropdown"></div>');
-            const karyawanSubDropdown = $('<div class="filter-sub-dropdown" id="karyawanSubDropdown"></div>');
-
-            mainDropdown.find('[data-category="tanggal"]').append(dateSubDropdown);
-            mainDropdown.find('[data-category="instansi"]').append(instansiSubDropdown);
-            mainDropdown.find('[data-category="karyawan"]').append(karyawanSubDropdown);
-
-            filterContainer.append(filterBtn, mainDropdown);
-
-            filterWrapper.parent().append(filterContainer);
-
-            console.log('Filter button added to layout');
-
-            populateFilterDropdowns();
-
-            filterBtn.on('click', function (e) {
-                e.stopPropagation();
-                mainDropdown.toggleClass('show');
-            });
-
-            $('.filter-category-item').on('mouseenter', function () {
-                $('.filter-sub-dropdown').removeClass('show');
-                const subDropdown = $(this).find('.filter-sub-dropdown');
-                subDropdown.addClass('show');
-            });
-
-            mainDropdown.on('mouseleave', function () {
-                $('.filter-sub-dropdown').removeClass('show');
-            });
-
-            $(document).on('click', function () {
-                mainDropdown.removeClass('show');
-                $('.filter-sub-dropdown').removeClass('show');
-            });
-
-            mainDropdown.on('click', function (e) {
-                e.stopPropagation();
-            });
-
-            console.log('Custom filters added successfully');
-        }
-
-        function populateFilterDropdowns() {
-            fetch('{{ route("resepsionis.riwayat.data") }}')
-                .then(res => res.json())
-                .then(result => {
-                    const data = result.data;
-
-                    const instansi = [...new Set(data.map(item => item.instansi))].sort();
-                    const instansiDropdown = $('#instansiSubDropdown');
-                    instansiDropdown.empty();
-                    instansi.forEach(inst => {
-                        const item = $(`<div class="filter-dropdown-item" data-value="${inst}">${inst}</div>`);
-                        item.on('click', function (e) {
-                            e.stopPropagation();
-                            applyInstansiFilter(inst);
-                        });
-                        instansiDropdown.append(item);
-                    });
-                    instansiDropdown.append(`<div class="filter-clear" onclick="clearInstansiFilter()">✕ Hapus Filter</div>`);
-
-                    const karyawanMap = new Map();
-                    data.forEach(item => {
-                        if (item.karyawan && item.karyawan.length > 0) {
-                            item.karyawan.forEach(k => {
-                                const key = `${k.nama}|${k.departemen}|${k.jabatan}`;
-                                if (!karyawanMap.has(key)) {
-                                    karyawanMap.set(key, {
-                                        nama: k.nama,
-                                        departemen: k.departemen,
-                                        jabatan: k.jabatan
-                                    });
-                                }
-                            });
-                        }
-                    });
-                    const karyawan = [...karyawanMap.values()].sort((a, b) => a.nama.localeCompare(b.nama));
-                    const karyawanDropdown = $('#karyawanSubDropdown');
-                    karyawanDropdown.empty();
-                    karyawan.forEach(kary => {
-                        const uniqueKey = `${kary.nama}|${kary.departemen}|${kary.jabatan}`;
-                        const item = $(`
-                                                                                                    <div class="karyawan-item" data-value="${uniqueKey}">
-                                                                                                        <div class="karyawan-name">${kary.nama}</div>
-                                                                                                        <div class="karyawan-detail">${kary.departemen} • ${kary.jabatan}</div>
-                                                                                                    </div>
-                                                                                                `);
-                        item.on('click', function (e) {
-                            e.stopPropagation();
-                            applyKaryawanFilter(uniqueKey, kary.nama, kary.departemen, kary.jabatan);
-                        });
-                        karyawanDropdown.append(item);
-                    });
-                    karyawanDropdown.append(`<div class="filter-clear" onclick="clearKaryawanFilter()">✕ Hapus Filter</div>`);
-                });
-        }
-
-        function updateFilterBadge() {
-            let count = 0;
-            if (currentDateFilterStart || currentDateFilterEnd) count++;
-            count += currentInstansiFilter.length;
-            count += currentKaryawanFilter.length;
-
-            const badge = $('#filterBadge');
-            if (count > 0) {
-                badge.html(`<span class="active-filter-badge">${count}</span>`);
-                $('#filterByBtn').addClass('active');
-            } else {
-                badge.html('');
-                $('#filterByBtn').removeClass('active');
-            }
-        }
-
-        function applyDateFilter() {
-            const startDate = $('#dateFilterStart').val();
-            const endDate = $('#dateFilterEnd').val();
-
-            if (!startDate && !endDate) {
-                alert('Silakan pilih minimal satu tanggal (dari atau sampai)');
-                return;
-            }
-
-            if (startDate && endDate && startDate > endDate) {
-                alert('Tanggal awal tidak boleh lebih besar dari tanggal akhir');
-                return;
-            }
-
-            currentDateFilterStart = startDate || null;
-            currentDateFilterEnd = endDate || null;
-
-            updateFilterBadge();
-            applyAllFilters();
-        }
-
-        function clearDateFilter() {
-            currentDateFilterStart = null;
-            currentDateFilterEnd = null;
-            $('#dateFilterStart').val('');
-            $('#dateFilterEnd').val('');
-            updateFilterBadge();
-            applyAllFilters();
-        }
-
-        function applyInstansiFilter(instansi) {
-            const index = currentInstansiFilter.indexOf(instansi);
-            const item = $(`#instansiSubDropdown .filter-dropdown-item[data-value="${instansi}"]`);
-
-            if (index > -1) {
-                currentInstansiFilter.splice(index, 1);
-                item.removeClass('active');
-            } else {
-                currentInstansiFilter.push(instansi);
-                item.addClass('active');
-            }
-
-            updateFilterBadge();
-            applyAllFilters();
-        }
-
-        function clearInstansiFilter() {
-            currentInstansiFilter = [];
-            $('#instansiSubDropdown .filter-dropdown-item').removeClass('active');
-            updateFilterBadge();
-            applyAllFilters();
-        }
-
-        function applyKaryawanFilter(uniqueKey, nama, departemen, jabatan) {
-            const index = currentKaryawanFilter.indexOf(uniqueKey);
-            const item = $(`#karyawanSubDropdown .karyawan-item[data-value="${uniqueKey}"]`);
-
-            if (index > -1) {
-                currentKaryawanFilter.splice(index, 1);
-                item.removeClass('active');
-            } else {
-                currentKaryawanFilter.push(uniqueKey);
-                item.addClass('active');
-            }
-
-            updateFilterBadge();
-            applyAllFilters();
-        }
-
-        function clearKaryawanFilter() {
-            currentKaryawanFilter = [];
-            $('#karyawanSubDropdown .karyawan-item').removeClass('active');
-            updateFilterBadge();
-            applyAllFilters();
-        }
-
-        function applyAllFilters() {
-            if ($.fn.dataTable.ext.search.length > 0) {
-                $.fn.dataTable.ext.search.pop();
-            }
-
-            $.fn.dataTable.ext.search.push(
-                function (settings, data, dataIndex) {
-                    const tanggalStr = data[1];
-                    const instansi = data[5];
-                    const rowData = table.row(dataIndex).data();
-                    const karyawanArray = rowData.karyawan;
-
-                    if (currentDateFilterStart || currentDateFilterEnd) {
-                        const parts = tanggalStr.split('/');
-                        if (parts.length === 3) {
-                            const tanggalFormatted = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-
-                            if (currentDateFilterStart && tanggalFormatted < currentDateFilterStart) {
-                                return false;
-                            }
-                            if (currentDateFilterEnd && tanggalFormatted > currentDateFilterEnd) {
-                                return false;
-                            }
-                        }
-                    }
-
-                    if (currentInstansiFilter.length > 0 && !currentInstansiFilter.includes(instansi)) {
-                        return false;
-                    }
-
-                    if (currentKaryawanFilter.length > 0 && karyawanArray && karyawanArray.length > 0) {
-                        const hasMatch = currentKaryawanFilter.some(filterKey => {
-                            const [filterNama, filterDepartemen, filterJabatan] = filterKey.split('|');
-                            return karyawanArray.some(k =>
-                                k.nama === filterNama &&
-                                k.departemen === filterDepartemen &&
-                                k.jabatan === filterJabatan
-                            );
-                        });
-                        if (!hasMatch) {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }
-            );
-
-            table.draw();
-        }
-
         function showKaryawanList(karyawanData) {
             window.renderKaryawanListModal(karyawanData);
+        }
+
+        function addCustomFilters() {
+            // Set SVG icon to window scope
+            window.filterIcon = `{!! svg('akar-settings-horizontal', 'w-5 h-5 inline')->toHtml() !!}`;
+
+            // Initialize multi-filter untuk riwayat dengan date
+            window.multiFilter = new window.DatatableMultiFilter({
+                tableInstance: window.table,
+                filters: {
+                    date: true,
+                    instansi: true,
+                    karyawan: true
+                },
+                dataFetcher: async () => {
+                    try {
+                        const response = await fetch('{{ route("resepsionis.riwayat.data") }}');
+                        const result = await response.json();
+                        return result.data || [];
+                    } catch (error) {
+                        console.error('Error fetching filter data:', error);
+                        return [];
+                    }
+                }
+            });
         }
 
         let navigationTimeout = null;
