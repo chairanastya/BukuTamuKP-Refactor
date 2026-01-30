@@ -374,7 +374,6 @@
                 channelName: 'riwayat-realtime',
                 tableName: 'kunjungan',
                 onPayload: (payload) => {
-                    console.log('Update detected:', payload.eventType);
                     // Only reload for new submissions (INSERT), not for updates like reject
                     if (payload.eventType === 'INSERT') {
                         clearTimeout(reloadTimeout);
@@ -551,7 +550,6 @@
 
                         // Reload table first
                         if (window.table) {
-                            console.log('Reloading table after reject');
                             window.table.ajax.reload(null, false);
                         }
 
@@ -921,65 +919,31 @@
             table.draw();
         }
 
-        function showLoadingOverlay() {
-            const overlay = document.getElementById('loadingOverlay');
-            if (overlay) {
-                overlay.style.display = 'flex';
-            }
-        }
-
-        function hideLoadingOverlay() {
-            const overlay = document.getElementById('loadingOverlay');
-            if (overlay) {
-                overlay.style.display = 'none';
-            }
-        }
-
-        function closeRejectModal() {
-            document.getElementById('rejectModal').classList.remove('show');
-            document.getElementById('alasanBatal').value = '';
-        }
-
         function showKaryawanList(karyawanData) {
             window.renderKaryawanListModal(karyawanData);
         }
 
         let navigationTimeout = null;
-        document.querySelectorAll('.sidebar-item').forEach(link => {
-            link.addEventListener('click', function (e) {
-                if (this.href && !this.classList.contains('active')) {
-
-                    if (navigationTimeout) {
-                        clearTimeout(navigationTimeout);
-                    }
-
-                    navigationTimeout = setTimeout(() => {
-                        showLoading();
-                    }, 50);
+        document.addEventListener('click', function(e) {
+            // Sidebar navigation
+            const sidebarLink = e.target.closest('.sidebar-item');
+            if (sidebarLink && sidebarLink.href && !sidebarLink.classList.contains('active')) {
+                if (navigationTimeout) {
+                    clearTimeout(navigationTimeout);
                 }
-            });
-        });
+                navigationTimeout = setTimeout(() => {
+                    showLoading();
+                }, 50);
+            }
 
-        document.getElementById('ktpModal').addEventListener('click', function (e) {
-            if (e.target === this) {
+            // Modal close on backdrop click
+            if (e.target.id === 'ktpModal') {
                 window.closeModal('ktpModal');
-            }
-        });
-
-        document.getElementById('detailModal').addEventListener('click', function (e) {
-            if (e.target === this) {
+            } else if (e.target.id === 'detailModal') {
                 window.closeModal('detailModal');
-            }
-        });
-
-        document.getElementById('acceptModal').addEventListener('click', function (e) {
-            if (e.target === this) {
+            } else if (e.target.id === 'acceptModal') {
                 window.closeModal('acceptModal');
-            }
-        });
-
-        document.getElementById('rejectModal').addEventListener('click', function (e) {
-            if (e.target === this) {
+            } else if (e.target.id === 'rejectModal') {
                 closeRejectModal();
             }
         });
