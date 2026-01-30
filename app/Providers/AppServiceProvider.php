@@ -16,6 +16,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureRateLimiting();
+        $this->configureSchedule();
+    }
+
+    protected function configureSchedule(): void
+    {
+
     }
 
     protected function configureRateLimiting(): void
