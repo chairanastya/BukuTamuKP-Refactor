@@ -75,19 +75,19 @@
             <!-- Stats Cards -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                 <x-stats-card title="Total Karyawan" :value="$stats['total']" icon="gmdi-people-r" iconColor="text-gray-600"
-                    valueColor="text-[#084E8F]" bgColor="#E5E7EB" filter="all" onclick="filterByStatus('all')" />
+                    valueColor="text-[#084E8F]" bgColor="#E5E7EB" filter="all" onclick="window.filterKaryawanByStatus('all')" />
 
                 <x-stats-card title="Karyawan Aktif" :value="$stats['aktif']" icon="heroicon-o-check-circle"
                     iconColor="text-green-600" valueColor="text-green-600" bgColor="#D1FAE5" filter="aktif"
-                    onclick="filterByStatus('aktif')" />
+                    onclick="window.filterKaryawanByStatus('aktif')" />
 
                 <x-stats-card title="Karyawan Nonaktif" :value="$stats['nonaktif']" icon="heroicon-o-x-circle"
                     iconColor="text-red-600" valueColor="text-red-600" bgColor="#FEE2E2" filter="nonaktif"
-                    onclick="filterByStatus('nonaktif')" />
+                    onclick="window.filterKaryawanByStatus('nonaktif')" />
 
                 <x-stats-card title="Total Departemen" :value="$stats['departemen']" icon="heroicon-o-building-office"
                     iconColor="text-blue-600" valueColor="text-blue-600" bgColor="#DBEAFE" filter="all"
-                    onclick="filterByStatus('all')" />
+                    onclick="window.filterKaryawanByStatus('all')" />
             </div>
 
             <!-- DataTable -->
@@ -191,55 +191,37 @@
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/3.0.7/js/dataTables.responsive.min.js"></script>
     <script>
-        let table;
+        let tableManager;
         const trashIcon = `{!! svg('heroicon-s-trash', 'w-5 h-5')->toHtml() !!}`;
         const toggleIcon = `{!! svg('heroicon-o-x-circle', 'w-5 h-5')->toHtml() !!}`;
         const activateIcon = `{!! svg('heroicon-o-check-circle', 'w-5 h-5')->toHtml() !!}`;
-        let currentDepartemenFilter = [];
         let currentFilter = 'all';
         let toggleKaryawanData = null;
 
         document.addEventListener('DOMContentLoaded', function () {
-            @if(session('success'))
-                showSuccessModal('{{ session('success') }}');
-            @endif
+            // Wait for app.js to load all modules
+            setTimeout(function() {
+                // Initialize status filter so it's available when stats cards are clicked
+                window.filterKaryawanByStatus = createStatusFilter({
+                    tableVar: 'table',
+                    columnIndex: 6,
+                    currentFilterVar: 'currentFilter',
+                    multipleCards: false,
+                    useRegex: true
+                });
 
-            setTimeout(function () {
+                @if(session('success'))
+                    showSuccessModal('{{ session('success') }}');
+                @endif
+
                 initDataTable();
-            }, 100);
+            }, 200);
         });
 
         function initDataTable() {
-            if ($.fn.DataTable.isDataTable('#karyawanTable')) {
-                $('#karyawanTable').DataTable().destroy();
-            }
-
-            table = new DataTable('#karyawanTable', {
-                responsive: {
-                    details: {
-                        type: 'column',
-                        target: 0
-                    }
-                },
-                columnDefs: [
-                    {
-                        className: 'dtr-control',
-                        orderable: false,
-                        targets: 0
-                    }
-                ],
-                ajax: {
-                    url: '{{ route("resepsionis.karyawan.data") }}',
-                    dataSrc: 'data',
-                    error: function (xhr, error, thrown) {
-                        console.error('DataTables AJAX error:', error, thrown);
-                        if (xhr.status === 0) {
-                            setTimeout(function () {
-                                table.ajax.reload();
-                            }, 500);
-                        }
-                    }
-                },
+            tableManager = new DataTableManager({
+                tableId: 'karyawanTable',
+                ajaxUrl: '{{ route("resepsionis.karyawan.data") }}',
                 columns: [
                     {
                         data: null,
@@ -277,154 +259,49 @@
                     }
                 ],
                 pageLength: 10,
-                order: [[8, 'desc']]
+                order: [[8, 'desc']],
+                onInitComplete: function() {
+                    // Wait for DataTables UI to fully render before adding custom filters
+                    setTimeout(function () {
+                        addDepartemenFilter();
+                    }, 300);
+                }
             });
 
-            setTimeout(function () {
-                addDepartemenFilter();
-            }, 200);
-        }
-
-        function filterByStatus(status) {
-            currentFilter = status;
-
-            // Remove ring from all cards
-            document.querySelectorAll('.stats-card').forEach(card => {
-                card.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
-            });
-
-            // Add ring to selected card(s) with matching filter
-            document.querySelectorAll(`[data-filter="${status}"]`).forEach(card => {
-                card.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
-            });
-
-            // Apply filter to table - Column 6 is status
-            if (status === 'all') {
-                table.column(6).search('').draw();
-            } else if (status === 'aktif') {
-                table.column(6).search('^Aktif$', true, false).draw();
-            } else if (status === 'nonaktif') {
-                table.column(6).search('^Nonaktif$', true, false).draw();
-            }
+            // Make table globally accessible for status filter
+            window.table = tableManager.init();
         }
 
         function addDepartemenFilter() {
-            let filterWrapper = $('.dataTables_filter');
-            if (filterWrapper.length === 0) {
-                filterWrapper = $('.dt-search');
-            }
-
-            if (filterWrapper.length === 0) {
-                console.error('Filter wrapper not found!');
+            // Ensure the filter wrapper exists before initializing
+            const filterWrapper = document.querySelector('.dataTables_filter') || document.querySelector('.dt-search');
+            
+            console.log('[addDepartemenFilter] Filter wrapper:', filterWrapper);
+            console.log('[addDepartemenFilter] Filter wrapper parent:', filterWrapper?.parentElement);
+            
+            if (!filterWrapper) {
+                console.error('[addDepartemenFilter] DataTables filter wrapper not found yet, retrying...');
+                setTimeout(addDepartemenFilter, 200);
                 return;
             }
 
-            $('.filter-container').remove();
-
-            const filterContainer = $('<div class="filter-container"></div>');
-
-            const filterBtn = $(`
-                                            <div class="filter-btn" id="departemenFilterBtn">
-                                                <span>Departemen</span>
-                                                <span id="departemenBadge"></span>
-                                                <span style="font-size: 10px;">▼</span>
-                                            </div>
-                                        `);
-
-            const dropdown = $('<div class="filter-dropdown" id="departemenDropdown"></div>');
-
-            filterContainer.append(filterBtn, dropdown);
-            filterWrapper.parent().append(filterContainer);
-
-            populateDepartemenFilter();
-
-            filterBtn.on('click', function (e) {
-                e.stopPropagation();
-                dropdown.toggleClass('show');
-            });
-
-            $(document).on('click', function () {
-                dropdown.removeClass('show');
-            });
-
-            dropdown.on('click', function (e) {
-                e.stopPropagation();
-            });
-        }
-
-        function populateDepartemenFilter() {
-            fetch('{{ route("resepsionis.karyawan.data") }}')
-                .then(res => res.json())
-                .then(result => {
+            console.log('[addDepartemenFilter] Calling initDatatableFilter...');
+            
+            const filterInstance = initDatatableFilter({
+                filterId: 'departemenFilter',
+                filterName: 'Departemen',
+                tableInstance: window.table,
+                columnIndex: 3,
+                multiple: true,
+                dataFetcher: async function() {
+                    const response = await fetch('{{ route("resepsionis.karyawan.data") }}');
+                    const result = await response.json();
                     const data = result.data;
-                    const departemen = [...new Set(data.map(item => item.departemen).filter(d => d && d !== '-'))].sort();
-                    const dropdown = $('#departemenDropdown');
-                    dropdown.empty();
-
-                    departemen.forEach(dept => {
-                        const item = $(`<div class="filter-dropdown-item" data-value="${dept}">${dept}</div>`);
-                        item.on('click', function (e) {
-                            e.stopPropagation();
-                            applyDepartemenFilter(dept);
-                        });
-                        dropdown.append(item);
-                    });
-
-                    dropdown.append(`<div class="filter-clear" onclick="clearDepartemenFilter()">✕ Hapus Filter</div>`);
-                });
-        }
-
-        function applyDepartemenFilter(departemen) {
-            const index = currentDepartemenFilter.indexOf(departemen);
-            const item = $(`#departemenDropdown .filter-dropdown-item[data-value="${departemen}"]`);
-
-            if (index > -1) {
-                currentDepartemenFilter.splice(index, 1);
-                item.removeClass('active');
-            } else {
-                currentDepartemenFilter.push(departemen);
-                item.addClass('active');
-            }
-
-            updateDepartemenBadge();
-            applyDepartemenTableFilter();
-        }
-
-        function clearDepartemenFilter() {
-            currentDepartemenFilter = [];
-            $('#departemenDropdown .filter-dropdown-item').removeClass('active');
-            updateDepartemenBadge();
-            applyDepartemenTableFilter();
-        }
-
-        function updateDepartemenBadge() {
-            const badge = $('#departemenBadge');
-            const btn = $('#departemenFilterBtn');
-
-            if (currentDepartemenFilter.length > 0) {
-                badge.html(`<span class="active-filter-badge">${currentDepartemenFilter.length}</span>`);
-                btn.addClass('active');
-            } else {
-                badge.html('');
-                btn.removeClass('active');
-            }
-        }
-
-        function applyDepartemenTableFilter() {
-            if ($.fn.dataTable.ext.search.length > 0) {
-                $.fn.dataTable.ext.search.pop();
-            }
-
-            if (currentDepartemenFilter.length > 0) {
-                $.fn.dataTable.ext.search.push(
-                    function (settings, data, dataIndex) {
-                        const departemen = data[3];
-                        return currentDepartemenFilter.includes(departemen);
-                    }
-                );
-            }
-
-            table.draw();
+                    return [...new Set(data.map(item => item.departemen).filter(d => d && d !== '-'))].sort();
+                }
+            });
+            
+            console.log('[addDepartemenFilter] Filter instance:', filterInstance);
         }
 
         function openToggleStatusModal(id, nama, currentStatus) {
@@ -455,24 +332,6 @@
             document.getElementById('toggleStatusModal').classList.remove('show');
         }
 
-        function showSuccessModal(message) {
-            document.getElementById('successMessage').textContent = message;
-            document.getElementById('successModal').classList.add('show');
-        }
-
-        function closeSuccessModal() {
-            document.getElementById('successModal').classList.remove('show');
-        }
-
-        function showErrorModal(message) {
-            document.getElementById('errorMessage').textContent = message;
-            document.getElementById('errorModal').classList.add('show');
-        }
-
-        function closeErrorModal() {
-            document.getElementById('errorModal').classList.remove('show');
-        }
-
         function confirmToggleStatus() {
             if (!toggleKaryawanData) return;
 
@@ -497,7 +356,7 @@
                 .then(data => {
                     if (data.success) {
                         closeToggleStatusModal();
-                        table.ajax.reload();
+                        window.table.ajax.reload();
                         showSuccessModal(data.message);
 
                         // Update stats
@@ -536,38 +395,19 @@
                     }, 50);
                 }
             });
+
+            // Supabase Realtime - Auto reload when changes detected
+            initSupabaseRealtime({
+                channelName: 'karyawan-realtime',
+                tableName: 'karyawan',
+                configUrl: '/api/supabase-config',
+                onPayload: function(payload) {
+                    console.log('Perubahan terdeteksi:', payload.eventType);
+                    if (window.table) {
+                        window.table.ajax.reload(null, false);
+                    }
+                }
+            });
         });
-
-        // Supabase Realtime - Auto reload hanya ketika ada perubahan
-        (function () {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-            script.onload = function () {
-                fetch('/api/supabase-config')
-                    .then(res => res.json())
-                    .then(config => {
-                        const { createClient } = supabase;
-                        const supabaseClient = createClient(config.url, config.key);
-
-                        const channel = supabaseClient
-                            .channel('karyawan-realtime')
-                            .on('postgres_changes',
-                                { event: '*', schema: 'public', table: 'karyawan' },
-                                (payload) => {
-                                    console.log('Perubahan terdeteksi:', payload.eventType);
-                                    table.ajax.reload(null, false);
-                                }
-                            )
-                            .subscribe((status) => {
-                                if (status === 'SUBSCRIBED') {
-                                    console.log('Realtime active - akan auto-reload saat ada perubahan');
-                                }
-                            });
-
-                        window.addEventListener('beforeunload', () => channel.unsubscribe());
-                    });
-            };
-            document.head.appendChild(script);
-        })();
     </script>
 @endpush

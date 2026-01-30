@@ -148,37 +148,6 @@
     <x-loading-spinner />
 
     @stack('scripts')
-
-    <!-- Sidebar Toggle Script -->
-    @auth('resepsionis')
-        <script>
-            function toggleSidebar() {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('sidebarOverlay');
-                sidebar.classList.toggle('open');
-                overlay.classList.toggle('show');
-            }
-
-            function closeSidebar() {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('sidebarOverlay');
-                sidebar.classList.remove('open');
-                overlay.classList.remove('show');
-            }
-
-            // Close sidebar when clicking on a sidebar item on mobile
-            document.addEventListener('DOMContentLoaded', function () {
-                const sidebarItems = document.querySelectorAll('.sidebar-item');
-                sidebarItems.forEach(item => {
-                    item.addEventListener('click', function () {
-                        if (window.innerWidth <= 768) {
-                            closeSidebar();
-                        }
-                    });
-                });
-            });
-        </script>
-    @endauth
 </body>
 
 </html>

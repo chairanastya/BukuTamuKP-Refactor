@@ -11,22 +11,6 @@ export function exportDataTablePDF(options = {}) {
         buttonId = null
     } = options;
 
-    console.log('exportDataTablePDF called with:', {
-        title,
-        subtitle,
-        filename,
-        columnsLength: columns.length,
-        dataLength: data.length,
-        dataMapperExists: !!dataMapper,
-        filterInfo,
-        footerText
-    });
-
-    if (data && data.length > 0) {
-        console.log('First data row:', data[0]);
-        console.log('Columns structure:', columns);
-    }
-
     if (buttonId) {
         const btn = document.getElementById(buttonId);
         if (btn) btn.disabled = true;
@@ -45,7 +29,6 @@ export function exportDataTablePDF(options = {}) {
         doc.setFont('helvetica', 'bold');
         doc.text(title, doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
 
-        // Subtitle with filter info
         if (subtitle || filterInfo) {
             doc.setFontSize(10);
             doc.setFont('helvetica', 'italic');
@@ -53,35 +36,22 @@ export function exportDataTablePDF(options = {}) {
             doc.text(subtitleText, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
         }
 
-        // Transform data if dataMapper provided
         let tableData = data;
         if (dataMapper && typeof dataMapper === 'function') {
             console.log('Using dataMapper to transform data');
             tableData = data.map((row, index) => dataMapper(row, index));
         } else if (Array.isArray(data) && data.length > 0 && typeof data[0] === 'object' && !Array.isArray(data[0])) {
-            // If data is array of objects, extract values based on columns
-            console.log('Data is array of objects, extracting...');
             tableData = data.map(row => {
                 return columns.map(col => row[col.key] || '-');
             });
         } else {
-            console.log('Data is array of arrays, using as-is');
             tableData = data;
         }
 
-        console.log('TableData prepared, rows:', tableData.length);
-        if (tableData.length > 0) {
-            console.log('First tableData row:', tableData[0]);
-        }
-
-        // Prepare headers
         const headers = Array.isArray(columns[0]) 
             ? columns 
             : [columns.map(col => col.label || col)];
 
-        console.log('Headers:', headers);
-
-        // Generate table
         doc.autoTable({
             startY: subtitle || filterInfo ? 28 : 25,
             head: headers,
@@ -94,7 +64,9 @@ export function exportDataTablePDF(options = {}) {
                 halign: 'center',
                 valign: 'middle',
                 fontSize: 9,
-                cellPadding: 3
+                valign: 'middle',
+                cellPadding: 3,
+                minCellHeight: 10
             },
             bodyStyles: {
                 fontSize: 8,

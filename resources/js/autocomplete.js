@@ -1,6 +1,7 @@
 export function createAutocomplete(config) {
     const { input, dropdown, searchRoute, validateFn, label } = config;
     let allItems = [];
+    let debounceTimeout;
 
     const toggle = () => {
         if (dropdown.classList.contains('show')) {
@@ -37,12 +38,40 @@ export function createAutocomplete(config) {
             return;
         }
 
-        items.forEach(item => {
-            const li = document.createElement('li');
-            li.textContent = item.name || item.label || item;
-            li.addEventListener('click', () => select(item));
-            dropdown.appendChild(li);
+        // Filter items if query exists
+        const filteredItems = query 
+            ? items.filter(item => 
+                (item.name || item.label || item)
+                    .toString()
+                    .toLowerCase()
+                    .includes(query.toLowerCase())
+            )
+            : items;
+
+        if (filteredItems.length === 0) {
+            dropdown.classList.remove('show');
+            return;
+        }
+
+        // Render filtered items
+        filteredItems.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'autocomplete-item';
+            itemDiv.textContent = item.name || item.label || item;
+            itemDiv.addEventListener('click', () => select(item));
+            dropdown.appendChild(itemDiv);
         });
+
+        // Render "Add New" option
+        const addNewDiv = document.createElement('div');
+        addNewDiv.className = 'autocomplete-item';
+        addNewDiv.style.borderTop = '1px solid #e5e7eb';
+        addNewDiv.style.backgroundColor = '#f3f4f6';
+        addNewDiv.style.fontWeight = '600';
+        addNewDiv.style.cursor = 'pointer';
+        addNewDiv.textContent = `+ Tambah ${label} Baru`;
+        addNewDiv.addEventListener('click', () => addNew());
+        dropdown.appendChild(addNewDiv);
 
         dropdown.classList.add('show');
     };
@@ -50,29 +79,54 @@ export function createAutocomplete(config) {
     const select = (value) => {
         input.value = value.name || value.label || value;
         dropdown.classList.remove('show');
-        if (validateFn) {
+        if (validateFn && typeof validateFn === 'function') {
             validateFn(value);
         }
     };
 
     const addNew = () => {
-        // Placeholder for adding new item functionality
-        console.log('Add new item functionality not implemented yet');
+        dropdown.classList.remove('show');
+        input.focus();
+        if (input.value.trim() === '') {
+            input.placeholder = `Ketik ${label.toLowerCase()} baru...`;
+        }
     };
 
+    // Event listeners
     input.addEventListener('input', function () {
         const query = this.value.trim();
-        if (query.length > 0) {
-            search(query);
-        } else {
-            display(allItems, query);
+        clearTimeout(debounceTimeout);
+
+        if (query.length === 0) {
+            dropdown.classList.remove('show');
+            return;
+        }
+
+        debounceTimeout = setTimeout(() => {
+            allItems.length > 0 ? display(allItems, query) : search(query);
+        }, 300);
+    });
+
+    input.addEventListener('focus', function () {
+        if (this.value.trim().length > 0 && allItems.length > 0) {
+            display(allItems, this.value.trim());
+        } else if (allItems.length === 0) {
+            loadAll();
         }
     });
 
-    input.addEventListener('focus', toggle);
     input.addEventListener('blur', () => {
         setTimeout(() => dropdown.classList.remove('show'), 150);
     });
 
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function (e) {
+        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+
     return { toggle, select, addNew };
 }
+
+export default createAutocomplete;

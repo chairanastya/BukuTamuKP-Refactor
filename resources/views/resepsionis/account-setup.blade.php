@@ -94,94 +94,28 @@
         </div>
     </div>
 
-    @push('scripts')
-        <script>
-            document.getElementById('showPassword').addEventListener('change', function () {
-                const passwordInput = document.getElementById('password');
-                const confirmInput = document.getElementById('password_confirmation');
-                const type = this.checked ? 'text' : 'password';
-                passwordInput.type = type;
-                confirmInput.type = type;
-            });
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        initPasswordToggle({
+            passwordFieldIds: ['password', 'password_confirmation'],
+            checkboxId: 'showPassword'
+        });
 
-            function updateInputBackground(input) {
-                const wrapper = input.closest('.input-wrapper');
-                if (wrapper && !input.readOnly) {
-                    wrapper.classList.toggle('filled', input.value.trim() !== '');
-                }
-            }
+        initInputBackgrounds();
 
-            document.addEventListener('DOMContentLoaded', function () {
-                const form = document.querySelector('form');
-                const passwordInput = document.getElementById('password');
-                const confirmInput = document.getElementById('password_confirmation');
-                const passwordWrapper = passwordInput?.closest('.input-wrapper');
-                const confirmWrapper = confirmInput?.closest('.input-wrapper');
-                const passwordError = document.getElementById('password_error');
-                const confirmError = document.getElementById('password_confirmation_error');
+        setupFormValidation({
+            passwordFieldId: 'password',
+            confirmPasswordFieldId: 'password_confirmation',
+            minLength: 8,
+            formSelector: 'form',
+            errorTimeout: 3000
+        });
 
-                passwordInput.addEventListener('input', function () {
-                    updateInputBackground(this);
-                    updatePasswordStrength();
-                });
-
-                confirmInput.addEventListener('input', function () {
-                    updateInputBackground(this);
-                });
-
-                form.addEventListener('submit', function (e) {
-                    let hasError = false;
-                    let firstErrorElement = null;
-
-                    passwordWrapper.classList.remove('error');
-                    confirmWrapper.classList.remove('error');
-                    passwordError.classList.remove('show');
-                    confirmError.classList.remove('show');
-
-                    if (!passwordInput.value?.trim() || passwordInput.value.length < 8) {
-                        e.preventDefault();
-                        hasError = true;
-                        passwordWrapper.classList.add('error');
-                        passwordError.classList.add('show');
-                        if (!firstErrorElement) firstErrorElement = passwordInput;
-
-                        setTimeout(() => {
-                            passwordError.classList.remove('show');
-                            passwordWrapper.classList.remove('error');
-                        }, 5000);
-                    }
-
-                    if (passwordInput.value !== confirmInput.value) {
-                        e.preventDefault();
-                        hasError = true;
-                        confirmWrapper.classList.add('error');
-                        confirmError.classList.add('show');
-                        if (!firstErrorElement) firstErrorElement = confirmInput;
-
-                        setTimeout(() => {
-                            confirmError.classList.remove('show');
-                            confirmWrapper.classList.remove('error');
-                        }, 5000);
-                    }
-
-                    if (hasError && firstErrorElement) {
-                        // Hide loading spinner if validation fails
-                        if (typeof window.hideLoading === 'function') {
-                            window.hideLoading();
-                        }
-                        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        firstErrorElement.focus();
-                        return false;
-                    }
-
-                    return true;
-                });
-
-                const inputs = document.querySelectorAll('.input-wrapper-setup input');
-                inputs.forEach(input => {
-                    updateInputBackground(input);
-                });
-            });
-        </script>
-    @endpush
-@endsection
+        Recaptcha.initRecaptchaValidation('form', {
+            alertMessage: 'Silakan verifikasi bahwa Anda bukan robot',
+            resetOnError: true
+        });
+    });
+</script>
+@endpush

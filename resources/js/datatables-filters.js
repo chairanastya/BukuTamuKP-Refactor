@@ -30,8 +30,6 @@ export function initDatatableFilter(options = {}) {
 
         const container = document.createElement('div');
         container.className = 'filter-container';
-        container.setAttribute('x-data', '{ isOpen: false }');
-        container.setAttribute('@click.away', 'isOpen = false');
 
         const button = document.createElement('button');
         button.type = 'button';

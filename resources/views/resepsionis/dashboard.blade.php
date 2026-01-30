@@ -307,7 +307,6 @@
             karyawan: null,
             tanggal: null
         };
-        // Expose to window for component access
         window.activeFilters = activeFilters;
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -322,7 +321,6 @@
             });
             window.filterByStatus = filterByStatus;
 
-            // Set initial filter selection
             document.querySelector('[data-filter="all"]').classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
 
             setTimeout(function () {
@@ -337,7 +335,6 @@
             }
         };
 
-        // Excel export using ExcelExporter component
         function exportToExcel() {
             const exporter = new ExcelExporter({
                 table: table,
@@ -390,7 +387,6 @@
         }
 
         function exportToPDF() {
-            // Ambil data yang sedang ditampilkan (setelah filter)
             if (!table) {
                 alert('Tabel belum dimuat, silakan tunggu...');
                 return;
@@ -403,16 +399,11 @@
                 return;
             }
 
-            console.log('Filtered data count:', filteredData.length);
-            console.log('First row sample:', filteredData[0]);
-
-            // Generate tanggal dan filter info
             const today = new Date();
             const dateStr = today.toISOString().split('T')[0];
             const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
             const monthYear = `${monthNames[today.getMonth()]} ${today.getFullYear()}`;
 
-            // Build filter description
             let filterParts = [];
             if (currentFilter !== 'all') {
                 filterParts.push(`Status: ${currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1)}`);
@@ -427,34 +418,28 @@
             const filterDescription = filterParts.length > 0 ? filterParts.join(' | ') : 'Semua Data';
             const subtitle = `Periode: ${monthYear} | Filter: ${filterDescription}`;
 
-            // Transform data for PDF export - IMPORTANT: must be array of arrays matching columns order
             const pdfData = filteredData.map((row, index) => {
                 const karyawanList = row.karyawan && row.karyawan.length > 0
                     ? row.karyawan.map(k => `${k.nama}\n${k.jabatan} - ${k.departemen}`).join('\n---\n')
                     : '-';
 
                 return [
-                    index + 1,                          // No
-                    row.tanggal || '-',                 // Tanggal
-                    row.jam || '-',                     // Jam
-                    row.nama_tamu || '-',               // Nama Tamu
-                    row.instansi || '-',                // Instansi
-                    row.tujuan_kunjungan || '-',        // Tujuan
-                    karyawanList,                       // PIC Karyawan
-                    (row.status || '').toUpperCase()    // Status
+                    index + 1,
+                    row.tanggal || '-',
+                    row.jam || '-',
+                    row.nama_tamu || '-',
+                    row.instansi || '-',
+                    row.tujuan_kunjungan || '-',
+                    karyawanList,
+                    (row.status || '').toUpperCase()
                 ];
             });
 
-            console.log('PDF data count:', pdfData.length);
-            console.log('First PDF row:', pdfData[0]);
-
-            // Generate filename
             const filenameParts = ['Laporan_Kunjungan', dateStr];
             if (currentFilter !== 'all') filenameParts.push(currentFilter);
             if (currentInstansiFilter && currentInstansiFilter.length > 0) filenameParts.push(currentInstansiFilter[0].replace(/\s+/g, '_'));
             const filename = filenameParts.join('_');
 
-            // Use PDF export component dengan error handling
             try {
                 if (typeof exportDataTablePDF !== 'function') {
                     console.error('exportDataTablePDF tidak ditemukan. window.exportDataTablePDF:', window.exportDataTablePDF);
@@ -467,14 +452,6 @@
                     alert('Error: jsPDF library tidak tersedia. Silakan refresh halaman.');
                     return;
                 }
-
-                console.log('Memanggil exportDataTablePDF dengan data:', {
-                    title: 'LAPORAN KUNJUNGAN HARI INI',
-                    subtitle: subtitle,
-                    dataCount: pdfData.length,
-                    filename: filename,
-                    columnCount: 8
-                });
 
                 exportDataTablePDF({
                     title: 'LAPORAN KUNJUNGAN HARI INI',
@@ -491,7 +468,6 @@
             }
         }
 
-        // Initialize DataTable using DataTableManager component
         function initDataTable() {
             const dtManager = new DataTableManager({
                 tableId: 'myTable',
@@ -529,8 +505,8 @@
                             }
 
                             return `<button onclick="showKaryawanList(${JSON.stringify(data).replace(/"/g, '&quot;')})" class="text-blue-600 hover:underline font-semibold flex items-center gap-1">
-                                                                                Lihat Detail (${data.length} Karyawan)
-                                                                            </button>`;
+                                            Lihat Detail (${data.length} Karyawan)
+                                        </button>`;
                         }
                     },
                     {
@@ -567,7 +543,6 @@
                 pageLength: 10,
                 order: [[9, 'desc']],
                 onInitComplete: function () {
-                    console.log('DataTable initialized, calling addCustomFilters');
                     setTimeout(function () {
                         addCustomFilters();
                     }, 200);
@@ -579,60 +554,26 @@
         }
 
         function addCustomFilters() {
-            console.log('Adding custom filters...');
 
-            const instansiFilter = initDatatableFilter({
-                filterId: 'instansiFilter',
-                filterName: 'Instansi',
+            // Initialize multi-filter untuk dashboard
+            window.multiFilter = new DatatableMultiFilter({
                 tableInstance: table,
-                columnIndex: 5,
-                multiple: true,
+                filters: {
+                    date: true,
+                    instansi: true,
+                    karyawan: true
+                },
                 dataFetcher: async () => {
                     try {
                         const response = await fetch('{{ route("resepsionis.kunjungan.data") }}');
                         const result = await response.json();
-                        const data = result.data || [];
-                        return [...new Set(data.map(item => item.instansi))].sort();
+                        return result.data || [];
                     } catch (error) {
-                        console.error('Error fetching instansi data:', error);
+                        console.error('Error fetching filter data:', error);
                         return [];
                     }
                 }
             });
-
-            const karyawanFilter = initDatatableFilter({
-                filterId: 'karyawanFilter',
-                filterName: 'Karyawan',
-                tableInstance: table,
-                columnIndex: 6,
-                multiple: true,
-                dataFetcher: async () => {
-                    try {
-                        const response = await fetch('{{ route("resepsionis.kunjungan.data") }}');
-                        const result = await response.json();
-                        const data = result.data || [];
-
-                        const karyawanMap = new Map();
-                        data.forEach(item => {
-                            if (item.karyawan && item.karyawan.length > 0) {
-                                item.karyawan.forEach(k => {
-                                    const key = `${k.nama}|${k.departemen}|${k.jabatan}`;
-                                    if (!karyawanMap.has(key)) {
-                                        karyawanMap.set(key, k.nama);
-                                    }
-                                });
-                            }
-                        });
-
-                        return [...karyawanMap.values()].sort();
-                    } catch (error) {
-                        console.error('Error fetching karyawan data:', error);
-                        return [];
-                    }
-                }
-            });
-
-            console.log('Custom filters initialized successfully');
         }
 
         function viewDetail(id) {
@@ -690,15 +631,12 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        // Close modals immediately
                         window.closeModal('acceptModal');
 
-                        // Reload table first
                         if (table) {
                             table.ajax.reload(null, false);
                         }
 
-                        // Wait a bit for table to reload, then refresh modal detail
                         setTimeout(() => {
                             if (currentDetailKunjunganId) {
                                 viewDetail(currentDetailKunjunganId);
@@ -749,15 +687,12 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        // Close modals immediately
                         closeRejectModal();
 
-                        // Reload table first
                         if (table) {
                             table.ajax.reload(null, false);
                         }
 
-                        // Wait a bit for table to reload, then refresh modal detail
                         setTimeout(() => {
                             if (currentDetailKunjunganId) {
                                 viewDetail(currentDetailKunjunganId);
@@ -779,19 +714,16 @@
         let isLoadingNotulensi = false;
 
         function viewHasil(kunjunganId) {
-            // Prevent rapid clicks
             if (isLoadingNotulensi) {
                 return;
             }
 
             isLoadingNotulensi = true;
 
-            // Get button elements
             const button = document.getElementById('viewHasilBtn_' + kunjunganId);
             const buttonText = document.getElementById('viewHasilText_' + kunjunganId);
             const spinner = document.getElementById('viewHasilSpinner_' + kunjunganId);
 
-            // Show spinner
             if (button && buttonText && spinner) {
                 button.disabled = true;
                 button.classList.add('opacity-70', 'cursor-not-allowed');
@@ -799,14 +731,12 @@
                 spinner.classList.remove('hidden');
             }
 
-            // Fetch token notulensi berdasarkan kunjungan ID
             fetch(`/resepsionis/notulensi/${kunjunganId}/token`)
                 .then(response => response.json())
                 .then(data => {
                     isLoadingNotulensi = false;
 
                     if (data.success && data.token) {
-                        // Buka halaman notulensi view dengan token yang didapat
                         window.open(`/notulensi/view/${data.token}`, '_blank');
                     } else {
                         window.showErrorModal(data.message || 'Notulensi tidak ditemukan');
@@ -818,7 +748,6 @@
                     window.showErrorModal('Terjadi kesalahan saat mengambil data notulensi');
                 })
                 .finally(() => {
-                    // Hide spinner
                     if (button && buttonText && spinner) {
                         button.disabled = false;
                         button.classList.remove('opacity-70', 'cursor-not-allowed');
@@ -828,7 +757,6 @@
                 });
         }
 
-        // Helper wrapper functions that enhance component behavior
         function closeRejectModal() {
             const textarea = document.getElementById('alasanBatal');
             if (textarea) {
@@ -846,7 +774,6 @@
             window.renderKtpModal(streamUrl);
         }
 
-        // Sidebar navigation loading handled by loading-spinner.js
         document.querySelectorAll('.sidebar-item').forEach(link => {
             link.addEventListener('click', function (e) {
                 if (this.href && !this.classList.contains('active')) {
@@ -864,7 +791,6 @@
                     onPayload: (payload) => {
                         console.log('Perubahan terdeteksi:', payload.eventType);
 
-                        // Reload DataTable tanpa reset pagination
                         if (table) {
                             table.ajax.reload(null, false);
                         }
@@ -890,12 +816,10 @@
                     }
                 });
             } else {
-                // Retry if not ready yet
                 setTimeout(initRealtimeWhenReady, 100);
             }
         }
 
-        // Initialize when DOM is ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function () {
                 setTimeout(initRealtimeWhenReady, 500);

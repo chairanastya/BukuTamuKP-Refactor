@@ -8,9 +8,10 @@ import { DataTableManager } from './datatables-init.js';
 import { initModals } from './modals.js';
 import { renderKaryawanListModal, renderDetailModal, renderKtpModal } from './modal-content.js';
 import { ExcelExporter } from './excel-export';
-import { initLoadingSpinner } from './loading-spinner';
+import { initLoadingSpinner, showLoading, hideLoading, createInlineSpinner } from './loading-spinner';
 import { createStatusFilter } from './status-filter.js';
 import { initDatatableFilter } from './datatables-filters.js';
+import { DatatableMultiFilter } from './datatable-multi-filter.js';
 import { updateInputBackground, initInputBackgrounds } from './input-background.js';
 import { initPasswordToggle } from './password-toggle.js';
 import * as KaryawanRowManager from './karyawan-row-manager.js';
@@ -26,7 +27,6 @@ window.exportDataTablePDF = exportDataTablePDF;
 window.exportContentPDF = exportContentPDF;
 window.toggleSidebar = toggleSidebar;
 window.closeSidebar = closeSidebar;
-window.initDropdown = initDropdown;
 window.DataTableManager = DataTableManager;
 window.initModals = initModals;
 window.renderKaryawanListModal = renderKaryawanListModal;
@@ -38,6 +38,7 @@ window.hideLoading = hideLoading;
 window.createInlineSpinner = createInlineSpinner;
 window.createStatusFilter = createStatusFilter;
 window.initDatatableFilter = initDatatableFilter;
+window.DatatableMultiFilter = DatatableMultiFilter;
 window.updateInputBackground = updateInputBackground;
 window.initInputBackgrounds = initInputBackgrounds;
 window.initPasswordToggle = initPasswordToggle;
@@ -55,9 +56,6 @@ window.setSearchKaryawanRoute = KaryawanRowManager.setSearchKaryawanRoute;
 window.setEscapeHtmlFn = KaryawanRowManager.setEscapeHtmlFn;
 window.getSelectedKaryawan = KaryawanRowManager.getSelectedKaryawan;
 window.initWebcam = initWebcam;
-window.addEventListener('DOMContentLoaded', function() {
-    clearOldImageStorages();
-});
 window.initSupabaseRealtime = initSupabaseRealtime;
 window.Recaptcha = Recaptcha;
 window.setupFormValidation = setupFormValidation;
@@ -67,5 +65,25 @@ window.createAutocomplete = createAutocomplete;
 
 Alpine.start();
 
-initSidebar();
-initLoadingSpinner();
+document.addEventListener('DOMContentLoaded', function() {
+    clearOldImageStorages();
+    if (document.getElementById('dropdown')) {
+        initDropdown('dropdown');
+    }
+    initSidebar();
+    initLoadingSpinner();
+    initModals();
+    initInputBackgrounds();
+    initPasswordToggle();
+    if (
+        document.getElementById('webcam_video') &&
+        document.getElementById('capture_canvas') &&
+        document.getElementById('webcam_modal')
+    ) {
+        initWebcam();
+    }
+    initSupabaseRealtime();
+    if (window.dataTableInstance) {
+        initDatatableFilter({ tableInstance: window.dataTableInstance });
+    }
+});
