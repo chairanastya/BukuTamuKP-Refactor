@@ -14,6 +14,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
         rel="stylesheet">
 
+    <!-- Preload main CSS -->
+    <link rel="preload" as="style" href="{{ Vite::asset('resources/css/app.css') }}" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ Vite::asset('resources/css/app.css') }}"></noscript>
+    
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
@@ -21,6 +25,8 @@
 </head>
 
 <body class="font-sans antialiased">
+    <!-- Loading Spinner -->
+    <x-loading-spinner />
     <!-- Page Header with Gradient Background -->
     @if(View::hasSection('header'))
         <header class="fixed top-0 left-0 right-0 z-50" style="background: linear-gradient(#0C4777 17.8%, #47B9AE 100%);">
@@ -82,9 +88,6 @@
 
     <!-- Page Content -->
     @yield('content')
-
-    <!-- Loading Spinner -->
-    <x-loading-spinner />
 
     @stack('scripts')
 </body>
