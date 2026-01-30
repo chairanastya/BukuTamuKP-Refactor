@@ -555,6 +555,9 @@
 
         function addCustomFilters() {
 
+            // Set SVG icon to window scope
+            window.filterIcon = `{!! svg('akar-settings-horizontal', 'w-5 h-5 inline')->toHtml() !!}`;
+
             // Initialize multi-filter untuk dashboard
             window.multiFilter = new DatatableMultiFilter({
                 tableInstance: table,
