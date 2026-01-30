@@ -8,7 +8,19 @@ export function createAutocomplete(config) {
         if (dropdown.classList.contains('show')) {
             dropdown.classList.remove('show');
         } else {
-            displayPreloaded();
+            // If data not preloaded yet, preload first then display
+            if (!isPreloaded) {
+                fetch(`${searchRoute}?q=`)
+                    .then(response => response.json())
+                    .then(data => {
+                        allItems = data;
+                        isPreloaded = true;
+                        displayPreloaded();
+                    })
+                    .catch(error => console.error(`Error loading ${label}:`, error));
+            } else {
+                displayPreloaded();
+            }
         }
     };
 

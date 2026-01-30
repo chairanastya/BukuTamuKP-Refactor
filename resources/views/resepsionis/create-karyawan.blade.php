@@ -113,7 +113,7 @@
                         placeholder="Tuliskan atau pilih departemen" :value="old('departemen')" :required="true"
                         :error="$errors->first('departemen')" errorMessage="Departemen wajib diisi" :appendSlot="true"
                         autocomplete="off">
-                        <button type="button" onclick="toggleDepartemenDropdown()"
+                        <button type="button" data-action="toggle-departemen"
                             class="ml-2 text-[#084E8F] hover:text-[#F7B218] transition">
                             @svg('heroicon-o-chevron-down', 'w-5 h-5')
                         </button>
@@ -126,7 +126,7 @@
                         placeholder="Tuliskan atau pilih jabatan" :value="old('jabatan')" :required="true"
                         :error="$errors->first('jabatan')" errorMessage="Jabatan wajib diisi" :appendSlot="true"
                         autocomplete="off">
-                        <button type="button" onclick="toggleJabatanDropdown()"
+                        <button type="button" data-action="toggle-jabatan"
                             class="ml-2 text-[#084E8F] hover:text-[#F7B218] transition">
                             @svg('heroicon-o-chevron-down', 'w-5 h-5')
                         </button>
@@ -182,34 +182,34 @@
             });
         @endif
 
-        // Setup form validation using form-validation.js component
-        function initializeKaryawanForm() {
-            // Validate each field
-            const validateFields = () => {
-                const namaError = document.getElementById('nama_karyawan_error');
-                const emailError = document.getElementById('email_karyawan_error');
-                const departemenError = document.getElementById('departemen_error');
-                const jabatanError = document.getElementById('jabatan_error');
+            // Setup form validation using form-validation.js component
+            function initializeKaryawanForm() {
+                // Validate each field
+                const validateFields = () => {
+                    const namaError = document.getElementById('nama_karyawan_error');
+                    const emailError = document.getElementById('email_karyawan_error');
+                    const departemenError = document.getElementById('departemen_error');
+                    const jabatanError = document.getElementById('jabatan_error');
 
-                return validateTextField(namaInput, namaError) &&
-                       validateEmail(emailInput, emailError) &&
-                       validateTextField(departemenInput, departemenError) &&
-                       validateTextField(jabatanInput, jabatanError);
-            };
+                    return validateTextField(namaInput, namaError) &&
+                        validateEmail(emailInput, emailError) &&
+                        validateTextField(departemenInput, departemenError) &&
+                        validateTextField(jabatanInput, jabatanError);
+                };
 
-            // Add blur listeners for real-time validation
-            namaInput.addEventListener('blur', () => validateTextField(namaInput, document.getElementById('nama_karyawan_error')));
-            emailInput.addEventListener('blur', () => validateEmail(emailInput, document.getElementById('email_karyawan_error')));
-            departemenInput.addEventListener('blur', () => validateTextField(departemenInput, document.getElementById('departemen_error')));
-            jabatanInput.addEventListener('blur', () => validateTextField(jabatanInput, document.getElementById('jabatan_error')));
+                // Add blur listeners for real-time validation
+                namaInput.addEventListener('blur', () => validateTextField(namaInput, document.getElementById('nama_karyawan_error')));
+                emailInput.addEventListener('blur', () => validateEmail(emailInput, document.getElementById('email_karyawan_error')));
+                departemenInput.addEventListener('blur', () => validateTextField(departemenInput, document.getElementById('departemen_error')));
+                jabatanInput.addEventListener('blur', () => validateTextField(jabatanInput, document.getElementById('jabatan_error')));
 
-            // Setup form submit validation
-            form.addEventListener('submit', function (e) {
-                if (!validateFields()) {
-                    e.preventDefault();
-                }
-            });
-        }
+                // Setup form submit validation
+                form.addEventListener('submit', function (e) {
+                    if (!validateFields()) {
+                        e.preventDefault();
+                    }
+                });
+            }
 
         function initializeAutocomplete() {
             // Departemen autocomplete
@@ -220,7 +220,6 @@
                 validateFn: () => validateTextField(departemenInput, document.getElementById('departemen_error')),
                 label: 'Departemen'
             });
-            window.toggleDepartemenDropdown = () => departemenAuto.toggle();
 
             // Jabatan autocomplete with submit button update callback
             const jabatanAuto = window.createAutocomplete({
@@ -233,7 +232,20 @@
                 },
                 label: 'Jabatan'
             });
-            window.toggleJabatanDropdown = () => jabatanAuto.toggle();
+
+            // Setup button toggle handlers using data-action attribute
+            document.querySelectorAll('button[data-action]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (btn.dataset.action === 'toggle-departemen') {
+                        departemenAuto.toggle();
+                    } else if (btn.dataset.action === 'toggle-jabatan') {
+                        jabatanAuto.toggle();
+                    }
+                });
+            });
         }
 
         // Update submit button text based on jabatan value
