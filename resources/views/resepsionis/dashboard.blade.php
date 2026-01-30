@@ -786,6 +786,8 @@
 
         function initRealtimeWhenReady() {
             if (typeof initSupabaseRealtime === 'function') {
+                let updateTimeout = null;
+
                 initSupabaseRealtime({
                     channelName: 'kunjungan-realtime',
                     tableName: 'kunjungan',
@@ -793,28 +795,35 @@
                     onPayload: (payload) => {
                         console.log('Perubahan terdeteksi:', payload.eventType);
 
-                        if (table) {
-                            table.ajax.reload(null, false);
+                        // Debounce updates to prevent excessive API calls
+                        if (updateTimeout) {
+                            clearTimeout(updateTimeout);
                         }
 
-                        fetch('{{ route("resepsionis.kunjungan.data") }}')
-                            .then(res => res.json())
-                            .then(result => {
-                                if (result.data) {
-                                    const data = result.data;
+                        updateTimeout = setTimeout(() => {
+                            if (table) {
+                                table.ajax.reload(null, false);
+                            }
 
-                                    const totalCard = document.querySelector('[data-filter="all"] .stats-value');
-                                    const pendingCard = document.querySelector('[data-filter="pending"] .stats-value');
-                                    const doneCard = document.querySelector('[data-filter="done"] .stats-value');
-                                    const canceledCard = document.querySelector('[data-filter="canceled"] .stats-value');
+                            fetch('{{ route("resepsionis.kunjungan.data") }}')
+                                .then(res => res.json())
+                                .then(result => {
+                                    if (result.data) {
+                                        const data = result.data;
 
-                                    if (totalCard) totalCard.textContent = data.length;
-                                    if (pendingCard) pendingCard.textContent = data.filter(r => r.status === 'pending').length;
-                                    if (doneCard) doneCard.textContent = data.filter(r => r.status === 'done').length;
-                                    if (canceledCard) canceledCard.textContent = data.filter(r => r.status === 'canceled').length;
-                                }
-                            })
-                            .catch(error => console.error('Error updating stats:', error));
+                                        const totalCard = document.querySelector('[data-filter="all"] .stats-value');
+                                        const pendingCard = document.querySelector('[data-filter="pending"] .stats-value');
+                                        const doneCard = document.querySelector('[data-filter="done"] .stats-value');
+                                        const canceledCard = document.querySelector('[data-filter="canceled"] .stats-value');
+
+                                        if (totalCard) totalCard.textContent = data.length;
+                                        if (pendingCard) pendingCard.textContent = data.filter(r => r.status === 'pending').length;
+                                        if (doneCard) doneCard.textContent = data.filter(r => r.status === 'done').length;
+                                        if (canceledCard) canceledCard.textContent = data.filter(r => r.status === 'canceled').length;
+                                    }
+                                })
+                                .catch(error => console.error('Error updating stats:', error));
+                        }, 1000); // Wait 1 second before updating
                     }
                 });
             } else {

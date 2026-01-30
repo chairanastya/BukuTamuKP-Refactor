@@ -373,20 +373,6 @@
 
             window.table = dtManager.init();
 
-            window.initSupabaseRealtime({
-                channelName: 'riwayat-realtime',
-                tableName: 'kunjungan',
-                onPayload: (payload) => {
-                    // Only reload for new submissions (INSERT), not for updates like reject
-                    if (payload.eventType === 'INSERT') {
-                        clearTimeout(reloadTimeout);
-                        reloadTimeout = setTimeout(() => {
-                            dtManager.reload(false);
-                        }, 1000);
-                    }
-                }
-            });
-
             // Initialize status filter
             window.filterByStatus = window.createStatusFilter({
                 tableVar: 'table',
@@ -397,7 +383,41 @@
 
             // Initialize modals
             window.initModals();
+
+            // Initialize Supabase realtime after everything is ready
+            initRealtimeWhenReady();
         });
+
+        function initRealtimeWhenReady() {
+            if (typeof window.initSupabaseRealtime === 'function') {
+                window.initSupabaseRealtime({
+                    channelName: 'riwayat-realtime',
+                    tableName: 'kunjungan',
+                    configUrl: '/api/supabase-config',
+                    onPayload: (payload) => {
+                        // Only reload for new submissions (INSERT), not for updates like reject
+                        if (payload.eventType === 'INSERT') {
+                            clearTimeout(reloadTimeout);
+                            reloadTimeout = setTimeout(() => {
+                                if (window.table) {
+                                    window.table.ajax.reload(null, false);
+                                }
+                            }, 1000);
+                        }
+                    }
+                });
+            } else {
+                setTimeout(initRealtimeWhenReady, 100);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () {
+                setTimeout(initRealtimeWhenReady, 500);
+            });
+        } else {
+            setTimeout(initRealtimeWhenReady, 500);
+        }
 
         function exportToExcel() {
             const exporter = new window.ExcelExporter({
