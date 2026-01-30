@@ -6,6 +6,7 @@ export class DataTableManager {
         this.order = config.order || [[0, 'desc']];
         this.pageLength = config.pageLength || 10;
         this.responsive = config.responsive !== false;
+        this.serverSide = config.serverSide || false;
         this.onInitComplete = config.onInitComplete || function() {};
         this.table = null;
     }
@@ -16,9 +17,10 @@ export class DataTableManager {
         }
 
         const config = {
+            serverSide: this.serverSide,
             ajax: {
                 url: this.ajaxUrl,
-                dataSrc: 'data',
+                dataSrc: this.serverSide ? 'data' : 'data',
                 error: (xhr, error, thrown) => {
                     console.error('DataTables AJAX error:', error, thrown);
                     // Remove automatic retry to prevent infinite loops

@@ -286,6 +286,7 @@
             const dtManager = new window.DataTableManager({
                 tableId: 'riwayatTable',
                 ajaxUrl: '{{ route("resepsionis.riwayat.data") }}',
+                serverSide: true,
                 columns: [{
                         data: null,
                         responsivePriority: 1,
@@ -487,7 +488,7 @@
             content.innerHTML = window.createInlineSpinner('Memuat Detail Kunjungan...');
             window.showModal('detailModal');
 
-            fetch(`{{ route('resepsionis.riwayat.data') }}`)
+            fetch(`{{ route('resepsionis.riwayat.data') }}?export=1`)
                 .then(res => res.json())
                 .then(result => {
                     const kunjungan = result.data.find(k => k.id_kunjungan === id);
@@ -658,7 +659,7 @@
                 },
                 dataFetcher: async () => {
                     try {
-                        const response = await fetch('{{ route("resepsionis.riwayat.data") }}');
+                        const response = await fetch('{{ route("resepsionis.riwayat.data") }}?export=1');
                         const result = await response.json();
                         return result.data || [];
                     } catch (error) {
