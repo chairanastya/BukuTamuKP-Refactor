@@ -399,9 +399,6 @@
                 return;
             }
 
-            console.log('Filtered data count:', filteredData.length);
-            console.log('First row sample:', filteredData[0]);
-
             const today = new Date();
             const dateStr = today.toISOString().split('T')[0];
             const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -438,9 +435,6 @@
                 ];
             });
 
-            console.log('PDF data count:', pdfData.length);
-            console.log('First PDF row:', pdfData[0]);
-
             const filenameParts = ['Laporan_Kunjungan', dateStr];
             if (currentFilter !== 'all') filenameParts.push(currentFilter);
             if (currentInstansiFilter && currentInstansiFilter.length > 0) filenameParts.push(currentInstansiFilter[0].replace(/\s+/g, '_'));
@@ -458,14 +452,6 @@
                     alert('Error: jsPDF library tidak tersedia. Silakan refresh halaman.');
                     return;
                 }
-
-                console.log('Memanggil exportDataTablePDF dengan data:', {
-                    title: 'LAPORAN KUNJUNGAN HARI INI',
-                    subtitle: subtitle,
-                    dataCount: pdfData.length,
-                    filename: filename,
-                    columnCount: 8
-                });
 
                 exportDataTablePDF({
                     title: 'LAPORAN KUNJUNGAN HARI INI',
@@ -519,8 +505,8 @@
                             }
 
                             return `<button onclick="showKaryawanList(${JSON.stringify(data).replace(/"/g, '&quot;')})" class="text-blue-600 hover:underline font-semibold flex items-center gap-1">
-                                    Lihat Detail (${data.length} Karyawan)
-                                </button>`;
+                                            Lihat Detail (${data.length} Karyawan)
+                                        </button>`;
                         }
                     },
                     {
@@ -557,7 +543,6 @@
                 pageLength: 10,
                 order: [[9, 'desc']],
                 onInitComplete: function () {
-                    console.log('DataTable initialized, calling addCustomFilters');
                     setTimeout(function () {
                         addCustomFilters();
                     }, 200);
@@ -569,60 +554,29 @@
         }
 
         function addCustomFilters() {
-            console.log('Adding custom filters...');
 
-            const instansiFilter = initDatatableFilter({
-                filterId: 'instansiFilter',
-                filterName: 'Instansi',
+            // Set SVG icon to window scope
+            window.filterIcon = `{!! svg('akar-settings-horizontal', 'w-5 h-5 inline')->toHtml() !!}`;
+
+            // Initialize multi-filter untuk dashboard
+            window.multiFilter = new DatatableMultiFilter({
                 tableInstance: table,
-                columnIndex: 5,
-                multiple: true,
+                filters: {
+                    date: true,
+                    instansi: true,
+                    karyawan: true
+                },
                 dataFetcher: async () => {
                     try {
                         const response = await fetch('{{ route("resepsionis.kunjungan.data") }}');
                         const result = await response.json();
-                        const data = result.data || [];
-                        return [...new Set(data.map(item => item.instansi))].sort();
+                        return result.data || [];
                     } catch (error) {
-                        console.error('Error fetching instansi data:', error);
+                        console.error('Error fetching filter data:', error);
                         return [];
                     }
                 }
             });
-
-            const karyawanFilter = initDatatableFilter({
-                filterId: 'karyawanFilter',
-                filterName: 'Karyawan',
-                tableInstance: table,
-                columnIndex: 6,
-                multiple: true,
-                dataFetcher: async () => {
-                    try {
-                        const response = await fetch('{{ route("resepsionis.kunjungan.data") }}');
-                        const result = await response.json();
-                        const data = result.data || [];
-
-                        const karyawanMap = new Map();
-                        data.forEach(item => {
-                            if (item.karyawan && item.karyawan.length > 0) {
-                                item.karyawan.forEach(k => {
-                                    const key = `${k.nama}|${k.departemen}|${k.jabatan}`;
-                                    if (!karyawanMap.has(key)) {
-                                        karyawanMap.set(key, k.nama);
-                                    }
-                                });
-                            }
-                        });
-
-                        return [...karyawanMap.values()].sort();
-                    } catch (error) {
-                        console.error('Error fetching karyawan data:', error);
-                        return [];
-                    }
-                }
-            });
-
-            console.log('Custom filters initialized successfully');
         }
 
         function viewDetail(id) {
