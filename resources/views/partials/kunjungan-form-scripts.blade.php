@@ -7,12 +7,34 @@
             edit: `{!! svg('zondicon-edit-pencil', 'w-5 h-5 text-[#084E8F]')->toHtml() !!}`
         };
 
+        function showSuccessModal() {
+            const modal = document.getElementById('success_modal');
+            const messageElement = document.getElementById('success_message');
+
+            if (modal) {
+                // Pastikan pesan ditampilkan
+                if (messageElement && !messageElement.textContent.trim()) {
+                    messageElement.textContent = 'Data berhasil dikirim. Email notifikasi telah dikirim ke karyawan tujuan.';
+                }
+
+                // Try to use window.showModal first
+                if (typeof window.showModal === 'function') {
+                    window.showModal('success_modal');
+                } else {
+                    // Fallback: manually show the modal
+                    modal.classList.add('show');
+                }
+            } else {
+                console.warn('[showSuccessModal] Modal with ID "success_modal" not found');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             setSearchKaryawanRoute('{{ route('tamu.search-karyawan') }}');
             setEscapeHtmlFn(escapeHtml);
 
             restoreOldValues();
-            
+
             addKaryawanRow();
 
             @if(session('success'))
@@ -52,6 +74,13 @@
                         type: 'photo',
                         extraElement: document.getElementById('webcam_area')
                     }
+                },
+                onSubmit: function (e, form) {
+                    // Show loading spinner sebelum form submit
+                    if (typeof window.showLoading === 'function') {
+                        window.showLoading();
+                    }
+                    return true;
                 }
             });
             initWebcam();
