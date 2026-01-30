@@ -23,13 +23,20 @@ class TamuController extends Controller
     {
         $keyword = $request->input('q', '');
 
+        // If keyword is empty, return all active karyawan (for preload)
         if (empty($keyword)) {
-            return response()->json([]);
+            return response()->json(
+                Karyawan::where('status', 'aktif')
+                    ->orderBy('nama_karyawan', 'asc')
+                    ->get(['id_karyawan', 'nama_karyawan', 'jabatan', 'departemen'])
+            );
         }
 
+        // Use ILIKE with prefix matching (case-insensitive + faster than %) + limit for smaller response
         $karyawans = Karyawan::where('status', 'aktif')
-            ->where('nama_karyawan', 'ILIKE', '%' . $keyword . '%')
+            ->where('nama_karyawan', 'ILIKE', $keyword . '%')
             ->orderBy('nama_karyawan', 'asc')
+            ->limit(20)
             ->get(['id_karyawan', 'nama_karyawan', 'jabatan', 'departemen']);
 
         return response()->json($karyawans);

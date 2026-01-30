@@ -33,6 +33,9 @@
             setSearchKaryawanRoute('{{ route('tamu.search-karyawan') }}');
             setEscapeHtmlFn(escapeHtml);
 
+            // Preload karyawan data for instant search
+            preloadKaryawanData();
+
             restoreOldValues();
 
             addKaryawanRow();

@@ -1,5 +1,7 @@
 export let selectedKaryawan = [];
 export let rowCounter = 0;
+export let allKaryawans = []; // Preloaded karyawan data
+export let karyawanCache = {}; // Cache untuk search results
 
 export function getSelectedKaryawan() {
     return selectedKaryawan;
@@ -11,6 +13,39 @@ export function setSearchKaryawanRoute(route) {
 
 export function setEscapeHtmlFn(fn) {
     window.escapeHtmlFn = fn;
+}
+
+// Preload all karyawan data on page load
+export function preloadKaryawanData() {
+    if (!window.karyawanSearchRoute) {
+        console.error('Search route not initialized');
+        return;
+    }
+
+    fetch(`${window.karyawanSearchRoute}?q=`)
+        .then(res => res.json())
+        .then(data => {
+            allKaryawans = data || [];
+            console.log(`[Karyawan] Preloaded ${allKaryawans.length} karyawan`);
+        })
+        .catch(err => console.error('[Karyawan] Preload failed:', err));
+}
+
+// Fuzzy search on client-side
+function fuzzySearch(query) {
+    if (!query) return allKaryawans.slice(0, 20);
+    
+    const q = query.toLowerCase();
+    return allKaryawans
+        .filter(k => k.nama_karyawan.toLowerCase().includes(q))
+        .sort((a, b) => {
+            // Prioritize matches at start
+            const aStart = a.nama_karyawan.toLowerCase().startsWith(q) ? 0 : 1;
+            const bStart = b.nama_karyawan.toLowerCase().startsWith(q) ? 0 : 1;
+            if (aStart !== bStart) return aStart - bStart;
+            return a.nama_karyawan.localeCompare(b.nama_karyawan);
+        })
+        .slice(0, 20);
 }
 
 export function addKaryawanRow() {
@@ -78,15 +113,17 @@ export function setupRowListeners(rowId) {
         const query = this.value.trim();
         clearTimeout(debounceTimeout);
 
-        if (query.length < 2) {
+        if (query.length < 1) {
             dropdown.classList.remove('show');
             dropdown.innerHTML = '';
             return;
         }
 
+        // Use fuzzy search on preloaded data (instant!)
         debounceTimeout = setTimeout(() => {
-            searchKaryawan(query, rowId, dropdown);
-        }, 300);
+            const results = fuzzySearch(query);
+            displayAutocomplete(results, rowId, dropdown);
+        }, 50);
     });
 
     document.addEventListener('click', function (e) {
@@ -96,28 +133,6 @@ export function setupRowListeners(rowId) {
     });
 }
 
-export function searchKaryawan(query, rowId, dropdown) {
-    if (!window.karyawanSearchRoute) {
-        console.error('Karyawan search route not initialized. Call setSearchKaryawanRoute() first.');
-        dropdown.innerHTML = '<div class="autocomplete-item">Error: Route not configured</div>';
-        dropdown.classList.add('show');
-        return;
-    }
-
-    fetch(`${window.karyawanSearchRoute}?q=${encodeURIComponent(query)}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => displayAutocomplete(data, rowId, dropdown))
-        .catch(error => {
-            console.error('Error searching karyawan:', error);
-            dropdown.innerHTML = '<div class="autocomplete-item">Error loading data</div>';
-            dropdown.classList.add('show');
-        });
-}
 
 export function displayAutocomplete(karyawans, rowId, dropdown) {
     if (karyawans.length === 0) {
