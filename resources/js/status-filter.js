@@ -23,7 +23,6 @@ export function createStatusFilter(config) {
 
         // Get the table instance from config
         const tableVar = window[config.tableVar];
-        const columnIndex = config.columnIndex || 7;
 
         // Check if table is initialized
         if (!tableVar) {
@@ -31,23 +30,27 @@ export function createStatusFilter(config) {
             return;
         }
 
-        // Check if column method exists
-        if (typeof tableVar.column !== 'function') {
-            console.warn(`Table instance doesn't have 'column' method. Table might not be fully initialized.`);
-            return;
-        }
-
-        if (status === 'all') {
-            tableVar.column(columnIndex).search('').draw();
+        // Check if server-side processing
+        if (tableVar.init && tableVar.init().serverSide) {
+            console.log('Server-side processing detected, sending status parameter:', status);
+            // For server-side, we need to modify ajax params and reload
+            // DataTables doesn't have a direct way to add custom params, so we use ajax.url with query string
+            const currentUrl = tableVar.ajax.url();
+            const url = new URL(currentUrl, window.location.origin);
+            url.searchParams.set('status', status);
+            tableVar.ajax.url(url.toString()).load();
         } else {
-            if (config.useRegex) {
-                const searchPattern = `^${status}$`;
-                tableVar.column(columnIndex).search(searchPattern, true, false).draw();
+            // For client-side processing, use column search
+            const columnIndex = config.columnIndex || 7;
+            console.log('Client-side processing, searching in column', columnIndex, 'for:', status);
+            
+            if (status === 'all') {
+                tableVar.column(columnIndex).search('').draw();
             } else {
                 tableVar.column(columnIndex).search(status).draw();
             }
         }
 
-        console.log(`Status filter applied: ${status}, Column: ${columnIndex}`);
+        console.log(`Status filter applied: ${status}`);
     };
 }

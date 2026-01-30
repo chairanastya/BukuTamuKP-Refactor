@@ -191,6 +191,7 @@ class ResepsionisController extends Controller
         $start = $request->input('start', 0);
         $length = $request->input('length', 10);
         $searchValue = $request->input('search.value', '');
+        $statusFilter = $request->input('status', 'all'); // Add status filter parameter
 
         // Build base query with optimized eager loading
         $query = Kunjungan::with([
@@ -198,6 +199,11 @@ class ResepsionisController extends Controller
             'karyawan:id_karyawan,nama_karyawan,jabatan,departemen'
         ])
             ->select('id_kunjungan', 'id_tamu', 'tujuan_kunjungan', 'tanggal_kunjungan', 'jam_mulai', 'jam_selesai', 'status', 'alasan_batal');
+
+        // Apply status filter if not 'all'
+        if ($statusFilter !== 'all') {
+            $query->where('status', $statusFilter);
+        }
 
         // Apply search if provided
         if (!empty($searchValue)) {

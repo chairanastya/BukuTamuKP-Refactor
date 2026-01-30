@@ -332,11 +332,11 @@
                         }
                     },
                     {
-                        data: 'status_badge',
+                        data: 'status',
                         responsivePriority: 8,
                         render: function(data, type, row) {
-                            if (type === 'filter' || type === 'sort') {
-                                return row.status;
+                            if (type === 'display') {
+                                return row.status_badge;
                             }
                             return data;
                         }
@@ -378,8 +378,7 @@
             window.filterByStatus = window.createStatusFilter({
                 tableVar: 'table',
                 currentFilterVar: 'activeFilters.status',
-                activeFiltersVar: 'activeFilters',
-                columnIndex: 7
+                activeFiltersVar: 'activeFilters'
             });
 
             // Initialize modals
