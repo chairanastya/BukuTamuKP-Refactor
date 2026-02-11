@@ -186,14 +186,12 @@ class ResepsionisController extends Controller
             return response()->json(['data' => $kunjungans]);
         }
 
-        // DataTables server-side processing parameters
-        $draw = $request->input('draw', 1);
-        $start = $request->input('start', 0);
-        $length = $request->input('length', 10);
-        $searchValue = $request->input('search.value', '');
-        $statusFilter = $request->input('status', 'all'); // Add status filter parameter
+        // For DataTables client-side processing with batch loading
+        $offset = $request->input('offset', 0);
+        $batchSize = $request->input('batch_size', 100);
+        $statusFilter = $request->input('status', 'all');
 
-        // Build base query with optimized eager loading
+        // Build base query
         $query = Kunjungan::with([
             'tamu:id_tamu,nama_tamu,email_tamu,instansi_tamu,ktp_public_id,ktp_access_token',
             'karyawan:id_karyawan,nama_karyawan,jabatan,departemen'
@@ -205,72 +203,55 @@ class ResepsionisController extends Controller
             $query->where('status', $statusFilter);
         }
 
-        // Apply search if provided
-        if (!empty($searchValue)) {
-            $query->where(function ($q) use ($searchValue) {
-                $q->whereHas('tamu', function ($tamuQuery) use ($searchValue) {
-                    $tamuQuery->where('nama_tamu', 'like', '%' . $searchValue . '%')
-                             ->orWhere('email_tamu', 'like', '%' . $searchValue . '%')
-                             ->orWhere('instansi_tamu', 'like', '%' . $searchValue . '%');
-                })
-                ->orWhere('tujuan_kunjungan', 'like', '%' . $searchValue . '%')
-                ->orWhere('status', 'like', '%' . $searchValue . '%');
-            });
-        }
+        // Get total count for this filter
+        $totalRecords = $query->count();
 
-        // Get total records (before filtering)
-        $totalRecords = Kunjungan::count();
-
-        // Get filtered records count
-        $filteredRecords = $query->count();
-
-        // Apply ordering and pagination
-        $query->orderBy('tanggal_kunjungan', 'desc')
-              ->orderBy('jam_mulai', 'desc')
-              ->offset($start)
-              ->limit($length);
-
-        $kunjungans = $query->get()->map(function ($kunjungan) {
-            return [
-                'id_kunjungan' => $kunjungan->id_kunjungan,
-                'id_tamu' => $kunjungan->tamu->id_tamu ?? null,
-                'ktp_token' => $kunjungan->tamu->ktp_access_token ?? null,
-                'tanggal' => $kunjungan->tanggal_kunjungan->format('d/m/Y'),
-                'jam' => substr($kunjungan->jam_mulai, 0, 5) . ' - ' . substr($kunjungan->jam_selesai ?? '00:00', 0, 5),
-                'nama_tamu' => $kunjungan->tamu->nama_tamu ?? '-',
-                'email_tamu' => $kunjungan->tamu->email_tamu ?? '-',
-                'has_ktp' => !empty($kunjungan->tamu->ktp_public_id),
-                'instansi' => $kunjungan->tamu->instansi_tamu ?? '-',
-                'karyawan' => $kunjungan->karyawan->map(function ($k) {
-                    return [
-                        'nama' => $k->nama_karyawan,
-                        'jabatan' => $k->jabatan ?? '-',
-                        'departemen' => $k->departemen ?? '-',
-                    ];
-                }),
-                'tujuan_kunjungan' => $kunjungan->tujuan_kunjungan ?? '-',
-                'status' => $kunjungan->status,
-                'status_badge' => BadgeHelper::getStatusBadge($kunjungan->status),
-                'alasan_batal' => $kunjungan->alasan_batal,
-            ];
-        });
+        // Load batch of data
+        $kunjungans = $query->orderBy('tanggal_kunjungan', 'desc')
+                           ->orderBy('jam_mulai', 'desc')
+                           ->offset($offset)
+                           ->limit($batchSize)
+                           ->get()
+                           ->map(function ($kunjungan) {
+                               return [
+                                   'id_kunjungan' => $kunjungan->id_kunjungan,
+                                   'id_tamu' => $kunjungan->tamu->id_tamu ?? null,
+                                   'ktp_token' => $kunjungan->tamu->ktp_access_token ?? null,
+                                   'tanggal' => $kunjungan->tanggal_kunjungan->format('d/m/Y'),
+                                   'jam' => substr($kunjungan->jam_mulai, 0, 5) . ' - ' . substr($kunjungan->jam_selesai ?? '00:00', 0, 5),
+                                   'nama_tamu' => $kunjungan->tamu->nama_tamu ?? '-',
+                                   'email_tamu' => $kunjungan->tamu->email_tamu ?? '-',
+                                   'has_ktp' => !empty($kunjungan->tamu->ktp_public_id),
+                                   'instansi' => $kunjungan->tamu->instansi_tamu ?? '-',
+                                   'karyawan' => $kunjungan->karyawan->map(function ($k) {
+                                       return [
+                                           'nama' => $k->nama_karyawan,
+                                           'jabatan' => $k->jabatan ?? '-',
+                                           'departemen' => $k->departemen ?? '-',
+                                       ];
+                                   }),
+                                   'tujuan_kunjungan' => $kunjungan->tujuan_kunjungan ?? '-',
+                                   'status' => $kunjungan->status,
+                                   'status_badge' => BadgeHelper::getStatusBadge($kunjungan->status),
+                                   'alasan_batal' => $kunjungan->alasan_batal,
+                               ];
+                           });
 
         $end = microtime(true);
-        Log::info('getRiwayatData DataTables completed', [
+        Log::info('getRiwayatData batch load completed', [
             'time' => $end - $start,
-            'draw' => $draw,
-            'start' => $start,
-            'length' => $length,
+            'offset' => $offset,
+            'batch_size' => $batchSize,
             'count' => $kunjungans->count(),
             'total' => $totalRecords,
-            'filtered' => $filteredRecords
+            'status_filter' => $statusFilter
         ]);
 
         return response()->json([
-            'draw' => intval($draw),
-            'recordsTotal' => $totalRecords,
-            'recordsFiltered' => $filteredRecords,
-            'data' => $kunjungans
+            'data' => $kunjungans,
+            'total' => $totalRecords,
+            'offset' => $offset,
+            'batch_size' => $batchSize
         ]);
     }
 

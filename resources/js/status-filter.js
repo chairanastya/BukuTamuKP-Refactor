@@ -30,19 +30,35 @@ export function createStatusFilter(config) {
             return;
         }
 
-        // Check if server-side processing
-        if (tableVar.init && tableVar.init().serverSide) {
-            console.log('Server-side processing detected, sending status parameter:', status);
-            // For server-side, we need to modify ajax params and reload
-            // DataTables doesn't have a direct way to add custom params, so we use ajax.url with query string
-            const currentUrl = tableVar.ajax.url();
-            const url = new URL(currentUrl, window.location.origin);
-            url.searchParams.set('status', status);
-            tableVar.ajax.url(url.toString()).load();
+        // Check if this is a DataTableManager instance with batch loading
+        if (tableVar.batchLoading !== undefined && tableVar.batchLoading) {
+            console.log('Batch loading detected (DataTableManager), applying status filter:', status);
+            tableVar.applyStatusFilter(status);
+        } else if (tableVar.init && typeof tableVar.init === 'function') {
+            // This is a DataTableManager without batch loading or a native DataTable
+            const dt = tableVar.table || tableVar;
+            if (dt.ajax && dt.ajax.url) {
+                // Server-side processing
+                console.log('Server-side processing detected, sending status parameter:', status);
+                const currentUrl = dt.ajax.url();
+                const url = new URL(currentUrl, window.location.origin);
+                url.searchParams.set('status', status);
+                dt.ajax.url(url.toString()).load();
+            } else {
+                // Client-side processing on native DataTable
+                const columnIndex = config.columnIndex || 7;
+                console.log('Client-side processing, searching in column', columnIndex, 'for:', status);
+                
+                if (status === 'all') {
+                    dt.column(columnIndex).search('').draw();
+                } else {
+                    dt.column(columnIndex).search(status).draw();
+                }
+            }
         } else {
-            // For client-side processing, use column search
+            // This is a native DataTable instance
             const columnIndex = config.columnIndex || 7;
-            console.log('Client-side processing, searching in column', columnIndex, 'for:', status);
+            console.log('Native DataTable, searching in column', columnIndex, 'for:', status);
             
             if (status === 'all') {
                 tableVar.column(columnIndex).search('').draw();

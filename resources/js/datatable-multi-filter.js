@@ -487,6 +487,14 @@ export class DatatableMultiFilter {
         this.clearInstansiFilter();
         this.clearKaryawanFilter();
     }
+
+    // Method untuk refresh filter options dengan data terbaru
+    async refreshFilterOptions() {
+        if (this.options.dataFetcher) {
+            console.log('[DatatableMultiFilter] Refreshing filter options...');
+            await this.populateFilters();
+        }
+    }
 }
 
 export default DatatableMultiFilter;
