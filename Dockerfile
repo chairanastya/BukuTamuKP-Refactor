@@ -2,9 +2,14 @@
 FROM node:18-alpine as frontend-build
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
-COPY resources/ ./resources/
+RUN npm ci --prefer-offline
+
+# Copy all source files needed for build
 COPY vite.config.js tailwind.config.js postcss.config.js ./
+COPY resources ./resources
+COPY public ./public
+
+# Build assets
 RUN npm run build
 
 # Stage 2: PHP application
@@ -68,6 +73,9 @@ EXPOSE 8000
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
+
+# Run migrations and start server
+CMD ["sh", "-c", "php artisan migrate --force && php artisan cache:clear && php artisan serve --host=0.0.0.0 --port=8000"]
 
 # Run migrations and start server
 CMD ["sh", "-c", "php artisan migrate --force && php artisan cache:clear && php artisan serve --host=0.0.0.0 --port=8000"]
