@@ -472,6 +472,7 @@
             const dtManager = new DataTableManager({
                 tableId: 'myTable',
                 ajaxUrl: '{{ route("resepsionis.kunjungan.data") }}',
+                serverSide: false,
                 columns: [
                     {
                         data: null,
@@ -567,7 +568,7 @@
                 },
                 dataFetcher: async () => {
                     try {
-                        const response = await fetch('{{ route("resepsionis.kunjungan.data") }}');
+                        const response = await fetch('{{ route("resepsionis.kunjungan.data") }}?export=1');
                         const result = await response.json();
                         return result.data || [];
                     } catch (error) {
@@ -591,7 +592,7 @@
             content.innerHTML = createInlineSpinner('Memuat Detail Kunjungan...');
             window.showModal('detailModal');
 
-            fetch(`{{ route('resepsionis.kunjungan.data') }}`)
+            fetch(`{{ route('resepsionis.kunjungan.data') }}?export=1`)
                 .then(res => res.json())
                 .then(result => {
                     const kunjungan = result.data.find(k => k.id_kunjungan === id);
@@ -805,7 +806,7 @@
                                 table.ajax.reload(null, false);
                             }
 
-                            fetch('{{ route("resepsionis.kunjungan.data") }}')
+                            fetch('{{ route("resepsionis.kunjungan.data") }}?export=1')
                                 .then(res => res.json())
                                 .then(result => {
                                     if (result.data) {

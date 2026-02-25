@@ -151,6 +151,15 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+                
+                <!-- Load More Button -->
+                <div class="flex justify-center mt-4">
+                    <button id="loadMoreBtn" 
+                            onclick="window.dtManager.loadMore()" 
+                            class="hidden bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200">
+                        Load More Records
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -286,6 +295,10 @@
             const dtManager = new window.DataTableManager({
                 tableId: 'riwayatTable',
                 ajaxUrl: '{{ route("resepsionis.riwayat.data") }}',
+                serverSide: false,
+                batchLoading: true,
+                batchSize: 100,
+                pageLength: 10,
                 columns: [{
                         data: null,
                         responsivePriority: 1,
@@ -331,11 +344,11 @@
                         }
                     },
                     {
-                        data: 'status_badge',
+                        data: 'status',
                         responsivePriority: 8,
                         render: function(data, type, row) {
-                            if (type === 'filter' || type === 'sort') {
-                                return row.status;
+                            if (type === 'display') {
+                                return row.status_badge;
                             }
                             return data;
                         }
@@ -372,13 +385,13 @@
             });
 
             window.table = dtManager.init();
+            window.dtManager = dtManager; // Store dtManager reference
 
             // Initialize status filter
             window.filterByStatus = window.createStatusFilter({
-                tableVar: 'table',
+                tableVar: 'dtManager',
                 currentFilterVar: 'activeFilters.status',
-                activeFiltersVar: 'activeFilters',
-                columnIndex: 7
+                activeFiltersVar: 'activeFilters'
             });
 
             // Initialize modals
@@ -388,8 +401,15 @@
             initRealtimeWhenReady();
         });
 
+        let realtimeInitialized = false; // Prevent double initialization
+
         function initRealtimeWhenReady() {
+            if (realtimeInitialized) {
+                return; // Already initialized, skip
+            }
+
             if (typeof window.initSupabaseRealtime === 'function') {
+                realtimeInitialized = true;
                 window.initSupabaseRealtime({
                     channelName: 'riwayat-realtime',
                     tableName: 'kunjungan',
@@ -399,8 +419,9 @@
                         if (payload.eventType === 'INSERT') {
                             clearTimeout(reloadTimeout);
                             reloadTimeout = setTimeout(() => {
-                                if (window.table) {
-                                    window.table.ajax.reload(null, false);
+                                if (window.dtManager) {
+                                    console.log('Realtime reload triggered');
+                                    window.dtManager.reload(false);
                                 }
                             }, 1000);
                         }
@@ -409,14 +430,6 @@
             } else {
                 setTimeout(initRealtimeWhenReady, 100);
             }
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function () {
-                setTimeout(initRealtimeWhenReady, 500);
-            });
-        } else {
-            setTimeout(initRealtimeWhenReady, 500);
         }
 
         function exportToExcel() {
@@ -487,7 +500,7 @@
             content.innerHTML = window.createInlineSpinner('Memuat Detail Kunjungan...');
             window.showModal('detailModal');
 
-            fetch(`{{ route('resepsionis.riwayat.data') }}`)
+            fetch(`{{ route('resepsionis.riwayat.data') }}?export=1`)
                 .then(res => res.json())
                 .then(result => {
                     const kunjungan = result.data.find(k => k.id_kunjungan === id);
@@ -657,12 +670,25 @@
                     karyawan: true
                 },
                 dataFetcher: async () => {
+                    // Gunakan data yang sudah ada di DataTable (client-side)
+                    // Tidak perlu fetch ke server lagi
                     try {
-                        const response = await fetch('{{ route("resepsionis.riwayat.data") }}');
-                        const result = await response.json();
-                        return result.data || [];
+                        if (window.dtManager && window.dtManager.allData && window.dtManager.allData.length > 0) {
+                            console.log('[addCustomFilters] Using existing data from DataTable:', window.dtManager.allData.length);
+                            return window.dtManager.allData;
+                        }
+                        
+                        // Fallback: jika data belum ada di dtManager, ambil dari table
+                        const tableData = window.table.rows().data().toArray();
+                        if (tableData.length > 0) {
+                            console.log('[addCustomFilters] Using data from DataTable rows:', tableData.length);
+                            return tableData;
+                        }
+                        
+                        console.warn('[addCustomFilters] No data available yet, returning empty array');
+                        return [];
                     } catch (error) {
-                        console.error('Error fetching filter data:', error);
+                        console.error('Error getting filter data from table:', error);
                         return [];
                     }
                 }

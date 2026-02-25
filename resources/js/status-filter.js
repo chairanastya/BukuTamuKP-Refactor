@@ -23,7 +23,6 @@ export function createStatusFilter(config) {
 
         // Get the table instance from config
         const tableVar = window[config.tableVar];
-        const columnIndex = config.columnIndex || 7;
 
         // Check if table is initialized
         if (!tableVar) {
@@ -31,23 +30,43 @@ export function createStatusFilter(config) {
             return;
         }
 
-        // Check if column method exists
-        if (typeof tableVar.column !== 'function') {
-            console.warn(`Table instance doesn't have 'column' method. Table might not be fully initialized.`);
-            return;
-        }
-
-        if (status === 'all') {
-            tableVar.column(columnIndex).search('').draw();
+        // Check if this is a DataTableManager instance with batch loading
+        if (tableVar.batchLoading !== undefined && tableVar.batchLoading) {
+            console.log('Batch loading detected (DataTableManager), applying status filter:', status);
+            tableVar.applyStatusFilter(status);
+        } else if (tableVar.init && typeof tableVar.init === 'function') {
+            // This is a DataTableManager without batch loading or a native DataTable
+            const dt = tableVar.table || tableVar;
+            if (dt.ajax && dt.ajax.url) {
+                // Server-side processing
+                console.log('Server-side processing detected, sending status parameter:', status);
+                const currentUrl = dt.ajax.url();
+                const url = new URL(currentUrl, window.location.origin);
+                url.searchParams.set('status', status);
+                dt.ajax.url(url.toString()).load();
+            } else {
+                // Client-side processing on native DataTable
+                const columnIndex = config.columnIndex || 7;
+                console.log('Client-side processing, searching in column', columnIndex, 'for:', status);
+                
+                if (status === 'all') {
+                    dt.column(columnIndex).search('').draw();
+                } else {
+                    dt.column(columnIndex).search(status).draw();
+                }
+            }
         } else {
-            if (config.useRegex) {
-                const searchPattern = `^${status}$`;
-                tableVar.column(columnIndex).search(searchPattern, true, false).draw();
+            // This is a native DataTable instance
+            const columnIndex = config.columnIndex || 7;
+            console.log('Native DataTable, searching in column', columnIndex, 'for:', status);
+            
+            if (status === 'all') {
+                tableVar.column(columnIndex).search('').draw();
             } else {
                 tableVar.column(columnIndex).search(status).draw();
             }
         }
 
-        console.log(`Status filter applied: ${status}, Column: ${columnIndex}`);
+        console.log(`Status filter applied: ${status}`);
     };
 }
