@@ -25,6 +25,7 @@
             window.recaptchaApiReady = false;
             window.recaptchaTokenTimestamp = null;
             window.recaptchaWidgetId = null;
+            window.recaptchaFormListenersAttached = false; // Guard: prevent double listener registration
             const TOKEN_EXPIRY_MS = 90000; // 90 seconds - refresh before 2 min expires
 
             function onRecaptchaSuccess(token) {
@@ -74,6 +75,12 @@
             }
 
             function setupFormValidation() {
+                // Guard: prevent duplicate event listener registration
+                if (window.recaptchaFormListenersAttached) {
+                    console.log('[reCAPTCHA] Form validation already set up, skipping duplicate call');
+                    return;
+                }
+                window.recaptchaFormListenersAttached = true;
                 console.log('[reCAPTCHA] Setting up form validation');
                 const forms = document.querySelectorAll('form');
                 forms.forEach(form => {

@@ -38,6 +38,7 @@ return [
     'recaptcha' => [
         'site_key' => env('RECAPTCHA_SITE_KEY'),
         'secret_key' => env('RECAPTCHA_SECRET_KEY'),
+        'verify' => env('RECAPTCHA_VERIFY', true), // Set ke false di .env untuk skip verifikasi lokal
     ],
 
 ];

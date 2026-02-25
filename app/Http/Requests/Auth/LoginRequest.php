@@ -97,12 +97,21 @@ class LoginRequest extends FormRequest
             return;
         }
 
+        // Skip Google validation if disabled via config (e.g. for local testing)
+        if (!config('services.recaptcha.verify', true)) {
+            Log::info('reCAPTCHA verification disabled via config', [
+                'email' => $this->email,
+            ]);
+            return;
+        }
+
         try {
-            $response = Http::timeout(5) 
+            $response = Http::timeout(5)
                 ->asForm()
                 ->post('https://www.google.com/recaptcha/api/siteverify', [
                     'secret' => $recaptchaSecret,
                     'response' => $recaptchaToken,
+                    'remoteip' => $this->ip(),
                 ]);
 
             $data = $response->json();

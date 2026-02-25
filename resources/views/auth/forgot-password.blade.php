@@ -65,7 +65,7 @@
                 <!-- Email Input -->
                 <div class="mb-6">
                     <x-input-wrapper id="email" name="email" type="email" placeholder="Email Resepsionis"
-                        :value="old('email')" :error="$errors->first('email')" 
+                        :value="old('email')" :error="$errors->first('email')"
                         errorMessage="Email wajib diisi dengan format yang benar" :showLabel="false" :required="true">
                         <x-slot:prepend>
                             @svg('heroicon-s-envelope', 'w-6 h-6 text-[#084E8F]')
@@ -94,18 +94,18 @@
 @endsection
 
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form[data-init="forgot-password"]');
-    if (!form) return; 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('form[data-init="forgot-password"]');
+            if (!form) return;
 
-    if (typeof initInputBackgrounds === 'function') {
-        initInputBackgrounds('.input-wrapper input');
-    }
+            if (typeof initInputBackgrounds === 'function') {
+                initInputBackgrounds('.input-wrapper input');
+            }
 
-    if (typeof initRecaptchaValidation === 'function') {
-        initRecaptchaValidation(form);
-    }
-});
-</script>
+            if (typeof window.Recaptcha !== 'undefined' && typeof window.Recaptcha.initRecaptchaValidation === 'function') {
+                window.Recaptcha.initRecaptchaValidation(form);
+            }
+        });
+    </script>
 @endpush
