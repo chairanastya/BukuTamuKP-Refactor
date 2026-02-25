@@ -49,12 +49,18 @@ class SessionController extends Controller
         $recaptchaResponse = $request->input('g-recaptcha-response');
         $recaptchaSecret = config('services.recaptcha.secret_key');
 
-        // DEVELOPMENT BYPASS: Skip verification if using test keys in local environment
-        $isTestKey = $recaptchaSecret === '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
-        $isLocal = config('app.env') === 'local';
+        // DEVELOPMENT BYPASS: Skip verification if using test keys OR verify disabled via config
+        $testingKeys = [
+            '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+            '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe',
+        ];
+        $isTestKey = in_array($recaptchaSecret, $testingKeys);
+        $skipVerify = !config('services.recaptcha.verify', true);
 
-        if ($isTestKey && $isLocal) {
-            \Log::info('reCAPTCHA: Using test keys in local environment - bypassing verification');
+        if ($isTestKey || $skipVerify) {
+            \Log::info('reCAPTCHA: Bypassing verification', [
+                'reason' => $isTestKey ? 'test keys' : 'RECAPTCHA_VERIFY=false'
+            ]);
             // Skip to authentication
         } else {
             // Log detail token untuk debugging
@@ -66,7 +72,7 @@ class SessionController extends Controller
             ]);
 
             try {
-                $httpResponse = Http::timeout(10)->retry(2, 1000)->post('https://www.google.com/recaptcha/api/siteverify', [
+                $httpResponse = Http::timeout(10)->retry(2, 1000)->asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
                     'secret' => $recaptchaSecret,
                     'response' => $recaptchaResponse,
                     'remoteip' => $request->ip(),
