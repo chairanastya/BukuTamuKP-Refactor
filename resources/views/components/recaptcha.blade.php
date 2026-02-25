@@ -21,6 +21,7 @@
     @push('head')
         <script>
             window.recaptchaTokenReady = false;
+            window.recaptchaApiReady = false;
 
             function onRecaptchaSuccess(token) {
                 console.log('[reCAPTCHA] ✓ Token received and set');
@@ -30,7 +31,6 @@
                     statusDiv.classList.remove('hidden');
                     statusDiv.classList.add('text-green-600');
                 }
-                // Token is automatically in g-recaptcha-response hidden field
                 console.log('[reCAPTCHA] Token field value present:', !!document.querySelector('[name="g-recaptcha-response"]')?.value);
             }
             
@@ -52,8 +52,14 @@
                 }
             }
 
-            // Prevent form submission without token
-            window.addEventListener('DOMContentLoaded', function() {
+            // Google calls this when the API is ready
+            function onRecaptchaLoad() {
+                console.log('[reCAPTCHA] ✓ Google API loaded and ready');
+                window.recaptchaApiReady = true;
+                setupFormValidation();
+            }
+
+            function setupFormValidation() {
                 console.log('[reCAPTCHA] Setting up form validation');
                 const forms = document.querySelectorAll('form');
                 forms.forEach(form => {
@@ -71,15 +77,25 @@
                         console.log('[reCAPTCHA] ✓ Token found, allowing form submission');
                     });
                 });
-                
-                // Check initial state
-                if (typeof grecaptcha !== 'undefined') {
-                    console.log('[reCAPTCHA] ✓ grecaptcha API ready');
+            }
+
+            // Fallback: if DOMContentLoaded fires before onload callback
+            window.addEventListener('DOMContentLoaded', function() {
+                console.log('[reCAPTCHA] DOMContentLoaded fired');
+                if (window.recaptchaApiReady) {
+                    console.log('[reCAPTCHA] API already ready');
                 } else {
-                    console.warn('[reCAPTCHA] grecaptcha not available yet');
+                    console.log('[reCAPTCHA] Waiting for API to load...');
+                    // Retry setup after a delay
+                    setTimeout(() => {
+                        if (typeof grecaptcha !== 'undefined') {
+                            console.log('[reCAPTCHA] ✓ grecaptcha now available');
+                            setupFormValidation();
+                        }
+                    }, 500);
                 }
             });
         </script>
-        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+        <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=implicit" async defer></script>
     @endpush
 @endonce
