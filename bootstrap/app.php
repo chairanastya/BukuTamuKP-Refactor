@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
         $middleware->web(append: [
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\AddContentSecurityPolicyHeaders::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
