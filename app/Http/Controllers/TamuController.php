@@ -124,8 +124,17 @@ class TamuController extends Controller
                 'kunjungan_id' => $kunjungan->id_kunjungan,
             ]);
 
-            foreach ($karyawanIds as $karyawanId) {
-                dispatch(new SendConfirmationEmailJob($karyawanId, $tamu, $kunjungan, $token));
+            try {
+                foreach ($karyawanIds as $karyawanId) {
+                    dispatch(new SendConfirmationEmailJob($karyawanId, $tamu, $kunjungan, $token));
+                }
+                Log::info('All email jobs dispatched successfully');
+            } catch (\Exception $emailException) {
+                // Email failure should not block the kunjungan submission
+                Log::error('Failed to dispatch confirmation email jobs (non-fatal)', [
+                    'message' => $emailException->getMessage(),
+                    'kunjungan_id' => $kunjungan->id_kunjungan,
+                ]);
             }
 
             Log::info('All jobs dispatched successfully');
