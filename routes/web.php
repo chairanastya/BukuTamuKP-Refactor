@@ -8,7 +8,13 @@ use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\ResepsionisAccountController;
+use App\Http\Controllers\HealthCheckController;
 use Illuminate\Support\Facades\Route;
+
+// Health check endpoints for Railway monitoring
+Route::get('/health', [HealthCheckController::class, 'check'])->withoutMiddleware('web');
+Route::get('/health/ready', [HealthCheckController::class, 'ready'])->withoutMiddleware('web');
+Route::get('/health/live', [HealthCheckController::class, 'live'])->withoutMiddleware('web');
 
 Route::get('/', function () {
     return view('tamu.form');
