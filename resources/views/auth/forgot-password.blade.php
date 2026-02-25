@@ -102,10 +102,6 @@
             if (typeof initInputBackgrounds === 'function') {
                 initInputBackgrounds('.input-wrapper input');
             }
-
-            if (typeof window.Recaptcha !== 'undefined' && typeof window.Recaptcha.initRecaptchaValidation === 'function') {
-                window.Recaptcha.initRecaptchaValidation(form);
-            }
         });
     </script>
 @endpush

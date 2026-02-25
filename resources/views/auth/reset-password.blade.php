@@ -199,17 +199,6 @@
 
                     return true;
                 });
-
-                window.Recaptcha.initRecaptchaValidation(form, {
-                    beforeValidate: function (e, form) {
-                        return false;
-                    },
-                    onError: function (e, form) {
-                        console.warn('reCAPTCHA validation failed');
-                    },
-                    resetOnError: true,
-                    alertMessage: 'Silakan verifikasi bahwa Anda bukan robot'
-                });
             });
         </script>
     @endpush

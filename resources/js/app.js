@@ -19,7 +19,6 @@ import * as KaryawanRowManager from './karyawan-row-manager.js';
 import { initWebcam } from './webcam.js';
 import { createImageStorage, clearOldImageStorages } from './image-storage';
 import { initSupabaseRealtime } from './supabase-realtime.js';
-import * as Recaptcha from './captcha';
 import { setupFormValidation, validateNama, validateEmail } from './form-validation';
 import { createAutocomplete } from './autocomplete';
 
@@ -60,7 +59,6 @@ window.preloadKaryawanData = KaryawanRowManager.preloadKaryawanData;
 window.initWebcam = initWebcam;
 window.createImageStorage = createImageStorage;
 window.initSupabaseRealtime = initSupabaseRealtime;
-window.Recaptcha = Recaptcha;
 window.setupFormValidation = setupFormValidation;
 window.validateNama = validateNama;
 window.validateEmail = validateEmail;
