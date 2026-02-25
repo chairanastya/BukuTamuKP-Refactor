@@ -49,6 +49,17 @@ class SessionController extends Controller
         $recaptchaResponse = $request->input('g-recaptcha-response');
         $recaptchaSecret = config('services.recaptcha.secret_key');
 
+        // Log ALL details for debugging
+        \Log::info('=== LOGIN ATTEMPT ===');
+        \Log::info('reCAPTCHA Input Check', [
+            'token_exists' => !empty($recaptchaResponse),
+            'token_length' => strlen($recaptchaResponse ?? ''),
+            'token_preview' => empty($recaptchaResponse) ? 'EMPTY' : substr($recaptchaResponse, 0, 50) . '...',
+            'secret_key_exists' => !empty($recaptchaSecret),
+            'secret_key_length' => strlen($recaptchaSecret ?? ''),
+            'environment' => config('app.env'),
+        ]);
+
         // DEVELOPMENT BYPASS: Skip verification if using test keys in local environment
         $isTestKey = $recaptchaSecret === '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
         $isLocal = config('app.env') === 'local';
@@ -57,14 +68,6 @@ class SessionController extends Controller
             \Log::info('reCAPTCHA: Using test keys in local environment - bypassing verification');
             // Skip to authentication
         } else {
-            // Log detail token untuk debugging
-            \Log::info('reCAPTCHA Token Details', [
-                'token_length' => strlen($recaptchaResponse ?? ''),
-                'token_preview' => substr($recaptchaResponse ?? '', 0, 50) . '...',
-                'client_ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-            ]);
-
             try {
                 $httpResponse = Http::timeout(10)->retry(2, 1000)->post('https://www.google.com/recaptcha/api/siteverify', [
                     'secret' => $recaptchaSecret,
@@ -72,15 +75,16 @@ class SessionController extends Controller
                     'remoteip' => $request->ip(),
                 ]);
 
-                /** @var array{success: bool, challenge_ts?: string, hostname?: string, error-codes?: array<string>} $recaptchaData */
                 $recaptchaData = $httpResponse->json();
 
-                // Log untuk debugging
-                \Log::info('reCAPTCHA Response', [
+                \Log::info('reCAPTCHA Response Details', [
+                    'http_status' => $httpResponse->status(),
                     'success' => $recaptchaData['success'] ?? false,
                     'error-codes' => $recaptchaData['error-codes'] ?? [],
-                    'hostname' => $recaptchaData['hostname'] ?? null,
-                    'challenge_ts' => $recaptchaData['challenge_ts'] ?? null,
+                    'hostname' => $recaptchaData['hostname'] ?? 'unknown',
+                    'challenge_ts' => $recaptchaData['challenge_ts'] ?? 'none',
+                    'score' => $recaptchaData['score'] ?? 'N/A',
+                    'action' => $recaptchaData['action'] ?? 'N/A',
                 ]);
 
                 if (!isset($recaptchaData['success']) || !$recaptchaData['success']) {
