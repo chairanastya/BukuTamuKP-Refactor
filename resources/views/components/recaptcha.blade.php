@@ -5,6 +5,7 @@
 
 <div {{ $attributes->merge(['class' => 'flex justify-center']) }}>
     <div class="g-recaptcha" 
+         id="main-recaptcha"
          data-sitekey="{{ config('services.recaptcha.site_key') }}"
          data-theme="{{ $theme }}"
          data-size="{{ $size }}"
@@ -22,16 +23,21 @@
         <script>
             window.recaptchaTokenReady = false;
             window.recaptchaApiReady = false;
+            window.recaptchaTokenTimestamp = null;
+            window.recaptchaWidgetId = null;
+            const TOKEN_EXPIRY_MS = 90000; // 90 seconds - refresh before 2 min expires
 
             function onRecaptchaSuccess(token) {
                 console.log('[reCAPTCHA] ✓ Token received and set');
                 window.recaptchaTokenReady = true;
+                window.recaptchaTokenTimestamp = Date.now();
                 const statusDiv = document.getElementById('recaptcha-status');
                 if (statusDiv) {
                     statusDiv.classList.remove('hidden');
                     statusDiv.classList.add('text-green-600');
                 }
-                console.log('[reCAPTCHA] Token field value present:', !!document.querySelector('[name="g-recaptcha-response"]')?.value);
+                const tokenField = document.querySelector('[name="g-recaptcha-response"]');
+                console.log('[reCAPTCHA] Token length:', tokenField?.value?.length || 0);
             }
             
             function onRecaptchaError() {
@@ -44,18 +50,26 @@
             }
 
             function onRecaptchaExpired() {
-                console.warn('[reCAPTCHA] ⚠ Token expired - need to verify again');
+                console.warn('[reCAPTCHA] ⚠ Token expired - must be checked again');
                 window.recaptchaTokenReady = false;
+                window.recaptchaTokenTimestamp = null;
                 const statusDiv = document.getElementById('recaptcha-status');
                 if (statusDiv) {
                     statusDiv.classList.add('hidden');
                 }
             }
 
-            // Google calls this when the API is ready
             function onRecaptchaLoad() {
                 console.log('[reCAPTCHA] ✓ Google API loaded and ready');
                 window.recaptchaApiReady = true;
+                // Get widget ID for the main recaptcha
+                if (typeof grecaptcha !== 'undefined') {
+                    const captchaDiv = document.getElementById('main-recaptcha');
+                    if (captchaDiv && captchaDiv._recaptchaId !== undefined) {
+                        window.recaptchaWidgetId = captchaDiv._recaptchaId;
+                        console.log('[reCAPTCHA] Widget ID:', window.recaptchaWidgetId);
+                    }
+                }
                 setupFormValidation();
             }
 
@@ -66,7 +80,13 @@
                     form.addEventListener('submit', function(e) {
                         const tokenField = document.querySelector('[name="g-recaptcha-response"]');
                         const tokenValue = tokenField ? tokenField.value : '';
-                        console.log('[reCAPTCHA] Form submit check - token present:', !!tokenValue);
+                        const now = Date.now();
+                        const tokenAge = window.recaptchaTokenTimestamp ? now - window.recaptchaTokenTimestamp : 0;
+                        
+                        console.log('[reCAPTCHA] Form submit check:');
+                        console.log('  - Token present:', !!tokenValue);
+                        console.log('  - Token age (ms):', tokenAge);
+                        console.log('  - Token expires in (ms):', TOKEN_EXPIRY_MS - tokenAge);
                         
                         if (!tokenValue) {
                             console.warn('[reCAPTCHA] ✗ Token missing! Form blocked.');
@@ -74,26 +94,37 @@
                             alert('Silakan verifikasi reCAPTCHA terlebih dahulu');
                             return false;
                         }
-                        console.log('[reCAPTCHA] ✓ Token found, allowing form submission');
+                        
+                        // Warn if token is getting old
+                        if (tokenAge > 60000) {
+                            console.warn('[reCAPTCHA] ⚠ Token is older than 60 seconds, refresh recommended');
+                            // Auto-refresh if too old
+                            if (tokenAge > TOKEN_EXPIRY_MS) {
+                                console.error('[reCAPTCHA] ✗ Token likely expired!');
+                                e.preventDefault();
+                                alert('Token reCAPTCHA telah kadaluarsa. Silakan verifikasi kembali.');
+                                if (window.recaptchaApiReady && typeof grecaptcha !== 'undefined') {
+                                    grecaptcha.reset(window.recaptchaWidgetId);
+                                }
+                                return false;
+                            }
+                        }
+                        
+                        console.log('[reCAPTCHA] ✓ Token valid, allowing submission');
                     });
                 });
             }
 
-            // Fallback: if DOMContentLoaded fires before onload callback
             window.addEventListener('DOMContentLoaded', function() {
                 console.log('[reCAPTCHA] DOMContentLoaded fired');
-                if (window.recaptchaApiReady) {
-                    console.log('[reCAPTCHA] API already ready');
-                } else {
-                    console.log('[reCAPTCHA] Waiting for API to load...');
-                    // Retry setup after a delay
-                    setTimeout(() => {
-                        if (typeof grecaptcha !== 'undefined') {
-                            console.log('[reCAPTCHA] ✓ grecaptcha now available');
-                            setupFormValidation();
-                        }
-                    }, 500);
-                }
+                setTimeout(() => {
+                    if (typeof grecaptcha !== 'undefined') {
+                        console.log('[reCAPTCHA] ✓ grecaptcha available');
+                        setupFormValidation();
+                    } else {
+                        console.warn('[reCAPTCHA] grecaptcha not available');
+                    }
+                }, 100);
             });
         </script>
         <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=implicit" async defer></script>
