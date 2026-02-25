@@ -66,7 +66,7 @@ class SessionController extends Controller
             ]);
 
             try {
-                $httpResponse = Http::post('https://www.google.com/recaptcha/api/siteverify', [
+                $httpResponse = Http::timeout(10)->retry(2, 1000)->post('https://www.google.com/recaptcha/api/siteverify', [
                     'secret' => $recaptchaSecret,
                     'response' => $recaptchaResponse,
                     'remoteip' => $request->ip(),

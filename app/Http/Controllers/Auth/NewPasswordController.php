@@ -142,7 +142,7 @@ class NewPasswordController extends Controller
                 return true;
             }
 
-            $httpResponse = Http::post('https://www.google.com/recaptcha/api/siteverify', [
+            $httpResponse = Http::timeout(10)->retry(2, 1000)->post('https://www.google.com/recaptcha/api/siteverify', [
                 'secret' => $recaptchaSecret,
                 'response' => $response,
                 'remoteip' => $remoteip,
