@@ -8,6 +8,15 @@
       "app.css"
     ]
   },
+  "resources/css/datatables-custom.css": {
+    "file": "assets/datatables-custom-DGxQwPmG.css",
+    "src": "resources/css/datatables-custom.css",
+    "isEntry": true,
+    "name": "datatables-custom",
+    "names": [
+      "datatables-custom.css"
+    ]
+  },
   "resources/js/app.js": {
     "file": "assets/app-D8bC3SLK.js",
     "name": "app",

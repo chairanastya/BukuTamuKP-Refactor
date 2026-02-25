@@ -67,6 +67,9 @@ RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
 # Clear config cache (will be regenerated)
 RUN php artisan config:clear
 
+# Force rebuild cache buster - build v2
+# This ensures fresh deployment with proper asset loading
+
 # Expose port
 EXPOSE 8000
 
