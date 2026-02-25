@@ -1,3 +1,13 @@
+# Stage 1: Build frontend assets
+FROM node:18-alpine as frontend-build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY resources/ ./resources/
+COPY vite.config.js tailwind.config.js postcss.config.js ./
+RUN npm run build
+
+# Stage 2: PHP application
 FROM php:8.2-fpm
 
 # Install system dependencies
@@ -29,20 +39,14 @@ WORKDIR /app
 # Copy project files
 COPY . .
 
+# Copy built assets from frontend stage
+COPY --from=frontend-build /app/public/build ./public/build
+
 # Set environment
 ENV PHP_MEMORY_LIMIT=512M
 
 # Install PHP dependencies (production only)
 RUN composer install --no-interaction --no-dev --optimize-autoloader
-
-# Install Node dependencies and build frontend
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install \
-    && npm run build \
-    && apt-get purge -y nodejs npm \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
 
 # Create storage directories
 RUN mkdir -p \
