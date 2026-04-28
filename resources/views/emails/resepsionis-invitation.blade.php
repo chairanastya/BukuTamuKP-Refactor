@@ -7,6 +7,7 @@
     <title>Undangan Pembuatan Akun Resepsionis - Buku Tamu Digital</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
+    @php $appUrl = rtrim(config('app.public_url'), '/'); @endphp
     
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f4f7fa; padding: 40px 20px;">
         <tr>
@@ -91,7 +92,7 @@
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                                 <tr>
                                     <td align="center" style="padding: 10px 0 30px 0;">
-                                        <a href="{{ route('resepsionis.account.create', ['token' => $token]) }}" 
+                                        <a href="{{ $appUrl . route('resepsionis.account.create', ['token' => $token], false) }}" 
                                            style="background-color: #084E8F; 
                                                   color: #ffffff; 
                                                   padding: 16px 40px; 
@@ -115,9 +116,9 @@
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                                 <tr>
                                     <td style="background-color: #f8f9fa; padding: 16px; border-radius: 6px; border: 1px solid #e9ecef;">
-                                        <a href="{{ route('resepsionis.account.create', ['token' => $token]) }}" 
+                                        <a href="{{ $appUrl . route('resepsionis.account.create', ['token' => $token], false) }}" 
                                            style="color: #0C4777; font-size: 13px; word-break: break-all; text-decoration: none; line-height: 1.5;">
-                                            {{ route('resepsionis.account.create', ['token' => $token]) }}
+                                            {{ $appUrl . route('resepsionis.account.create', ['token' => $token], false) }}
                                         </a>
                                     </td>
                                 </tr>

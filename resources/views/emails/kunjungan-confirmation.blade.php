@@ -7,6 +7,7 @@
     <title>Konfirmasi Kunjungan - Buku Tamu Digital</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
+    @php $appUrl = rtrim(config('app.public_url'), '/'); @endphp
     
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f4f7fa; padding: 40px 20px;">
         <tr>
@@ -99,7 +100,7 @@
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                                 <tr>
                                     <td align="center" style="padding: 0 0 15px 0;">
-                                        <a href="{{ route('kunjungan.confirm', ['token' => $token, 'action' => 'terima']) }}" 
+                                        <a href="{{ $appUrl . route('kunjungan.confirm', ['token' => $token, 'action' => 'terima'], false) }}" 
                                            style="background-color: #084E8F; 
                                                   color: #ffffff; 
                                                   padding: 16px 50px; 
@@ -117,7 +118,7 @@
                                 </tr>
                                 <tr>
                                     <td align="center" style="padding: 0;">
-                                        <a href="{{ route('kunjungan.confirm', ['token' => $token, 'action' => 'tolak']) }}" 
+                                        <a href="{{ $appUrl . route('kunjungan.confirm', ['token' => $token, 'action' => 'tolak'], false) }}" 
                                            style="background-color: #dc3545; 
                                                   color: #ffffff; 
                                                   padding: 16px 50px; 

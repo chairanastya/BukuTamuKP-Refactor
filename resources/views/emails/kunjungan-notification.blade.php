@@ -7,6 +7,7 @@
     <title>Notifikasi Status Kunjungan - Buku Tamu Digital</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
+    @php $appUrl = rtrim(config('app.public_url'), '/'); @endphp
     
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f4f7fa; padding: 40px 20px;">
         <tr>

@@ -176,7 +176,7 @@
         <textarea id="alasanBatal" class="w-full border border-gray-300 rounded-lg p-3 mb-4" rows="4"
             placeholder="Alasan pembatalan..."></textarea>
         <div class="flex gap-3 justify-end">
-            <button onclick="closeRejectModal()" class="px-4 py-2 bg-gray-300 rounded-lg">Batal</button>
+            <button onclick="window.closeModal('rejectModal')" class="px-4 py-2 bg-gray-300 rounded-lg">Batal</button>
             <x-button id="rejectButton" variant="danger" onclick="confirmReject()" :loading="true" loadingId="reject">
                 <span id="reject_text">Tolak Kunjungan</span>
                 <svg id="reject_spinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
@@ -582,7 +582,7 @@
                 .then(data => {
                     if (data.success) {
                         // Close modals immediately
-                        closeRejectModal();
+                        window.closeModal('rejectModal');
 
                         // Reload table first
                         if (window.table) {
@@ -596,7 +596,7 @@
                     button.disabled = false;
                     buttonText.classList.remove('hidden');
                     spinner.classList.add('hidden');
-                    closeRejectModal();
+                    window.closeModal('rejectModal');
                     showErrorModal('Terjadi kesalahan saat menolak kunjungan');
                 });
         }
@@ -716,7 +716,7 @@
             } else if (e.target.id === 'acceptModal') {
                 window.closeModal('acceptModal');
             } else if (e.target.id === 'rejectModal') {
-                closeRejectModal();
+                window.closeModal('rejectModal');
             }
         });
 
