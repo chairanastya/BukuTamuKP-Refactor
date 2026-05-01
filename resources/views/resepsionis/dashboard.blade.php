@@ -312,15 +312,6 @@
         document.addEventListener('DOMContentLoaded', function () {
             initModals();
 
-            const filterByStatus = createStatusFilter({
-                currentFilterVar: 'currentFilter',
-                activeFiltersVar: 'activeFilters',
-                tableVar: 'table',
-                columnIndex: 7,
-                useRegex: false
-            });
-            window.filterByStatus = filterByStatus;
-
             document.querySelector('[data-filter="all"]').classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
 
             setTimeout(function () {
@@ -552,6 +543,15 @@
 
             table = dtManager.init();
             window.table = table;
+
+            // Initialize status filter AFTER table is ready
+            window.filterByStatus = createStatusFilter({
+                currentFilterVar: 'currentFilter',
+                activeFiltersVar: 'activeFilters',
+                tableVar: 'table',
+                columnIndex: 7,
+                useRegex: false
+            });
         }
 
         function addCustomFilters() {

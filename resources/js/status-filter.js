@@ -30,41 +30,79 @@ export function createStatusFilter(config) {
             return;
         }
 
-        // Check if this is a DataTableManager instance with batch loading
-        if (tableVar.batchLoading !== undefined && tableVar.batchLoading) {
+        // Prefer DataTableManager batch-loading path when available
+        if (tableVar.applyStatusFilter && tableVar.batchLoading) {
             console.log('Batch loading detected (DataTableManager), applying status filter:', status);
             tableVar.applyStatusFilter(status);
-        } else if (tableVar.init && typeof tableVar.init === 'function') {
-            // This is a DataTableManager without batch loading or a native DataTable
-            const dt = tableVar.table || tableVar;
-            if (dt.ajax && dt.ajax.url) {
-                // Server-side processing
-                console.log('Server-side processing detected, sending status parameter:', status);
-                const currentUrl = dt.ajax.url();
-                const url = new URL(currentUrl, window.location.origin);
-                url.searchParams.set('status', status);
-                dt.ajax.url(url.toString()).load();
-            } else {
-                // Client-side processing on native DataTable
-                const columnIndex = config.columnIndex || 7;
-                console.log('Client-side processing, searching in column', columnIndex, 'for:', status);
-                
+            console.log(`Status filter applied via DataTableManager: ${status}`);
+            return;
+        }
+
+        // Resolve underlying DataTable instance (if wrapped)
+        const dt = (tableVar.table || tableVar);
+
+        // If config forces client-side filtering, or DataTableManager without batch-loading, use column search
+        const columnIndex = config.columnIndex || 7;
+
+        // Determine if we should perform client-side column search
+        const forceClient = config.forceClientSide === true;
+        const isManagerNoBatch = tableVar.applyStatusFilter && !tableVar.batchLoading;
+
+        if (forceClient || isManagerNoBatch) {
+            try {
+                console.log('Applying client-side column search on column', columnIndex, 'for:', status);
                 if (status === 'all') {
                     dt.column(columnIndex).search('').draw();
                 } else {
                     dt.column(columnIndex).search(status).draw();
                 }
+                console.log(`Status filter applied (client-side): ${status}`);
+                return;
+            } catch (e) {
+                console.warn('Client-side filtering failed, falling back to AJAX URL approach', e);
             }
-        } else {
-            // This is a native DataTable instance
-            const columnIndex = config.columnIndex || 7;
-            console.log('Native DataTable, searching in column', columnIndex, 'for:', status);
-            
+        }
+
+        // Fallback: attempt to treat as server-side and pass status param via AJAX URL
+        try {
+            const isServerSide = dt && dt.settings && dt.settings()[0] && dt.settings()[0].oFeatures && dt.settings()[0].oFeatures.bServerSide;
+            if (!isServerSide && dt && dt.column) {
+                // DataTable is client-side even if it uses AJAX - use column search
+                console.log('Detected client-side DataTable (bServerSide=false), applying client-side column search on column', columnIndex, 'for:', status);
+                if (status === 'all') {
+                    dt.column(columnIndex).search('').draw();
+                } else {
+                    dt.column(columnIndex).search(status).draw();
+                }
+                console.log(`Status filter applied (client-side via settings): ${status}`);
+                return;
+            }
+
+            if (isServerSide && dt && dt.ajax && dt.ajax.url) {
+                console.log('Server-side processing detected, sending status parameter:', status);
+                const currentUrl = dt.ajax.url();
+                const url = new URL(currentUrl, window.location.origin);
+                url.searchParams.set('status', status);
+                dt.ajax.url(url.toString()).load();
+                console.log(`Status filter applied via AJAX URL: ${status}`);
+                return;
+            }
+        } catch (e) {
+            console.warn('Server-side URL update attempt failed', e);
+        }
+
+        // As a last resort attempt native column search if dt refers to DataTable instance
+        try {
+            console.log('Native DataTable fallback, searching in column', columnIndex, 'for:', status);
             if (status === 'all') {
                 tableVar.column(columnIndex).search('').draw();
             } else {
                 tableVar.column(columnIndex).search(status).draw();
             }
+            console.log(`Status filter applied (native fallback): ${status}`);
+            return;
+        } catch (e) {
+            console.error('Unable to apply status filter on any known path', e);
         }
 
         console.log(`Status filter applied: ${status}`);
